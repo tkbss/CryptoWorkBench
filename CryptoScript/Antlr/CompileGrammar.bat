@@ -1,0 +1,1 @@
+antlr4 -Dlanguage=CSharp -visitor CryptoScript.g4

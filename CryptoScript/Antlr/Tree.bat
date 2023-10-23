@@ -1,0 +1,1 @@
+antlr4-parse CryptoScript.g4 program -gui input.txt
