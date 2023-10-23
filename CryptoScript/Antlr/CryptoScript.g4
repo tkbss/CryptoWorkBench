@@ -29,6 +29,7 @@ arguments     : argument (',' argument)*
 argument      : expression 
               | ID
               | functionCall
+              | MECHANISM
               ;
 
 

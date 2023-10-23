@@ -22,9 +22,11 @@ namespace SimpleLanguage_TestApp3.Model
 
         public override Statement VisitArgument([NotNull] CryptoScriptParser.ArgumentContext context)
         {
+     
             var res1=context.functionCall();
             
             var res3=context.expression();
+            
             if (res1 != null)
             {
                var fc=VisitFunctionCall(res1) as FunctionCall;
