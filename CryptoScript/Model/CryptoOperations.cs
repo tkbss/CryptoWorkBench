@@ -25,12 +25,19 @@ namespace SimpleLanguage_TestApp3.Model
                     throw new Exception("unkown function");
             }
         }
-
-        public string Encrypt(params string[]args)//(string key,string data,string algo) 
+        public string GenerateKey(params string[] args) 
+        {
+            if(args.Length != 2) 
+            { 
+                throw new ArgumentException("worng number of arguments"); 
+            }
+            return "0x(123456789)";
+        }
+        public string Encrypt(params string[]args)
         {
             return "0x(123456789)";
         }
-        public string Sign(params string[]args)//(string key, string data, string algo)
+        public string Sign(params string[]args)
         {
             return "0x(987654321)";
         }

@@ -37,7 +37,9 @@ public partial class CryptoScriptParser : Parser {
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
 		T__0=1, T__1=2, T__2=3, T__3=4, KEYWORD_KEY=5, KEYWORD_VAR=6, ID=7, HEX_STRING=8, 
-		BASE64_STRING=9, NORMAL_STRING=10, INT=11, MECHANISM=12, WS=13;
+		BASE64_STRING=9, NORMAL_STRING=10, INT=11, MECHANISM=12, M_AES_ECB=13, 
+		M_AES_CBC=14, M_AES_CTR=15, M_AES_CMAC=16, M_DES3_ECB=17, M_DES3_CBC=18, 
+		M_DES3_CMAC=19, WS=20;
 	public const int
 		RULE_program = 0, RULE_statement = 1, RULE_declaration = 2, RULE_type = 3, 
 		RULE_expression = 4, RULE_functionCall = 5, RULE_arguments = 6, RULE_argument = 7;
@@ -47,11 +49,15 @@ public partial class CryptoScriptParser : Parser {
 	};
 
 	private static readonly string[] _LiteralNames = {
-		null, "'='", "'('", "')'", "','", "'KEY'", "'VAR'"
+		null, "'='", "'('", "')'", "','", "'KEY'", "'VAR'", null, null, null, 
+		null, null, null, "'AES-ECB'", "'AES-CBC'", "'AES-CTR'", "'AES-CMAC'", 
+		"'DES3-ECB'", "'DES3-CBC'", "'DES3-CMAC'"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, "KEYWORD_KEY", "KEYWORD_VAR", "ID", "HEX_STRING", 
-		"BASE64_STRING", "NORMAL_STRING", "INT", "MECHANISM", "WS"
+		"BASE64_STRING", "NORMAL_STRING", "INT", "MECHANISM", "M_AES_ECB", "M_AES_CBC", 
+		"M_AES_CTR", "M_AES_CMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_CMAC", 
+		"WS"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -631,7 +637,7 @@ public partial class CryptoScriptParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,13,66,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,20,66,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,1,0,5,0,18,8,0,10,0,12,0,21,9,0,1,0,1,0,1,1,1,1,3,1,27,8,1,1,2,1,2,
 		1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,3,2,39,8,2,1,3,1,3,1,4,1,4,1,5,1,5,1,5,
 		3,5,48,8,5,1,5,1,5,1,6,1,6,1,6,5,6,55,8,6,10,6,12,6,58,9,6,1,7,1,7,1,7,

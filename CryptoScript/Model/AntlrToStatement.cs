@@ -1,18 +1,17 @@
 ﻿using Antlr4.Runtime.Misc;
+using CryptoScript.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleLanguage_TestApp3.Model
+namespace CryptoScript.Model
 {
-    
+
     public class AntlrToStatement : CryptoScriptBaseVisitor<Statement>
     {
-        
-       
-        private List<VariableDeclaration> _variables=new List<VariableDeclaration>();
+            
         public List<string> SemanticErrors { get; set; }
 
         public AntlrToStatement()
@@ -43,13 +42,13 @@ namespace SimpleLanguage_TestApp3.Model
             {
                 string Id= res2.GetText();
                 //Id is a variable so
-                if (!_variables.Any(d => d.Id == Id))
+                if (!VariableDictionary.Instance().Contains(Id))
                 {
                     SemanticErrors.Add("Error  variable : " + Id + " is not declared");
                     throw new Exception("semantic error");
                 }
                 ArgumentVariable argVar = new ArgumentVariable();
-                argVar.Id = _variables.First(v=>v.Id==Id);
+                argVar.Id = VariableDictionary.Instance().Get(Id);
                 return argVar;
             }
             if(res3 != null) 
@@ -71,16 +70,16 @@ namespace SimpleLanguage_TestApp3.Model
         public override Statement VisitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context)
         {
             string Id = context.GetChild(1).GetText();
-            if (_variables.Any(d => d.Id == Id))
+            if (VariableDictionary.Instance().Contains(Id))
             {
                 SemanticErrors.Add("Error  variable : " + Id + " alredy exists");
                 throw new Exception();
             }
             
-            var newVariable = new VariableDeclaration();
+            var newVariable = new StringVariableDeclaration();
             newVariable.Id = Id;    
             var typeCntx = context.type();
-            newVariable.Type=(Type)VisitType(typeCntx);
+            newVariable.Type=(CryptoType)VisitType(typeCntx);
             var fcontext=context.functionCall();
             var exprContext=context.expression();
             Statement stmt=null;
@@ -89,12 +88,12 @@ namespace SimpleLanguage_TestApp3.Model
             if(stmt is FunctionCall functionCall) 
             {
                 newVariable.Value = functionCall.ReturnValue;
-                _variables.Add(newVariable);
+                VariableDictionary.Instance().Add(newVariable);
             }
             if(stmt is Expression expressionHex) 
             {
                 newVariable.Value = expressionHex.Value();
-                _variables.Add(newVariable);
+                VariableDictionary.Instance().Add(newVariable);
             }
 
             return newVariable;
@@ -115,7 +114,6 @@ namespace SimpleLanguage_TestApp3.Model
             var arguments = context.arguments()?.argument();            
             if (arguments == null || arguments.Length == 0)
             {
-                //return functions[functionName](new int[0]);
                 fc.Call();
                 return fc;
             }
@@ -127,8 +125,7 @@ namespace SimpleLanguage_TestApp3.Model
                 fc.Arguments.Add(v);
             }
             fc.Call();
-            //var evaluation= functions[functionName](argValues);
-            //return functions[functionName](argValues);
+            
             return fc;
         }
 
@@ -145,7 +142,7 @@ namespace SimpleLanguage_TestApp3.Model
 
         public override Statement VisitType([NotNull] CryptoScriptParser.TypeContext context)
         {
-            Type type =new Type();
+            CryptoType type =new CryptoType();
             type.Check(context.GetText());
             type.Id=context.GetText();  
             return type;    

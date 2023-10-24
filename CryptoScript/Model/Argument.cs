@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CryptoScript.Variables;
 
-namespace SimpleLanguage_TestApp3.Model
+namespace CryptoScript.Model
 {
     public abstract class Argument: Statement { }
     public class ArgumentVariable: Argument

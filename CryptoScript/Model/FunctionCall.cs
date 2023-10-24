@@ -1,11 +1,12 @@
 ﻿using CryptoScript.Model;
+using CryptoScript.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleLanguage_TestApp3.Model
+namespace CryptoScript.Model
 {
     public class FunctionCall:Statement
     {
@@ -15,18 +16,15 @@ namespace SimpleLanguage_TestApp3.Model
         public string Name { get; set; }
         public string? CallText { get; set; }
         public List<Argument> Arguments { get; set; }
-        public Type ReturnType { get; set; }
+        public CryptoType ReturnType { get; set; }
         public string ReturnValue { get; set; }
 
         public FunctionCall()
         {
-            CryptoOperations operations = new CryptoOperations();
-            functions["Encrypt"] = operations.Encrypt;
-            functions["Sign"] = operations.Sign;
-
+            
             Name = string.Empty;
             Arguments = new List<Argument>();
-            ReturnType = new Type();
+            ReturnType = new CryptoType();
             ReturnValue = string.Empty;
         }
         public void Call() 
@@ -42,7 +40,8 @@ namespace SimpleLanguage_TestApp3.Model
                 }
                 if(arg is ArgumentVariable variable) 
                 {
-                    var exp=Expression.Create(variable.Id.Value);
+                    var v = variable.Id as StringVariableDeclaration;
+                    var exp=Expression.Create(v.Value);
                     argArray[i++] = exp.Value();
                 }
                 
@@ -51,7 +50,7 @@ namespace SimpleLanguage_TestApp3.Model
             ReturnValue = function(argArray);
             //ReturnValue = functions[Name](argArray);
 
-            ReturnType = new Type();
+            ReturnType = new CryptoType();
             ReturnType.Id = "VAR";
         }
     }

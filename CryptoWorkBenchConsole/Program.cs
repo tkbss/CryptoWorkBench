@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime;
+using CryptoScript.Model;
 using SimpleLanguage_TestApp3.Model;
 
 namespace CryptoWorkBenchConsole
@@ -7,12 +8,17 @@ namespace CryptoWorkBenchConsole
     {
         static void Main(string[] args)
         {
+            Mechanism m= new Mechanism();
+            m.MechanismList();
             AntlrToProgram prog = new AntlrToProgram();
             string[] input = CreateInput();
             foreach (string inputItem in input)
             {
                 Console.WriteLine(inputItem);
                 CryptoScriptParser parser = ParserBuilder.StringBuild(inputItem);
+                var lexer = new CryptoScriptLexer(new AntlrInputStream(inputItem));
+                
+                
                 parser.RemoveErrorListeners();
                 parser.AddErrorListener(new BaseErrorListener());
                 CryptoScriptParser.ProgramContext context = parser.program();

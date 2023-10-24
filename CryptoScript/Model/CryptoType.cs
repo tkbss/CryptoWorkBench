@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleLanguage_TestApp3.Model
+namespace CryptoScript.Model
 {
-    public class Type : Statement
+    public class CryptoType : Statement
     {
         public string Id { get; set; } 
         public void Check(string type) 
