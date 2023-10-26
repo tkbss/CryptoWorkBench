@@ -1,4 +1,5 @@
-﻿using CryptoScript.Model;
+﻿using Antlr4.Runtime;
+using CryptoScript.Model;
 using CryptoScript.Variables;
 using System;
 using System.Collections.Generic;
@@ -40,15 +41,26 @@ namespace CryptoScript.Model
                 }
                 if(arg is ArgumentVariable variable) 
                 {
-                    var v = variable.Id as StringVariableDeclaration;
-                    var exp=Expression.Create(v.Value);
-                    argArray[i++] = exp.Value();
+                    if (variable.Id is StringVariableDeclaration s)
+                    {
+                        //var v = variable.Id as StringVariableDeclaration;
+                        var exp = Expression.Create(s.Value);
+                        argArray[i++] = exp.Value();
+                    }
+                    if (variable.Id is KeyVariableDeclaration k)
+                    {
+                        //var v = variable.Id as StringVariableDeclaration;
+                        var exp = Expression.Create(k.Mechanism);
+                        argArray[i++] = exp.Value();
+                        exp= Expression.Create(k.KeySize.ToString());
+                        argArray[i++] = exp.Value();
+                    }
                 }
                 
             }
             var function= OperationFactory.CreateOperation(Name);
             ReturnValue = function(argArray);
-            //ReturnValue = functions[Name](argArray);
+            
 
             ReturnType = new CryptoType();
             ReturnType.Id = "VAR";

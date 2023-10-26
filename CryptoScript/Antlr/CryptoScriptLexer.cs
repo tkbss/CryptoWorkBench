@@ -33,7 +33,7 @@ public partial class CryptoScriptLexer : Lexer {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
-		T__0=1, T__1=2, T__2=3, T__3=4, KEYWORD_KEY=5, KEYWORD_VAR=6, ID=7, HEX_STRING=8, 
+		T__0=1, T__1=2, T__2=3, T__3=4, T_KEY=5, T_VAR=6, ID=7, HEX_STRING=8, 
 		BASE64_STRING=9, NORMAL_STRING=10, INT=11, MECHANISM=12, M_AES_ECB=13, 
 		M_AES_CBC=14, M_AES_CTR=15, M_AES_CMAC=16, M_DES3_ECB=17, M_DES3_CBC=18, 
 		M_DES3_CMAC=19, WS=20;
@@ -46,7 +46,7 @@ public partial class CryptoScriptLexer : Lexer {
 	};
 
 	public static readonly string[] ruleNames = {
-		"T__0", "T__1", "T__2", "T__3", "KEYWORD_KEY", "KEYWORD_VAR", "ID", "HEX_STRING", 
+		"T__0", "T__1", "T__2", "T__3", "T_KEY", "T_VAR", "ID", "HEX_STRING", 
 		"BASE64_STRING", "NORMAL_STRING", "ESC", "INT", "MECHANISM", "M_AES_ECB", 
 		"M_AES_CBC", "M_AES_CTR", "M_AES_CMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_CMAC", 
 		"WS"
@@ -68,10 +68,9 @@ public partial class CryptoScriptLexer : Lexer {
 		"'DES3-ECB'", "'DES3-CBC'", "'DES3-CMAC'"
 	};
 	private static readonly string[] _SymbolicNames = {
-		null, null, null, null, null, "KEYWORD_KEY", "KEYWORD_VAR", "ID", "HEX_STRING", 
-		"BASE64_STRING", "NORMAL_STRING", "INT", "MECHANISM", "M_AES_ECB", "M_AES_CBC", 
-		"M_AES_CTR", "M_AES_CMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_CMAC", 
-		"WS"
+		null, null, null, null, null, "T_KEY", "T_VAR", "ID", "HEX_STRING", "BASE64_STRING", 
+		"NORMAL_STRING", "INT", "MECHANISM", "M_AES_ECB", "M_AES_CBC", "M_AES_CTR", 
+		"M_AES_CMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_CMAC", "WS"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 

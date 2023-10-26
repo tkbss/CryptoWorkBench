@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleLanguage_TestApp3.Model
+namespace CryptoScript.Model
 {
     public interface IOperation
     {
@@ -21,6 +21,8 @@ namespace SimpleLanguage_TestApp3.Model
                     return Encrypt;
                 case "sign":
                     return Sign;
+                case "generatekey":
+                    return GenerateKey;
                 default: 
                     throw new Exception("unkown function");
             }

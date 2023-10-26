@@ -36,7 +36,7 @@ public partial class CryptoScriptParser : Parser {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
-		T__0=1, T__1=2, T__2=3, T__3=4, KEYWORD_KEY=5, KEYWORD_VAR=6, ID=7, HEX_STRING=8, 
+		T__0=1, T__1=2, T__2=3, T__3=4, T_KEY=5, T_VAR=6, ID=7, HEX_STRING=8, 
 		BASE64_STRING=9, NORMAL_STRING=10, INT=11, MECHANISM=12, M_AES_ECB=13, 
 		M_AES_CBC=14, M_AES_CTR=15, M_AES_CMAC=16, M_DES3_ECB=17, M_DES3_CBC=18, 
 		M_DES3_CMAC=19, WS=20;
@@ -54,10 +54,9 @@ public partial class CryptoScriptParser : Parser {
 		"'DES3-ECB'", "'DES3-CBC'", "'DES3-CMAC'"
 	};
 	private static readonly string[] _SymbolicNames = {
-		null, null, null, null, null, "KEYWORD_KEY", "KEYWORD_VAR", "ID", "HEX_STRING", 
-		"BASE64_STRING", "NORMAL_STRING", "INT", "MECHANISM", "M_AES_ECB", "M_AES_CBC", 
-		"M_AES_CTR", "M_AES_CMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_CMAC", 
-		"WS"
+		null, null, null, null, null, "T_KEY", "T_VAR", "ID", "HEX_STRING", "BASE64_STRING", 
+		"NORMAL_STRING", "INT", "MECHANISM", "M_AES_ECB", "M_AES_CBC", "M_AES_CTR", 
+		"M_AES_CMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_CMAC", "WS"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -197,8 +196,8 @@ public partial class CryptoScriptParser : Parser {
 			State = 26;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case KEYWORD_KEY:
-			case KEYWORD_VAR:
+			case T_KEY:
+			case T_VAR:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 24;
@@ -309,8 +308,8 @@ public partial class CryptoScriptParser : Parser {
 	}
 
 	public partial class TypeContext : ParserRuleContext {
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode KEYWORD_KEY() { return GetToken(CryptoScriptParser.KEYWORD_KEY, 0); }
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode KEYWORD_VAR() { return GetToken(CryptoScriptParser.KEYWORD_VAR, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode T_KEY() { return GetToken(CryptoScriptParser.T_KEY, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode T_VAR() { return GetToken(CryptoScriptParser.T_VAR, 0); }
 		public TypeContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -344,7 +343,7 @@ public partial class CryptoScriptParser : Parser {
 			{
 			State = 40;
 			_la = TokenStream.LA(1);
-			if ( !(_la==KEYWORD_KEY || _la==KEYWORD_VAR) ) {
+			if ( !(_la==T_KEY || _la==T_VAR) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			else {

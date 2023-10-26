@@ -23,8 +23,8 @@ namespace CryptoScript.Model
                         return new CryptoOperations().Sign;
                     case "encrypt":
                         return new CryptoOperations().Encrypt;
-                case "print":
-                    return new OutputOperations().Print;
+                    case "print":
+                        return new OutputOperations().Print;
                     default:
                         throw new ArgumentException("Invalid notification type");
                 }

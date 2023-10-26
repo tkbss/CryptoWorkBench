@@ -1,8 +1,8 @@
 lexer grammar CryptoLexer;
 
 // Lexer rules
-KEYWORD_KEY   : 'KEY';
-KEYWORD_VAR   : 'VAR';
+T_KEY         : 'KEY';
+T_VAR         : 'VAR';
 ID            : [a-zA-Z_] [a-zA-Z0-9_]*
               ;
 HEX_STRING    : '0x(' [0-9a-fA-F]+ ')'

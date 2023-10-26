@@ -14,7 +14,7 @@ namespace CryptoScript.Model
         public void MechanismList() 
         {
             MechList = new List<string>();
-            var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
+            //var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
             var remove = "M_";
             foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
             {

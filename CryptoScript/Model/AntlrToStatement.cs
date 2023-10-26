@@ -72,7 +72,7 @@ namespace CryptoScript.Model
             string Id = context.GetChild(1).GetText();
             if (VariableDictionary.Instance().Contains(Id))
             {
-                SemanticErrors.Add("Error  variable : " + Id + " alredy exists");
+                SemanticErrors.Add("Error  variable : " + Id + " already exists");
                 throw new Exception();
             }
             
