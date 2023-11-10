@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CryptoScript.Model;
-using SimpleLanguage_TestApp3.Model;
+﻿using CryptoScript.Model;
 
 namespace CryptoScript.Variables
 {

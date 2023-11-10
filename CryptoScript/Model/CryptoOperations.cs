@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CryptoScript.CryptoAlgorithm;
+using CryptoScript.Variables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace CryptoScript.Model
 {
-    public interface IOperation
+    
+    public class CryptoOperations
     {
-        Func<string[], string> Create(string function);
-    }
-    public class CryptoOperations: IOperation
-    {
-        public Func<string[], string> Create(string function)
+        
+        public Func<string[], VariableDeclaration> Create(string function)
         {
             function=function.ToLower();
             switch(function) 
@@ -27,21 +27,29 @@ namespace CryptoScript.Model
                     throw new Exception("unkown function");
             }
         }
-        public string GenerateKey(params string[] args) 
+        public VariableDeclaration GenerateKey(params string[] args) 
         {
             if(args.Length != 2) 
             { 
                 throw new ArgumentException("worng number of arguments"); 
             }
-            return "0x(123456789)";
+            string mech = args[0];
+            string size = args[1];
+            var algo=SymmetricAlgorithmFactory.Create(mech);
+            var variable = algo.GenerateKey(mech, size);            
+            return variable;
         }
-        public string Encrypt(params string[]args)
+        public VariableDeclaration Encrypt(params string[]args)
         {
-            return "0x(123456789)";
+            string res = "0x(123456789)";
+            var variable = new StringVariableDeclaration() {Type = new CryptoTypeVar(),Value = res,ValueFormat = FormatConversions.ParseString(res)};
+            return variable;
         }
-        public string Sign(params string[]args)
+        public VariableDeclaration Sign(params string[]args)
         {
-            return "0x(987654321)";
+            string res = "0x(123456789)";
+            var variable = new StringVariableDeclaration() {Type = new CryptoTypeVar(),Value = res, ValueFormat = FormatConversions.ParseString(res)};
+            return variable;
         }
     }
 }

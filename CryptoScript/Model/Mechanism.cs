@@ -8,24 +8,36 @@ using System.Threading.Tasks;
 
 namespace CryptoScript.Model
 {
-    public class Mechanism
+    public class Mechanism : Statement
     {
-        public List<string>? MechList { get; set; }
+        public List<string> MechList { get; set; }= new List<string>();
+        public string Value { get; private set; } = string.Empty;
         public void MechanismList() 
-        {
-            MechList = new List<string>();
-            //var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
+        {           
+            var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
             var remove = "M_";
             foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 // Check if the field corresponds to one of our mechanisms
                 if (field.Name.StartsWith("M_"))
                 {
-                    string m = field.Name.TrimStart(remove.ToCharArray());                    
+                    int index = (int)field.GetValue(null);//field.Name.TrimStart(remove.ToCharArray());                    
+                    string m=lexer.Vocabulary.GetDisplayName(index);
+                    m=m.Trim('\'');
                     MechList.Add(m);
                 }
             }
          }
+        public void SetMechanismValue(string value) 
+        {
+            MechanismList();
+            if (MechList.Contains(value))
+                Value = value;
+            else
+                throw new ArgumentException();
+
+        }
+
     }
 }
 

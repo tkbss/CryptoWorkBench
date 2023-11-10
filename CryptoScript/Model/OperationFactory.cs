@@ -1,33 +1,32 @@
-﻿using SimpleLanguage_TestApp3.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CryptoScript.Variables;
 
 namespace CryptoScript.Model
 {
-    
+
 
     public class OperationFactory
     {
+
         
         
-        
-        public static Func<string[], string> CreateOperation(string operation)
+
+        public static Func<string[], VariableDeclaration> CreateOperation(string operation)
         { 
-                operation = operation.ToLower();
-                switch (operation)
-                {
-                    case "sign":
-                        return new CryptoOperations().Sign;
-                    case "encrypt":
-                        return new CryptoOperations().Encrypt;
-                    case "print":
-                        return new OutputOperations().Print;
-                    default:
-                        throw new ArgumentException("Invalid notification type");
-                }
+            operation = operation.ToLower();
+            var op = new CryptoOperations();             
+            switch (operation)
+            {
+                case "sign":                                  
+                    return op.Sign;
+                case "encrypt":                                     
+                    return op.Encrypt;
+                case "print":                  
+                    return new OutputOperations().Print;
+                case "generatekey":                           
+                    return op.GenerateKey; 
+                default:
+                    throw new ArgumentException("Invalid notification type");
+            }
             
         }
 

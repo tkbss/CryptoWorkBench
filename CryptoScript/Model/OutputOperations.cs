@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CryptoScript.Variables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,10 @@ namespace CryptoScript.Model
 {
     public class OutputOperations
     {
-        public string Print(string[] args) 
+        public VariableDeclaration Print(string[] args) 
         {
             Console.WriteLine(args[0]);
-            return string.Empty;
+            return new VariableDeclaration();
         }
     }
 }

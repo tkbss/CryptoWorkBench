@@ -7,7 +7,7 @@ using CryptoScript.Variables;
 
 namespace CryptoScript.Model
 {
-    public abstract class Argument: Statement { }
+    public  class Argument: Statement { }
     public class ArgumentVariable: Argument
     {
         public VariableDeclaration? Id { get; set; }        
@@ -24,4 +24,13 @@ namespace CryptoScript.Model
             Expr = null;
         }
     }
+    public class ArgumentMechanism: Argument 
+    { 
+        public Mechanism? Mechanism { get; set; }
+        public ArgumentMechanism() 
+        {
+            Mechanism = null;
+        }
+    }
+
 }

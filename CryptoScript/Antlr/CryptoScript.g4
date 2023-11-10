@@ -26,10 +26,10 @@ functionCall  : ID '(' arguments? ')'
               ; 
 arguments     : argument (',' argument)*
               ;
-argument      : expression 
+argument      : MECHANISM 
               | ID
               | functionCall
-              | MECHANISM
+              | expression
               ;
 
 

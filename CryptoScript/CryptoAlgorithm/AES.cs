@@ -1,26 +1,30 @@
-﻿using CryptoScript.Variables;
+﻿using CryptoScript.Model;
+using CryptoScript.Variables;
 using System.Security.Cryptography;
 
 namespace CryptoScript.CryptoAlgorithm
 {
-    public class AES
+    public class AES : SymmetricAlgorithm
     {
-        public KeyVariableDeclaration GenerateKey(string mechanism, int keySize) 
+        public override KeyVariableDeclaration GenerateKey(string mechanism, string Size) 
         {
-            if (keySize != 128 || keySize != 192 || keySize != 256)
-                throw new ArgumentException("worong key size");
-            var key= new KeyVariableDeclaration();
+            int keySize=Convert.ToInt32(Size);
+            if (keySize != 128 && keySize != 192 && keySize != 256)
+                throw new ArgumentException("wrong key size");
+            var key = new KeyVariableDeclaration();
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.KeySize = keySize; // Setting the KeySize to 256 bits
-                aesAlg.GenerateKey(); // Generating the AES key
+                aesAlg.KeySize = keySize; 
+                aesAlg.GenerateKey(); 
 
                 byte[] aesKey = aesAlg.Key; // Getting the generated AES key
                 string keyValue="0x("+FormatConversions.ByteArrayToHexString(aesKey)+")";
+                key.Value = keyValue;
+                key.ValueFormat = FormatConversions.ParseString(keyValue);
+                key.KeySize = Size;
                 key.Mechanism = mechanism;
-                key.KeySize = keySize;
-                key.ValueFormat = "HEX_STRING";
-                            }
+                key.Type = new CryptoTypeKey();
+            }
             return key;
         }
     }

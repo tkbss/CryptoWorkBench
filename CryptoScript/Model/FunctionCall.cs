@@ -11,22 +11,21 @@ namespace CryptoScript.Model
 {
     public class FunctionCall:Statement
     {
-        Dictionary<string, Func<string[], string>> functions = 
-            new Dictionary<string, Func<string[], string>>();
+        //Dictionary<string, Func<string[], string>> functions = 
+        //    new Dictionary<string, Func<string[], string>>();
 
         public string Name { get; set; }
         public string? CallText { get; set; }
-        public List<Argument> Arguments { get; set; }
-        public CryptoType ReturnType { get; set; }
-        public string ReturnValue { get; set; }
+        public List<Argument> Arguments { get; set; }        
+        
+        public VariableDeclaration? ReturnVariable { get; set; }
 
         public FunctionCall()
         {
             
             Name = string.Empty;
-            Arguments = new List<Argument>();
-            ReturnType = new CryptoType();
-            ReturnValue = string.Empty;
+            Arguments = new List<Argument>();            
+            ReturnVariable = null;
         }
         public void Call() 
         {
@@ -34,6 +33,10 @@ namespace CryptoScript.Model
             int i = 0;
             foreach(var arg in Arguments) 
             {
+                if(arg is ArgumentMechanism mech) 
+                {
+                    argArray[i++] = mech.Mechanism.Value;
+                }
                 if((arg is ArgumentExpression expr)) 
                 {
                     //var expr = arg as ArgumentExpression;
@@ -59,11 +62,8 @@ namespace CryptoScript.Model
                 
             }
             var function= OperationFactory.CreateOperation(Name);
-            ReturnValue = function(argArray);
+            ReturnVariable = function(argArray);           
             
-
-            ReturnType = new CryptoType();
-            ReturnType.Id = "VAR";
         }
     }
 }

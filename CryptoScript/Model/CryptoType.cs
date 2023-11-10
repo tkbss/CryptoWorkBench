@@ -13,30 +13,36 @@ namespace CryptoScript.Model
         {
             Lexer = new CryptoScriptLexer(new AntlrInputStream(""));
             
-        }
-        public void SetTypeKEY() 
-        {
-            Id=Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_KEY);
-        }
-        public void SetTypeVAR()
-        {
-            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_VAR);
-        }
-        public string Id { get; set; } 
+        }        
+        public virtual string Id { get; set; } = string.Empty; 
         public CryptoScriptLexer Lexer { get; set; }
-        public void Check(string type) 
+        public static CryptoType Parse(string typeId) 
         {
-            type = type.ToLower();
-            switch(type) 
+            typeId = typeId.ToLower();
+            switch(typeId) 
             {
                 case "var":
-                    return;
+                    return new CryptoTypeVar();
                 case "key":
-                    return;
-                case "data":
-                    return;
+                    return new CryptoTypeKey();                
                 default: throw new Exception();
             }
+        }
+    }
+    public class CryptoTypeKey : CryptoType 
+    {
+        public override string Id { get; set; }=string.Empty;
+        public CryptoTypeKey() 
+        {
+            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_KEY);
+        }
+    }
+    public class CryptoTypeVar : CryptoType 
+    {
+        public override string Id { get; set; } = string.Empty;
+        public CryptoTypeVar() 
+        {
+            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_VAR);
         }
     }
 }

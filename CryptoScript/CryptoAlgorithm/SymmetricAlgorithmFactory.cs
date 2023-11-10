@@ -9,9 +9,11 @@ namespace CryptoScript.CryptoAlgorithm
     public class SymmetricAlgorithmFactory
     {
         public SymmetricAlgorithmFactory() { }
-        public static SymmetricAlgorithmFactory Create(string mechanism) 
+        public static SymmetricAlgorithm Create(string mechanism) 
         {
-            return new SymmetricAlgorithmFactory();
+            if (mechanism.StartsWith("AES"))
+                return new AES();
+            return new SymmetricAlgorithm();
         }
     }
 }
