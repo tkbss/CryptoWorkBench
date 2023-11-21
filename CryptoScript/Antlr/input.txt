@@ -1,1 +1,1 @@
-VAR key1=0x(1234) VAR res = Sign(Encrypt(key1),0x(123))
+KEY key=GenerateKey(AES-CBC,128) PARAM p1=Parameters(AES-CBC) VAR res = Encrypt(p1,key,0x(12345678))

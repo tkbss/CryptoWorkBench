@@ -12,6 +12,16 @@ namespace CryptoScript.Model
 
         public List<string> SemanticErrors { get; set; }
 
+        public override Statement VisitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context)
+        {
+            var parameter = new ArgumentParameter();
+            int cnt = context.ChildCount;
+            var type=context.GetChild(0).GetText();
+            var value=context.GetChild(2).GetText();
+            parameter.SetParameter(type, value);            
+            return parameter;
+        }
+
         public AntlrToStatement()
         {
             SemanticErrors = new List<string>();
@@ -23,6 +33,8 @@ namespace CryptoScript.Model
             var res2 = context.functionCall();
             var res3 = context.ID();
             var res4 = context.expression();
+            var res5 = context.declareparam();
+            
             if (res1 != null)
             {
                 Mechanism m = new Mechanism();
@@ -67,7 +79,12 @@ namespace CryptoScript.Model
                 ArgumentExpression argExpr = new ArgumentExpression() { Expr = Expression.Create(res4.GetText()) };
                 return argExpr;
             }
-            //ArgumentVariable arg = new ArgumentVariable();
+            if(res5!=null)
+            {
+
+                return VisitDeclareparam(res5);
+            }
+            
             return new Argument();
         }
 
@@ -85,9 +102,6 @@ namespace CryptoScript.Model
                 SemanticErrors.Add("Error  variable : " + Id + " already exists");
                 throw new Exception();
             }
-
-
-
             var fcontext = context.functionCall();
             var exprContext = context.expression();
             Statement? stmt = null;
@@ -107,6 +121,7 @@ namespace CryptoScript.Model
                     variable.Id = Id;
                     VariableDictionary.Instance().Add(variable);
                 }
+                stmt= variable;
             }
             if (stmt is Expression expressionHex)
             {
@@ -115,8 +130,9 @@ namespace CryptoScript.Model
                 newVariable.Id = Id;
                 newVariable.Value = expressionHex.Value();
                 newVariable.Type = (CryptoType)VisitType(typeCntx);
-                newVariable.ValueFormat = FormatConversions.ParseString(expressionHex.Value());
+                newVariable.ValueFormat = FormatConversions.ParseString(expressionHex.Value());                
                 VariableDictionary.Instance().Add(newVariable);
+                stmt = newVariable;
             }
             return stmt;
         }
@@ -142,14 +158,22 @@ namespace CryptoScript.Model
 
             Statement[] argValues = arguments.Select(arg => Visit(arg)).ToArray();
             fc.Arguments.AddRange(argValues.OfType<Argument>());
-            fc.Call();
+            try
+            {
+                fc.Call();
+            }
+            catch(Exception e)
+            {
+                SemanticErrors.Add("Error  function call : " + fc.Name + " " + e.Message);
+                throw new Exception("semantic error");
+            }
 
             return fc;
         }
 
         public override Statement VisitStatement([NotNull] CryptoScriptParser.StatementContext context)
         {
-            var fcContext = context.functionCall();
+            var fcContext = context.functionCall();            
             if (fcContext != null)
             {
                 var fc = VisitFunctionCall(fcContext);

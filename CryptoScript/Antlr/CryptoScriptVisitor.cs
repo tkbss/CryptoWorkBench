@@ -50,6 +50,12 @@ public interface ICryptoScriptVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.declareparam"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CryptoScriptParser.type"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

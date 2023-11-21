@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace CryptoScript.Model
 {
-    public class AntlrToProgram : CryptoScriptBaseVisitor<Program>
+    public class AntlrToProgram : CryptoScriptBaseVisitor<CryptoScriptProgram>
     {
         public List<string> SemanticErrors { get; set; } = new List<string>();
         AntlrToStatement statementVisitor = new AntlrToStatement();
-        public override Program VisitProgram([NotNull] CryptoScriptParser.ProgramContext context)
+        
+        public override CryptoScriptProgram VisitProgram([NotNull] CryptoScriptParser.ProgramContext context)
         {
-            Program prog=new Program();
+            CryptoScriptProgram prog=new CryptoScriptProgram();
             statementVisitor.SemanticErrors= SemanticErrors;
             for (int i = 0;i<context.ChildCount;i++) 
             {

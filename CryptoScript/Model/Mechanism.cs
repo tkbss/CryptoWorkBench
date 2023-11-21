@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace CryptoScript.Model
 {
-    public class Mechanism : Statement
+    public class MechanismList
     {
-        public List<string> MechList { get; set; }= new List<string>();
-        public string Value { get; private set; } = string.Empty;
-        public void MechanismList() 
-        {           
+        private static MechanismList instance = null;
+        private static readonly object padlock = new object();
+        public List<string> Mechanisms { get; set; }
+        MechanismList()
+        {
+            Mechanisms = new List<string>();
             var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
             var remove = "M_";
             foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
@@ -22,16 +24,42 @@ namespace CryptoScript.Model
                 if (field.Name.StartsWith("M_"))
                 {
                     int index = (int)field.GetValue(null);//field.Name.TrimStart(remove.ToCharArray());                    
-                    string m=lexer.Vocabulary.GetDisplayName(index);
-                    m=m.Trim('\'');
-                    MechList.Add(m);
+                    string m = lexer.Vocabulary.GetDisplayName(index);
+                    m = m.Trim('\'');
+                    Mechanisms.Add(m);
                 }
             }
-         }
+        }
+        public static MechanismList Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new MechanismList();
+                    }
+                    return instance;
+                }
+            }
+        }
+    }
+
+        
+    
+    public class Mechanism : Statement
+    {
+       
+        public string Value { get; private set; } = string.Empty;
+        public Mechanism() 
+        {           
+            
+        }
         public void SetMechanismValue(string value) 
         {
-            MechanismList();
-            if (MechList.Contains(value))
+            
+            if (MechanismList.Instance.Mechanisms.Contains(value))
                 Value = value;
             else
                 throw new ArgumentException();

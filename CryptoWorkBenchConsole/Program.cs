@@ -7,8 +7,7 @@ namespace CryptoWorkBenchConsole
     {
         static void Main(string[] args)
         {
-            Mechanism m= new Mechanism();
-            m.MechanismList();
+            
             AntlrToProgram prog = new AntlrToProgram();
             string[] input = CreateInput();
             foreach (string inputItem in input)

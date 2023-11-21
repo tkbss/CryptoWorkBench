@@ -11,39 +11,70 @@ namespace CryptoScript.Model
     
     public class CryptoOperations
     {
-        
-        public Func<string[], VariableDeclaration> Create(string function)
+        //the requirement for generate parameters is that there will be an undefined number of parameters
+        //the first parameter is the mechanism
+        public VariableDeclaration GenerateParameters(params string[] args)
         {
-            function=function.ToLower();
-            switch(function) 
+            if(args.Length == 0)
             {
-                case "encrypt":
-                    return Encrypt;
-                case "sign":
-                    return Sign;
-                case "generatekey":
-                    return GenerateKey;
-                default: 
-                    throw new Exception("unkown function");
+                throw new ArgumentException("wrong number of arguments"); 
             }
+            string mech = args[0];
+            var algo=AlgorithmFactory.Create(mech);
+            VariableDeclaration returnValue = null;
+            if(args.Length > 1)
+            {
+                var parameters = args.Skip(1).ToArray();
+                returnValue = algo.GenerateParameters(mech,parameters);
+                
+            }
+            else
+                returnValue = algo.GenerateParameters(mech);
+            
+            return returnValue;
         }
+        //the requirement for generate key is that there will be 2 arguments
+        //first argument is Mechanism
+        //second argument is KeySize
         public VariableDeclaration GenerateKey(params string[] args) 
         {
             if(args.Length != 2) 
             { 
-                throw new ArgumentException("worng number of arguments"); 
+                throw new ArgumentException("wrong number of arguments"); 
             }
             string mech = args[0];
             string size = args[1];
-            var algo=SymmetricAlgorithmFactory.Create(mech);
-            var variable = algo.GenerateKey(mech, size);            
-            return variable;
+            var algo=AlgorithmFactory.Create(mech);
+            var returnValue = algo.GenerateKey(mech, size);            
+            return returnValue;
         }
+        //the requirement for encrypt is that there will be 3 arguments
+        //one argument is the id for ParameterVariableDeclaration
+        //one argument is the id for KeyVariableDeclaration
+        //one argument is the id for StringVariableDeclaration or plain data as hex or base64 string
         public VariableDeclaration Encrypt(params string[]args)
         {
-            string res = "0x(123456789)";
-            var variable = new StringVariableDeclaration() {Type = new CryptoTypeVar(),Value = res,ValueFormat = FormatConversions.ParseString(res)};
-            return variable;
+            if(args.Length != 3) 
+            { 
+                throw new ArgumentException("wrong number of arguments");
+            }
+            ParameterVariableDeclaration? parameter = null;
+            foreach(var p in args)
+            {
+                if(VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
+                {
+                    parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
+                    break;
+                }
+            }
+            if(parameter == null)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            var algo = AlgorithmFactory.Create(parameter.Mechanism);
+            var returnValue= algo.Encrypt(args);
+            return returnValue;
+
         }
         public VariableDeclaration Sign(params string[]args)
         {

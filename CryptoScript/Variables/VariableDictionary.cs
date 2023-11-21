@@ -13,7 +13,9 @@ namespace CryptoScript.Variables
         }
         public VariableDeclaration Get(string Id)
         {
-            return variables[Id];
+            VariableDeclaration? value=null;
+            variables.TryGetValue(Id, out  value);
+            return value;
         }
         public void Add(VariableDeclaration v)
         {

@@ -72,6 +72,18 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.declareparam"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.declareparam"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.type"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

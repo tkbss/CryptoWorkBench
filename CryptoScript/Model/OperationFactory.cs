@@ -5,11 +5,7 @@ namespace CryptoScript.Model
 
 
     public class OperationFactory
-    {
-
-        
-        
-
+    { 
         public static Func<string[], VariableDeclaration> CreateOperation(string operation)
         { 
             operation = operation.ToLower();
@@ -24,6 +20,8 @@ namespace CryptoScript.Model
                     return new OutputOperations().Print;
                 case "generatekey":                           
                     return op.GenerateKey; 
+                case "parameters":
+                        return op.GenerateParameters;
                 default:
                     throw new ArgumentException("Invalid notification type");
             }

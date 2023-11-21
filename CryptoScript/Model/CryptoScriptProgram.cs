@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CryptoScript.Model
 {
-    public class Program
+    public class CryptoScriptProgram
     {
         private List<Statement> statements = new List<Statement>();
 

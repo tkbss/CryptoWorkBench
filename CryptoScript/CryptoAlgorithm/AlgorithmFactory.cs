@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace CryptoScript.CryptoAlgorithm
 {
-    public class SymmetricAlgorithmFactory
+    public class AlgorithmFactory
     {
-        public SymmetricAlgorithmFactory() { }
-        public static SymmetricAlgorithm Create(string mechanism) 
+        public AlgorithmFactory() { }
+        public static CryptoAlgorithm Create(string mechanism) 
         {
             if (mechanism.StartsWith("AES"))
                 return new AES();
-            return new SymmetricAlgorithm();
+            return new SymmetricCryptoAlgorithm();
         }
     }
 }
