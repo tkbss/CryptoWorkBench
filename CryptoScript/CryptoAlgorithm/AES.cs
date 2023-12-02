@@ -6,10 +6,7 @@ namespace CryptoScript.CryptoAlgorithm
 {
     public class AES : SymmetricCryptoAlgorithm
     {
-        public virtual StringVariableDeclaration ModeEncryption(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
-        {
-            return new StringVariableDeclaration();
-        }
+        
         public override KeyVariableDeclaration GenerateKey(string mechanism, string Size)
         {
             int keySize = Convert.ToInt32(Size);
@@ -120,16 +117,14 @@ namespace CryptoScript.CryptoAlgorithm
                     param.Counter = "0x(00000000)";
             }
         }
-
-        public override StringVariableDeclaration Encrypt(string[] parameters)
+        ParameterVariableDeclaration? parameter = null;
+        KeyVariableDeclaration? key = null;
+        StringVariableDeclaration? data = null;
+        private void ParseParameters(string[] parameters)
         {
-            ParameterVariableDeclaration? parameter = null;
-            KeyVariableDeclaration? key = null;
-            StringVariableDeclaration? data = null;
-            foreach (var p in parameters )
+            foreach (var p in parameters)
             {
-
-                if( VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration  != null)
+                if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
                 {
                     parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
                     continue;
@@ -144,21 +139,25 @@ namespace CryptoScript.CryptoAlgorithm
                     data = VariableDictionary.Instance().Get(p) as StringVariableDeclaration;
                     continue;
                 }
-                if(FormatConversions.ParseString(p) != string.Empty)
+                if (FormatConversions.ParseString(p) != string.Empty)
                 {
                     data = new StringVariableDeclaration();
                     data.Value = p;
                     data.ValueFormat = FormatConversions.ParseString(p);
                     continue;
                 }
-                
             }
-            var mode = CreateMode(parameter.Mechanism) as AES;
+        }
+        public override StringVariableDeclaration Encrypt(string[] parameters)
+        {
+            
+            ParseParameters(parameters);
+            var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             var res = mode.ModeEncryption(parameter, key, data);
             return res;            
         }
 
-        public override SymmetricCryptoAlgorithm CreateMode(string mechanism)
+        public override EncryptionMode CreateMode(string mechanism)
         {
             switch (mechanism.ToLower())
             {
@@ -169,6 +168,14 @@ namespace CryptoScript.CryptoAlgorithm
                 default:
                     throw new ArgumentException("wrong mechanism");
             }            
+        }
+
+        public override StringVariableDeclaration Decrypt(string[] parameters)
+        {
+            ParseParameters(parameters);
+            var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
+            var res = mode.ModeDecryption(parameter, key, data);
+            return res;
         }
     }
 }

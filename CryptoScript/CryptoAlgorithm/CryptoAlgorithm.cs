@@ -26,5 +26,9 @@ namespace CryptoScript.CryptoAlgorithm
         { 
             return new StringVariableDeclaration(); 
         }
+        public virtual StringVariableDeclaration Decrypt(string[] parameters)
+        {
+            return new StringVariableDeclaration();
+        }
     }
 }

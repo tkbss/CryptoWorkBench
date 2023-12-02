@@ -134,8 +134,30 @@ namespace CryptoScriptUnitTest
             var statement = res.Statements.FirstOrDefault();
             Assert.IsNotNull(statement);
             Assert.IsTrue(res.Statements.Count == 3);
-           
-            
+            var variable = statement as KeyVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            var pv = res.Statements[1] as ParameterVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            var crypto= res.Statements[2] as StringVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+        }
+        [Test]
+        public void DecryptionAESTest()
+        {
+            AntlrToProgram prog = new AntlrToProgram();
+            string input= "KEY edkey=GenerateKey(AES-CBC,128) PARAM p4=Parameters(AES-CBC) VAR c3 = Encrypt(p4,edkey,0x(1234567812345678123456781234567812345678)) VAR c4=Decrypt(p4,edkey,c3)";
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            CryptoScriptParser.ProgramContext context = parser.program();
+            var res = prog.Visit(context);
+            var statement = res.Statements.FirstOrDefault();
+            Assert.IsNotNull(statement);
+            Assert.IsTrue(res.Statements.Count == 4);
+            var variable = statement as KeyVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            var pv = res.Statements[1] as ParameterVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            var crypto = res.Statements[2] as StringVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
         }
 
     }

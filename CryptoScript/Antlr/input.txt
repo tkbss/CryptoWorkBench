@@ -1,1 +1,1 @@
-KEY key=GenerateKey(AES-CBC,128) PARAM p1=Parameters(AES-CBC) VAR res = Encrypt(p1,key,0x(12345678))
+KEY edkey=GenerateKey(AES-CBC,128)

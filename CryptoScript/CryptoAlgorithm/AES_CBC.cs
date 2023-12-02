@@ -10,8 +10,50 @@ using System.Threading.Tasks;
 
 namespace CryptoScript.CryptoAlgorithm
 {
-    public class AES_CBC : AES
+    public class AES_CBC : EncryptionMode
     {
+        public override StringVariableDeclaration ModeDecryption(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
+        {
+            byte[] decrypted;
+            //using aes in cbc mode with external key and iv
+            using (Aes aesAlg = Aes.Create())
+            {
+                //cbc mode 
+                aesAlg.Mode = CipherMode.CBC;
+                //set key
+                byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
+                aesAlg.Key = keyBytes;
+                byte[] iv= FormatConversions.ToByteArray(parameter.IV,FormatConversions.ParseString(parameter.IV));
+                //set iv
+                aesAlg.IV = iv;
+                PaddingMode padding;
+                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat));
+                aesAlg.Padding = padding;
+                // Create an encryptor to perform the stream transform.
+                using (ICryptoTransform encryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV))
+                {
+                    // Create the streams used for encryption.                
+                    using (MemoryStream msEncrypt = new MemoryStream())
+                    {
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        {
+
+                            csEncrypt.Write(input, 0, input.Length);
+                            csEncrypt.FlushFinalBlock();
+                        }
+                        decrypted = msEncrypt.ToArray();
+                    }
+                    
+                }
+            }
+            StringVariableDeclaration cleartext = new StringVariableDeclaration();
+            cleartext.Value = FormatConversions.ByteArrayToHexString(decrypted);
+            cleartext.ValueFormat = FormatConversions.ParseString(cleartext.Value);
+            cleartext.Type = new CryptoTypeVar();
+            return cleartext;
+        }
+        
+
         public override StringVariableDeclaration ModeEncryption(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
         {
             byte[] encrypted;
@@ -26,67 +68,32 @@ namespace CryptoScript.CryptoAlgorithm
                 byte[] iv= FormatConversions.ToByteArray(parameter.IV,FormatConversions.ParseString(parameter.IV));
                 //set iv
                 aesAlg.IV = iv;
-                byte[] input= SetPadding(parameter,aesAlg,FormatConversions.ToByteArray(data.Value,data.ValueFormat));
+                PaddingMode padding;                
+                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat));
+                aesAlg.Padding = padding;
                 // Create an encryptor to perform the stream transform.
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-                // Create the streams used for encryption.                
-                using (MemoryStream msEncrypt = new MemoryStream())
+                using (ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV))
                 {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    // Create the streams used for encryption.                
+                    using (MemoryStream msEncrypt = new MemoryStream())
                     {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                         {
-                            //Write all data to the stream.
-                            swEncrypt.Write(input);
+                            csEncrypt.Write(input, 0, input.Length);
+                            csEncrypt.FlushFinalBlock();                            
                         }
                         encrypted = msEncrypt.ToArray();
+
                     }
-                }                
+                }               
             }
             StringVariableDeclaration cyphertext = new StringVariableDeclaration();
             cyphertext.Value = FormatConversions.ByteArrayToHexString(encrypted);
             cyphertext.ValueFormat = FormatConversions.ParseString(cyphertext.Value);
             cyphertext.Type = new CryptoTypeVar();
             return cyphertext;
-        }
-        private byte[] SetPadding(ParameterVariableDeclaration parameter, Aes aesAlg, byte[] input)
-        {
-            byte[] output=input;
-            switch(parameter.Padding.ToLower())
-            {
-                case "pkcs-7":
-                    aesAlg.Padding=PaddingMode.PKCS7;
-                    break;
-                case "iso-10126":
-                    aesAlg.Padding=PaddingMode.ISO10126;
-                    break;
-                case "ansi-x923":
-                    aesAlg.Padding=PaddingMode.ANSIX923;
-                    break;
-                case "iso-7816":
-                    aesAlg.Padding=PaddingMode.None;
-                    output=ISO7816(input);
-                    break;
-                case "iso-9797":
-                    aesAlg.Padding=PaddingMode.Zeros;
-                    break;
-                case "none":
-                    aesAlg.Padding=PaddingMode.None;
-                    break;
-                default:
-                    throw new ArgumentException("wrong padding");
-            }
-            return output;
-        }
-        //iso7816 padding   
-        private byte[] ISO7816(byte[] input)
-        {
-            int length = input.Length;
-            int padding = 16 - length % 16;
-            byte[] output = new byte[length + padding];
-            Array.Copy(input, output, length);
-            output[length] = 0x80;
-            return output;
-        }
+        }      
+        
+        
     }
 }

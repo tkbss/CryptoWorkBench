@@ -48,7 +48,7 @@ namespace CryptoScript.Model
             var returnValue = algo.GenerateKey(mech, size);            
             return returnValue;
         }
-        //the requirement for encrypt is that there will be 3 arguments
+        //the requirement for encrypt/decrypt is that there will be 3 arguments
         //one argument is the id for ParameterVariableDeclaration
         //one argument is the id for KeyVariableDeclaration
         //one argument is the id for StringVariableDeclaration or plain data as hex or base64 string
@@ -74,7 +74,29 @@ namespace CryptoScript.Model
             var algo = AlgorithmFactory.Create(parameter.Mechanism);
             var returnValue= algo.Encrypt(args);
             return returnValue;
-
+        }
+        public VariableDeclaration Decrypt(params string[] args)
+        {
+            if (args.Length != 3)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            ParameterVariableDeclaration? parameter = null;
+            foreach (var p in args)
+            {
+                if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
+                {
+                    parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
+                    break;
+                }
+            }
+            if (parameter == null)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            var algo = AlgorithmFactory.Create(parameter.Mechanism);
+            var returnValue = algo.Decrypt(args);
+            return returnValue;
         }
         public VariableDeclaration Sign(params string[]args)
         {

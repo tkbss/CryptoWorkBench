@@ -22,11 +22,16 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new ParameterVariableDeclaration();
         }
-        public virtual SymmetricCryptoAlgorithm CreateMode(string mechanism) { return new SymmetricCryptoAlgorithm();}
+        public virtual EncryptionMode CreateMode(string mechanism) { return new EncryptionMode();}
 
         public override StringVariableDeclaration Encrypt(string[] parameters)
         {
             return base.Encrypt(parameters);
+        }
+
+        public override StringVariableDeclaration Decrypt(string[] parameters)
+        {
+            return base.Decrypt(parameters);
         }
     }
     

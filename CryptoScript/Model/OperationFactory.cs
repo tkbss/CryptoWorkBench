@@ -16,6 +16,8 @@ namespace CryptoScript.Model
                     return op.Sign;
                 case "encrypt":                                     
                     return op.Encrypt;
+                case "decrypt":
+                    return op.Decrypt;
                 case "print":                  
                     return new OutputOperations().Print;
                 case "generatekey":                           
