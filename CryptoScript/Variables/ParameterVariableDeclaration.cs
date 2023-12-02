@@ -75,5 +75,25 @@ namespace CryptoScript.Variables
         {
             return base.PrintOutput();
         }
+        public void SetParameter(ArgumentParameter p)
+        {
+            if (p.Type.ToLower().Contains("iv"))
+            {
+                IV = p.Value;
+            }
+            if (p.Type.ToLower().Contains("pad"))
+            {
+                Padding = p.Value;
+            }
+            if (p.Type.ToLower().Contains("nonce"))
+            {
+                Nonce = p.Value;
+            }
+            if (p.Type.ToLower().Contains("counter"))
+            {
+                Counter = p.Value;
+            }
+
+        }
     }
 }

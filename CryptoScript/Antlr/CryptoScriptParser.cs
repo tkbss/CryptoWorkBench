@@ -246,7 +246,6 @@ public partial class CryptoScriptParser : Parser {
 		[System.Diagnostics.DebuggerNonUserCode] public FunctionCallContext functionCall() {
 			return GetRuleContext<FunctionCallContext>(0);
 		}
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode T_PARAMETER() { return GetToken(CryptoScriptParser.T_PARAMETER, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public DeclareparamContext[] declareparam() {
 			return GetRuleContexts<DeclareparamContext>();
 		}
@@ -315,7 +314,7 @@ public partial class CryptoScriptParser : Parser {
 				EnterOuterAlt(_localctx, 3);
 				{
 				State = 40;
-				Match(T_PARAMETER);
+				type();
 				State = 41;
 				Match(ID);
 				State = 42;
@@ -792,7 +791,7 @@ public partial class CryptoScriptParser : Parser {
 		1,1,0,0,0,26,29,3,4,2,0,27,29,3,12,6,0,28,26,1,0,0,0,28,27,1,0,0,0,29,
 		3,1,0,0,0,30,31,3,8,4,0,31,32,5,9,0,0,32,33,5,1,0,0,33,34,3,10,5,0,34,
 		50,1,0,0,0,35,36,3,8,4,0,36,37,5,9,0,0,37,38,5,1,0,0,38,39,3,12,6,0,39,
-		50,1,0,0,0,40,41,5,8,0,0,41,42,5,9,0,0,42,46,5,1,0,0,43,45,3,6,3,0,44,
+		50,1,0,0,0,40,41,3,8,4,0,41,42,5,9,0,0,42,46,5,1,0,0,43,45,3,6,3,0,44,
 		43,1,0,0,0,45,48,1,0,0,0,46,44,1,0,0,0,46,47,1,0,0,0,47,50,1,0,0,0,48,
 		46,1,0,0,0,49,30,1,0,0,0,49,35,1,0,0,0,49,40,1,0,0,0,50,5,1,0,0,0,51,62,
 		5,14,0,0,52,53,5,28,0,0,53,54,5,2,0,0,54,62,5,22,0,0,55,56,5,28,0,0,56,

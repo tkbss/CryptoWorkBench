@@ -104,6 +104,8 @@ namespace CryptoScript.Model
             }
             var fcontext = context.functionCall();
             var exprContext = context.expression();
+            var declarParam=context.declareparam();
+            
             Statement? stmt = null;
             if (fcontext != null)
             {
@@ -112,6 +114,21 @@ namespace CryptoScript.Model
             if (exprContext != null)
             {
                 stmt = VisitExpression(exprContext);
+            }
+            if(declarParam!=null && declarParam.Length!=0)
+            {
+                var Parameter=new ParameterVariableDeclaration();
+                Parameter.Mechanism = declarParam[0].GetText();
+                for(int i=1;i<declarParam.Length;i++)
+                {
+                    var param = VisitDeclareparam(declarParam[i]) as ArgumentParameter;
+                    Parameter.SetParameter(param);
+                }
+                var typeCntx = context.type(); 
+                Parameter.Id = Id;
+                Parameter.Type = (CryptoType)VisitType(typeCntx);
+                VariableDictionary.Instance().Add(Parameter);
+                stmt = Parameter;
             }
             if (stmt is FunctionCall functionCall)
             {
@@ -123,6 +140,7 @@ namespace CryptoScript.Model
                 }
                 stmt= variable;
             }
+            
             if (stmt is Expression expressionHex)
             {
                 var typeCntx = context.type();

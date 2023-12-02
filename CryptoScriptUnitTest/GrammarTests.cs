@@ -1,6 +1,7 @@
 
 
 
+using CryptoScript.Model;
 using CryptoScript.Variables;
 
 namespace CryptoScriptUnitTest
@@ -67,7 +68,7 @@ namespace CryptoScriptUnitTest
 
         }
         [Test]
-        public void GenerateKeyTest()
+        public void GenerateKey_AES_128_Test()
         {
             AntlrToProgram prog = new AntlrToProgram();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input[4]);            
@@ -86,7 +87,7 @@ namespace CryptoScriptUnitTest
             Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]
-        public void DefaultParametersTest()
+        public void DefaultParameters_AES_CBC_Test()
         {
             AntlrToProgram prog = new AntlrToProgram();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input[5]);            
@@ -107,7 +108,38 @@ namespace CryptoScriptUnitTest
             Assert.IsTrue(string.IsNullOrEmpty(variable.Counter));
         }
         [Test]
-        public void ParametersTest()
+        public void Parameters_AES_CTR_Test()
+        {
+            string input= "PARAM p6=Parameters(AES-CTR,#NONCE:0x(00112233445566778899AABB),#COUNTER:0x(00000000))";
+            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            CryptoScriptParser.ProgramContext context = parser.program();
+            var res = prog.Visit(context);
+            Assert.IsTrue(res.Statements.Count == 1);
+            var variable = res.Statements[0] as ParameterVariableDeclaration;
+            Assert.IsTrue(variable.Nonce == "0x(00112233445566778899AABB)");
+            Assert.IsTrue(variable.Counter == "0x(00000000)");
+            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+        }
+        [Test]
+        public void Parameters_Declaration_Test() 
+        {
+            string input = "PARAM p7= AES-CTR #NONCE:0x(00112233445566778899AABB) #COUNTER:0x(00000000) #PAD:PKCS-7 #IV:0x(12345678)";
+            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            CryptoScriptParser.ProgramContext context = parser.program();
+            var res = prog.Visit(context);
+            Assert.IsTrue(res.Statements.Count == 1);
+            var variable = res.Statements[0] as ParameterVariableDeclaration;
+            Assert.IsTrue(variable.Nonce == "0x(00112233445566778899AABB)");
+            Assert.IsTrue(variable.Counter == "0x(00000000)");
+            Assert.IsTrue(variable.IV == "0x(12345678)");
+            Assert.IsTrue(variable.Padding == "PKCS-7");
+            Assert.IsTrue(variable.Mechanism == "AES-CTR");
+            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+        }
+        [Test]
+        public void Parameters_AES_CBC_Test()
         {
             AntlrToProgram prog = new AntlrToProgram();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input[6]);            
@@ -125,7 +157,7 @@ namespace CryptoScriptUnitTest
             Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]
-        public void EncryptionAESTest() 
+        public void Encryption_AES_CBC_Test() 
         {
             AntlrToProgram prog = new AntlrToProgram();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input[7]);            
@@ -142,10 +174,13 @@ namespace CryptoScriptUnitTest
             Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
         }
         [Test]
-        public void DecryptionAESTest()
+        public void Decryption_AES_CBC_Test()
         {
             AntlrToProgram prog = new AntlrToProgram();
-            string input= "KEY edkey=GenerateKey(AES-CBC,128) PARAM p4=Parameters(AES-CBC) VAR c3 = Encrypt(p4,edkey,0x(1234567812345678123456781234567812345678)) VAR c4=Decrypt(p4,edkey,c3)";
+            string input= "KEY edkey=GenerateKey(AES-CBC,128) " +
+                "PARAM p4=Parameters(AES-CBC) " +
+                "VAR c3 = Encrypt(p4,edkey,0x(1234567812345678123456781234567812345678)) " +
+                "VAR c4=Decrypt(p4,edkey,c3)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
@@ -158,6 +193,29 @@ namespace CryptoScriptUnitTest
             Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
             Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+            var ct=res.Statements[3] as StringVariableDeclaration;
+            Assert.IsTrue(ct.Value== "0x(1234567812345678123456781234567812345678)");
+        }
+        [Test]
+        public void Decryption_AES_CTR_Test() 
+        {
+            AntlrToProgram prog = new AntlrToProgram();
+            string input = "KEY k4=GenerateKey(AES-CBC,128) " +
+                "PARAM p5=Parameters(AES-CTR) " +
+                "VAR c5 = Encrypt(p5,k4,0x(1234567812345678123456781234567812345678)) " +
+                "VAR c6=Decrypt(p5,k4,c5)";
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            CryptoScriptParser.ProgramContext context = parser.program();
+            var res = prog.Visit(context);
+            Assert.IsTrue(res.Statements.Count == 4);
+            var variable = res.Statements[0] as KeyVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            var pv = res.Statements[1] as ParameterVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            var crypto = res.Statements[2] as StringVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+            var ct = res.Statements[3] as StringVariableDeclaration;
+            Assert.IsTrue(ct.Value == "0x(1234567812345678123456781234567812345678)");
         }
 
     }

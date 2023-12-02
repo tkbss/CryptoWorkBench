@@ -12,7 +12,7 @@ statement     : declaration
 
 declaration   : type ID '=' expression
               | type ID '=' functionCall
-              | T_PARAMETER ID '=' (declareparam)*
+              | type ID '=' (declareparam)*
               ;
 declareparam  :  MECHANISM
               |  PARAM_TYPE ':' PADDING

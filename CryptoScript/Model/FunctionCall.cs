@@ -43,20 +43,7 @@ namespace CryptoScript.Model
                 }
                 if(arg is ArgumentVariable variable) 
                 {
-                    //if (variable.Id is StringVariableDeclaration s)
-                    //{
-                    //    //var v = variable.Id as StringVariableDeclaration;
-                    //    var exp = Expression.Create(s.Value);
-                    //    argArray[i++] = exp.Value();
-                    //}
-                    //if (variable.Id is KeyVariableDeclaration k)
-                    //{
-                    //    //var v = variable.Id as StringVariableDeclaration;
-                    //    var exp = Expression.Create(k.Mechanism);
-                    //    argArray[i++] = exp.Value();
-                    //    exp= Expression.Create(k.KeySize.ToString());
-                    //    argArray[i++] = exp.Value();
-                    //}
+                    
                     argArray[i++] = variable.Id.Id;
                 }
                 if (arg is ArgumentParameter param)

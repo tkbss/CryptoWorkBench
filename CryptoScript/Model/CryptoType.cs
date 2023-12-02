@@ -25,7 +25,9 @@ namespace CryptoScript.Model
                 case "var":
                     return new CryptoTypeVar();
                 case "key":
-                    return new CryptoTypeKey();                
+                    return new CryptoTypeKey();
+                case "param":
+                    return new CryptoTypeParameters();
                 default: throw new Exception();
             }
         }
