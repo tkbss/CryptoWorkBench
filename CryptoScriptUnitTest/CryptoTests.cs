@@ -1,4 +1,5 @@
 ﻿using CryptoScript.Variables;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -156,6 +157,36 @@ namespace CryptoScriptUnitTest
                 }
             }
             Assert.That(output, Is.EqualTo(cleartext));
+        }
+        [Test]
+        public void AES_ECB_Test() 
+        {
+            byte[] keyBytes = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
+            byte[] input = { 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xAA,0xBB,0xCC,0xDD,0xEE,0xFF };
+            Assert.IsTrue(input.Length == 16);
+            byte[] encrypted,cleartext;
+            using (Aes aesAlg = Aes.Create())
+            {
+                // ECB mode
+                aesAlg.Mode = CipherMode.ECB;
+                // No padding
+                aesAlg.Padding = PaddingMode.None;
+                aesAlg.Key = keyBytes;
+                encrypted = aesAlg.CreateEncryptor().TransformFinalBlock(input, 0, input.Length);              
+
+            }
+            using (Aes aesAlg = Aes.Create())
+            {
+                // ECB mode
+                aesAlg.Mode = CipherMode.ECB;
+                aesAlg.Key = keyBytes;
+                // No padding
+                aesAlg.Padding = PaddingMode.None;
+                cleartext = aesAlg.CreateDecryptor().TransformFinalBlock(encrypted, 0, encrypted.Length);
+
+            }
+            Assert.That(input, Is.EqualTo(cleartext));
+
         }
     }
 }

@@ -38,6 +38,8 @@ namespace CryptoScript.CryptoAlgorithm
                     return GenerateDefaultCTRParameters(mechanism);
                 case "aes-cbc":
                     return GenerateDefaultCBCParameters(mechanism);
+                case "aes-ecb":
+                    return GenerateDefaultECBParameters(mechanism);
                 default:
                     throw new ArgumentException("wrong mechanism");
             }
@@ -93,6 +95,15 @@ namespace CryptoScript.CryptoAlgorithm
             param.Padding = "PKCS-7";
             return param;
         }
+        private ParameterVariableDeclaration GenerateDefaultECBParameters(string mechanism)
+        {
+            var param = new ParameterVariableDeclaration();
+            param.Mechanism = mechanism;
+            //generate random IV            
+            param.IV = string.Empty;
+            param.Padding = "NONE";
+            return param;
+        }
         private void SetDefaultParameterValues(ParameterVariableDeclaration param)
         {
             if (param.Mechanism.ToLower().Contains("cbc"))
@@ -115,6 +126,11 @@ namespace CryptoScript.CryptoAlgorithm
                 }
                 if (param.Counter == string.Empty)
                     param.Counter = "0x(00000000)";
+            }
+            if (param.Mechanism.ToLower().Contains("ecb"))
+            {
+                param.IV = string.Empty;
+                param.Padding = "NONE";
             }
         }
         ParameterVariableDeclaration? parameter = null;
@@ -165,6 +181,8 @@ namespace CryptoScript.CryptoAlgorithm
                     return new AES_CTR();
                 case "aes-cbc":
                     return new AES_CBC();
+                case "aes-ecb":
+                    return new AES_ECB();
                 default:
                     throw new ArgumentException("wrong mechanism");
             }            

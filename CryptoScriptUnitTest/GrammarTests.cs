@@ -1,6 +1,7 @@
 
 
 
+using CryptoScript.ErrorListner;
 using CryptoScript.Model;
 using CryptoScript.Variables;
 
@@ -216,6 +217,31 @@ namespace CryptoScriptUnitTest
             Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
             var ct = res.Statements[3] as StringVariableDeclaration;
             Assert.IsTrue(ct.Value == "0x(1234567812345678123456781234567812345678)");
+        }
+        [Test]
+        public void Decryption_AES_ECB_Test()
+        {
+            var prog = new AntlrToProgram();
+            string input = "KEY k5=GenerateKey(AES-ECB,128) " +
+                "PARAM p8=Parameters(AES-ECB) " +
+                "VAR c7 = Encrypt(p8,k5,0x(00112233445566778899AABBCCDDEEFF)) " +
+                "VAR c8=Decrypt(p8,k5,c7)";
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            if (SyntaxErrorListner.SyntaxErrorOccured) 
+            { 
+                Assert.Fail();
+            }
+            CryptoScriptParser.ProgramContext context = parser.program();
+            var res = prog.Visit(context);
+            Assert.IsTrue(res.Statements.Count == 4);
+            var variable = res.Statements[0] as KeyVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            var pv = res.Statements[1] as ParameterVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            var crypto = res.Statements[2] as StringVariableDeclaration;
+            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+            var ct = res.Statements[3] as StringVariableDeclaration;
+            Assert.IsTrue(ct.Value.ToUpper() == "0X(00112233445566778899AABBCCDDEEFF)");
         }
 
     }

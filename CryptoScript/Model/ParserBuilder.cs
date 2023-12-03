@@ -21,6 +21,8 @@ namespace CryptoScript.Model
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             // Create the parser
             CryptoScriptParser parser = new CryptoScriptParser(tokens);
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(new ErrorListner.SyntaxErrorListner());            
             return parser;
         }
         public static CryptoScriptParser FileBuild(string filename) 
