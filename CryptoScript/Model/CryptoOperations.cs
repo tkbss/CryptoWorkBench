@@ -49,29 +49,16 @@ namespace CryptoScript.Model
             return returnValue;
         }
         //the requirement for encrypt/decrypt is that there will be 3 arguments
-        //one argument is the id for ParameterVariableDeclaration
-        //one argument is the id for KeyVariableDeclaration
-        //one argument is the id for StringVariableDeclaration or plain data as hex or base64 string
+        //first argument is Parameter
+        //second argument is  Key
+        //third argument is data as hex or base64 string
         public VariableDeclaration Encrypt(params string[]args)
         {
-            if(args.Length != 3) 
-            { 
-                throw new ArgumentException("wrong number of arguments");
-            }
-            ParameterVariableDeclaration? parameter = null;
-            foreach(var p in args)
-            {
-                if(VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
-                {
-                    parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
-                    break;
-                }
-            }
-            if(parameter == null)
+            if (args.Length != 3)
             {
                 throw new ArgumentException("wrong number of arguments");
             }
-            var algo = AlgorithmFactory.Create(parameter.Mechanism);
+            var algo = DetermineAlgorithm(args);
             var returnValue= algo.Encrypt(args);
             return returnValue;
         }
@@ -81,20 +68,8 @@ namespace CryptoScript.Model
             {
                 throw new ArgumentException("wrong number of arguments");
             }
-            ParameterVariableDeclaration? parameter = null;
-            foreach (var p in args)
-            {
-                if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
-                {
-                    parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
-                    break;
-                }
-            }
-            if (parameter == null)
-            {
-                throw new ArgumentException("wrong number of arguments");
-            }
-            var algo = AlgorithmFactory.Create(parameter.Mechanism);
+            
+            var algo = DetermineAlgorithm(args);
             var returnValue = algo.Decrypt(args);
             return returnValue;
         }
@@ -103,6 +78,29 @@ namespace CryptoScript.Model
             string res = "0x(123456789)";
             var variable = new StringVariableDeclaration() {Type = new CryptoTypeVar(),Value = res, ValueFormat = FormatConversions.ParseString(res)};
             return variable;
+        }
+        private CryptoAlgorithm.CryptoAlgorithm DetermineAlgorithm(params string[] args) 
+        {
+            ParameterVariableDeclaration? parameter = null;
+            foreach (var p in args)
+            {
+                if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
+                {
+                    parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
+                    break;
+                }
+                if(FormatConversions.ParseString(p) == FormatConversions.JSO)
+                {
+                    parameter = ParameterVariableDeclaration.Deserialize(p);
+                    break;
+                }
+            }
+            if (parameter == null)
+            {
+                throw new ArgumentException("Missing argument of type PARAM");
+            }            
+            var algo=AlgorithmFactory.Create(parameter.Mechanism);
+            return algo;
         }
     }
 }

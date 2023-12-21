@@ -1,9 +1,5 @@
 ﻿using Antlr4.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CryptoScript.ErrorListner;
 
 namespace CryptoScript.Model
 {
@@ -17,12 +13,17 @@ namespace CryptoScript.Model
 
             // Create the lexer
             CryptoScriptLexer lexer = new CryptoScriptLexer(stream);
+            lexer.RemoveErrorListeners(); 
+            // Remove default console error listener
+            lexer.AddErrorListener(new LexerErrorListener());
             // Create a token stream from the lexer
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             // Create the parser
             CryptoScriptParser parser = new CryptoScriptParser(tokens);
             parser.RemoveErrorListeners();
-            parser.AddErrorListener(new ErrorListner.SyntaxErrorListner());            
+            parser.AddErrorListener(new SyntaxErrorListner());
+            //Clear all previous  syntax errors
+            SyntaxErrorList.Instance().Clear();
             return parser;
         }
         public static CryptoScriptParser FileBuild(string filename) 

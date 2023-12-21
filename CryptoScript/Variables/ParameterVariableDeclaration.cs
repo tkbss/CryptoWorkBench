@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using CryptoScript.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace CryptoScript.Variables
 {
     public class ParameterTypeList
     {
-        private static ParameterTypeList instance = null;
+        private static ParameterTypeList? instance = null;
         private static readonly object padlock = new object();
         public List<string> Paddings { get; set; }
         public List<string> ParameterTypes { get; set; }
@@ -25,14 +26,14 @@ namespace CryptoScript.Variables
                 // Check if the field corresponds to one of our mechanisms
                 if (field.Name.StartsWith("PAD_"))
                 {
-                    int index = (int)field.GetValue(null);//field.Name.TrimStart(remove.ToCharArray());                    
+                    int index = (int)field?.GetValue(null);                   
                     string m = lexer.Vocabulary.GetDisplayName(index);
                     m = m.Trim('\'');
                     Paddings.Add(m);
                 }
                 if (field.Name.StartsWith("P_"))
                 {
-                    int index = (int)field.GetValue(null);//field.Name.TrimStart(remove.ToCharArray());                    
+                    int index = (int)field?.GetValue(null);                   
                     string m = lexer.Vocabulary.GetDisplayName(index);
                     m = m.Trim('\'');
                     ParameterTypes.Add(m);
@@ -54,23 +55,29 @@ namespace CryptoScript.Variables
             }
         }
     }
-    public class Parameter : VariableDeclaration
+    //public class Parameter : VariableDeclaration
+    //{
+    //    public string Mechanism { get; set; } = string.Empty;
+    //    public Parameter()
+    //    {
+    //        Type = new CryptoTypeParameters();
+    //    }
+
+    //}
+    public class ParameterVariableDeclaration : VariableDeclaration
     {
         public string Mechanism { get; set; } = string.Empty;
-        public Parameter()
-        {
-            Type = new CryptoTypeParameters();
-        }
-
-    }
-    public class ParameterVariableDeclaration : Parameter
-    {
-        
         public string IV { get; set; } = string.Empty;
         public string Nonce { get; set; } = string.Empty;
         public string Counter { get; set; } = string.Empty;
         public string Padding { get; set; } = string.Empty;
-        
+        public ParameterVariableDeclaration() 
+        {
+            Type = new CryptoTypeParameters();
+        }
+
+
+
         public override string PrintOutput()
         {
             return base.PrintOutput();
@@ -94,6 +101,15 @@ namespace CryptoScript.Variables
                 Counter = p.Value;
             }
 
+        }
+        public new string Serialize()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public new static ParameterVariableDeclaration Deserialize(string json)
+        {
+            return JsonConvert.DeserializeObject<ParameterVariableDeclaration>(json);
         }
     }
 }

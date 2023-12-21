@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using CryptoScript.ErrorListner;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace CryptoScript.Model
 {
     public class AntlrToProgram : CryptoScriptBaseVisitor<CryptoScriptProgram>
     {
-        public List<string> SemanticErrors { get; set; } = new List<string>();
+        public List<SemanticError> SemanticErrors { get; set; } = new List<SemanticError>();
         AntlrToStatement statementVisitor = new AntlrToStatement();
         
         public override CryptoScriptProgram VisitProgram([NotNull] CryptoScriptParser.ProgramContext context)

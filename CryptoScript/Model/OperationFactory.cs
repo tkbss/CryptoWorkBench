@@ -25,7 +25,10 @@ namespace CryptoScript.Model
                 case "parameters":
                         return op.GenerateParameters;
                 default:
-                    throw new ArgumentException("Invalid notification type");
+                {
+                        throw new ArgumentException("Unkown function");
+                }
+                        
             }
             
         }

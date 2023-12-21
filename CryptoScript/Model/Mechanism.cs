@@ -23,7 +23,7 @@ namespace CryptoScript.Model
                 // Check if the field corresponds to one of our mechanisms
                 if (field.Name.StartsWith("M_"))
                 {
-                    int index = (int)field.GetValue(null);//field.Name.TrimStart(remove.ToCharArray());                    
+                    int index = (int)field.GetValue(null);
                     string m = lexer.Vocabulary.GetDisplayName(index);
                     m = m.Trim('\'');
                     Mechanisms.Add(m);
@@ -46,28 +46,19 @@ namespace CryptoScript.Model
         }
     }
 
-        
-    
     public class Mechanism : Statement
     {
-       
         public string Value { get; private set; } = string.Empty;
-        public Mechanism() 
-        {           
-            
-        }
-        public void SetMechanismValue(string value) 
+        public Mechanism()
         {
-            
+
+        }
+        public void SetMechanismValue(string value)
+        {
             if (MechanismList.Instance.Mechanisms.Contains(value))
                 Value = value;
             else
-                throw new ArgumentException();
-
+                throw new ArgumentException("Unkown mechanism "+value);
         }
-
     }
 }
-
-
-

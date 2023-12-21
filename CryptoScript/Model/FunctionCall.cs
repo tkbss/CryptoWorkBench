@@ -53,7 +53,7 @@ namespace CryptoScript.Model
                 }
 
             }
-            var function= OperationFactory.CreateOperation(Name);
+            var function = OperationFactory.CreateOperation(Name);
             ReturnVariable = function(argArray);           
             
         }

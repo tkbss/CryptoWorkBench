@@ -31,7 +31,7 @@ expression    : HEX_STRING
               ;
 
 
-functionCall  : ID '(' arguments? ')'
+functionCall  : FN '(' arguments? ')'
               ; 
 arguments     : argument (',' argument)*
               ;

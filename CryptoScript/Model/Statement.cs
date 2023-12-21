@@ -9,7 +9,7 @@ namespace CryptoScript.Model
     public class Statement
     {
         
-
+        public string Text { get; set; }    
         public Statement()
         {
             

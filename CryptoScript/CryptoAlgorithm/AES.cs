@@ -21,6 +21,7 @@ namespace CryptoScript.CryptoAlgorithm
                 byte[] aesKey = aesAlg.Key; // Getting the generated AES key
                 string keyValue = FormatConversions.ByteArrayToHexString(aesKey);
                 key.Value = keyValue;
+                key.KeyValue = keyValue;
                 key.ValueFormat = FormatConversions.ParseString(keyValue);
                 key.KeySize = Size;
                 key.Mechanism = mechanism;
@@ -31,19 +32,24 @@ namespace CryptoScript.CryptoAlgorithm
 
         public override ParameterVariableDeclaration GenerateParameters(string mechanism)
         {
-
+            var param = new ParameterVariableDeclaration();
             switch (mechanism.ToLower())
             {
                 case "aes-ctr":
-                    return GenerateDefaultCTRParameters(mechanism);
+                    param= GenerateDefaultCTRParameters(mechanism);
+                    break;
                 case "aes-cbc":
-                    return GenerateDefaultCBCParameters(mechanism);
+                    param=GenerateDefaultCBCParameters(mechanism);
+                    break;
                 case "aes-ecb":
-                    return GenerateDefaultECBParameters(mechanism);
+                    param=GenerateDefaultECBParameters(mechanism);
+                    break;
                 default:
                     throw new ArgumentException("wrong mechanism");
             }
-            return base.GenerateParameters(mechanism);
+            param.Value = param.Serialize();
+            param.ValueFormat = FormatConversions.ParseString(param.Value);
+            return param;
         }
 
         public override ParameterVariableDeclaration GenerateParameters(string mechanism, string[] parameters)
@@ -70,6 +76,8 @@ namespace CryptoScript.CryptoAlgorithm
                 }
             }
             SetDefaultParameterValues(param);
+            param.Value=param.Serialize();
+            param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
         //generate default parameters for CTR mode
@@ -136,38 +144,70 @@ namespace CryptoScript.CryptoAlgorithm
         ParameterVariableDeclaration? parameter = null;
         KeyVariableDeclaration? key = null;
         StringVariableDeclaration? data = null;
-        private void ParseParameters(string[] parameters)
+        private void ParseArguments(string[] arguments)
         {
-            foreach (var p in parameters)
+            var p = arguments[0];
+            if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
             {
-                if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
+                parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;                
+            }
+            else
+            {
+                //json deserialization
+                if (FormatConversions.ParseString(p) != string.Empty)
+                    parameter =ParameterVariableDeclaration.Deserialize(p);
+                else
                 {
-                    parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
-                    continue;
+                    throw new ArgumentException("wrong parameter argument");
                 }
-                if (VariableDictionary.Instance().Get(p) as KeyVariableDeclaration != null)
+            }
+            p= arguments[1];
+            if (VariableDictionary.Instance().Get(p) as KeyVariableDeclaration != null)
+            {
+                key = VariableDictionary.Instance().Get(p) as KeyVariableDeclaration;                
+            }
+            else 
+            {
+                if (FormatConversions.ParseString(p) == FormatConversions.HEX)
                 {
-                    key = VariableDictionary.Instance().Get(p) as KeyVariableDeclaration;
-                    continue;
+                    key = new KeyVariableDeclaration();
+                    key.Value = p;
+                    key.ValueFormat = FormatConversions.ParseString(p);
                 }
-                if (VariableDictionary.Instance().Get(p) as StringVariableDeclaration != null)
+                else if(FormatConversions.ParseString(p) == FormatConversions.JSO)
                 {
-                    data = VariableDictionary.Instance().Get(p) as StringVariableDeclaration;
-                    continue;
+                    key = KeyVariableDeclaration.Deserialize(p);
                 }
+                else 
+                { 
+                    throw new ArgumentException("wrong key argument");
+                }
+            }
+            p= arguments[2];
+            if (VariableDictionary.Instance().Get(p) as StringVariableDeclaration != null)
+            {
+                data = VariableDictionary.Instance().Get(p) as StringVariableDeclaration;
+
+            }
+            else
+            {
                 if (FormatConversions.ParseString(p) != string.Empty)
                 {
                     data = new StringVariableDeclaration();
                     data.Value = p;
                     data.ValueFormat = FormatConversions.ParseString(p);
-                    continue;
+                }
+                else
+                {
+                    throw new ArgumentException("wrong data argument");
                 }
             }
+            
         }
         public override StringVariableDeclaration Encrypt(string[] parameters)
         {
             
-            ParseParameters(parameters);
+            ParseArguments(parameters);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             var res = mode.ModeEncryption(parameter, key, data);
             return res;            
@@ -190,7 +230,7 @@ namespace CryptoScript.CryptoAlgorithm
 
         public override StringVariableDeclaration Decrypt(string[] parameters)
         {
-            ParseParameters(parameters);
+            ParseArguments(parameters);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             var res = mode.ModeDecryption(parameter, key, data);
             return res;
