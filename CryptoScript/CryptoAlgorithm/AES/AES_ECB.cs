@@ -2,7 +2,7 @@
 using CryptoScript.Variables;
 using System.Security.Cryptography;
 
-namespace CryptoScript.CryptoAlgorithm
+namespace CryptoScript.CryptoAlgorithm.AES
 {
     public class AES_ECB : EncryptionMode
     {
@@ -15,7 +15,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return ECBKernel(parameter, key, data, true);
         }
-        private StringVariableDeclaration ECBKernel(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data,bool encryption)
+        private StringVariableDeclaration ECBKernel(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data, bool encryption)
         {
             byte[] encrypted;
             using (Aes aesAlg = Aes.Create())
@@ -23,7 +23,7 @@ namespace CryptoScript.CryptoAlgorithm
                 // ECB mode
                 aesAlg.Mode = CipherMode.ECB;
                 // No padding
-                aesAlg.Padding = PaddingMode.None;                
+                aesAlg.Padding = PaddingMode.None;
                 aesAlg.Key = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
                 byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
                 if (input.Length % 16 != 0)

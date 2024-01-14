@@ -188,5 +188,22 @@ namespace CryptoScriptUnitTest
             Assert.That(input, Is.EqualTo(cleartext));
 
         }
+        [Test]
+        public void AES_CMAC_Test() 
+        {
+            byte[] keyBytes = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
+            byte[] input = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+            Assert.IsTrue(input.Length == 16);
+            using (Aes aesAlg = Aes.Create())
+            {
+                //CMAC mode
+                aesAlg.Mode = CipherMode.CBC;
+                // No padding
+                aesAlg.Padding = PaddingMode.None;
+                aesAlg.Key = keyBytes;
+                byte[] buffer = new byte[16];
+
+            }
+        }
     }
 }

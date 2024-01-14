@@ -2,7 +2,7 @@
 using CryptoScript.Variables;
 using System.Security.Cryptography;
 
-namespace CryptoScript.CryptoAlgorithm
+namespace CryptoScript.CryptoAlgorithm.AES
 {
     public class AES_CTR : EncryptionMode
     {
@@ -13,9 +13,9 @@ namespace CryptoScript.CryptoAlgorithm
 
         public override StringVariableDeclaration ModeEncryption(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
         {
-            return CTRKernel(parameter, key, data);            
+            return CTRKernel(parameter, key, data);
         }
-        private StringVariableDeclaration CTRKernel(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data) 
+        private StringVariableDeclaration CTRKernel(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
         {
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
             byte[] output = new byte[input.Length];
@@ -39,7 +39,7 @@ namespace CryptoScript.CryptoAlgorithm
                     byte[] encryptedCounter = aesAlg.CreateEncryptor().TransformFinalBlock(buffer, 0, 16);
 
                     // XOR the encrypted counter with the input and store in the output
-                    for (int j = 0; j < 16 && (i * 16 + j) < input.Length; j++)
+                    for (int j = 0; j < 16 && i * 16 + j < input.Length; j++)
                     {
                         output[i * 16 + j] = (byte)(input[i * 16 + j] ^ encryptedCounter[j]);
                     }
@@ -67,7 +67,7 @@ namespace CryptoScript.CryptoAlgorithm
 
             return result;
         }
-        private static  void IncrementCounter(byte[] counter)
+        private static void IncrementCounter(byte[] counter)
         {
             if (counter.Length != 4)
                 throw new ArgumentException("Counter must be exactly 4 bytes long.");
@@ -79,7 +79,7 @@ namespace CryptoScript.CryptoAlgorithm
                 if (++counter[i] != 0)
                     break; // No carry, exit the loop
             }
-            
+
         }
     }
 }

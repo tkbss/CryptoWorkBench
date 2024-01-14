@@ -2,11 +2,11 @@
 using CryptoScript.Variables;
 using System.Security.Cryptography;
 
-namespace CryptoScript.CryptoAlgorithm
+namespace CryptoScript.CryptoAlgorithm.AES
 {
     public class AES : SymmetricCryptoAlgorithm
     {
-        
+
         public override KeyVariableDeclaration GenerateKey(string mechanism, string Size)
         {
             int keySize = Convert.ToInt32(Size);
@@ -36,13 +36,19 @@ namespace CryptoScript.CryptoAlgorithm
             switch (mechanism.ToLower())
             {
                 case "aes-ctr":
-                    param= GenerateDefaultCTRParameters(mechanism);
+                    param = AESDefaultParameters.GenerateDefaultCTRParameters(mechanism);
                     break;
                 case "aes-cbc":
-                    param=GenerateDefaultCBCParameters(mechanism);
+                    param = AESDefaultParameters.GenerateDefaultCBCParameters(mechanism);
                     break;
                 case "aes-ecb":
-                    param=GenerateDefaultECBParameters(mechanism);
+                    param = AESDefaultParameters.GenerateDefaultECBParameters(mechanism);
+                    break;
+                case "aes-cmac":
+                    param = AESDefaultParameters.GenerateDefaultCMACParameters(mechanism);
+                    break;
+                case "aes-gcm":
+                    param = AESDefaultParameters.GenerateDefaultGCMParameters(mechanism);
                     break;
                 default:
                     throw new ArgumentException("wrong mechanism");
@@ -57,61 +63,34 @@ namespace CryptoScript.CryptoAlgorithm
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
             foreach (var p in parameters)
-            {                
+            {
                 if (p.ToLower().Contains("iv"))
-                {                     
-                    param.IV = p.Split(':')[1];                    
+                {
+                    param.IV = p.Split(':')[1];
                 }
                 if (p.ToLower().Contains("pad"))
-                {                    
-                    param.Padding = p.Split(':')[1];                    
+                {
+                    param.Padding = p.Split(':')[1];
                 }
                 if (p.ToLower().Contains("nonce"))
-                {                    
-                    param.Nonce = p.Split(':')[1];                   
+                {
+                    param.Nonce = p.Split(':')[1];
                 }
                 if (p.ToLower().Contains("counter"))
-                {              
-                    param.Counter = p.Split(':')[1];                    
+                {
+                    param.Counter = p.Split(':')[1];
+                }
+                if (p.ToLower().Contains("adata"))
+                {
+                    param.AData = p.Split(':')[1];
                 }
             }
             SetDefaultParameterValues(param);
-            param.Value=param.Serialize();
+            param.Value = param.Serialize();
             param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
-        //generate default parameters for CTR mode
-        private ParameterVariableDeclaration GenerateDefaultCTRParameters(string mechanism)
-        {
-            var param = new ParameterVariableDeclaration();
-            param.Mechanism = mechanism;
-            //generate random nonce
-            byte[] nonce = RandomNumberGenerator.GetBytes(12);            
-            param.Nonce = FormatConversions.ByteArrayToHexString(nonce);
-            //set counter (4 bytes) to 0
-            param.Counter = "0x(00000000)";
-            return param;
-        }
-        //generate default parameters for CBC mode
-        private ParameterVariableDeclaration GenerateDefaultCBCParameters(string mechanism)
-        {
-            var param = new ParameterVariableDeclaration();
-            param.Mechanism = mechanism;
-            //generate random IV
-            byte[] IV = RandomNumberGenerator.GetBytes(16);
-            param.IV= FormatConversions.ByteArrayToHexString(IV);
-            param.Padding = "PKCS-7";
-            return param;
-        }
-        private ParameterVariableDeclaration GenerateDefaultECBParameters(string mechanism)
-        {
-            var param = new ParameterVariableDeclaration();
-            param.Mechanism = mechanism;
-            //generate random IV            
-            param.IV = string.Empty;
-            param.Padding = "NONE";
-            return param;
-        }
+
         private void SetDefaultParameterValues(ParameterVariableDeclaration param)
         {
             if (param.Mechanism.ToLower().Contains("cbc"))
@@ -140,6 +119,22 @@ namespace CryptoScript.CryptoAlgorithm
                 param.IV = string.Empty;
                 param.Padding = "NONE";
             }
+            if (param.Mechanism.ToLower().Contains("cmac"))
+            {
+                param.IV = string.Empty;
+                param.Padding = "NONE";
+            }
+            if (param.Mechanism.ToLower().Contains("gcm"))
+            {
+                if (param.Nonce == string.Empty)
+                {
+                    byte[] nonce = RandomNumberGenerator.GetBytes(12);
+                    param.Nonce = FormatConversions.ByteArrayToHexString(nonce);
+                }
+                param.IV = string.Empty;
+                param.Padding = "NONE";
+            }
+
         }
         ParameterVariableDeclaration? parameter = null;
         KeyVariableDeclaration? key = null;
@@ -149,24 +144,24 @@ namespace CryptoScript.CryptoAlgorithm
             var p = arguments[0];
             if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
             {
-                parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;                
+                parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
             }
             else
             {
                 //json deserialization
                 if (FormatConversions.ParseString(p) != string.Empty)
-                    parameter =ParameterVariableDeclaration.Deserialize(p);
+                    parameter = ParameterVariableDeclaration.Deserialize(p);
                 else
                 {
                     throw new ArgumentException("wrong parameter argument");
                 }
             }
-            p= arguments[1];
+            p = arguments[1];
             if (VariableDictionary.Instance().Get(p) as KeyVariableDeclaration != null)
             {
-                key = VariableDictionary.Instance().Get(p) as KeyVariableDeclaration;                
+                key = VariableDictionary.Instance().Get(p) as KeyVariableDeclaration;
             }
-            else 
+            else
             {
                 if (FormatConversions.ParseString(p) == FormatConversions.HEX)
                 {
@@ -174,16 +169,16 @@ namespace CryptoScript.CryptoAlgorithm
                     key.Value = p;
                     key.ValueFormat = FormatConversions.ParseString(p);
                 }
-                else if(FormatConversions.ParseString(p) == FormatConversions.JSO)
+                else if (FormatConversions.ParseString(p) == FormatConversions.JSO)
                 {
                     key = KeyVariableDeclaration.Deserialize(p);
                 }
-                else 
-                { 
+                else
+                {
                     throw new ArgumentException("wrong key argument");
                 }
             }
-            p= arguments[2];
+            p = arguments[2];
             if (VariableDictionary.Instance().Get(p) as StringVariableDeclaration != null)
             {
                 data = VariableDictionary.Instance().Get(p) as StringVariableDeclaration;
@@ -202,15 +197,23 @@ namespace CryptoScript.CryptoAlgorithm
                     throw new ArgumentException("wrong data argument");
                 }
             }
-            
+
         }
-        public override StringVariableDeclaration Encrypt(string[] parameters)
+        public override StringVariableDeclaration Mac(string[] parameters)
         {
-            
+
             ParseArguments(parameters);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             var res = mode.ModeEncryption(parameter, key, data);
-            return res;            
+            return res;
+        }
+        public override StringVariableDeclaration Encrypt(string[] parameters)
+        {
+
+            ParseArguments(parameters);
+            var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
+            var res = mode.ModeEncryption(parameter, key, data);
+            return res;
         }
 
         public override EncryptionMode CreateMode(string mechanism)
@@ -223,9 +226,11 @@ namespace CryptoScript.CryptoAlgorithm
                     return new AES_CBC();
                 case "aes-ecb":
                     return new AES_ECB();
+                case "aes-cmac":
+                    return new AES_CMAC();
                 default:
                     throw new ArgumentException("wrong mechanism");
-            }            
+            }
         }
 
         public override StringVariableDeclaration Decrypt(string[] parameters)

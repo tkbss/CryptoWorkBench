@@ -71,6 +71,7 @@ namespace CryptoScript.Variables
         public string Nonce { get; set; } = string.Empty;
         public string Counter { get; set; } = string.Empty;
         public string Padding { get; set; } = string.Empty;
+        public string AData { get; set; } = string.Empty;
         public ParameterVariableDeclaration() 
         {
             Type = new CryptoTypeParameters();
@@ -99,6 +100,10 @@ namespace CryptoScript.Variables
             if (p.Type.ToLower().Contains("counter"))
             {
                 Counter = p.Value;
+            }
+            if (p.Type.ToLower().Contains("adata"))
+            {
+                AData = p.Value;
             }
 
         }

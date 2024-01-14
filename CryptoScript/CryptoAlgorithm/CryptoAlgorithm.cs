@@ -24,5 +24,9 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new StringVariableDeclaration();
         }
+        public virtual StringVariableDeclaration Mac(string[] parameters)
+        {
+            return new StringVariableDeclaration();
+        }
     }
 }

@@ -5,6 +5,10 @@ namespace CryptoScript.CryptoAlgorithm
 {
     public class EncryptionMode
     {
+        public virtual StringVariableDeclaration ModeMac(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
+        {
+            return new StringVariableDeclaration();
+        }
         public virtual StringVariableDeclaration ModeEncryption(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
         {
             return new StringVariableDeclaration();

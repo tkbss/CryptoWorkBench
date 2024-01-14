@@ -13,13 +13,15 @@ BASE64_STRING : 'b64(' [A-Za-z0-9+/=]+ ')'
 NORMAL_STRING : '"' (ESC | ~["\\])* '"';
 fragment ESC  : '\\' [btnrf"'\\];
 INT           : [0-9]+;
-MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC
+MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC
               | M_DES3_ECB| M_DES3_CBC| M_DES3_CMAC;
 
 M_AES_ECB     : 'AES-ECB';
 M_AES_CBC     : 'AES-CBC';
 M_AES_CTR     : 'AES-CTR';
 M_AES_CMAC    : 'AES-CMAC';
+M_AES_GCM     : 'AES-GCM';
+M_AES_GMAC    : 'AES-GMAC';
 M_DES3_ECB    : 'DES3-ECB';
 M_DES3_CBC    : 'DES3-CBC';
 M_DES3_CMAC   : 'DES3-CMAC';
@@ -31,9 +33,10 @@ PAD_ISO9797   : 'ISO-9797';
 PAD_ANSI_X923 : 'ANSI-X923';
 PAD_NONE      : 'NONE';
 
-PARAM_TYPE	  : P_IV | P_PADDING | P_NONCE | P_COUNTER;
+PARAM_TYPE	  : P_IV | P_PADDING | P_NONCE | P_COUNTER|P_ADATA;
 P_IV          : '#IV';
 P_PADDING     : '#PAD';
 P_NONCE       : '#NONCE';
 P_COUNTER     : '#COUNTER';
+P_ADATA       : '#ADATA';
 WS            : [ \t\r\n]+ -> skip;

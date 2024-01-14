@@ -28,6 +28,10 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return base.Decrypt(parameters);
         }
+        public override StringVariableDeclaration Mac(string[] parameters)
+        {
+            return base.Mac(parameters);
+        }
     }
     
 }
