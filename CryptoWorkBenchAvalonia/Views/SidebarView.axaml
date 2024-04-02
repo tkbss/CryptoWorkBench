@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:prism="http://prismlibrary.com/"
+			 Width="{Binding FlyoutWidth}"
+			 prism:ViewModelLocator.AutoWireViewModel="True"
+             x:Class="CryptoWorkBenchAvalonia.Views.SidebarView">
+	<UserControl.Styles>
+		<Style Selector="Button">
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+		
+		<Style Selector="PathIcon">
+			<Setter Property="Margin" Value="0,0,10,0" />
+		</Style>
+	</UserControl.Styles>
+	<Grid RowDefinitions="auto,auto,auto">
+		<!-- Dock the hamburger menu button to the top with no text -->
+		<Button Grid.Row="0"
+				Command="{Binding CmdFlyoutMenu}"
+				ToolTip.Tip="Expand/Collapse"
+				Height="35"
+				Margin="5">
+			<StackPanel Orientation="Horizontal">
+				<PathIcon Data="{StaticResource line_horizontal_3_regular}" />
+				<TextBlock Text="" />
+			</StackPanel>
+		</Button>
+		<Button Grid.Row="1" 
+				Command="{Binding CmdSettings}" 
+				ToolTip.Tip="Open script book"
+				Height="35"
+				Margin="5">
+			<StackPanel Orientation="Horizontal">
+				<PathIcon Data="{StaticResource Bootstrap.FileArrowUp}" />
+				<TextBlock Text="Open Book" />
+			</StackPanel>
+		</Button>
+	</Grid>
+</UserControl>
