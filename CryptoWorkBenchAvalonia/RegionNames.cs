@@ -6,4 +6,5 @@ public static class RegionNames
     public const string InfoRegion = "InfoRegion";
     public const string FooterRegion = "FooterRegion";
     public const string SidebarRegion = "SidebarRegion";
+    public const string InfoFooterRegion = "InfoFooterRegion";
 }

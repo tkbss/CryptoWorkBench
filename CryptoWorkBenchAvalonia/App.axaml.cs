@@ -54,13 +54,20 @@ public partial class App : PrismApplication
         regionManager.RegisterViewWithRegion(RegionNames.SidebarRegion, typeof(SidebarView));
         regionManager.RegisterViewWithRegion(RegionNames.ContentRegion, typeof(CryptoScriptEditView));
         regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(CryptoScriptEditView));
+        regionManager.RegisterViewWithRegion(RegionNames.FooterRegion, typeof(StatusView));
+
     }
 
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
+        
+        
+        
         containerRegistry.RegisterSingleton<INotificationService, NotificationService>();
-        containerRegistry.Register<CryptoScriptEditViewModel>();
+        containerRegistry.RegisterSingleton<StatusViewModel>();
+        containerRegistry.Register<CryptoScriptEditViewModel>();        
         containerRegistry.RegisterForNavigation<SidebarView, SidebarViewModel>();
         containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
+        
     }
 }
