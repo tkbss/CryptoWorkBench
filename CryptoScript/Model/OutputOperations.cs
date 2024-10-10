@@ -9,9 +9,11 @@ namespace CryptoScript.Model
 {
     public class OutputOperations
     {
+        public static event Action<string> PrintEvent;
         public VariableDeclaration Print(string[] args) 
         {
-            Console.WriteLine(args[0]);
+            PrintEvent?.Invoke(args[0]);
+            Console.WriteLine();
             return new VariableDeclaration();
         }
     }

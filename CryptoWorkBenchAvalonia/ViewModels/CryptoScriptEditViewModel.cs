@@ -11,12 +11,20 @@ namespace CryptoWorkBenchAvalonia.ViewModels
     public class CryptoScriptEditViewModel :  ViewModelBase
     {
         StatusViewModel _statusViewModel;
+        string _printMessage = string.Empty;
+        public string PrintMessage 
+        { 
+            get => _printMessage; 
+            set => SetProperty(ref _printMessage, value); 
+        }
         public CryptoScriptEditViewModel(StatusViewModel statusViewModel)
         {
             _statusViewModel = statusViewModel;
+            OutputOperations.PrintEvent += OnPrintEvent;
         }
         public void ParseLine(string line)
         {
+            _printMessage = string.Empty;
             var prog = new AntlrToProgram();            
             CryptoScriptParser parser = ParserBuilder.StringBuild(line);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -33,6 +41,11 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 _statusViewModel.StatusString = "Line successfull parsed";
                 var res = prog.Visit(context);
             }
-        }   
+        }
+        private void OnPrintEvent(string message)
+        {
+            // Handle the event (e.g., update the status view model)
+            _printMessage = message;
+        }
     }
 }

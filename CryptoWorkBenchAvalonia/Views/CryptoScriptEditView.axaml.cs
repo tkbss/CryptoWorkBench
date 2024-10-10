@@ -37,6 +37,10 @@ public partial class CryptoScriptEditView : UserControl
             DocumentLine line = doc.Lines[l];
             string lineText = doc.GetText(line);
             _viewModel.ParseLine(lineText);
+            if(_viewModel.PrintMessage != string.Empty)
+            {
+                doc.Insert(line.EndOffset, "\n" + _viewModel.PrintMessage);
+            }            
             //var tracker=doc.LineTrackers;
         }
     }
