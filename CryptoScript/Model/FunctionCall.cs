@@ -44,7 +44,7 @@ namespace CryptoScript.Model
                 if(arg is ArgumentVariable variable) 
                 {
                     
-                    argArray[i++] = variable.Id.Id;
+                    argArray[i++] = variable.Id.Value;
                 }
                 if (arg is ArgumentParameter param)
                 {

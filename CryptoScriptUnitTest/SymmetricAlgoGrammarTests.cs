@@ -32,14 +32,14 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var statement=res.Statements.FirstOrDefault();
-            Assert.IsNotNull(statement);
-            Assert.IsTrue(res.Statements.Count == 1);   
-            Assert.IsTrue(statement is StringVariableDeclaration);
+            ClassicAssert.IsNotNull(statement);
+            ClassicAssert.IsTrue(res.Statements.Count == 1);   
+            ClassicAssert.IsTrue(statement is StringVariableDeclaration);
             var variable = statement as StringVariableDeclaration;
-            Assert.IsTrue(variable?.Id == "key0");
-            Assert.IsTrue(variable?.Value == "0x(1234)");
-            Assert.IsTrue(variable?.Type is CryptoTypeKey);
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable?.Id));
+            ClassicAssert.IsTrue(variable?.Id == "key0");
+            ClassicAssert.IsTrue(variable?.Value == "0x(1234)");
+            ClassicAssert.IsTrue(variable?.Type is CryptoTypeKey);
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable?.Id));
 
             
         }
@@ -50,22 +50,22 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program(); 
             var res = prog.Visit(context); 
             var statement=res.Statements.FirstOrDefault(); 
-            Assert.IsNotNull(statement); 
-            Assert.IsTrue(res.Statements.Count == 2);    
-            Assert.IsTrue(statement is StringVariableDeclaration); 
+            ClassicAssert.IsNotNull(statement); 
+            ClassicAssert.IsTrue(res.Statements.Count == 2);    
+            ClassicAssert.IsTrue(statement is StringVariableDeclaration); 
             var variable = statement as StringVariableDeclaration; 
-            Assert.IsTrue(variable?.Id == "key1"); 
-            Assert.IsTrue(variable?.Value == "0x(1234)"); 
-            Assert.IsTrue(variable?.Type is CryptoTypeKey);
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(variable?.Id == "key1"); 
+            ClassicAssert.IsTrue(variable?.Value == "0x(1234)"); 
+            ClassicAssert.IsTrue(variable?.Type is CryptoTypeKey);
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
             statement =res.Statements.LastOrDefault(); 
-            Assert.IsNotNull(statement); 
-            Assert.IsTrue(statement is FunctionCall); 
+            ClassicAssert.IsNotNull(statement); 
+            ClassicAssert.IsTrue(statement is FunctionCall); 
             var func = statement as FunctionCall; 
-            Assert.IsTrue(func?.Arguments.Count == 1);
-            Assert.IsTrue(func?.Arguments[0] is ArgumentVariable); 
-            Assert.IsTrue(func?.Name == "Print"); 
-            Assert.IsTrue(func?.ReturnVariable is VariableDeclaration); 
+            ClassicAssert.IsTrue(func?.Arguments.Count == 1);
+            ClassicAssert.IsTrue(func?.Arguments[0] is ArgumentVariable); 
+            ClassicAssert.IsTrue(func?.Name == "Print"); 
+            ClassicAssert.IsTrue(func?.ReturnVariable is VariableDeclaration); 
 
         }
         [Test]
@@ -76,16 +76,16 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var statement = res.Statements.FirstOrDefault();
-            Assert.IsNotNull(statement);
-            Assert.IsTrue(res.Statements.Count == 1);
-            Assert.IsTrue(statement is KeyVariableDeclaration);
+            ClassicAssert.IsNotNull(statement);
+            ClassicAssert.IsTrue(res.Statements.Count == 1);
+            ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
             var variable = statement as KeyVariableDeclaration;
-            Assert.IsTrue(variable.Id== "key2");
-            Assert.IsTrue(variable.Mechanism== "AES-CBC");
-            Assert.IsTrue(variable.KeySize =="128");
+            ClassicAssert.IsTrue(variable.Id== "key2");
+            ClassicAssert.IsTrue(variable.Mechanism== "AES-CBC");
+            ClassicAssert.IsTrue(variable.KeySize =="128");
             var key=FormatConversions.HexStringToByteArray(variable.Value);
-            Assert.IsTrue(key.Length==16);           
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(key.Length==16);           
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]
         public void DefaultParameters_AES_CBC_Test()
@@ -95,18 +95,18 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var statement = res.Statements.FirstOrDefault();
-            Assert.IsNotNull(statement);
-            Assert.IsTrue(res.Statements.Count == 1);
-            Assert.IsTrue(statement is ParameterVariableDeclaration);
+            ClassicAssert.IsNotNull(statement);
+            ClassicAssert.IsTrue(res.Statements.Count == 1);
+            ClassicAssert.IsTrue(statement is ParameterVariableDeclaration);
             var variable = statement as ParameterVariableDeclaration;
             var iv = FormatConversions.HexStringToByteArray(variable.IV);
-            Assert.IsTrue(iv.Length==16);
-            Assert.IsTrue(variable.Padding=="PKCS-7");
-            Assert.IsTrue(variable.Mechanism=="AES-CBC");
-            Assert.IsTrue(variable.Id == "p1");
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
-            Assert.IsTrue(string.IsNullOrEmpty(variable.Nonce));
-            Assert.IsTrue(string.IsNullOrEmpty(variable.Counter));
+            ClassicAssert.IsTrue(iv.Length==16);
+            ClassicAssert.IsTrue(variable.Padding=="PKCS-7");
+            ClassicAssert.IsTrue(variable.Mechanism=="AES-CBC");
+            ClassicAssert.IsTrue(variable.Id == "p1");
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(string.IsNullOrEmpty(variable.Nonce));
+            ClassicAssert.IsTrue(string.IsNullOrEmpty(variable.Counter));
         }
         [Test]
         public void Parameters_AES_CTR_Test()
@@ -116,12 +116,12 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
-            Assert.IsTrue(res.Statements.Count == 1);
+            ClassicAssert.IsTrue(res.Statements.Count == 1);
             var variable = res.Statements[0] as ParameterVariableDeclaration;
             var p= ParameterVariableDeclaration.Deserialize(variable.Value);
-            Assert.IsTrue(variable.Nonce == "0x(00112233445566778899AABB)");
-            Assert.IsTrue(variable.Counter == "0x(00000000)");
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(variable.Nonce == "0x(00112233445566778899AABB)");
+            ClassicAssert.IsTrue(variable.Counter == "0x(00000000)");
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]
         public void Parameters_Declaration_Test() 
@@ -131,14 +131,14 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
-            Assert.IsTrue(res.Statements.Count == 1);
+            ClassicAssert.IsTrue(res.Statements.Count == 1);
             var variable = res.Statements[0] as ParameterVariableDeclaration;
-            Assert.IsTrue(variable.Nonce == "0x(00112233445566778899AABB)");
-            Assert.IsTrue(variable.Counter == "0x(00000000)");
-            Assert.IsTrue(variable.IV == "0x(12345678)");
-            Assert.IsTrue(variable.Padding == "PKCS-7");
-            Assert.IsTrue(variable.Mechanism == "AES-CTR");
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(variable.Nonce == "0x(00112233445566778899AABB)");
+            ClassicAssert.IsTrue(variable.Counter == "0x(00000000)");
+            ClassicAssert.IsTrue(variable.IV == "0x(12345678)");
+            ClassicAssert.IsTrue(variable.Padding == "PKCS-7");
+            ClassicAssert.IsTrue(variable.Mechanism == "AES-CTR");
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]
         public void Parameters_AES_CBC_Test()
@@ -148,15 +148,15 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var statement = res.Statements.FirstOrDefault();
-            Assert.IsNotNull(statement);
-            Assert.IsTrue(res.Statements.Count == 1);
-            Assert.IsTrue(statement is ParameterVariableDeclaration);
+            ClassicAssert.IsNotNull(statement);
+            ClassicAssert.IsTrue(res.Statements.Count == 1);
+            ClassicAssert.IsTrue(statement is ParameterVariableDeclaration);
             var variable = statement as ParameterVariableDeclaration;
-            Assert.IsTrue(variable.IV == "0x(12345678)");
-            Assert.IsTrue(variable.Padding == "PKCS-7");
-            Assert.IsTrue(variable.Mechanism == "AES-CBC");
-            Assert.IsTrue(variable.Id == "p2");
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(variable.IV == "0x(12345678)");
+            ClassicAssert.IsTrue(variable.Padding == "PKCS-7");
+            ClassicAssert.IsTrue(variable.Mechanism == "AES-CBC");
+            ClassicAssert.IsTrue(variable.Id == "p2");
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]
         public void Encryption_AES_CBC_Test() 
@@ -166,14 +166,14 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var statement = res.Statements.FirstOrDefault();
-            Assert.IsNotNull(statement);
-            Assert.IsTrue(res.Statements.Count == 3);
+            ClassicAssert.IsNotNull(statement);
+            ClassicAssert.IsTrue(res.Statements.Count == 3);
             var variable = statement as KeyVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
             var crypto= res.Statements[2] as StringVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
         }
         [Test]
         public void Decryption_AES_CBC_Test()
@@ -187,16 +187,16 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var statement = res.Statements.FirstOrDefault();
-            Assert.IsNotNull(statement);
-            Assert.IsTrue(res.Statements.Count == 4);
+            ClassicAssert.IsNotNull(statement);
+            ClassicAssert.IsTrue(res.Statements.Count == 4);
             var variable = statement as KeyVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
             var ct=res.Statements[3] as StringVariableDeclaration;
-            Assert.IsTrue(ct.Value== "0x(1234567812345678123456781234567812345678)");
+            ClassicAssert.IsTrue(ct.Value== "0x(1234567812345678123456781234567812345678)");
         }
         [Test]
         public void Decryption_AES_CTR_Test() 
@@ -209,15 +209,15 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
-            Assert.IsTrue(res.Statements.Count == 4);
+            ClassicAssert.IsTrue(res.Statements.Count == 4);
             var variable = res.Statements[0] as KeyVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
             var ct = res.Statements[3] as StringVariableDeclaration;
-            Assert.IsTrue(ct.Value == "0x(1234567812345678123456781234567812345678)");
+            ClassicAssert.IsTrue(ct.Value == "0x(1234567812345678123456781234567812345678)");
         }
         [Test]
         public void Decryption_AES_ECB_Test()
@@ -231,13 +231,13 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(crypto.Id));
             var ct = res.Statements[3] as StringVariableDeclaration;
-            Assert.IsTrue(ct.Value.ToUpper() == "0X(00112233445566778899AABBCCDDEEFF)");
+            ClassicAssert.IsTrue(ct.Value.ToUpper() == "0X(00112233445566778899AABBCCDDEEFF)");
         }
         [Test]
         public void Function_Call_Nested_GenerateKey_Encrypt_Test() 
@@ -257,7 +257,7 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
-            Assert.IsTrue(res.Statements.Count == 1);
+            ClassicAssert.IsTrue(res.Statements.Count == 1);
         }
 
     }

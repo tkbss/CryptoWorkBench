@@ -1,4 +1,5 @@
 ﻿using CryptoScript.ErrorListner;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace CryptoScriptUnitTest
             {
                 string e=SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured=false;
-                Assert.Fail();
+                ClassicAssert.Fail();
             }
             try 
             {                 
@@ -29,7 +30,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                Assert.AreEqual("FunctionCall", e.SemanticError.Type);
+                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
             }
             
         }
@@ -44,7 +45,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                Assert.Fail();
+                ClassicAssert.Fail();
             }
             try
             {
@@ -52,7 +53,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                Assert.AreEqual("FunctionCall", e.SemanticError.Type);
+                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
             }
 
         }
@@ -67,7 +68,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                Assert.Fail();
+               ClassicAssert.Fail();
             }
             try
             {
@@ -75,7 +76,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                Assert.AreEqual("FunctionCall", e.SemanticError.Type);
+                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
             }
 
         }
@@ -90,7 +91,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                Assert.Fail();
+                ClassicAssert.Fail();
             }
             try
             {
@@ -98,7 +99,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                Assert.AreEqual("FunctionCall", e.SemanticError.Type);
+                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
             }
 
         }
@@ -113,7 +114,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                Assert.Fail();
+                ClassicAssert.Fail();
             }
             try
             {
@@ -121,8 +122,8 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                Assert.AreEqual("Variable", e.SemanticError.Type);
-                Assert.AreEqual("k1", e.SemanticError.Identifier);
+                ClassicAssert.AreEqual("Variable", e.SemanticError.Type);
+                ClassicAssert.AreEqual("k1", e.SemanticError.Identifier);
             }
 
         }
@@ -137,7 +138,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                Assert.Fail();
+                ClassicAssert.Fail();
             }
             try
             {
@@ -145,7 +146,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                Assert.AreEqual("Declaration", e.SemanticError.Type);                
+                ClassicAssert.AreEqual("Declaration", e.SemanticError.Type);                
             }
 
         }
@@ -160,7 +161,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                Assert.Fail();
+                ClassicAssert.Fail();
             }
             try
             {
@@ -168,7 +169,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                Assert.AreEqual("Declaration", e.SemanticError.Type);
+                ClassicAssert.AreEqual("Declaration", e.SemanticError.Type);
             }
 
         }

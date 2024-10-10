@@ -24,7 +24,7 @@ namespace CryptoScriptUnitTest
 
             }
             else
-                Assert.Fail();
+                ClassicAssert.Fail();
         }
         [Test]
         public void FunctionName_Syntax_Error()
@@ -41,7 +41,7 @@ namespace CryptoScriptUnitTest
 
             }
             else
-                Assert.Fail();
+                ClassicAssert.Fail();
         }
         [Test]
         public void Parameter_Argument_Syntax_Error()
@@ -60,7 +60,7 @@ namespace CryptoScriptUnitTest
                 LexerErrorListener.LexerErrorOccured = false;
             }
             else
-                Assert.Fail();
+                ClassicAssert.Fail();
             
         }
         [Test]
@@ -76,7 +76,7 @@ namespace CryptoScriptUnitTest
                 var list=SyntaxErrorList.Instance();
             }
             else
-                Assert.Fail();
+                ClassicAssert.Fail();
 
         }
 
