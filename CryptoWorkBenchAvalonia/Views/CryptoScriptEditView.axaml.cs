@@ -25,6 +25,7 @@ public partial class CryptoScriptEditView : UserControl
         _statusTextBlock = this.Find<TextBlock>("StatusText");
         _textEditor!.TextArea.TextEntering += this.textEditor_TextArea_TextEntering!;
         _textEditor.TextArea.Caret.PositionChanged += Caret_PositionChanged!;
+        vm.TextEditor = _textEditor;
     }
     private void textEditor_TextArea_TextEntering(object sender, TextInputEventArgs e)
     {

@@ -1,7 +1,11 @@
-﻿using CryptoScript.ErrorListner;
+﻿using AvaloniaEdit;
+using AvaloniaEdit.Document;
+using CryptoScript.ErrorListner;
 using CryptoScript.Model;
+using ImTools;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +16,13 @@ namespace CryptoWorkBenchAvalonia.ViewModels
     {
         StatusViewModel _statusViewModel;
         string _printMessage = string.Empty;
+        private TextEditor? _textEditor;
+        public StatusViewModel Status { get => _statusViewModel; }
+        public TextEditor TextEditor
+        {
+            get => _textEditor;
+            set => SetProperty(ref _textEditor, value);
+        }   
         public string PrintMessage 
         { 
             get => _printMessage; 
@@ -46,6 +57,32 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         {
             // Handle the event (e.g., update the status view model)
             _printMessage = message;
+        }
+        public void SaveScriptBook(string filePath)
+        {
+
+            using (FileStream fs = System.IO.File.Open(filePath, System.IO.FileMode.Append))
+            {
+                TextDocument doc = _textEditor!.Document;
+                foreach (DocumentLine line in doc.Lines)
+                {
+                    string lineText = doc.GetText(line);
+                    if (lineText != string.Empty)
+                    {
+                        byte[] lineBytes = Encoding.ASCII.GetBytes(lineText);
+                        fs.Write(lineBytes, 0, lineBytes.Length);
+                        fs.WriteByte((byte)'\n');
+                    }
+                }
+            }
+        }
+        
+        public async Task OpenScriptBook()
+        {
+            await Task.Run(() =>
+            {
+                string t = "";
+            });
         }
     }
 }

@@ -31,8 +31,10 @@
 				<!--
           The SidebarView is not using a region on purpose, so it shows in designer mode
           <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SidebarRegion}" />
+		  <views:SidebarView/>
         -->
-				<views:SidebarView/>
+				<ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SidebarRegion}" />
+				
 
 			</Border>
 			<Border Grid.Row="0" Grid.Column="1"  Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="7">

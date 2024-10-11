@@ -59,14 +59,12 @@ public partial class App : PrismApplication
     }
 
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
-    {
-        
-        
-        
+    {           
         containerRegistry.RegisterSingleton<INotificationService, NotificationService>();
         containerRegistry.RegisterSingleton<StatusViewModel>();
-        containerRegistry.Register<CryptoScriptEditViewModel>();        
-        containerRegistry.RegisterForNavigation<SidebarView, SidebarViewModel>();
+        containerRegistry.RegisterSingleton<SidebarViewModel>();
+        containerRegistry.RegisterSingleton<CryptoScriptEditViewModel>();        
+        containerRegistry.RegisterForNavigation<SidebarView>();
         containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
         
     }
