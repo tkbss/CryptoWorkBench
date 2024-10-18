@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 xmlns:prism="http://prismlibrary.com/"
 			 Width="{Binding FlyoutWidth}"
-			 prism:ViewModelLocator.AutoWireViewModel="True"
+			 prism:ViewModelLocator.AutoWireViewModel="True"			 
              x:Class="CryptoWorkBenchAvalonia.Views.SidebarView">
 	<UserControl.Styles>
 		<Style Selector="Button">

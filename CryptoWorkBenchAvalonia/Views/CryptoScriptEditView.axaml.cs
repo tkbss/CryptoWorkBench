@@ -22,13 +22,16 @@ public partial class CryptoScriptEditView : UserControl
         _viewModel = vm;
         InitializeComponent();
         _textEditor = this.FindControl<TextEditor>("Editor");
+        _textEditor.Clear();
         _statusTextBlock = this.Find<TextBlock>("StatusText");
         _textEditor!.TextArea.TextEntering += this.textEditor_TextArea_TextEntering!;
         _textEditor.TextArea.Caret.PositionChanged += Caret_PositionChanged!;
-        vm.TextEditor = _textEditor;
+        _viewModel.TextEditor = _textEditor;
+
     }
     private void textEditor_TextArea_TextEntering(object sender, TextInputEventArgs e)
     {
+        
         if (e == null || e.Text==null)
             return;
         if (e.Text.Contains("\n") || e.Text.Contains("\r"))
@@ -36,7 +39,7 @@ public partial class CryptoScriptEditView : UserControl
             var doc=_textEditor!.Document;            
             int l = _textEditor!.TextArea.Caret.Line-1;
             DocumentLine line = doc.Lines[l];
-            string lineText = doc.GetText(line);
+            string lineText = doc.GetText(line);            
             _viewModel.ParseLine(lineText);
             if(_viewModel.PrintMessage != string.Empty)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CryptoScript.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace CryptoScript.Variables
         static public readonly string HEX = "HEX_STRING";
         static public readonly string B64 = "BASE64_STRING";
         static public readonly string JSO = "JSON_STRING";
+        static public readonly string PAR = "PARAM_STRING";
         public static string ByteArrayToHexString(byte[] byteArray)
         {
             StringBuilder hex = new StringBuilder(byteArray.Length * 2);
@@ -54,6 +56,15 @@ namespace CryptoScript.Variables
                 return HEX;
             if (input.StartsWith("b64("))
                 return B64;
+            
+            if(input.Contains("#"))
+            {
+                return PAR;
+            }
+            if(MechanismList.Instance.Mechanisms.Contains(input))
+            {
+                return PAR;
+            }
             input = input.Trim();
             if ((input.StartsWith("{") && input.EndsWith("}")) || //For object
                 (input.StartsWith("[") && input.EndsWith("]"))) //For array

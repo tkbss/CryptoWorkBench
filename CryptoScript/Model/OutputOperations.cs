@@ -12,8 +12,10 @@ namespace CryptoScript.Model
         public static event Action<string> PrintEvent;
         public VariableDeclaration Print(string[] args) 
         {
-            PrintEvent?.Invoke(args[0]);
-            Console.WriteLine();
+            string output= "out: "+ args[0];
+            if(PrintEvent != null)
+                PrintEvent?.Invoke(output);
+            Console.WriteLine(output);
             return new VariableDeclaration();
         }
     }

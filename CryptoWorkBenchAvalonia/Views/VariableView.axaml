@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:prism="http://prismlibrary.com/"
+			 xmlns:vm="clr-namespace:CryptoWorkBenchAvalonia.ViewModels"
+			 prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CryptoWorkBenchAvalonia.VariableView">
+	<!--<Design.DataContext>
+		--><!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) --><!--
+		<vm:VariableViewModel />
+	</Design.DataContext>-->
+	<Grid RowDefinitions="0.3*,0.3*,0.3*">
+		<Expander Grid.Row="0" HorizontalAlignment="Stretch" IsExpanded="True">
+			<Expander.Header>
+				<TextBlock Text="Variables VAR" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+			</Expander.Header>
+			<DataGrid Margin="5" Grid.Row="1"  ItemsSource="{Binding Path=DataVariables.DataVariables}"
+						AutoGenerateColumns="False" IsReadOnly="True"
+						GridLinesVisibility="All"
+						BorderThickness="1" BorderBrush="Gray">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Identifier" Binding="{Binding Identifier}" />
+					<DataGridTextColumn Header="Format" Binding="{Binding ValueFormat}" />
+					<DataGridTextColumn Header="Value" Binding="{Binding Value}" />
+				</DataGrid.Columns>
+			</DataGrid>
+		</Expander>
+		<Expander Grid.Row="1" HorizontalAlignment="Stretch" IsExpanded="True" >			
+			<Expander.Header>
+				<TextBlock Text="Parameters PARAM" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+			</Expander.Header>
+			<DataGrid Margin="5" Grid.Row="1"  ItemsSource="{Binding Path=ParameterVariables.ParameterVariables}"
+						AutoGenerateColumns="False" IsReadOnly="True"
+						GridLinesVisibility="All"
+						BorderThickness="1" BorderBrush="Gray">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Identifier" Binding="{Binding Identifier}" />
+					<DataGridTextColumn Header="Mechanism" Binding="{Binding Mechanism}" />
+					<DataGridTextColumn Header="Padding" Binding="{Binding Padding}" />
+					<DataGridTextColumn Header="IV" Binding="{Binding IV}" />
+					<DataGridTextColumn Header="Value" Binding="{Binding Value}" />
+				</DataGrid.Columns>
+			</DataGrid>
+		</Expander>
+		
+		<Expander Grid.Row="2" HorizontalAlignment="Stretch" IsExpanded="True">
+			<Expander.Header>
+				<TextBlock Text="Keys KEY" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+			</Expander.Header>
+			<!--<TextBlock Text="{Binding Path=KeyVariables.Identifier}" />-->
+			<DataGrid Margin="5" Grid.Row="1"  ItemsSource="{Binding Path=KeyVariables.KeyVariables}"
+						AutoGenerateColumns="False" IsReadOnly="True"
+						GridLinesVisibility="All"
+						BorderThickness="1" BorderBrush="Gray">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="Identifier" Binding="{Binding Identifier}" />
+					<DataGridTextColumn Header="Mechanism" Binding="{Binding Mechanism}" />
+					<DataGridTextColumn Header="KeySize" Binding="{Binding KeySize}" />
+					<DataGridTextColumn Header="Value" Binding="{Binding Value}" />
+				</DataGrid.Columns>
+			</DataGrid>
+		</Expander>
+	</Grid>
+	
+</UserControl>

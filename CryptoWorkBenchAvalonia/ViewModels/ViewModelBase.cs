@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Prism.Mvvm;
+﻿using Prism.Mvvm;
 using Prism.Regions;
 
 namespace CryptoWorkBenchAvalonia.ViewModels;

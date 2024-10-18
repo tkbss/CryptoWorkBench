@@ -53,7 +53,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 default:
                     throw new ArgumentException("wrong mechanism");
             }
-            param.Value = param.Serialize();
+            //param.Value = param.Serialize();
             param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
@@ -64,29 +64,11 @@ namespace CryptoScript.CryptoAlgorithm.AES
             param.Mechanism = mechanism;
             foreach (var p in parameters)
             {
-                if (p.ToLower().Contains("iv"))
-                {
-                    param.IV = p.Split(':')[1];
-                }
-                if (p.ToLower().Contains("pad"))
-                {
-                    param.Padding = p.Split(':')[1];
-                }
-                if (p.ToLower().Contains("nonce"))
-                {
-                    param.Nonce = p.Split(':')[1];
-                }
-                if (p.ToLower().Contains("counter"))
-                {
-                    param.Counter = p.Split(':')[1];
-                }
-                if (p.ToLower().Contains("adata"))
-                {
-                    param.AData = p.Split(':')[1];
-                }
+                param.SetParameter(p);
+                
             }
             SetDefaultParameterValues(param);
-            param.Value = param.Serialize();
+            //param.Value = param.Serialize();
             param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
@@ -95,44 +77,44 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
             if (param.Mechanism.ToLower().Contains("cbc"))
             {
-                if (param.IV == string.Empty)
+                if (param.GetParameter("IV") == string.Empty)
                 {
-                    byte[] IV = RandomNumberGenerator.GetBytes(16);
-                    param.IV = FormatConversions.ByteArrayToHexString(IV);
+                    byte[] IV = RandomNumberGenerator.GetBytes(16);                    
+                    param.SetParameter("IV", FormatConversions.ByteArrayToHexString(IV));
                 }
-                if (param.Padding == string.Empty)
-                    param.Padding = "PKCS7";
+                if (param.GetParameter("PAD") == string.Empty)                    
+                    param.SetParameter("PAD", "PKCS7");
                 return;
             }
             if (param.Mechanism.ToLower().Contains("ctr"))
             {
-                if (param.Nonce == string.Empty)
+                if (param.GetParameter("NONCE") == string.Empty)
                 {
                     byte[] nonce = RandomNumberGenerator.GetBytes(12);
-                    param.Nonce = FormatConversions.ByteArrayToHexString(nonce);
+                    param.SetParameter("NONCE",FormatConversions.ByteArrayToHexString(nonce));
                 }
-                if (param.Counter == string.Empty)
-                    param.Counter = "0x(00000000)";
+                if (param.GetParameter("COUNTER") == string.Empty)
+                    param.SetParameter("COUNTER","0x(00000000)");
             }
             if (param.Mechanism.ToLower().Contains("ecb"))
-            {
-                param.IV = string.Empty;
-                param.Padding = "NONE";
+            {                
+                param.SetParameter("IV", string.Empty);
+                param.SetParameter("PAD","NONE");
             }
             if (param.Mechanism.ToLower().Contains("cmac"))
             {
-                param.IV = string.Empty;
-                param.Padding = "NONE";
+                param.SetParameter("IV", string.Empty);
+                param.SetParameter("PAD", "NONE");
             }
             if (param.Mechanism.ToLower().Contains("gcm"))
             {
-                if (param.Nonce == string.Empty)
+                if (param.GetParameter("NONCE") == string.Empty)
                 {
                     byte[] nonce = RandomNumberGenerator.GetBytes(12);
-                    param.Nonce = FormatConversions.ByteArrayToHexString(nonce);
+                    param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
                 }
-                param.IV = string.Empty;
-                param.Padding = "NONE";
+                param.SetParameter("IV", string.Empty);
+                param.SetParameter("PAD", "NONE");
             }
 
         }
@@ -149,8 +131,11 @@ namespace CryptoScript.CryptoAlgorithm.AES
             else
             {
                 //json deserialization
-                if (FormatConversions.ParseString(p) != string.Empty)
-                    parameter = ParameterVariableDeclaration.Deserialize(p);
+                if (FormatConversions.ParseString(p) == FormatConversions.PAR)
+                {
+                    parameter = new ParameterVariableDeclaration();
+                    parameter.SetInstance(p);
+                }
                 else
                 {
                     throw new ArgumentException("wrong parameter argument");

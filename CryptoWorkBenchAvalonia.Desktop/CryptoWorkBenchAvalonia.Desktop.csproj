@@ -16,4 +16,10 @@
   <ItemGroup>
     <ProjectReference Include="..\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\avalonia-logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

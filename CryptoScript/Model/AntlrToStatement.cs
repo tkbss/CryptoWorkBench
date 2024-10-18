@@ -107,7 +107,7 @@ namespace CryptoScript.Model
             if (VariableDictionary.Instance().Contains(Id))
             {
                 SemanticError sem=new SemanticError() { Type = "Variable",Identifier=Id };
-                sem.Message = "Error  variable : " + Id + " already exists";    
+                sem.Message = "VAR " + Id +": "+ " already exists";    
                 SemanticErrors.Add(sem);
                 throw new SemanticErrorException() { SemanticError=sem};
             }

@@ -53,7 +53,7 @@ public partial class App : PrismApplication
         var regionManager = Container.Resolve<IRegionManager>();
         regionManager.RegisterViewWithRegion(RegionNames.SidebarRegion, typeof(SidebarView));
         regionManager.RegisterViewWithRegion(RegionNames.ContentRegion, typeof(CryptoScriptEditView));
-        regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(CryptoScriptEditView));
+        regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(VariableView));
         regionManager.RegisterViewWithRegion(RegionNames.FooterRegion, typeof(StatusView));
 
     }
@@ -61,11 +61,15 @@ public partial class App : PrismApplication
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {           
         containerRegistry.RegisterSingleton<INotificationService, NotificationService>();
+        containerRegistry.RegisterSingleton<VariableViewModel>();
+        containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
+        containerRegistry.RegisterForNavigation<SidebarView>();
+        containerRegistry.RegisterForNavigation<VariableView,VariableViewModel>();
         containerRegistry.RegisterSingleton<StatusViewModel>();
         containerRegistry.RegisterSingleton<SidebarViewModel>();
-        containerRegistry.RegisterSingleton<CryptoScriptEditViewModel>();        
-        containerRegistry.RegisterForNavigation<SidebarView>();
-        containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
+        containerRegistry.RegisterSingleton<CryptoScriptEditViewModel>();
         
+
+
     }
 }

@@ -16,7 +16,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         public override StringVariableDeclaration ModeMac(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
         {
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
-            byte[] nonce = FormatConversions.ToByteArray(parameter.Nonce, FormatConversions.ParseString(parameter.Nonce));
+            string n = parameter.GetParameter("NONCE");
+            byte[] nonce = FormatConversions.ToByteArray(n, FormatConversions.ParseString(n));
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
             GcmBlockCipher gcm = new GcmBlockCipher(new AesEngine());
             AeadParameters parameters = new AeadParameters(new KeyParameter(keyBytes), 128, nonce);

@@ -17,7 +17,8 @@ namespace CryptoScript.CryptoAlgorithm
                 //set key
                 byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
                 aesAlg.Key = keyBytes;
-                byte[] iv= FormatConversions.ToByteArray(parameter.IV,FormatConversions.ParseString(parameter.IV));
+                string IV = parameter.GetParameter("IV");
+                byte[] iv= FormatConversions.ToByteArray(IV,FormatConversions.ParseString(IV));
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;
@@ -59,7 +60,8 @@ namespace CryptoScript.CryptoAlgorithm
                 //set key
                 byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
                 aesAlg.Key = keyBytes;
-                byte[] iv= FormatConversions.ToByteArray(parameter.IV,FormatConversions.ParseString(parameter.IV));
+                string IV = parameter.GetParameter("IV");
+                byte[] iv= FormatConversions.ToByteArray(IV,FormatConversions.ParseString(IV));
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;                

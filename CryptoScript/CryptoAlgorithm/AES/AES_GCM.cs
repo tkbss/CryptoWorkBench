@@ -22,10 +22,11 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
             // Create a GCM block cipher using AES
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
-            byte[] nonce = FormatConversions.ToByteArray(parameter.Nonce, FormatConversions.ParseString(parameter.Nonce));
+            string n= parameter.GetParameter("NONCE");
+            byte[] nonce = FormatConversions.ToByteArray(n, FormatConversions.ParseString(n));
             byte[] associatedData = null;
-            if(string.IsNullOrEmpty(parameter.AData)==false)
-                associatedData=FormatConversions.ToByteArray(parameter.AData, FormatConversions.ParseString(parameter.AData));
+            if(string.IsNullOrEmpty(parameter.GetParameter("ADATA"))==false)
+                associatedData=FormatConversions.ToByteArray(parameter.GetParameter("ADATA"), FormatConversions.ParseString(parameter.GetParameter("ADATA")));
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
             GcmBlockCipher gcm = new GcmBlockCipher(new AesEngine());
             AeadParameters parameters = new AeadParameters(new KeyParameter(keyBytes), 128, nonce);

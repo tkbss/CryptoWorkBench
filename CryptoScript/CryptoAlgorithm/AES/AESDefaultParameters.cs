@@ -16,9 +16,9 @@ namespace CryptoScript.CryptoAlgorithm
             param.Mechanism = mechanism;
             //generate random nonce
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
-            param.Nonce = FormatConversions.ByteArrayToHexString(nonce);
+            param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
             //set counter (4 bytes) to 0
-            param.Counter = "0x(00000000)";
+            param.SetParameter("COUNTER","0x(00000000)");
             return param;
         }
         //generate default parameters for CBC mode
@@ -28,8 +28,8 @@ namespace CryptoScript.CryptoAlgorithm
             param.Mechanism = mechanism;
             //generate random IV
             byte[] IV = RandomNumberGenerator.GetBytes(16);
-            param.IV = FormatConversions.ByteArrayToHexString(IV);
-            param.Padding = "PKCS-7";
+            param.SetParameter("IV", FormatConversions.ByteArrayToHexString(IV));
+            param.SetParameter("PAD", "PKCS-7"); 
             return param;
         }
         public static ParameterVariableDeclaration GenerateDefaultECBParameters(string mechanism)
@@ -37,8 +37,8 @@ namespace CryptoScript.CryptoAlgorithm
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
             //generate random IV            
-            param.IV = string.Empty;
-            param.Padding = "NONE";
+            param.SetParameter("IV", string.Empty);
+            param.SetParameter("PAD", "NONE");
             return param;
         }
         public static ParameterVariableDeclaration GenerateDefaultCMACParameters(string mechanism)
@@ -46,8 +46,8 @@ namespace CryptoScript.CryptoAlgorithm
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
             //generate random IV            
-            param.IV = string.Empty;
-            param.Padding = "NONE";
+            param.SetParameter("IV", string.Empty);
+            param.SetParameter("PAD", "NONE");
             return param;
         }
         public static ParameterVariableDeclaration GenerateDefaultGCMParameters(string mechanism)
@@ -56,10 +56,10 @@ namespace CryptoScript.CryptoAlgorithm
             param.Mechanism = mechanism;
             //generate random nonce
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
-            param.Nonce = FormatConversions.ByteArrayToHexString(nonce);
+            param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
             //generate random IV            
-            param.IV = string.Empty;
-            param.Padding = "NONE";
+            param.SetParameter("IV", string.Empty);
+            param.SetParameter("PAD", "NONE");
             return param;
         }
         public static ParameterVariableDeclaration GenerateDefaultGMACParameters(string mechanism)
@@ -68,10 +68,10 @@ namespace CryptoScript.CryptoAlgorithm
             param.Mechanism = mechanism;
             //generate random nonce
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
-            param.Nonce = FormatConversions.ByteArrayToHexString(nonce);
+            param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
             //generate random IV            
-            param.IV = string.Empty;
-            param.Padding = "NONE";
+            param.SetParameter("IV", string.Empty);
+            param.SetParameter("PAD", "NONE");
             return param;
         }
     }

@@ -6,6 +6,12 @@ using System.Collections.Generic;
 using Avalonia.Platform.Storage;
 using System.IO;
 using System;
+using Prism.Services.Dialogs;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
+using MsBox.Avalonia.Models;
+using MsBox.Avalonia.Dto;
+using CryptoScript.ErrorListner;
 
 namespace CryptoWorkBenchAvalonia.ViewModels;
 
@@ -20,7 +26,12 @@ public class SidebarViewModel : ViewModelBase
     private readonly IRegionManager _regionManager;
     public DelegateCommand OpenScriptBookCommand { get; }
     public DelegateCommand SaveScriptBookCommand { get; }
-
+    private WindowIcon _windowIcon;
+    public WindowIcon WindowIcon
+    {
+        get => _windowIcon;
+        set => SetProperty(ref _windowIcon, value);
+    }
     private int _flyoutWidth;
 
   public SidebarViewModel(IRegionManager regionManager,CryptoScriptEditViewModel cseVm)
@@ -29,6 +40,7 @@ public class SidebarViewModel : ViewModelBase
         _cseVm = cseVm;
         Title = "Navigation";
         FlyoutWidth = Collapsed;
+        _windowIcon = new WindowIcon("./Assets/avalonia-logo.ico");
         OpenScriptBookCommand = new DelegateCommand(async () => await OpenScriptBook());
         SaveScriptBookCommand = new DelegateCommand(async () => await SaveScriptBook());
     }
@@ -55,20 +67,50 @@ public class SidebarViewModel : ViewModelBase
             Title = "Save a file",
             DefaultExtension = "sbk",
             SuggestedFileName = "ScriptBook",   
-            SuggestedStartLocation = CryptoScriptFolderPath
+            SuggestedStartLocation = CryptoScriptFolderPath,
+            ShowOverwritePrompt = false
         };
 
         var result = await _window.StorageProvider.SaveFilePickerAsync(options);
         if (result != null)
         {
             var filePath = result.Path.LocalPath;
-            // Do something with the filePath
+            if (File.Exists(filePath))
+            {
+                var p=new MessageBoxCustomParams
+                {
+                    ButtonDefinitions = new List<ButtonDefinition>
+                    {
+                        new ButtonDefinition { Name = "Yes", },
+                        new ButtonDefinition { Name = "No", },                        
+                    },
+                    WindowIcon = _windowIcon,
+                    ContentTitle = "OVERWRITE PROMPT",
+                    ContentMessage = "The file already exists. Do you want to overwrite it?",
+                    Icon = MsBox.Avalonia.Enums.Icon.Question,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                };
+                // Prompt the user for confirmation
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);   
+                    
+                var r = await messageBoxStandardWindow.ShowAsync();
+
+                if (r == "No")
+                {
+                    _cseVm.Status.StatusString = "Save operation canceled by the user.";
+                    return;
+                }
+                else
+                {                    
+                    await result.DeleteAsync();
+                }
+            }
             _cseVm.SaveScriptBook(filePath);
             _cseVm.Status.StatusString = "Script book saved in: "+ filePath;
         }
         else
         {
-            _cseVm.Status.StatusString = "Script book not saved";
+            _cseVm.Status.StatusString = "Script book not saving canceld";
         }
     }
 
@@ -84,15 +126,44 @@ public class SidebarViewModel : ViewModelBase
                 new FilePickerFileType("All Files") { Patterns = new[] { "*.*" } }
             }
         };
-
+        
         var result = await _window.StorageProvider.OpenFilePickerAsync(options);
         if (result.Count > 0)
         {
-            var file = result[0];
-            var filePath = file.Path.LocalPath;
-            // Do something with the filePath
+            if(_cseVm.IsTextEditorEmpty()==false)
+            {
+                var p = new MessageBoxCustomParams
+                {
+                    ButtonDefinitions = new List<ButtonDefinition>
+                    {
+                        new ButtonDefinition { Name = "Yes", },
+                        new ButtonDefinition { Name = "No", },
+                    },
+                    WindowIcon = _windowIcon,
+                    ContentTitle = "EDITOR WINDOW CLEARENCE",
+                    ContentMessage = "Do you want to clear editor window before loading book?",
+                    Icon = MsBox.Avalonia.Enums.Icon.Question,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                };
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);
+                var r = await messageBoxStandardWindow.ShowAsync();
+                if (r == "Yes")
+                {
+                    _cseVm.TextEditor!.Document.Text = string.Empty;
+                }
+            }
+            try
+            {
+                _cseVm.OpenScriptBook(result[0].Path.LocalPath);
+            }
+            catch (SemanticErrorException ex)
+            {
+                _cseVm.Status.StatusString = "Semantic error loading script book: " + ex.SemanticError.Message;
+                return;
+            }
+            _cseVm.Status.StatusString = "Script book loaded and all lines successfull parsed";
         }
-    } //_regionManager.RequestNavigate(RegionNames.ContentRegion, nameof(SettingsView)));
+    } 
 
   public int FlyoutWidth { get => _flyoutWidth; set => SetProperty(ref _flyoutWidth, value); }
 }

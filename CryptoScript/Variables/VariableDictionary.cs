@@ -33,6 +33,10 @@ namespace CryptoScript.Variables
         {
             return _instance;
         }
+        public IEnumerable<VariableDeclaration> GetVariables()
+        {
+            return variables.Values;
+        }
 
 
     }

@@ -89,9 +89,10 @@ namespace CryptoScript.Model
                     parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
                     break;
                 }
-                if(FormatConversions.ParseString(p) == FormatConversions.JSO)
+                if(FormatConversions.ParseString(p) == FormatConversions.PAR)
                 {
-                    parameter = ParameterVariableDeclaration.Deserialize(p);
+                    parameter = new ParameterVariableDeclaration();
+                    parameter.SetInstance(p);
                     break;
                 }
             }

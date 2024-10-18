@@ -6,115 +6,102 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CryptoScript.Variables
 {
-    public class ParameterTypeList
-    {
-        private static ParameterTypeList? instance = null;
-        private static readonly object padlock = new object();
-        public List<string> Paddings { get; set; }
-        public List<string> ParameterTypes { get; set; }
-        ParameterTypeList()
-        {
-            Paddings = new List<string>();
-            ParameterTypes = new List<string>();
-            var lexer = new CryptoScriptLexer(new AntlrInputStream(""));            
-            foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
-            {
-                // Check if the field corresponds to one of our mechanisms
-                if (field.Name.StartsWith("PAD_"))
-                {
-                    int index = (int)field?.GetValue(null);                   
-                    string m = lexer.Vocabulary.GetDisplayName(index);
-                    m = m.Trim('\'');
-                    Paddings.Add(m);
-                }
-                if (field.Name.StartsWith("P_"))
-                {
-                    int index = (int)field?.GetValue(null);                   
-                    string m = lexer.Vocabulary.GetDisplayName(index);
-                    m = m.Trim('\'');
-                    ParameterTypes.Add(m);
-                }
-            }
-        }
-        public static ParameterTypeList Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                    {
-                        instance = new ParameterTypeList();
-                    }
-                    return instance;
-                }
-            }
-        }
-    }
-    //public class Parameter : VariableDeclaration
-    //{
-    //    public string Mechanism { get; set; } = string.Empty;
-    //    public Parameter()
-    //    {
-    //        Type = new CryptoTypeParameters();
-    //    }
 
-    //}
+    
     public class ParameterVariableDeclaration : VariableDeclaration
     {
+        public void SetInstance(string parameters)
+        {            
+            // Regular expression to match the mechanism
+            string mechanismPattern = @"^\s*(\w+-\w+)";
+            
+
+            // Extract mechanism
+            var mechanismMatch = Regex.Match(parameters, mechanismPattern);
+            Mechanism = mechanismMatch.Success ? mechanismMatch.Groups[1].Value : string.Empty;
+            var p=parameters.Remove(0,Mechanism.Length);
+            p=p.TrimStart();
+            string[] keyValueArray=p.Split('#');
+            foreach(var item in keyValueArray)
+            {
+                if (string.IsNullOrEmpty(item))
+                    continue;
+                SetParameter(item);
+            }
+                        
+        }
         public string Mechanism { get; set; } = string.Empty;
-        public string IV { get; set; } = string.Empty;
-        public string Nonce { get; set; } = string.Empty;
-        public string Counter { get; set; } = string.Empty;
-        public string Padding { get; set; } = string.Empty;
-        public string AData { get; set; } = string.Empty;
+        
+        
+        string _value = string.Empty;
+        public override string Value
+        {
+            get { return _value; }
+            //set { _value = value; }
+        } 
+        Dictionary<string, string> ParameterTypeValue = new Dictionary<string, string>();
         public ParameterVariableDeclaration() 
         {
             Type = new CryptoTypeParameters();
         }
-
-
+        private void BuildValue() 
+        {            
+            _value = Mechanism;
+            foreach (var item in ParameterTypeValue)
+            {
+                _value += item.Key + ":" + item.Value;
+            }
+        }
+        public void SetParameter(string type, string value)
+        {
+            string tu = type.ToUpper();
+            string t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
+            if (ParameterTypeValue.ContainsKey(t))
+            {
+                ParameterTypeValue[t] = value;
+            }
+            else
+            {
+                ParameterTypeValue.Add(t, value);
+            }
+            BuildValue();
+        }
+        public void SetParameter(string parameter)
+        {
+            string[] parts = parameter.Split(':');
+            if (parts.Length != 2)
+                throw new ArgumentException("Error: invalid parameter format");
+            SetParameter(parts[0], parts[1]);
+        }
+        public string GetParameter(string type)
+        {
+            string tu = type.ToUpper();
+            string t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
+            if (ParameterTypeValue.ContainsKey(t))
+            {
+                return ParameterTypeValue[t];
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
 
         public override string PrintOutput()
         {
-            return base.PrintOutput();
+            BuildValue();
+            return Value;
         }
         public void SetParameter(ArgumentParameter p)
         {
-            if (p.Type.ToLower().Contains("iv"))
-            {
-                IV = p.Value;
-            }
-            if (p.Type.ToLower().Contains("pad"))
-            {
-                Padding = p.Value;
-            }
-            if (p.Type.ToLower().Contains("nonce"))
-            {
-                Nonce = p.Value;
-            }
-            if (p.Type.ToLower().Contains("counter"))
-            {
-                Counter = p.Value;
-            }
-            if (p.Type.ToLower().Contains("adata"))
-            {
-                AData = p.Value;
-            }
+            SetParameter(p.Type, p.Value);            
 
         }
-        public new string Serialize()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
-        public new static ParameterVariableDeclaration Deserialize(string json)
-        {
-            return JsonConvert.DeserializeObject<ParameterVariableDeclaration>(json);
-        }
+        
     }
 }

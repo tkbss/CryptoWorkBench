@@ -28,8 +28,10 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 aesAlg.Key = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
                 byte[] buffer = new byte[16];
                 int blockCount = (input.Length + 15) / 16;
-                byte[] nonce = FormatConversions.ToByteArray(parameter.Nonce, FormatConversions.ParseString(parameter.Nonce));
-                byte[] counter = FormatConversions.ToByteArray(parameter.Counter, FormatConversions.ParseString(parameter.Counter));
+                string n = parameter.GetParameter("NONCE");
+                byte[] nonce = FormatConversions.ToByteArray(n, FormatConversions.ParseString(n));
+                string c = parameter.GetParameter("COUNTER");
+                byte[] counter = FormatConversions.ToByteArray(c, FormatConversions.ParseString(c));
                 byte[] iv = ConcatenateArrays(nonce, counter);
                 for (int i = 0; i < blockCount; i++)
                 {

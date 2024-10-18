@@ -10,15 +10,15 @@ namespace CryptoScript.Variables
         public virtual string Value { get; set; }=string.Empty;
         public string ValueFormat { get; set; } = string.Empty;        
         public virtual string PrintOutput() {  return string.Empty; }
-        public string Serialize()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
+        //public string Serialize()
+        //{
+        //    return JsonConvert.SerializeObject(this);
+        //}
 
-        public static VariableDeclaration Deserialize(string json)
-        {
-            return JsonConvert.DeserializeObject<VariableDeclaration>(json);
-        }
+        //public static VariableDeclaration Deserialize(string json)
+        //{
+        //    return JsonConvert.DeserializeObject<VariableDeclaration>(json);
+        //}
 
     }
 }

@@ -30,7 +30,7 @@ namespace CryptoScript.CryptoAlgorithm
         public byte[] SetPadding(ParameterVariableDeclaration parameter, out PaddingMode padding, byte[] input)
         {
             byte[] output = input;
-            switch (parameter.Padding.ToLower())
+            switch (parameter.GetParameter("PAD").ToLower())
             {
                 case "pkcs-7":
                     padding = PaddingMode.PKCS7;
