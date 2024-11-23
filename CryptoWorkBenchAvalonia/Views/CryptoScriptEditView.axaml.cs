@@ -16,18 +16,28 @@ public partial class CryptoScriptEditView : UserControl
     
     private readonly TextEditor? _textEditor;
     private TextBlock? _statusTextBlock;
-    private CryptoScriptEditViewModel _viewModel;
-    public CryptoScriptEditView(CryptoScriptEditViewModel vm)
+    private CryptoScriptEditViewModel? _viewModel;
+    public CryptoScriptEditView()
     {
-        _viewModel = vm;
+        
         InitializeComponent();
         _textEditor = this.FindControl<TextEditor>("Editor");
-        _textEditor.Clear();
+        if (_textEditor != null && _viewModel!=null)
+        {
+            _textEditor.Clear();
+            _viewModel.TextEditor = _textEditor;
+        }
         _statusTextBlock = this.Find<TextBlock>("StatusText");
         _textEditor!.TextArea.TextEntering += this.textEditor_TextArea_TextEntering!;
         _textEditor.TextArea.Caret.PositionChanged += Caret_PositionChanged!;
-        _viewModel.TextEditor = _textEditor;
+        
 
+    }
+    // Constructor that accepts a ViewModel
+    public CryptoScriptEditView(CryptoScriptEditViewModel vm) : this()
+    {
+        _viewModel = vm;
+        
     }
     private void textEditor_TextArea_TextEntering(object sender, TextInputEventArgs e)
     {

@@ -18,7 +18,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             get => _keyVariables;
             set => SetProperty(ref _keyVariables, value);
         }
-        KeyVariableModel _tk;
+        KeyVariableModel? _tk;
         public KeyVariableModel TestKey
         {
             get => _tk;

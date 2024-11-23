@@ -8,7 +8,7 @@ namespace CryptoWorkBenchAvalonia.Views;
 
 public partial class SidebarView : UserControl
 {
-    SidebarViewModel _vm;
+    SidebarViewModel? _vm;
     public SidebarView()
     {
         InitializeComponent();
@@ -22,7 +22,8 @@ public partial class SidebarView : UserControl
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        _vm._window = TopLevel.GetTopLevel(this);
+        if(_vm!=null)
+            _vm._window = TopLevel.GetTopLevel(this);
         base.OnLoaded(e);
     }
 }

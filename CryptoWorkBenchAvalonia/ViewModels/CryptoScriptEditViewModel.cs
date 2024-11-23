@@ -19,9 +19,13 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public StatusViewModel Status { get => _statusViewModel; }
         public TextEditor TextEditor
         {
-            get => _textEditor;
+            get
+            {
+                return _textEditor;
+            }
+
             set => SetProperty(ref _textEditor, value);
-        }   
+        }
         public string PrintMessage 
         { 
             get => _printMessage; 
