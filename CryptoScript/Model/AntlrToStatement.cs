@@ -2,6 +2,7 @@
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
 using System.Net.WebSockets;
+using static CryptoScript.Model.Expression;
 
 namespace CryptoScript.Model
 {
@@ -114,8 +115,8 @@ namespace CryptoScript.Model
             var type= (CryptoType)VisitType(context.type());
             var fcontext = context.functionCall();
             var exprContext = context.expression();
-            var declarParam=context.declareparam();
-            
+            var declarParam=context.declareparam();            
+
             Statement? stmt = null;
             if (fcontext != null)
             {
@@ -165,17 +166,9 @@ namespace CryptoScript.Model
                 stmt= variable;
             }
             
-            if (stmt is Expression expressionHex)
-            {                
-                var newVariable = new StringVariableDeclaration();
-                newVariable.Id = Id;
-                newVariable.Value = expressionHex.Value();
-                newVariable.Type = type;
-                newVariable.ValueFormat = FormatConversions.ParseString(expressionHex.Value());                
-                VariableDictionary.Instance().Add(newVariable);
-                stmt = newVariable;
-            }
+            stmt = Expression.BuildVariable(stmt, Id, type);
             return stmt;
+             
         }
 
         public override Statement VisitExpression([NotNull] CryptoScriptParser.ExpressionContext context)

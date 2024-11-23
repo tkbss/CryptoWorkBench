@@ -17,5 +17,14 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
         }
-     }
+        [Test]
+        public void Path_Test()
+        {
+            AntlrToProgram prog = new AntlrToProgram();
+            string input = @"PATH p=c:\dir1\dir2\file.txt";
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            CryptoScriptParser.ProgramContext context = parser.program();
+            var res = prog.Visit(context);
+        }
+    }
 }

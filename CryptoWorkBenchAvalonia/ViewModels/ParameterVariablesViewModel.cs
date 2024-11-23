@@ -34,7 +34,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 if ((k == null))
                     return;
 
-                var dv = new ParameterVariableModel() { Identifier = parameterVariable.Id, Value = parameterVariable.Value, Mechanism = k.Mechanism, IV = k.IV, Padding=k.Padding };
+                var dv = new ParameterVariableModel() { Identifier = parameterVariable.Id, Value = parameterVariable.Value, Mechanism = k.Mechanism};
                 ParameterVariables.Add(dv);
             }
 

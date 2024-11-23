@@ -27,17 +27,6 @@ namespace CryptoWorkBenchAvalonia.Models
             get => _mechanism;
             set => SetProperty(ref _mechanism, value);
         }
-        string _iv = string.Empty;
-        public string IV
-        {
-            get => _iv;
-            set => SetProperty(ref _iv, value);
-        }
-        string _padding = string.Empty;
-        public string Padding
-        {
-            get => _padding;
-            set => SetProperty(ref _padding, value);
-        }
+        
     }
 }

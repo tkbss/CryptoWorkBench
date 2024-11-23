@@ -4,6 +4,9 @@ lexer grammar CryptoLexer;
 T_KEY         : 'KEY';
 T_VAR         : 'VAR';
 T_PARAMETER   : 'PARAM';
+T_PATH        : 'PATH';
+PATH          : ( [a-zA-Z] ':' ( '\\' [^\\]* (ESC | ~["\\])*)* '\\'? )                                                          
+              ;
 FN            : [A-Z] [a-z] [a-zA-Z]*;
 ID            : [a-zA-Z] [a-zA-Z0-9]*;
 HEX_STRING    : '0x(' [0-9a-fA-F]+ ')'

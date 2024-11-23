@@ -11,6 +11,10 @@ namespace CryptoScript.Variables
         {
 
         }
+        public void Clear()
+        {
+            variables.Clear();
+        }
         public VariableDeclaration Get(string Id)
         {
             VariableDeclaration? value=null;

@@ -12,6 +12,7 @@ using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
 using MsBox.Avalonia.Dto;
 using CryptoScript.ErrorListner;
+using CryptoScript.Variables;
 
 namespace CryptoWorkBenchAvalonia.ViewModels;
 
@@ -130,7 +131,7 @@ public class SidebarViewModel : ViewModelBase
         var result = await _window.StorageProvider.OpenFilePickerAsync(options);
         if (result.Count > 0)
         {
-            if(_cseVm.IsTextEditorEmpty()==false)
+            if (_cseVm.IsTextEditorEmpty() == false)
             {
                 var p = new MessageBoxCustomParams
                 {
@@ -150,6 +151,7 @@ public class SidebarViewModel : ViewModelBase
                 if (r == "Yes")
                 {
                     _cseVm.TextEditor!.Document.Text = string.Empty;
+                    VariableDictionary.Instance().Clear();
                 }
             }
             try
@@ -163,6 +165,7 @@ public class SidebarViewModel : ViewModelBase
             }
             _cseVm.Status.StatusString = "Script book loaded and all lines successfull parsed";
         }
+        
     } 
 
   public int FlyoutWidth { get => _flyoutWidth; set => SetProperty(ref _flyoutWidth, value); }

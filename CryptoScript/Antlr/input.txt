@@ -1,2 +1,1 @@
-VAR ad=0x(123456789abcdef)
-PARAM pgcm = AES-GCM #NONCE:0x(123456789abcdef) #ADATA:ad 
+PATH p = c:\testdir\xyz\test.txt

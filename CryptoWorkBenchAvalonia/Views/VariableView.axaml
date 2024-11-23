@@ -38,9 +38,7 @@
 						BorderThickness="1" BorderBrush="Gray">
 				<DataGrid.Columns>
 					<DataGridTextColumn Header="Identifier" Binding="{Binding Identifier}" />
-					<DataGridTextColumn Header="Mechanism" Binding="{Binding Mechanism}" />
-					<DataGridTextColumn Header="Padding" Binding="{Binding Padding}" />
-					<DataGridTextColumn Header="IV" Binding="{Binding IV}" />
+					<DataGridTextColumn Header="Mechanism" Binding="{Binding Mechanism}" />					
 					<DataGridTextColumn Header="Value" Binding="{Binding Value}" />
 				</DataGrid.Columns>
 			</DataGrid>

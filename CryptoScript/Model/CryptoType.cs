@@ -30,6 +30,8 @@ namespace CryptoScript.Model
                     return new CryptoTypeKey();
                 case "param":
                     return new CryptoTypeParameters();
+                case "path":                    
+                    return new CryptoTypePath();
                 default: throw new Exception();
             }
         }
@@ -60,6 +62,15 @@ namespace CryptoScript.Model
         public CryptoTypeParameters()
         {
             Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_PARAMETER);
+        }
+    }
+    public class CryptoTypePath : CryptoType
+    {
+        public override string Id { get; set; } = string.Empty;
+        public override string Name { get => "PATH"; }
+        public CryptoTypePath()
+        {
+            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_PATH);
         }
     }
 }
