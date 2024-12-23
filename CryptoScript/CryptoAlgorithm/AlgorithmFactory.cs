@@ -5,7 +5,7 @@
         public AlgorithmFactory() { }
         public static CryptoAlgorithm Create(string mechanism) 
         {
-            if (mechanism.StartsWith("AES"))
+            if (mechanism.Contains("AES"))
                 return new AES.AES();
             return new SymmetricCryptoAlgorithm();
         }

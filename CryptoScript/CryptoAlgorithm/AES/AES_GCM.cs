@@ -24,7 +24,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
             string n= parameter.GetParameter("NONCE");
             byte[] nonce = FormatConversions.ToByteArray(n, FormatConversions.ParseString(n));
-            byte[] associatedData = null;
+            byte[]? associatedData = null;
             if(string.IsNullOrEmpty(parameter.GetParameter("ADATA"))==false)
                 associatedData=FormatConversions.ToByteArray(parameter.GetParameter("ADATA"), FormatConversions.ParseString(parameter.GetParameter("ADATA")));
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);

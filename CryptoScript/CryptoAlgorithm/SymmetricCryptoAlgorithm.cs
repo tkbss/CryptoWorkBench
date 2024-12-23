@@ -32,6 +32,14 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return base.Mac(parameters);
         }
+        protected string ExtractMechanismen(string mech) 
+        {
+            if (!mech.Contains(":"))
+                return mech;
+            var split = mech.Split(":");
+            return split[1];
+        }
+        
     }
     
 }

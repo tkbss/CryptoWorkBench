@@ -14,7 +14,7 @@ declaration   : type ID '=' expression
               | type ID '=' functionCall
               | type ID '=' (declareparam)*
               ;
-declareparam  :  MECHANISM
+declareparam  :  PARAM_TYPE ':' MECHANISM
               |  PARAM_TYPE ':' PADDING
               |  PARAM_TYPE ':' HEX_STRING
               |  PARAM_TYPE ':' ID

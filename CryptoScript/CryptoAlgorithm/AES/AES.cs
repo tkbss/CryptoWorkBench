@@ -33,6 +33,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
         public override ParameterVariableDeclaration GenerateParameters(string mechanism)
         {
             var param = new ParameterVariableDeclaration();
+            mechanism = ExtractMechanismen(mechanism);
             switch (mechanism.ToLower())
             {
                 case "aes-ctr":
@@ -52,8 +53,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
                     break;
                 default:
                     throw new ArgumentException("wrong mechanism");
-            }
-            //param.Value = param.Serialize();
+            }            
             param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
@@ -61,20 +61,21 @@ namespace CryptoScript.CryptoAlgorithm.AES
         public override ParameterVariableDeclaration GenerateParameters(string mechanism, string[] parameters)
         {
             var param = new ParameterVariableDeclaration();
+            mechanism = ExtractMechanismen(mechanism);
             param.Mechanism = mechanism;
             foreach (var p in parameters)
             {
                 param.SetParameter(p);
                 
             }
-            SetDefaultParameterValues(param);
-            //param.Value = param.Serialize();
+            SetDefaultParameterValues(param);            
             param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
 
         private void SetDefaultParameterValues(ParameterVariableDeclaration param)
         {
+            param.Mechanism = ExtractMechanismen(param.Mechanism);
             if (param.Mechanism.ToLower().Contains("cbc"))
             {
                 if (param.GetParameter("IV") == string.Empty)

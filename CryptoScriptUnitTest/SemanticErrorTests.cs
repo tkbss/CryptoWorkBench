@@ -154,7 +154,7 @@ namespace CryptoScriptUnitTest
         public void Wrong_Parameter_Declaration_Type_Error()
         {
             var prog = new AntlrToProgram();
-            string input = "KEY p11 = AES-CTR #NONCE:0x(00112233445566778899AABB) #COUNTER:0x(00000000) #PAD:PKCS-7 #IV:0x(12345678)";
+            string input = "KEY p11 = #MECH:AES-CTR #NONCE:0x(00112233445566778899AABB) #COUNTER:0x(00000000) #PAD:PKCS-7 #IV:0x(12345678)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             if (SyntaxErrorListner.SyntaxErrorOccured || LexerErrorListener.LexerErrorOccured)

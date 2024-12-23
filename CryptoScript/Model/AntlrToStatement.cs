@@ -137,7 +137,7 @@ namespace CryptoScript.Model
                 }
                 var Parameter=new ParameterVariableDeclaration();
                 Parameter.Mechanism = declarParam[0].GetText();
-                for(int i=1;i<declarParam.Length;i++)
+                for(int i=0;i<declarParam.Length;i++)
                 {
                     var param = VisitDeclareparam(declarParam[i]) as ArgumentParameter;
                     Parameter.SetParameter(param);

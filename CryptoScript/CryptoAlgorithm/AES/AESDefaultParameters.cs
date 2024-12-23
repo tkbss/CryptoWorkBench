@@ -14,6 +14,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
             //generate random nonce
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
             param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
@@ -26,6 +27,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
             //generate random IV
             byte[] IV = RandomNumberGenerator.GetBytes(16);
             param.SetParameter("IV", FormatConversions.ByteArrayToHexString(IV));
@@ -36,6 +38,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
             //generate random IV            
             param.SetParameter("IV", string.Empty);
             param.SetParameter("PAD", "NONE");
@@ -45,6 +48,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
             //generate random IV            
             param.SetParameter("IV", string.Empty);
             param.SetParameter("PAD", "NONE");
@@ -54,6 +58,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
             //generate random nonce
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
             param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
@@ -66,6 +71,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
             //generate random nonce
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
             param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));

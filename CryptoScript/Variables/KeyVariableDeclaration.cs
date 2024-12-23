@@ -17,12 +17,12 @@ namespace CryptoScript.Variables
         {
             return base.PrintOutput();
         }
-        public new string Serialize()
+        public string Serialize()
         {
             return JsonConvert.SerializeObject(this);
         }
 
-        public new static KeyVariableDeclaration Deserialize(string json)
+        public static KeyVariableDeclaration Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<KeyVariableDeclaration>(json);
         }

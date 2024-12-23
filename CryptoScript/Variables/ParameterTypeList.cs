@@ -8,11 +8,13 @@ namespace CryptoScript.Variables
         private static ParameterTypeList? instance = null;
         private static readonly object padlock = new object();
         public List<string> Paddings { get; set; }
+        public List<string> Mechanism { get; set; }
         public List<string> ParameterTypes { get; set; }
         ParameterTypeList()
         {
             Paddings = new List<string>();
             ParameterTypes = new List<string>();
+            Mechanism = new List<string>(); 
             var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
             foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
@@ -30,6 +32,13 @@ namespace CryptoScript.Variables
                     string m = lexer.Vocabulary.GetDisplayName(index);
                     m = m.Trim('\'');
                     ParameterTypes.Add(m);
+                }
+                if (field.Name.StartsWith("M_"))
+                {
+                    int index = (int)field?.GetValue(null);
+                    string m = lexer.Vocabulary.GetDisplayName(index);
+                    m = m.Trim('\'');
+                    Mechanism.Add(m);
                 }
             }
         }

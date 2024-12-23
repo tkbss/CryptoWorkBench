@@ -12,7 +12,7 @@ namespace CryptoScript.Model
         public string Text { get; set; }    
         public Statement()
         {
-            
+            Text = string.Empty;    
         }
     }
 }

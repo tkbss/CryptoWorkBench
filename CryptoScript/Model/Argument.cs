@@ -60,6 +60,11 @@ namespace CryptoScript.Model
                 Value = value;
                 return;
             }
+            if (ParameterTypeList.Instance.Mechanism.Contains(value))
+            {
+                Value = value;
+                return;
+            }
             if (VariableDictionary.Instance().Contains(value))
                 Value = VariableDictionary.Instance().Get(value).Value;
             else

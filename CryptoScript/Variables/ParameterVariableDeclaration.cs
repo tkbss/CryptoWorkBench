@@ -17,25 +17,33 @@ namespace CryptoScript.Variables
     {
         public void SetInstance(string parameters)
         {            
-            // Regular expression to match the mechanism
-            string mechanismPattern = @"^\s*(\w+-\w+)";
             
+            // Split by '#' and remove empty entries
+            var parts = parameters.Split('#', StringSplitOptions.RemoveEmptyEntries);
+            // parts = [ "MECH:AES-CBC", "IV:0x(ed5ec439881464b03215cb6434eef91a)", "PAD:PKCS-7" ]
 
-            // Extract mechanism
-            var mechanismMatch = Regex.Match(parameters, mechanismPattern);
-            Mechanism = mechanismMatch.Success ? mechanismMatch.Groups[1].Value : string.Empty;
-            var p=parameters.Remove(0,Mechanism.Length);
-            p=p.TrimStart();
-            string[] keyValueArray=p.Split('#');
-            foreach(var item in keyValueArray)
+            foreach (var part in parts)
             {
-                if (string.IsNullOrEmpty(item))
-                    continue;
-                SetParameter(item);
+                // Split each part by ':' to separate key and value
+                var kv = part.Split(':', 2);
+                if (kv.Length == 2)
+                {
+                    if (kv[0] == "MECH")
+                        Mechanism = kv[1];
+                    var key = "#" + kv[0];    // Add '#' back to the key                    
+                    var value = kv[1];
+                    SetParameter(key, value);
+
+                }
             }
-                        
-        }
-        public string Mechanism { get; set; } = string.Empty;
+
+         }
+        string _mechanism = string.Empty;
+        public string Mechanism 
+        {
+            get { return _mechanism; }
+            set { _mechanism = value;SetParameter("MECH",_mechanism); }
+        } 
         
         
         string _value = string.Empty;
@@ -50,17 +58,25 @@ namespace CryptoScript.Variables
             Type = new CryptoTypeParameters();
         }
         private void BuildValue() 
-        {            
-            _value = Mechanism;
+        {
+            ParameterMechanismen(Mechanism);
+            _value = string.Empty;
             foreach (var item in ParameterTypeValue)
             {
                 _value += item.Key + ":" + item.Value;
             }
+            
+        }
+        private void ParameterMechanismen(string mech)
+        {
+            if (!ParameterTypeValue.ContainsKey("#MECH"))
+                ParameterTypeValue.Add("#MECH", mech);
+            
         }
         public void SetParameter(string type, string value)
         {
             string tu = type.ToUpper();
-            string t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
+            string? t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
             if (ParameterTypeValue.ContainsKey(t))
             {
                 ParameterTypeValue[t] = value;
@@ -81,7 +97,7 @@ namespace CryptoScript.Variables
         public string GetParameter(string type)
         {
             string tu = type.ToUpper();
-            string t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
+            string? t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
             if (ParameterTypeValue.ContainsKey(t))
             {
                 return ParameterTypeValue[t];

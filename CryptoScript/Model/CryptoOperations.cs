@@ -21,7 +21,7 @@ namespace CryptoScript.Model
             }
             string mech = args[0];
             var algo=AlgorithmFactory.Create(mech);
-            VariableDeclaration returnValue = null;
+            VariableDeclaration? returnValue = null;
             if(args.Length > 1)
             {
                 var parameters = args.Skip(1).ToArray();

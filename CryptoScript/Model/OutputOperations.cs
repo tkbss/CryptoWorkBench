@@ -9,7 +9,7 @@ namespace CryptoScript.Model
 {
     public class OutputOperations
     {
-        public static event Action<string> PrintEvent;
+        public static event Action<string>? PrintEvent;
         public VariableDeclaration Print(string[] args) 
         {
             string output= "out: "+ args[0];

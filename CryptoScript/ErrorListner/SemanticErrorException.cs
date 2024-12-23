@@ -8,6 +8,6 @@ namespace CryptoScript.ErrorListner
 {
     public class SemanticErrorException:Exception
     {
-        public SemanticError SemanticError { get; set; } = null;
+        public SemanticError? SemanticError { get; set; } = null;
     }
 }

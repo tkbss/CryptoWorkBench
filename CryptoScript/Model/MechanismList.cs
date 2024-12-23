@@ -5,14 +5,13 @@ namespace CryptoScript.Model
 {
     public class MechanismList
     {
-        private static MechanismList instance = null;
+        private static MechanismList? instance = null;
         private static readonly object padlock = new object();
         public List<string> Mechanisms { get; set; }
         MechanismList()
         {
             Mechanisms = new List<string>();
-            var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
-            var remove = "M_";
+            var lexer = new CryptoScriptLexer(new AntlrInputStream(""));            
             foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 // Check if the field corresponds to one of our mechanisms

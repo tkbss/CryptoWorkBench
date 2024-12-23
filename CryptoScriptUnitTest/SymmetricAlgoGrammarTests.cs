@@ -39,7 +39,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(variable?.Id == "key0");
             ClassicAssert.IsTrue(variable?.Value == "0x(1234)");
             ClassicAssert.IsTrue(variable?.Type is CryptoTypeKey);
-            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable?.Id));
+            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
 
             
         }
@@ -103,7 +103,7 @@ namespace CryptoScriptUnitTest
             var iv = FormatConversions.HexStringToByteArray(variable.GetParameter("IV"));
             ClassicAssert.IsTrue(iv.Length==16);
             ClassicAssert.IsTrue(variable.GetParameter("PAD")=="PKCS-7");
-            ClassicAssert.IsTrue(variable.Mechanism=="AES-CBC");
+            ClassicAssert.IsTrue(variable.GetParameter("MECH")== "AES-CBC");
             ClassicAssert.IsTrue(variable.Id == "p1");
             ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
             ClassicAssert.IsTrue(string.IsNullOrEmpty(variable.GetParameter("NONCE")));
@@ -112,7 +112,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Parameters_AES_CTR_Test()
         {
-            string input= "PARAM p6=Parameters(AES-CTR,#NONCE:0x(00112233445566778899AABB),#COUNTER:0x(00000000))";
+            string input= "PARAM p6=Parameters(#MECH:AES-CTR,#NONCE:0x(00112233445566778899AABB),#COUNTER:0x(00000000))";
             AntlrToProgram prog = new AntlrToProgram();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -129,7 +129,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Parameters_Declaration_Test() 
         {
-            string input = "PARAM p7= AES-CTR #NONCE:0x(00112233445566778899AABB) #COUNTER:0x(00000000) #PAD:PKCS-7 #IV:0x(12345678)";
+            string input = "PARAM p7= #MECH:AES-CTR #NONCE:0x(00112233445566778899AABB) #COUNTER:0x(00000000) #PAD:PKCS-7 #IV:0x(12345678)";
             AntlrToProgram prog = new AntlrToProgram();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -140,7 +140,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(variable.GetParameter("COUNTER") == "0x(00000000)");
             ClassicAssert.IsTrue(variable.GetParameter("IV") == "0x(12345678)");
             ClassicAssert.IsTrue(variable.GetParameter("PAD") == "PKCS-7");
-            ClassicAssert.IsTrue(variable.Mechanism == "AES-CTR");
+            ClassicAssert.IsTrue(variable.GetParameter("MECH") == "AES-CTR");
             ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]

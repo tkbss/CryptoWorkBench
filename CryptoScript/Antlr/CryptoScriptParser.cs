@@ -41,8 +41,8 @@ public partial class CryptoScriptParser : Parser {
 		INT=16, MECHANISM=17, M_AES_ECB=18, M_AES_CBC=19, M_AES_CTR=20, M_AES_CMAC=21, 
 		M_AES_GCM=22, M_AES_GMAC=23, M_DES3_ECB=24, M_DES3_CBC=25, M_DES3_CMAC=26, 
 		PADDING=27, PAD_ISO7816=28, PAD_PKCS7=29, PAD_ISO9797=30, PAD_ANSI_X923=31, 
-		PAD_NONE=32, PARAM_TYPE=33, P_IV=34, P_PADDING=35, P_NONCE=36, P_COUNTER=37, 
-		P_ADATA=38, WS=39;
+		PAD_NONE=32, PARAM_TYPE=33, P_MECHANISM=34, P_IV=35, P_PADDING=36, P_NONCE=37, 
+		P_COUNTER=38, P_ADATA=39, WS=40;
 	public const int
 		RULE_program = 0, RULE_statement = 1, RULE_declaration = 2, RULE_declareparam = 3, 
 		RULE_type = 4, RULE_expression = 5, RULE_functionCall = 6, RULE_arguments = 7, 
@@ -57,8 +57,8 @@ public partial class CryptoScriptParser : Parser {
 		"'PATH'", null, null, null, null, null, null, null, null, "'AES-ECB'", 
 		"'AES-CBC'", "'AES-CTR'", "'AES-CMAC'", "'AES-GCM'", "'AES-GMAC'", "'DES3-ECB'", 
 		"'DES3-CBC'", "'DES3-CMAC'", null, "'ISO-7816'", "'PKCS-7'", "'ISO-9797'", 
-		"'ANSI-X923'", "'NONE'", null, "'#IV'", "'#PAD'", "'#NONCE'", "'#COUNTER'", 
-		"'#ADATA'"
+		"'ANSI-X923'", "'NONE'", null, "'#MECH'", "'#IV'", "'#PAD'", "'#NONCE'", 
+		"'#COUNTER'", "'#ADATA'"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, "T_KEY", "T_VAR", "T_PARAMETER", "T_PATH", 
@@ -66,7 +66,8 @@ public partial class CryptoScriptParser : Parser {
 		"MECHANISM", "M_AES_ECB", "M_AES_CBC", "M_AES_CTR", "M_AES_CMAC", "M_AES_GCM", 
 		"M_AES_GMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_CMAC", "PADDING", "PAD_ISO7816", 
 		"PAD_PKCS7", "PAD_ISO9797", "PAD_ANSI_X923", "PAD_NONE", "PARAM_TYPE", 
-		"P_IV", "P_PADDING", "P_NONCE", "P_COUNTER", "P_ADATA", "WS"
+		"P_MECHANISM", "P_IV", "P_PADDING", "P_NONCE", "P_COUNTER", "P_ADATA", 
+		"WS"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -325,7 +326,7 @@ public partial class CryptoScriptParser : Parser {
 				State = 46;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				while (_la==MECHANISM || _la==PARAM_TYPE) {
+				while (_la==PARAM_TYPE) {
 					{
 					{
 					State = 43;
@@ -352,8 +353,8 @@ public partial class CryptoScriptParser : Parser {
 	}
 
 	public partial class DeclareparamContext : ParserRuleContext {
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode MECHANISM() { return GetToken(CryptoScriptParser.MECHANISM, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode PARAM_TYPE() { return GetToken(CryptoScriptParser.PARAM_TYPE, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode MECHANISM() { return GetToken(CryptoScriptParser.MECHANISM, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode PADDING() { return GetToken(CryptoScriptParser.PADDING, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode HEX_STRING() { return GetToken(CryptoScriptParser.HEX_STRING, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode ID() { return GetToken(CryptoScriptParser.ID, 0); }
@@ -385,46 +386,50 @@ public partial class CryptoScriptParser : Parser {
 		DeclareparamContext _localctx = new DeclareparamContext(Context, State);
 		EnterRule(_localctx, 6, RULE_declareparam);
 		try {
-			State = 61;
+			State = 63;
 			ErrorHandler.Sync(this);
 			switch ( Interpreter.AdaptivePredict(TokenStream,4,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 51;
+				Match(PARAM_TYPE);
+				State = 52;
+				Match(T__1);
+				State = 53;
 				Match(MECHANISM);
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 52;
-				Match(PARAM_TYPE);
-				State = 53;
-				Match(T__1);
 				State = 54;
+				Match(PARAM_TYPE);
+				State = 55;
+				Match(T__1);
+				State = 56;
 				Match(PADDING);
 				}
 				break;
 			case 3:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 55;
-				Match(PARAM_TYPE);
-				State = 56;
-				Match(T__1);
 				State = 57;
+				Match(PARAM_TYPE);
+				State = 58;
+				Match(T__1);
+				State = 59;
 				Match(HEX_STRING);
 				}
 				break;
 			case 4:
 				EnterOuterAlt(_localctx, 4);
 				{
-				State = 58;
-				Match(PARAM_TYPE);
-				State = 59;
-				Match(T__1);
 				State = 60;
+				Match(PARAM_TYPE);
+				State = 61;
+				Match(T__1);
+				State = 62;
 				Match(ID);
 				}
 				break;
@@ -477,7 +482,7 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 63;
+			State = 65;
 			_la = TokenStream.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 960L) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
@@ -535,7 +540,7 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 65;
+			State = 67;
 			_la = TokenStream.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 91136L) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
@@ -593,21 +598,21 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 67;
+			State = 69;
 			Match(FN);
-			State = 68;
-			Match(T__2);
 			State = 70;
+			Match(T__2);
+			State = 72;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 8590162944L) != 0)) {
 				{
-				State = 69;
+				State = 71;
 				arguments();
 				}
 			}
 
-			State = 72;
+			State = 74;
 			Match(T__3);
 			}
 		}
@@ -660,21 +665,21 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 74;
+			State = 76;
 			argument();
-			State = 79;
+			State = 81;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==T__4) {
 				{
 				{
-				State = 75;
+				State = 77;
 				Match(T__4);
-				State = 76;
+				State = 78;
 				argument();
 				}
 				}
-				State = 81;
+				State = 83;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -731,44 +736,49 @@ public partial class CryptoScriptParser : Parser {
 		ArgumentContext _localctx = new ArgumentContext(Context, State);
 		EnterRule(_localctx, 16, RULE_argument);
 		try {
-			State = 87;
+			State = 89;
 			ErrorHandler.Sync(this);
-			switch ( Interpreter.AdaptivePredict(TokenStream,7,Context) ) {
-			case 1:
+			switch (TokenStream.LA(1)) {
+			case MECHANISM:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 82;
+				State = 84;
 				Match(MECHANISM);
 				}
 				break;
-			case 2:
+			case PARAM_TYPE:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 83;
+				State = 85;
 				declareparam();
 				}
 				break;
-			case 3:
+			case ID:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 84;
+				State = 86;
 				Match(ID);
 				}
 				break;
-			case 4:
+			case FN:
 				EnterOuterAlt(_localctx, 4);
 				{
-				State = 85;
+				State = 87;
 				functionCall();
 				}
 				break;
-			case 5:
+			case PATH:
+			case HEX_STRING:
+			case BASE64_STRING:
+			case INT:
 				EnterOuterAlt(_localctx, 5);
 				{
-				State = 86;
+				State = 88;
 				expression();
 				}
 				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -783,32 +793,33 @@ public partial class CryptoScriptParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,39,90,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,40,92,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,1,0,5,0,20,8,0,10,0,12,0,23,9,0,1,0,1,0,1,1,1,1,3,1,29,8,1,
 		1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,5,2,45,8,2,10,
-		2,12,2,48,9,2,3,2,50,8,2,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,3,3,62,
-		8,3,1,4,1,4,1,5,1,5,1,6,1,6,1,6,3,6,71,8,6,1,6,1,6,1,7,1,7,1,7,5,7,78,
-		8,7,10,7,12,7,81,9,7,1,8,1,8,1,8,1,8,1,8,3,8,88,8,8,1,8,0,0,9,0,2,4,6,
-		8,10,12,14,16,0,2,1,0,6,9,3,0,10,10,13,14,16,16,94,0,21,1,0,0,0,2,28,1,
-		0,0,0,4,49,1,0,0,0,6,61,1,0,0,0,8,63,1,0,0,0,10,65,1,0,0,0,12,67,1,0,0,
-		0,14,74,1,0,0,0,16,87,1,0,0,0,18,20,3,2,1,0,19,18,1,0,0,0,20,23,1,0,0,
-		0,21,19,1,0,0,0,21,22,1,0,0,0,22,24,1,0,0,0,23,21,1,0,0,0,24,25,5,0,0,
-		1,25,1,1,0,0,0,26,29,3,4,2,0,27,29,3,12,6,0,28,26,1,0,0,0,28,27,1,0,0,
-		0,29,3,1,0,0,0,30,31,3,8,4,0,31,32,5,12,0,0,32,33,5,1,0,0,33,34,3,10,5,
-		0,34,50,1,0,0,0,35,36,3,8,4,0,36,37,5,12,0,0,37,38,5,1,0,0,38,39,3,12,
-		6,0,39,50,1,0,0,0,40,41,3,8,4,0,41,42,5,12,0,0,42,46,5,1,0,0,43,45,3,6,
-		3,0,44,43,1,0,0,0,45,48,1,0,0,0,46,44,1,0,0,0,46,47,1,0,0,0,47,50,1,0,
-		0,0,48,46,1,0,0,0,49,30,1,0,0,0,49,35,1,0,0,0,49,40,1,0,0,0,50,5,1,0,0,
-		0,51,62,5,17,0,0,52,53,5,33,0,0,53,54,5,2,0,0,54,62,5,27,0,0,55,56,5,33,
-		0,0,56,57,5,2,0,0,57,62,5,13,0,0,58,59,5,33,0,0,59,60,5,2,0,0,60,62,5,
-		12,0,0,61,51,1,0,0,0,61,52,1,0,0,0,61,55,1,0,0,0,61,58,1,0,0,0,62,7,1,
-		0,0,0,63,64,7,0,0,0,64,9,1,0,0,0,65,66,7,1,0,0,66,11,1,0,0,0,67,68,5,11,
-		0,0,68,70,5,3,0,0,69,71,3,14,7,0,70,69,1,0,0,0,70,71,1,0,0,0,71,72,1,0,
-		0,0,72,73,5,4,0,0,73,13,1,0,0,0,74,79,3,16,8,0,75,76,5,5,0,0,76,78,3,16,
-		8,0,77,75,1,0,0,0,78,81,1,0,0,0,79,77,1,0,0,0,79,80,1,0,0,0,80,15,1,0,
-		0,0,81,79,1,0,0,0,82,88,5,17,0,0,83,88,3,6,3,0,84,88,5,12,0,0,85,88,3,
-		12,6,0,86,88,3,10,5,0,87,82,1,0,0,0,87,83,1,0,0,0,87,84,1,0,0,0,87,85,
-		1,0,0,0,87,86,1,0,0,0,88,17,1,0,0,0,8,21,28,46,49,61,70,79,87
+		2,12,2,48,9,2,3,2,50,8,2,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,
+		3,3,3,64,8,3,1,4,1,4,1,5,1,5,1,6,1,6,1,6,3,6,73,8,6,1,6,1,6,1,7,1,7,1,
+		7,5,7,80,8,7,10,7,12,7,83,9,7,1,8,1,8,1,8,1,8,1,8,3,8,90,8,8,1,8,0,0,9,
+		0,2,4,6,8,10,12,14,16,0,2,1,0,6,9,3,0,10,10,13,14,16,16,96,0,21,1,0,0,
+		0,2,28,1,0,0,0,4,49,1,0,0,0,6,63,1,0,0,0,8,65,1,0,0,0,10,67,1,0,0,0,12,
+		69,1,0,0,0,14,76,1,0,0,0,16,89,1,0,0,0,18,20,3,2,1,0,19,18,1,0,0,0,20,
+		23,1,0,0,0,21,19,1,0,0,0,21,22,1,0,0,0,22,24,1,0,0,0,23,21,1,0,0,0,24,
+		25,5,0,0,1,25,1,1,0,0,0,26,29,3,4,2,0,27,29,3,12,6,0,28,26,1,0,0,0,28,
+		27,1,0,0,0,29,3,1,0,0,0,30,31,3,8,4,0,31,32,5,12,0,0,32,33,5,1,0,0,33,
+		34,3,10,5,0,34,50,1,0,0,0,35,36,3,8,4,0,36,37,5,12,0,0,37,38,5,1,0,0,38,
+		39,3,12,6,0,39,50,1,0,0,0,40,41,3,8,4,0,41,42,5,12,0,0,42,46,5,1,0,0,43,
+		45,3,6,3,0,44,43,1,0,0,0,45,48,1,0,0,0,46,44,1,0,0,0,46,47,1,0,0,0,47,
+		50,1,0,0,0,48,46,1,0,0,0,49,30,1,0,0,0,49,35,1,0,0,0,49,40,1,0,0,0,50,
+		5,1,0,0,0,51,52,5,33,0,0,52,53,5,2,0,0,53,64,5,17,0,0,54,55,5,33,0,0,55,
+		56,5,2,0,0,56,64,5,27,0,0,57,58,5,33,0,0,58,59,5,2,0,0,59,64,5,13,0,0,
+		60,61,5,33,0,0,61,62,5,2,0,0,62,64,5,12,0,0,63,51,1,0,0,0,63,54,1,0,0,
+		0,63,57,1,0,0,0,63,60,1,0,0,0,64,7,1,0,0,0,65,66,7,0,0,0,66,9,1,0,0,0,
+		67,68,7,1,0,0,68,11,1,0,0,0,69,70,5,11,0,0,70,72,5,3,0,0,71,73,3,14,7,
+		0,72,71,1,0,0,0,72,73,1,0,0,0,73,74,1,0,0,0,74,75,5,4,0,0,75,13,1,0,0,
+		0,76,81,3,16,8,0,77,78,5,5,0,0,78,80,3,16,8,0,79,77,1,0,0,0,80,83,1,0,
+		0,0,81,79,1,0,0,0,81,82,1,0,0,0,82,15,1,0,0,0,83,81,1,0,0,0,84,90,5,17,
+		0,0,85,90,3,6,3,0,86,90,5,12,0,0,87,90,3,12,6,0,88,90,3,10,5,0,89,84,1,
+		0,0,0,89,85,1,0,0,0,89,86,1,0,0,0,89,87,1,0,0,0,89,88,1,0,0,0,90,17,1,
+		0,0,0,8,21,28,46,49,63,72,81,89
 	};
 
 	public static readonly ATN _ATN =
