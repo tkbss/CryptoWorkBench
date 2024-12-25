@@ -3,6 +3,7 @@ using AvaloniaEdit.Document;
 using CryptoScript.ErrorListner;
 using CryptoScript.Model;
 using CryptoScript.Variables;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -56,9 +57,21 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             else
             {
                 _statusViewModel.StatusString = "Line successfull parsed";
-                var res = prog.Visit(context);
-                _variableViewModel.SetupVariables();                
-                _syntaxErrorOccured = false;
+                try
+                {
+                    var res = prog.Visit(context);
+                    _variableViewModel.SetupVariables();
+                    _syntaxErrorOccured = false;
+                }
+                catch (Exception e) {
+                    if(e is SemanticErrorException se)
+                        _statusViewModel.StatusString = "Semantic Error: "+se.SemanticError!.Message;
+                    else
+                    {
+                        _statusViewModel.StatusString = "Semantic Error: General Error occurred";
+                    }
+                    _syntaxErrorOccured = true;
+                }
             }
         }
         
