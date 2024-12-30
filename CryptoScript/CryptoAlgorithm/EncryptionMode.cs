@@ -1,4 +1,5 @@
 ﻿using CryptoScript.Variables;
+using Org.BouncyCastle.Crypto.Macs;
 using System.Security.Cryptography;
 
 namespace CryptoScript.CryptoAlgorithm
@@ -17,6 +18,13 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new StringVariableDeclaration();
         }
+        public bool IsMACAlgorithm(string mechanism)
+        {
+            List<string> macModes = new List<string>() {"AES-GMAC","AES-CMAC" };
+            return macModes.Contains(mechanism);
+            
+        }
+       
         //iso7816 padding   
         public byte[] ISO7816(byte[] input)
         {

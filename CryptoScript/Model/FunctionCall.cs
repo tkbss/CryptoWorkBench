@@ -51,6 +51,10 @@ namespace CryptoScript.Model
                     string functionParam=param.Type+":"+param.Value;
                     argArray[i++] = functionParam;
                 }
+                if(arg is ArgumentInfo info) 
+                {
+                    argArray[i++] = info.InfoType;
+                }
 
             }
             var function = OperationFactory.CreateOperation(Name);

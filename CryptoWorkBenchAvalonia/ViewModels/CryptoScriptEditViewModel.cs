@@ -18,7 +18,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private TextEditor? _textEditor;
         bool _syntaxErrorOccured = false;
         public StatusViewModel Status { get => _statusViewModel; }
-        public TextEditor TextEditor
+        public TextEditor? TextEditor
         {
             get
             {
@@ -65,7 +65,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 }
                 catch (Exception e) {
                     if(e is SemanticErrorException se)
-                        _statusViewModel.StatusString = "Semantic Error: "+se.SemanticError!.Message;
+                        _statusViewModel.StatusString = "Semantic Error: "+se.SemanticError!.Message+": "+se.SemanticError.FunctionCall;
                     else
                     {
                         _statusViewModel.StatusString = "Semantic Error: General Error occurred";

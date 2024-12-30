@@ -8,6 +8,7 @@ T_PATH        : 'PATH';
 PATH          : ( [a-zA-Z] ':' ( '\\' [^\\]* (ESC | ~["\\])*)* '\\'? )                                                          
               ;
 FN            : [A-Z] [a-z] [a-zA-Z]*;
+INFO		  : 'functions' | 'mechanisms';
 ID            : [a-zA-Z] [a-zA-Z0-9]*;
 HEX_STRING    : '0x(' [0-9a-fA-F]+ ')'
               ;
@@ -16,7 +17,7 @@ BASE64_STRING : 'b64(' [A-Za-z0-9+/=]+ ')'
 NORMAL_STRING : '"' (ESC | ~["\\])* '"';
 fragment ESC  : '\\' [btnrf"'\\];
 INT           : [0-9]+;
-MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC
+MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC | M_AES_CCM
               | M_DES3_ECB| M_DES3_CBC| M_DES3_CMAC;
 
 M_AES_ECB     : 'AES-ECB';
@@ -24,9 +25,11 @@ M_AES_CBC     : 'AES-CBC';
 M_AES_CTR     : 'AES-CTR';
 M_AES_CMAC    : 'AES-CMAC';
 M_AES_GCM     : 'AES-GCM';
+M_AES_CCM     : 'AES-CCM';
 M_AES_GMAC    : 'AES-GMAC';
 M_DES3_ECB    : 'DES3-ECB';
 M_DES3_CBC    : 'DES3-CBC';
+M_DES3_RETAIL : 'DES3-RETAIL';
 M_DES3_CMAC   : 'DES3-CMAC';
 
 PADDING	      :  PAD_ISO7816 | PAD_PKCS7 | PAD_ISO9797 | PAD_ANSI_X923 | PAD_NONE; 

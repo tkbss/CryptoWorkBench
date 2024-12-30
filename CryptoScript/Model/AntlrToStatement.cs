@@ -33,6 +33,7 @@ namespace CryptoScript.Model
             var res3 = context.ID();
             var res4 = context.expression();
             var res5 = context.declareparam();
+            var res6 = context.INFO();
             
             if (res1 != null)
             {
@@ -91,7 +92,11 @@ namespace CryptoScript.Model
 
                 return VisitDeclareparam(res5);
             }
-            
+            if (res6 != null) 
+            {
+                ArgumentInfo info = new ArgumentInfo() { InfoType= res6.GetText() };
+                return info;
+            }
             return new Argument();
         }
 
@@ -104,14 +109,7 @@ namespace CryptoScript.Model
         public override Statement VisitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context)
         {
             string Id = context.GetChild(1).GetText();
-            string TypeName= context.GetChild(0).GetText();
-            if (VariableDictionary.Instance().Contains(Id))
-            {
-                SemanticError sem=new SemanticError() { Type = "Variable",Identifier=Id };
-                sem.Message = "VAR " + Id +": "+ " already exists";    
-                SemanticErrors.Add(sem);
-                throw new SemanticErrorException() { SemanticError=sem};
-            }
+            string TypeName= context.GetChild(0).GetText();            
             var type= (CryptoType)VisitType(context.type());
             var fcontext = context.functionCall();
             var exprContext = context.expression();

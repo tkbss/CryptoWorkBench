@@ -1,4 +1,5 @@
-﻿using CryptoScript.Model;
+﻿using CryptoScript.ErrorListner;
+using CryptoScript.Model;
 using CryptoScript.Variables;
 using System.Security.Cryptography;
 
@@ -48,8 +49,14 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 case "aes-cmac":
                     param = AESDefaultParameters.GenerateDefaultCMACParameters(mechanism);
                     break;
+                case "aes-gmac":
+                    param = AESDefaultParameters.GenerateDefaultGMACParameters(mechanism);
+                    break;
                 case "aes-gcm":
                     param = AESDefaultParameters.GenerateDefaultGCMParameters(mechanism);
+                    break;
+                case "aes-ccm":
+                    param = AESDefaultParameters.GenerateDefaultCCMParameters(mechanism);
                     break;
                 default:
                     throw new ArgumentException("wrong mechanism");
@@ -190,16 +197,37 @@ namespace CryptoScript.CryptoAlgorithm.AES
 
             ParseArguments(parameters);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
-            var res = mode.ModeEncryption(parameter, key, data);
-            return res;
+            if (mode.IsMACAlgorithm(parameter.Mechanism))
+            {
+                var res = mode.ModeMac(parameter, key, data);
+                return res;
+            }
+            else
+            {
+                var se = new SemanticError() { Type = "Mechanism" };
+                se.Message = "Mechanism: "+parameter.Mechanism+" cannot be used in MAC calculation";
+                se.FunctionName = "Mac";                
+                throw new SemanticErrorException() { SemanticError = se };                
+            }
         }
         public override StringVariableDeclaration Encrypt(string[] parameters)
         {
 
             ParseArguments(parameters);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
-            var res = mode.ModeEncryption(parameter, key, data);
-            return res;
+            if(mode.IsMACAlgorithm(parameter.Mechanism))
+            {
+                var se = new SemanticError() { Type = "Mechanism" };
+                se.Message = "Mechanism: " + parameter.Mechanism + " cannot be used in Encryption";
+                se.FunctionName = "Encrypt";
+                throw new SemanticErrorException() { SemanticError = se };
+            }
+            else
+            {
+                var res = mode.ModeEncryption(parameter, key, data);
+                return res;
+            }
+            
         }
 
         public override EncryptionMode CreateMode(string mechanism)
@@ -214,6 +242,12 @@ namespace CryptoScript.CryptoAlgorithm.AES
                     return new AES_ECB();
                 case "aes-cmac":
                     return new AES_CMAC();
+                case "aes-gcm":
+                    return new AES_GCM();
+                case "aes-ccm":
+                    return new AES_CCM();
+                case "aes-gmac":
+                    return new AES_GMAC();
                 default:
                     throw new ArgumentException("wrong mechanism");
             }
@@ -223,8 +257,18 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
             ParseArguments(parameters);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
-            var res = mode.ModeDecryption(parameter, key, data);
-            return res;
+            if(mode.IsMACAlgorithm(parameter.Mechanism))
+            {
+                var se = new SemanticError() { Type = "Mechanism" };
+                se.Message = "Mechanism: " + parameter.Mechanism + " cannot be used in Decryption";
+                se.FunctionName = "Decrypt";
+                throw new SemanticErrorException() { SemanticError = se };
+            }
+            else
+            {
+                var res = mode.ModeDecryption(parameter, key, data);
+                return res;
+            }            
         }
     }
 }

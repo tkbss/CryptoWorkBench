@@ -1,6 +1,7 @@
 ﻿using CryptoScript.Model;
 using CryptoScript.Variables;
 using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
@@ -19,16 +20,15 @@ namespace CryptoScript.CryptoAlgorithm.AES
             string n = parameter.GetParameter("NONCE");
             byte[] nonce = FormatConversions.ToByteArray(n, FormatConversions.ParseString(n));
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
-            GcmBlockCipher gcm = new GcmBlockCipher(new AesEngine());
-            AeadParameters parameters = new AeadParameters(new KeyParameter(keyBytes), 128, nonce);
-
-            gcm.Init(true, parameters);
-            byte[] output = new byte[gcm.GetOutputSize(input.Length)];
-            int len = gcm.ProcessBytes(input, 0, input.Length, output, 0);
-            gcm.DoFinal(output, len);
-            // The GMAC tag is the last 16 bytes of the Output
-            byte[] gmacTag = new byte[16];
-            Array.Copy(output, output.Length - 16, gmacTag, 0, 16);
+            var gMac = new GMac(new GcmBlockCipher(new AesEngine()));
+            var parameters = new ParametersWithIV(new KeyParameter(keyBytes), nonce);
+            gMac.Init(parameters);
+            // Update with data
+            gMac.BlockUpdate(input, 0, input.Length);
+            // Output the MAC
+            byte[] gmacTag = new byte[16]; // 128 bits
+            gMac.DoFinal(gmacTag, 0);
+            //Covert to script variable
             StringVariableDeclaration MacValue = new StringVariableDeclaration();
             MacValue.Value = FormatConversions.ByteArrayToHexString(gmacTag);
             MacValue.ValueFormat = FormatConversions.ParseString(MacValue.Value);

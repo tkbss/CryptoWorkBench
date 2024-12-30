@@ -1,4 +1,5 @@
-﻿using CryptoScript.Model;
+﻿using CryptoScript.ErrorListner;
+using CryptoScript.Model;
 
 namespace CryptoScript.Variables
 {
@@ -23,6 +24,10 @@ namespace CryptoScript.Variables
         }
         public void Add(VariableDeclaration v)
         {
+            if (variables.ContainsKey(v.Id))
+            {
+                variables.Remove(v.Id);
+            }
             variables[v.Id] = v;
         }
         public void Remove(StringVariableDeclaration v)

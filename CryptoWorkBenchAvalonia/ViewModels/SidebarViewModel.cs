@@ -1,18 +1,15 @@
-﻿using Prism.Commands;
-using Prism.Regions;
-using Avalonia.Controls;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using System.IO;
-using System;
-using Prism.Services.Dialogs;
-using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
-using MsBox.Avalonia.Models;
-using MsBox.Avalonia.Dto;
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Models;
+using Prism.Commands;
+using Prism.Regions;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CryptoWorkBenchAvalonia.ViewModels;
 
@@ -59,10 +56,10 @@ public class SidebarViewModel : ViewModelBase
   });
     private async Task SaveScriptBook() 
     {
-        //string documentsFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        var docPath= await _window.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+        
+        var docPath= await _window!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         // Create the CryptoScript folder path
-        var CryptoScriptFolderPath =await docPath.CreateFolderAsync("CryptoScript");           
+        var CryptoScriptFolderPath =await docPath!.CreateFolderAsync("CryptoScript");           
         var options = new FilePickerSaveOptions
         {
             Title = "Save a file",

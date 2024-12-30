@@ -1,4 +1,8 @@
 ﻿
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Macs;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
 using System.Security.Cryptography;
 
 namespace CryptoScriptUnitTest
@@ -178,6 +182,37 @@ namespace CryptoScriptUnitTest
             }
             ClassicAssert.That(input, Is.EqualTo(cleartext));
 
+        }
+        [Test]
+        public void AES_GMAC_Test() 
+        {
+            // AES key
+            byte[] key = new byte[16];
+            Org.BouncyCastle.Security.SecureRandom random = new Org.BouncyCastle.Security.SecureRandom();
+            random.NextBytes(key);
+
+            // 96-bit nonce
+            byte[] nonce = new byte[12];
+            random.NextBytes(nonce);
+
+            // Data to authenticate
+            byte[] dataToAuthenticate = System.Text.Encoding.UTF8.GetBytes("Hello GMAC world!");
+
+            // Configure GMAC
+            // "GMac" class takes a GcmBlockCipher internally, but you configure it for MAC only
+            var gMac = new GMac(new GcmBlockCipher(new AesEngine()));
+
+            // In BouncyCastle, you'll pass a GcmParameters or AeadParameters 
+            // with the MAC size in bits.
+            var parameters = new ParametersWithIV(new KeyParameter(key), nonce);
+            gMac.Init(parameters);
+
+            // Update with data
+            gMac.BlockUpdate(dataToAuthenticate, 0, dataToAuthenticate.Length);
+
+            // Output the MAC
+            byte[] mac = new byte[16]; // 128 bits
+            gMac.DoFinal(mac, 0);
         }
         [Test]
         public void AES_CMAC_Test() 

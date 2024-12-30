@@ -48,6 +48,20 @@ namespace CryptoScript.Model
             var returnValue = algo.GenerateKey(mech, size);            
             return returnValue;
         }
+        //the requirement for mac is that there will be 3 arguments
+        //first argument is Parameter
+        //second argument is  Key
+        //third argument is data as hex or base64 string
+        public VariableDeclaration Mac(params string[] args) 
+        {
+            if (args.Length != 3)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            var algo = DetermineAlgorithm(args);
+            var returnValue = algo.Mac(args);   
+            return returnValue; 
+        }
         //the requirement for encrypt/decrypt is that there will be 3 arguments
         //first argument is Parameter
         //second argument is  Key

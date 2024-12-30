@@ -17,6 +17,10 @@ namespace CryptoScript.Model
             Id = null;            
         }
     }
+    public class ArgumentInfo: Argument 
+    {
+        public string InfoType { get; set; } = string.Empty;
+    }
     public class ArgumentExpression : Argument
     { 
         public Expression? Expr { get; set; }
@@ -50,7 +54,8 @@ namespace CryptoScript.Model
         }
         private void SetValue(string value)
         {
-            if (value.StartsWith("0x("))
+            string formatType=FormatConversions.ParseString(value);
+            if (formatType==FormatConversions.HEX || formatType == FormatConversions.B64 || formatType == FormatConversions.STR)
             {
                 Value = value;
                 return;

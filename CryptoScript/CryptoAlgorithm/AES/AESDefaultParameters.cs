@@ -54,6 +54,18 @@ namespace CryptoScript.CryptoAlgorithm
             param.SetParameter("PAD", "NONE");
             return param;
         }
+        public static ParameterVariableDeclaration GenerateDefaultCCMParameters(string mechanism)
+        {
+            var param = new ParameterVariableDeclaration();
+            param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
+            //generate random nonce
+            byte[] nonce = RandomNumberGenerator.GetBytes(12);
+            param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
+            param.SetParameter("ADATA", "\"DEFAULT_CCM_AUTHENTICATION_DATA\"");
+            
+            return param;
+        }
         public static ParameterVariableDeclaration GenerateDefaultGCMParameters(string mechanism)
         {
             var param = new ParameterVariableDeclaration();
@@ -62,9 +74,8 @@ namespace CryptoScript.CryptoAlgorithm
             //generate random nonce
             byte[] nonce = RandomNumberGenerator.GetBytes(12);
             param.SetParameter("NONCE", FormatConversions.ByteArrayToHexString(nonce));
-            //generate random IV            
-            param.SetParameter("IV", string.Empty);
-            param.SetParameter("PAD", "NONE");
+            param.SetParameter("ADATA", "\"DEFAULT_GCM_AUTHENTICATION_DATA\"");
+            
             return param;
         }
         public static ParameterVariableDeclaration GenerateDefaultGMACParameters(string mechanism)

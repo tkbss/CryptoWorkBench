@@ -14,12 +14,16 @@ namespace CryptoScript.Model
             {
                 case "sign":                                  
                     return op.Sign;
+                case "mac":
+                    return op.Mac;
                 case "encrypt":                                     
                     return op.Encrypt;
                 case "decrypt":
                     return op.Decrypt;
                 case "print":                  
                     return new OutputOperations().Print;
+                case "info":
+                    return new OutputOperations().Info;
                 case "generatekey":                           
                     return op.GenerateKey; 
                 case "parameters":

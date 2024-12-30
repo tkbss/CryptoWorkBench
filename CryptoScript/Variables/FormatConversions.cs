@@ -13,6 +13,7 @@ namespace CryptoScript.Variables
         static public readonly string B64 = "BASE64_STRING";
         static public readonly string JSO = "JSON_STRING";
         static public readonly string PAR = "PARAM_STRING";
+        static public readonly string STR = "NORMAL_STRING";   
         public static string ByteArrayToHexString(byte[] byteArray)
         {
             StringBuilder hex = new StringBuilder(byteArray.Length * 2);
@@ -29,6 +30,8 @@ namespace CryptoScript.Variables
                 return HexStringToByteArray(input);
             if(format == B64)
                 return Convert.FromBase64String(input);
+            if(format == STR)
+                return StringToByteArray(input);
             return new byte[0];
         }
         public static string ByteArrayToString(byte[] byteArray,string format)
@@ -38,6 +41,13 @@ namespace CryptoScript.Variables
             if (format==B64)            
                 return Convert.ToBase64String(byteArray);            
             return string.Empty;
+        }
+        public static byte[] StringToByteArray(string normalString)
+        {
+            if (normalString.StartsWith("\""))
+                normalString = normalString.Substring(1, normalString.Length - 2);
+            var byteArray = Encoding.UTF8.GetBytes(normalString);
+            return byteArray;
         }
         public static byte[] HexStringToByteArray(string hexString)
         {
@@ -56,8 +66,9 @@ namespace CryptoScript.Variables
                 return HEX;
             if (input.StartsWith("b64("))
                 return B64;
-            
-            if(input.Contains("#"))
+            if (input.StartsWith("\""))
+                return STR;
+            if (input.Contains("#"))
             {
                 return PAR;
             }

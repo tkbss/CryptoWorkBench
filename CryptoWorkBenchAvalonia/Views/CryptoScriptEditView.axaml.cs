@@ -7,6 +7,8 @@ using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CryptoWorkBenchAvalonia.Models;
 using CryptoWorkBenchAvalonia.ViewModels;
 using ImTools;
 using System;
@@ -82,17 +84,19 @@ public partial class CryptoScriptEditView : UserControl
 
         if (e.Text=="(")
         {
-            _insightWindow = new OverloadInsightWindow(_textEditor.TextArea);
-            _insightWindow.Closed += (o, args) => _insightWindow = null;
-
-            _insightWindow.Provider = new MyOverloadProvider(new[]
+            var doc = _textEditor!.Document;
+            int l = _textEditor!.TextArea.Caret.Line - 1;
+            DocumentLine line = doc.Lines[l];
+            string lineText = doc.GetText(line);
+            var provider=new FunctionOverlayDictionaryModel().GetOverlays(lineText,line.Length);
+            if (provider != null)
             {
-                    ("Method1(int, string)", "Method1 description"),
-                    ("Method2(int)", "Method2 description"),
-                    ("Method3(string)", "Method3 description"),
-                });
-
-            _insightWindow.Show();
+                _insightWindow = new OverloadInsightWindow(_textEditor.TextArea);
+                _insightWindow.Closed += (o, args) => _insightWindow = null;
+                _insightWindow.Provider = provider;
+                _insightWindow.Show();
+            }
+            
 
             //_completionWindow = new CompletionWindow(_textEditor.TextArea);
             //_completionWindow.Closed += (o, args) => _completionWindow = null;
@@ -189,58 +193,3 @@ public class MyOverloadProvider : IOverloadProvider
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
-//public class MyOverloadProvider : IOverloadProvider
-//{
-//    private int currentIndex;
-//    private readonly List<(string header, object content)> overloads;
-
-//    public MyOverloadProvider(List<(string header, object content)> overloads)
-//    {
-//        this.overloads = overloads;
-//        currentIndex = 0;
-//    }
-
-//    event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
-//    {
-//        add
-//        {
-//            throw new NotImplementedException();
-//        }
-
-//        remove
-//        {
-//            throw new NotImplementedException();
-//        }
-//    }
-
-//    public int Count => overloads.Count;
-
-//    public event EventHandler? CurrentIndexChanged;
-
-//    public int CurrentIndex
-//    {
-//        get => currentIndex;
-//        set
-//        {
-//            if (currentIndex != value && value >= 0 && value < Count)
-//            {
-//                currentIndex = value;
-//                CurrentIndexChanged?.Invoke(this, EventArgs.Empty);
-//            }
-//        }
-//    }
-
-//    public string CurrentHeader => overloads[currentIndex].header;
-
-//    public object CurrentContent => overloads[currentIndex].content;
-
-//    int IOverloadProvider.SelectedIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-//    int IOverloadProvider.Count => throw new NotImplementedException();
-
-//    string IOverloadProvider.CurrentIndexText => throw new NotImplementedException();
-
-//    object IOverloadProvider.CurrentHeader => throw new NotImplementedException();
-
-//    object IOverloadProvider.CurrentContent => throw new NotImplementedException();
-//}

@@ -18,6 +18,7 @@ declareparam  :  PARAM_TYPE ':' MECHANISM
               |  PARAM_TYPE ':' PADDING
               |  PARAM_TYPE ':' HEX_STRING
               |  PARAM_TYPE ':' ID
+              |  PARAM_TYPE ':' NORMAL_STRING
 			  ;
 type          : T_KEY
               | T_VAR
@@ -42,6 +43,7 @@ argument      : MECHANISM
               | ID
               | functionCall
               | expression
+              | INFO
               ;
                          
 			 
