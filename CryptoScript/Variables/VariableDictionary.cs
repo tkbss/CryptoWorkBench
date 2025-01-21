@@ -38,6 +38,7 @@ namespace CryptoScript.Variables
         {
             return variables.ContainsKey(Id);
         }
+       
         public static VariableDictionary Instance()
         {
             return _instance;

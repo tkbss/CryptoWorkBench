@@ -84,5 +84,9 @@ namespace CryptoScript.Variables
             }
             return string.Empty;
         }
+        public static bool ContainsNumber(string input)
+        {
+            return input.All(char.IsDigit);
+        }
     }
 }

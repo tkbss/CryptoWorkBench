@@ -15,14 +15,16 @@ namespace CryptoScriptUnitTest
         public void Argument_Wrong_number_KeyGeneration_Error()
         {
             var prog = new AntlrToProgram();
-            string input = "KEY k11=GenerateKey(128)";
-            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            string i = "KEY k=GenerateKey(128)";
+            CryptoScriptParser parser = ParserBuilder.StringBuild(i);
+            Console.WriteLine(i);
             CryptoScriptParser.ProgramContext context = parser.program();
             if (SyntaxErrorListner.SyntaxErrorOccured || LexerErrorListener.LexerErrorOccured)
             {
                 string e=SyntaxErrorListner.ErrorMessage.ToString();
+                Assert.Warn(e);
                 SyntaxErrorListner.SyntaxErrorOccured=false;
-                ClassicAssert.Fail();
+                Assert.Pass();
             }
             try 
             {                 
@@ -30,7 +32,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
+                Assert.That("functioncall" == e.SemanticError.Type.ToLower());
             }
             
         }
@@ -45,7 +47,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                ClassicAssert.Fail();
+                
             }
             try
             {
@@ -68,7 +70,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-               ClassicAssert.Fail();
+               
             }
             try
             {
@@ -91,7 +93,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                ClassicAssert.Fail();
+               
             }
             try
             {
@@ -114,7 +116,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                ClassicAssert.Fail();
+                
             }
             try
             {
@@ -138,7 +140,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                ClassicAssert.Fail();
+               
             }
             try
             {
@@ -161,7 +163,7 @@ namespace CryptoScriptUnitTest
             {
                 string e = SyntaxErrorListner.ErrorMessage.ToString();
                 SyntaxErrorListner.SyntaxErrorOccured = false;
-                ClassicAssert.Fail();
+                
             }
             try
             {

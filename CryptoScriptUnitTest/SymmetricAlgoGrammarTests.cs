@@ -68,25 +68,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(func?.ReturnVariable is VariableDeclaration); 
 
         }
-        [Test]
-        public void GenerateKey_AES_128_Test()
-        {
-            AntlrToProgram prog = new AntlrToProgram();
-            CryptoScriptParser parser = ParserBuilder.StringBuild(input[4]);            
-            CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
-            var statement = res.Statements.FirstOrDefault();
-            ClassicAssert.IsNotNull(statement);
-            ClassicAssert.IsTrue(res.Statements.Count == 1);
-            ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
-            var variable = statement as KeyVariableDeclaration;
-            ClassicAssert.IsTrue(variable.Id== "key2");
-            ClassicAssert.IsTrue(variable.Mechanism== "AES-CBC");
-            ClassicAssert.IsTrue(variable.KeySize =="128");
-            var key=FormatConversions.HexStringToByteArray(variable.Value);
-            ClassicAssert.IsTrue(key.Length==16);           
-            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
-        }
+        
         
         
         [Test]

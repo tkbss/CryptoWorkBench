@@ -46,7 +46,7 @@ namespace CryptoWorkBenchAvalonia.Models
             }},
             { "Info", new List<(string, string)> {
                 ("Info(type)", "Prints information about the current type to output window:"+
-                "\n- type: The type of information:"+
+                "\n- type=types     : List of all supported types "+
                 "\n- type=functions : List of all supported functions" +
                 "\n- type=mechanisms: List of all suportetd mechanism" +
                 "\n- type=mechanism : Specific mechanism e.g. AES-CBC"

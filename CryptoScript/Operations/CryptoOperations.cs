@@ -35,7 +35,7 @@ namespace CryptoScript.Model
         }
         //the requirement for generate key is that there will be 2 arguments
         //first argument is Mechanism
-        //second argument is KeySize
+        //second argument is KeySize or existing key value
         public VariableDeclaration GenerateKey(params string[] args) 
         {
             if(args.Length != 2) 
@@ -85,6 +85,16 @@ namespace CryptoScript.Model
             
             var algo = DetermineAlgorithm(args);
             var returnValue = algo.Decrypt(args);
+            return returnValue;
+        }
+        public VariableDeclaration Wrap(params string[] args)
+        {
+            if (args.Length != 3)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            var algo = DetermineAlgorithm(args);
+            var returnValue = algo.Wrap(args);
             return returnValue;
         }
         public VariableDeclaration Sign(params string[]args)

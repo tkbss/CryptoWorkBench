@@ -28,6 +28,8 @@ namespace CryptoScript.Model
                     return op.GenerateKey; 
                 case "parameters":
                         return op.GenerateParameters;
+                case "wrap":
+                    return op.Wrap;
                 default:
                 {
                         throw new ArgumentException("Unkown function");

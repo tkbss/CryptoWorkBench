@@ -14,6 +14,7 @@ namespace CryptoScript.Model
         public override Statement VisitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context)
         {
             var parameter = new ArgumentParameter();
+            string t=context.GetText();
             int cnt = context.ChildCount;
             var type=context.GetChild(0).GetText();
             var value=context.GetChild(2).GetText();
@@ -132,13 +133,32 @@ namespace CryptoScript.Model
                     se.Message = "Declaration type mismatch. Expected type : " + "PARAM";
                     SemanticErrors.Add(se);
                     throw new SemanticErrorException() { SemanticError=se};
-                }
-                var Parameter=new ParameterVariableDeclaration();
-                Parameter.Mechanism = declarParam[0].GetText();
-                for(int i=0;i<declarParam.Length;i++)
+                }                
+                var mech=declarParam.FirstOrDefault(c => c.GetText().Contains("MECH"));
+                if (mech == null) 
                 {
-                    var param = VisitDeclareparam(declarParam[i]) as ArgumentParameter;
-                    Parameter.SetParameter(param);
+                    SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
+                    se.Message = "Type PARAM does not contain element #MECH";
+                    SemanticErrors.Add(se);
+                    throw new SemanticErrorException() { SemanticError = se };
+                }
+                var Parameter = new ParameterVariableDeclaration();
+                Parameter.Mechanism = mech.GetText();//declarParam[0].GetText();
+                for (int i = 0; i < declarParam.Length; i++)
+                {
+                    try
+                    {
+                        var param = VisitDeclareparam(declarParam[i]) as ArgumentParameter;
+                        Parameter.SetParameter(param);
+                    }
+                    catch (Exception e)
+                    {
+                        SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
+                        se.Message = "Error in  parameter declaration : " + declarParam[i].GetText();
+                        SemanticErrors.Add(se);
+                        throw new SemanticErrorException() { SemanticError = se };
+                    }
+                    
                 }
                 var typeCntx = context.type(); 
                 Parameter.Id = Id;

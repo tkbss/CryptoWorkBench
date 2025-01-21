@@ -40,10 +40,11 @@ public partial class CryptoScriptParser : Parser {
 		T_PATH=9, PATH=10, FN=11, INFO=12, ID=13, HEX_STRING=14, BASE64_STRING=15, 
 		NORMAL_STRING=16, INT=17, MECHANISM=18, M_AES_ECB=19, M_AES_CBC=20, M_AES_CTR=21, 
 		M_AES_CMAC=22, M_AES_GCM=23, M_AES_CCM=24, M_AES_GMAC=25, M_DES3_ECB=26, 
-		M_DES3_CBC=27, M_DES3_RETAIL=28, M_DES3_CMAC=29, PADDING=30, PAD_ISO7816=31, 
-		PAD_PKCS7=32, PAD_ISO9797=33, PAD_ANSI_X923=34, PAD_NONE=35, PARAM_TYPE=36, 
-		P_MECHANISM=37, P_IV=38, P_PADDING=39, P_NONCE=40, P_COUNTER=41, P_ADATA=42, 
-		WS=43;
+		M_DES3_CBC=27, M_DES3_RETAIL=28, M_DES3_CMAC=29, M_WRAP_AES_TR31=30, M_WRAP_DES3_TR31=31, 
+		M_WRAP_AES=32, M_WRAP_DES3=33, M_BIND_XOR=34, M_BIND_CMAC=35, PADDING=36, 
+		PAD_ISO7816=37, PAD_PKCS7=38, PAD_ISO9797=39, PAD_ANSI_X923=40, PAD_NONE=41, 
+		PARAM_TYPE=42, P_MECHANISM=43, P_IV=44, P_PADDING=45, P_NONCE=46, P_COUNTER=47, 
+		P_ADATA=48, P_BLKHDR=49, P_KEYBIND=50, WS=51;
 	public const int
 		RULE_program = 0, RULE_statement = 1, RULE_declaration = 2, RULE_declareparam = 3, 
 		RULE_type = 4, RULE_expression = 5, RULE_functionCall = 6, RULE_arguments = 7, 
@@ -57,18 +58,21 @@ public partial class CryptoScriptParser : Parser {
 		null, "'='", "':'", "'('", "')'", "','", "'KEY'", "'VAR'", "'PARAM'", 
 		"'PATH'", null, null, null, null, null, null, null, null, null, "'AES-ECB'", 
 		"'AES-CBC'", "'AES-CTR'", "'AES-CMAC'", "'AES-GCM'", "'AES-CCM'", "'AES-GMAC'", 
-		"'DES3-ECB'", "'DES3-CBC'", "'DES3-RETAIL'", "'DES3-CMAC'", null, "'ISO-7816'", 
-		"'PKCS-7'", "'ISO-9797'", "'ANSI-X923'", "'NONE'", null, "'#MECH'", "'#IV'", 
-		"'#PAD'", "'#NONCE'", "'#COUNTER'", "'#ADATA'"
+		"'DES3-ECB'", "'DES3-CBC'", "'DES3-RETAIL'", "'DES3-CMAC'", "'WRAP-AES-TR31'", 
+		"'WRAP-DES3-TR31'", "'WRAP-AES'", "'WRAP-DES3'", "'BIND-XOR'", "'BIND-CMAC'", 
+		null, "'ISO-7816'", "'PKCS-7'", "'ISO-9797'", "'ANSI-X923'", "'NONE'", 
+		null, "'#MECH'", "'#IV'", "'#PAD'", "'#NONCE'", "'#COUNTER'", "'#ADATA'", 
+		"'#BLKH'", "'#BIND'"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, "T_KEY", "T_VAR", "T_PARAMETER", "T_PATH", 
 		"PATH", "FN", "INFO", "ID", "HEX_STRING", "BASE64_STRING", "NORMAL_STRING", 
 		"INT", "MECHANISM", "M_AES_ECB", "M_AES_CBC", "M_AES_CTR", "M_AES_CMAC", 
 		"M_AES_GCM", "M_AES_CCM", "M_AES_GMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_RETAIL", 
-		"M_DES3_CMAC", "PADDING", "PAD_ISO7816", "PAD_PKCS7", "PAD_ISO9797", "PAD_ANSI_X923", 
-		"PAD_NONE", "PARAM_TYPE", "P_MECHANISM", "P_IV", "P_PADDING", "P_NONCE", 
-		"P_COUNTER", "P_ADATA", "WS"
+		"M_DES3_CMAC", "M_WRAP_AES_TR31", "M_WRAP_DES3_TR31", "M_WRAP_AES", "M_WRAP_DES3", 
+		"M_BIND_XOR", "M_BIND_CMAC", "PADDING", "PAD_ISO7816", "PAD_PKCS7", "PAD_ISO9797", 
+		"PAD_ANSI_X923", "PAD_NONE", "PARAM_TYPE", "P_MECHANISM", "P_IV", "P_PADDING", 
+		"P_NONCE", "P_COUNTER", "P_ADATA", "P_BLKHDR", "P_KEYBIND", "WS"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -618,7 +622,7 @@ public partial class CryptoScriptParser : Parser {
 			State = 75;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 68719934464L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 4398046968832L) != 0)) {
 				{
 				State = 74;
 				arguments();
@@ -814,7 +818,7 @@ public partial class CryptoScriptParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,43,96,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,51,96,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,1,0,5,0,20,8,0,10,0,12,0,23,9,0,1,0,1,0,1,1,1,1,3,1,29,8,1,
 		1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,5,2,45,8,2,10,
 		2,12,2,48,9,2,3,2,50,8,2,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,
@@ -830,10 +834,10 @@ public partial class CryptoScriptParser : Parser {
 		0,0,37,38,5,1,0,0,38,39,3,12,6,0,39,50,1,0,0,0,40,41,3,8,4,0,41,42,5,13,
 		0,0,42,46,5,1,0,0,43,45,3,6,3,0,44,43,1,0,0,0,45,48,1,0,0,0,46,44,1,0,
 		0,0,46,47,1,0,0,0,47,50,1,0,0,0,48,46,1,0,0,0,49,30,1,0,0,0,49,35,1,0,
-		0,0,49,40,1,0,0,0,50,5,1,0,0,0,51,52,5,36,0,0,52,53,5,2,0,0,53,67,5,18,
-		0,0,54,55,5,36,0,0,55,56,5,2,0,0,56,67,5,30,0,0,57,58,5,36,0,0,58,59,5,
-		2,0,0,59,67,5,14,0,0,60,61,5,36,0,0,61,62,5,2,0,0,62,67,5,13,0,0,63,64,
-		5,36,0,0,64,65,5,2,0,0,65,67,5,16,0,0,66,51,1,0,0,0,66,54,1,0,0,0,66,57,
+		0,0,49,40,1,0,0,0,50,5,1,0,0,0,51,52,5,42,0,0,52,53,5,2,0,0,53,67,5,18,
+		0,0,54,55,5,42,0,0,55,56,5,2,0,0,56,67,5,36,0,0,57,58,5,42,0,0,58,59,5,
+		2,0,0,59,67,5,14,0,0,60,61,5,42,0,0,61,62,5,2,0,0,62,67,5,13,0,0,63,64,
+		5,42,0,0,64,65,5,2,0,0,65,67,5,16,0,0,66,51,1,0,0,0,66,54,1,0,0,0,66,57,
 		1,0,0,0,66,60,1,0,0,0,66,63,1,0,0,0,67,7,1,0,0,0,68,69,7,0,0,0,69,9,1,
 		0,0,0,70,71,7,1,0,0,71,11,1,0,0,0,72,73,5,11,0,0,73,75,5,3,0,0,74,76,3,
 		14,7,0,75,74,1,0,0,0,75,76,1,0,0,0,76,77,1,0,0,0,77,78,5,4,0,0,78,13,1,
