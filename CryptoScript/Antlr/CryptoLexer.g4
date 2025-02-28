@@ -10,12 +10,15 @@ PATH          : ( [a-zA-Z] ':' ( '\\' [^\\]* (ESC | ~["\\])*)* '\\'? )
 FN            : [A-Z] [a-z] [a-zA-Z]*;
 INFO		  : 'functions' | 'mechanisms' | 'types';
 ID            : [a-zA-Z] [a-zA-Z0-9]*;
-HEX_STRING    : '0x(' [0-9a-fA-F]+ ')'
-              ;
-BASE64_STRING : 'b64(' [A-Za-z0-9+/=]+ ')'
-              ;
+HEX_STRING    : '0x(' [0-9a-fA-F]+ ')';
+BASE64_STRING : 'b64(' [A-Za-z0-9+/=]+ ')';
 NORMAL_STRING : '"' (ESC | ~["\\])* '"';
-fragment ESC  : '\\' [btnrf"'\\];
+// Composite token using fragments
+TR31_STRING   : NORMAL_STRING_FRAG HEX_STRING_FRAG HEX_STRING_FRAG;
+// Fragment definitions (do not produce tokens on their own)
+fragment NORMAL_STRING_FRAG : '"' (ESC | ~["\\])* '"';
+fragment HEX_STRING_FRAG    : '0x(' [0-9a-fA-F]+ ')';
+fragment ESC                : '\\' [btnrf"'\\];
 INT           : [0-9]+;
 MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC | M_AES_CCM
               | M_DES3_ECB| M_DES3_CBC| M_DES3_CMAC
@@ -47,7 +50,7 @@ PAD_ISO9797   : 'ISO-9797';
 PAD_ANSI_X923 : 'ANSI-X923';
 PAD_NONE      : 'NONE';
 
-PARAM_TYPE	  : P_MECHANISM | P_IV | P_PADDING | P_NONCE | P_COUNTER|P_ADATA | P_BLKHDR | P_KEYBIND;
+PARAM_TYPE	  : P_MECHANISM | P_IV | P_PADDING | P_NONCE | P_COUNTER|P_ADATA | P_BLKHDR | P_KEYBIND | P_RND;
 P_MECHANISM   : '#MECH';
 P_IV          : '#IV';
 P_PADDING     : '#PAD';
@@ -56,4 +59,5 @@ P_COUNTER     : '#COUNTER';
 P_ADATA       : '#ADATA';
 P_BLKHDR	  : '#BLKH';
 P_KEYBIND     : '#BIND'; 
+P_RND         : '#RND';
 WS            : [ \t\r\n]+ -> skip;

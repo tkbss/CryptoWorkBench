@@ -12,7 +12,7 @@ namespace CryptoScript.Variables
         public StringVariableDeclaration()
         {
             Id = string.Empty;
-            Type = null;
+            Type = new CryptoTypeVar();
             Value = string.Empty;
         }
 

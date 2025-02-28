@@ -66,5 +66,19 @@ namespace CryptoScriptUnitTest
             var res = prog.Visit(context);
 
         }
+        [Test]
+        public void GenerateKeyWitVARDataTest() 
+        {
+            string input = "VAR data=0x(A714752E27B680B646CB110D6EB31C5C) " +
+                           "KEY k=GenerateKey(AES-CBC,data)";
+            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            CryptoScriptParser.ProgramContext context = parser.program();
+            var res = prog.Visit(context);
+            var statement = res.Statements.FirstOrDefault();
+            ClassicAssert.IsNotNull(statement);
+            ClassicAssert.IsTrue(res.Statements.Count == 2);
+            ClassicAssert.IsTrue(statement is VariableDeclaration);
+        }
     }
 }

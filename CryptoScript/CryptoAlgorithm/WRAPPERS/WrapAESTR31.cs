@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Modes;
 
 namespace CryptoScript.CryptoAlgorithm.WRAPPERS
 {
@@ -17,7 +18,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         {
             ParameterVariableDeclaration p = new ParameterVariableDeclaration();
             p.SetInstance(parameters[0]);
-            var keyEncryption = (AES_CBC)new AES.AES().CreateMode("AES-CBC");
+            string rnd = p.GetParameter("#RND");
             var variables=VariableDictionary.Instance().GetVariables();
             KeyVariableDeclaration keyProtectionKey = null;
             KeyVariableDeclaration keyToWrap = null;
@@ -38,7 +39,103 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             byte[] encryptionKey = DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue),
                 EncryptionDerivationData(Convert.ToInt32(keyProtectionKey.KeySize)),
                 Convert.ToInt32(keyProtectionKey.KeySize));
-            return base.Wrap(parameters);
+            byte[] keyData = ConstructBinaryKeyData(keyToWrap.KeyValue, Convert.ToInt32(keyToWrap.KeySize),rnd);
+            byte[] dataToMAC = ConstructDataToMAC(p, keyData);
+            byte[] macResult = ComputeMAC(dataToMAC, macKey);
+            byte[] wrappedKey = EncryptNoPadding(encryptionKey, macResult, keyData);
+            string header=p.GetParameter("#BLKH");
+            TR31String tr31 = new TR31String(header, wrappedKey, macResult);            
+            StringVariableDeclaration block = new StringVariableDeclaration() { Value = tr31.ToString(), ValueFormat = FormatConversions.TR31 };
+            return block;
+        }        
+        byte[] ComputeMAC(byte[] dataToMAC, byte[] key)
+        {            
+            IMac mac = new CMac(new AesEngine());
+            mac.Init(new KeyParameter(key));
+            byte[] result = new byte[mac.GetMacSize()];            
+            mac.BlockUpdate(dataToMAC, 0, dataToMAC.Length);
+            mac.DoFinal(result, 0);
+            return result;
+        }
+        private  byte[] EncryptNoPadding(byte[] key, byte[] iv, byte[] plaintext)
+        {           
+
+            // Create a BufferedBlockCipher with AES/CBC **without** a padding layer
+            var cipher = new BufferedBlockCipher(new CbcBlockCipher(new AesEngine()));
+            cipher.Init(true, new ParametersWithIV(new KeyParameter(key), iv));
+            // Process encryption
+            byte[] outputBuffer = new byte[cipher.GetOutputSize(plaintext.Length)];
+            int outputLength = cipher.ProcessBytes(plaintext, 0, plaintext.Length, outputBuffer, 0);
+            // Finalize (should not add padding, so typically returns 0 additional bytes)
+            cipher.DoFinal(outputBuffer, outputLength);            
+            return outputBuffer;
+        }
+        private byte[] ConstructDataToMAC(ParameterVariableDeclaration p, byte[]keyData) 
+        { 
+            string blk=p.GetParameter("#BLKH");
+            byte[] byteArray=FormatConversions.StringToByteArray(blk);
+            byte[] dataToMAC = new byte[byteArray.Length + keyData.Length];
+            Array.Copy(byteArray, 0, dataToMAC, 0, byteArray.Length);
+            Array.Copy(keyData, 0, dataToMAC, byteArray.Length, keyData.Length);
+            return dataToMAC;
+        }
+        private byte[] ConstructBinaryKeyData(string key,int KeySize,string rd)
+        {
+            byte[] binaryKeyData,rndArray;
+            Random rnd = new Random();
+            if(!string.IsNullOrEmpty(rd))
+            {
+                rndArray=FormatConversions.HexStringToByteArray(rd);
+            }
+            else
+            {
+                rndArray = null;
+            }
+            switch (KeySize)
+            {
+                case 128:
+                    binaryKeyData = new byte[32];
+                    binaryKeyData[1] = 0x80;
+                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 16);
+                    if (rndArray == null || rndArray.Length!=14)
+                    {
+                        
+                        rndArray = new byte[14];
+                        rnd.NextBytes(rndArray);
+                    }                    
+                    Array.Copy(rndArray, 0, binaryKeyData, 18, 14);
+                    break;
+                case 192:
+                    binaryKeyData = new byte[32];
+                    binaryKeyData[1] = 0xC0;
+                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 24);
+                    if (rndArray == null || rndArray.Length != 6)
+                    {
+
+                        rndArray = new byte[6];
+                        rnd.NextBytes(rndArray);
+                    }
+                    Array.Copy(rndArray, 0, binaryKeyData, 26, 6);
+                    break;
+                case 256:
+                    binaryKeyData = new byte[48];
+                    binaryKeyData[0] = 0x01;
+                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 32);
+                    if (rndArray == null || rndArray.Length != 14)
+                    {
+
+                        rndArray = new byte[14];
+                        rnd.NextBytes(rndArray);
+                    }
+                    Array.Copy(rndArray, 0, binaryKeyData, 34, 14);
+                    break;
+                default:
+                    binaryKeyData = new byte[16];
+                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 16);
+                    break;
+            }
+
+            return binaryKeyData;
         }
         private byte[] DeriveKey(byte[] key, byte[] data, int keySize)
         {

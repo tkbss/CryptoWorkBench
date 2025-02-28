@@ -38,9 +38,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             var param = new ParameterVariableDeclaration();
             param.Mechanism = mechanism;
-            param.SetParameter("MECH", mechanism);
-            //generate random IV            
-            param.SetParameter("IV", string.Empty);
+            param.SetParameter("MECH", mechanism);                       
             param.SetParameter("PAD", "NONE");
             return param;
         }

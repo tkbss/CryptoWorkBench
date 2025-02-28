@@ -11,9 +11,9 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         public char HeaderIdentifier { get; set; } = 'B';  // Typically 'B' for TR-31
         public int BlockLength { get; set; }               // 4 bytes in ASCII
         public char VersionId { get; set; } = '1';         // e.g. '1'
-        public string KeyUsage { get; set; }               // e.g. "MK" for Master Key usage
-        public string Algorithm { get; set; }              // e.g. "AES1" or "TDES"
-        public string ExportControl { get; set; }          // e.g. "X0"
+        public string KeyUsage { get; set; } = string.Empty;              // e.g. "MK" for Master Key usage
+        public string Algorithm { get; set; } = string.Empty;             // e.g. "AES1" or "TDES"
+        public string ExportControl { get; set; } = string.Empty;       // e.g. "X0"
 
         // Other optional fields as needed (dates, KCV, etc.)
 

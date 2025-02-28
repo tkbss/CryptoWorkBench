@@ -151,7 +151,7 @@ namespace CryptoScript.Model
                         var param = VisitDeclareparam(declarParam[i]) as ArgumentParameter;
                         Parameter.SetParameter(param);
                     }
-                    catch (Exception e)
+                    catch 
                     {
                         SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
                         se.Message = "Error in  parameter declaration : " + declarParam[i].GetText();

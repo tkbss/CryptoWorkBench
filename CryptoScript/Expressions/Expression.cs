@@ -18,9 +18,30 @@ namespace CryptoScript.Model
         }
         public static Statement BuildVariable(Statement stmt,string Id, CryptoType type) 
         {
+            var newVariable = new StringVariableDeclaration();
+            if (stmt is ExpressionString expressionString)
+            {
+
+                newVariable.Id = Id;
+                newVariable.Value = expressionString.Value();
+                newVariable.Type = type;
+                newVariable.ValueFormat = FormatConversions.ParseString(expressionString.Value());
+                VariableDictionary.Instance().Add(newVariable);
+                return newVariable;
+            }
+            if (stmt is ExpressionTR31String expressionTR31)
+            {
+
+                newVariable.Id = Id;
+                newVariable.Value = expressionTR31.Value();
+                newVariable.Type = type;
+                newVariable.ValueFormat = FormatConversions.ParseString(expressionTR31.Value());
+                VariableDictionary.Instance().Add(newVariable);
+                return newVariable;
+            }
             if (stmt is ExpressionHex expressionHex)
             {
-                var newVariable = new StringVariableDeclaration();
+                
                 newVariable.Id = Id;
                 newVariable.Value = expressionHex.Value();
                 newVariable.Type = type;
@@ -30,7 +51,6 @@ namespace CryptoScript.Model
             }
             if (stmt is ExpressionNumber expressionNu)
             {
-                var newVariable = new StringVariableDeclaration();
                 newVariable.Id = Id;
                 newVariable.Value = expressionNu.Value();
                 newVariable.Type = type;
@@ -40,7 +60,6 @@ namespace CryptoScript.Model
             }
             if (stmt is ExpressionBase64 expressionB64)
             {
-                var newVariable = new StringVariableDeclaration();
                 newVariable.Id = Id;
                 newVariable.Value = expressionB64.Value();
                 newVariable.Type = type;
@@ -50,7 +69,6 @@ namespace CryptoScript.Model
             }
             if (stmt is ExpressionJSON expressionJS)
             {
-                var newVariable = new StringVariableDeclaration();
                 newVariable.Id = Id;
                 newVariable.Value = expressionJS.Value();
                 newVariable.Type = type;
@@ -60,11 +78,11 @@ namespace CryptoScript.Model
             }
             if (stmt is ExpressionPath expressionPath)
             {
-                var newVariable = new PathVariableDeclaration();
-                newVariable.Id = Id;
-                newVariable.Value = expressionPath.Value();
-                newVariable.Type = type;
-                newVariable.ValueFormat = FormatConversions.ParseString(expressionPath.Value());
+                var pathVariable = new PathVariableDeclaration();
+                pathVariable.Id = Id;
+                pathVariable.Value = expressionPath.Value();
+                pathVariable.Type = type;
+                pathVariable.ValueFormat = FormatConversions.ParseString(expressionPath.Value());
                 VariableDictionary.Instance().Add(newVariable);
                 return newVariable;
             }
@@ -72,70 +90,34 @@ namespace CryptoScript.Model
         }
         static public Expression Create(string expr)
         {
-            string pattern = @"^[a-zA-Z]:\\(?:[^\\]*\\?)*$";
+            string PathPattern = @"^[a-zA-Z]:\\(?:[^\\]*\\?)*$";
             
 
-            if (Regex.IsMatch(expr, pattern))
+            if (Regex.IsMatch(expr, PathPattern))
             {
                 return new ExpressionPath() { PathValue = expr };
             }
                         
             if (expr.StartsWith("0x("))
-                return new ExpressionHex() { HexValue = expr };//value.HexValue = expr;
+                return new ExpressionHex() { HexValue = expr };
             else if (expr.StartsWith("b64("))
-                return new ExpressionBase64() { Base64Value = expr };//value.Base64Value = expr;
+                return new ExpressionBase64() { Base64Value = expr };
             else if ((expr.StartsWith("{") && expr.EndsWith("}")) || //For object
                 (expr.StartsWith("[") && expr.EndsWith("]"))) //For array
-                return new ExpressionJSON() { JSONValue = expr };//value.JSONValue = expr;
-            else
-                return new ExpressionNumber() { IntegerValue=expr };//value.StringValue = expr;           
-        }
-
+                return new ExpressionJSON() { JSONValue = expr };
+            else if (int.TryParse(expr, out _))
+                return new ExpressionNumber() { IntegerValue = expr };
+            else if(expr.StartsWith("\""))
+                return new ExpressionString() { StringValue=expr };
+            else if(FormatConversions.ParseString(expr)==FormatConversions.TR31)
+                return new ExpressionTR31String() { TR31StringValue = expr };
+            return new ExpressionString() { StringValue = "\"\"" };
+        }      
         
-        public class ExpressionHex : Expression
-        {
-            public string HexValue { get;  set; }=string.Empty;
-
-            public override string Value()
-            {
-                return HexValue;
-            }
-        }
-        public class ExpressionBase64 : Expression 
-        {
-            public string Base64Value { get;  set; }=string.Empty;
-
-            public override string Value()
-            {
-                return Base64Value;
-            }
-        }
-        public class ExpressionJSON : Expression
-        {
-            public string JSONValue { get; set; } = string.Empty;
-
-            public override string Value()
-            {
-                return JSONValue;
-            }
-        }
-        public class ExpressionNumber : Expression 
-        {
-            public string IntegerValue { get; set; } = string.Empty;
-
-            public override string Value()
-            {
-                return IntegerValue;
-            }
-        }
-        public class ExpressionPath : Expression 
-        {
-            public string PathValue { get; set; } = string.Empty;
-            public override string Value()
-            {
-                return PathValue;
-            }
-        }
+        
+        
+        
+        
     }
     
     

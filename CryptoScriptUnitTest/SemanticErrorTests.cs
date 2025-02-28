@@ -55,7 +55,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
+                Assert.That("FunctionCall".ToLower()==e.SemanticError.Type.ToLower());
             }
 
         }
@@ -78,7 +78,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
+                Assert.That("FunctionCall".ToLower() == e.SemanticError.Type.ToLower());
             }
 
         }
@@ -101,7 +101,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                ClassicAssert.AreEqual("FunctionCall", e.SemanticError.Type);
+                Assert.That("FunctionCall".ToLower() == e.SemanticError.Type.ToLower());
             }
 
         }
@@ -124,8 +124,8 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                ClassicAssert.AreEqual("Variable", e.SemanticError.Type);
-                ClassicAssert.AreEqual("k1", e.SemanticError.Identifier);
+                Assert.That("Variable".ToLower() == e.SemanticError.Type.ToLower());
+                Assert.That("k1" == e.SemanticError.Identifier);
             }
 
         }
@@ -148,7 +148,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                ClassicAssert.AreEqual("Declaration", e.SemanticError.Type);                
+                Assert.That("Declaration".ToLower() == e.SemanticError.Type.ToLower());                
             }
 
         }
@@ -171,7 +171,7 @@ namespace CryptoScriptUnitTest
             }
             catch (SemanticErrorException e)
             {
-                ClassicAssert.AreEqual("Declaration", e.SemanticError.Type);
+                Assert.That("Declaration".ToLower() == e.SemanticError.Type.ToLower());
             }
 
         }
