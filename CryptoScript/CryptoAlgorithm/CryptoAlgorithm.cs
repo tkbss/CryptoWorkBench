@@ -16,6 +16,14 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new ParameterVariableDeclaration();
         }
+        public virtual BlockHeaderVariableDeclaration GenerateBlockHeader(string[] parameters)
+        {
+            return new BlockHeaderVariableDeclaration();
+        }
+        public virtual BlockHeaderVariableDeclaration GenerateBlockHeader(string mechanism)
+        {
+            return new BlockHeaderVariableDeclaration();
+        }
         public virtual StringVariableDeclaration Encrypt(string[] parameters) 
         { 
             return new StringVariableDeclaration(); 

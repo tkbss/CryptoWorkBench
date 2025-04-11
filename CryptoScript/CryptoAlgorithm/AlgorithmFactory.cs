@@ -5,6 +5,11 @@
         public AlgorithmFactory() { }
         public static CryptoAlgorithm Create(string mechanism) 
         {
+            if ((mechanism.ToUpper().StartsWith("BLOCKHEADER")))
+            {
+                if (mechanism.ToUpper().Contains("AES-TR31"))
+                    return new WRAPPERS.Tr31BlockHeader();
+            }
             if (mechanism.StartsWith("WRAP")) 
             {
                 if (mechanism.Contains("AES-TR31"))

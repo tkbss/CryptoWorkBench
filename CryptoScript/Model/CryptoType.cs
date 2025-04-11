@@ -64,6 +64,16 @@ namespace CryptoScript.Model
             Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_PARAMETER);
         }
     }
+    public class CryptoTypeTR31Header : CryptoType
+    {
+        public override string Id { get; set; } = string.Empty;
+        public override string Name { get => "TR31H"; }
+        public CryptoTypeTR31Header()
+        {
+            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_TR31H);
+        }
+    }
+    
     public class CryptoTypePath : CryptoType
     {
         public override string Id { get; set; } = string.Empty;

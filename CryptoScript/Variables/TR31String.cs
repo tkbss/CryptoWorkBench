@@ -12,11 +12,20 @@ namespace CryptoScript.Variables
         public string Block { get; set; }
         public byte[] Cryptogram { get; set; }
         public byte[] Mac { get; set; }
+        public string[] OptionalBlocks { get; set; }
         public TR31String(string block, byte[] cryptogram, byte[] mac)
         {
             Block = FormatConversions.ToString(block);
             Cryptogram = cryptogram;
             Mac = mac;
+            OptionalBlocks = Array.Empty<string>();
+        }
+        public TR31String(string block, byte[] cryptogram, byte[] mac, string[]optionalBlocks)
+        {
+            Block = FormatConversions.ToString(block);
+            Cryptogram = cryptogram;
+            Mac = mac;
+            OptionalBlocks = optionalBlocks;
         }
         public override bool Equals(object? obj)
         {

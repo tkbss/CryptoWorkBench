@@ -2,7 +2,7 @@ grammar CryptoScript;
 import  CryptoLexer;
 
 
-
+INT           : [0-9]+;
 // Parser rules
 program       : statement* EOF;
 
@@ -13,6 +13,7 @@ statement     : declaration
 declaration   : type ID '=' expression              
               | type ID '=' functionCall
               | type ID '=' (declareparam)*
+              | type ID '=' tr31Header
               ;
 declareparam  :  PARAM_TYPE ':' MECHANISM
               |  PARAM_TYPE ':' PADDING
@@ -24,7 +25,11 @@ type          : T_KEY
               | T_VAR
               | T_PARAMETER
               | T_PATH
+              | T_TR31H
               ;
+
+tr31Header    : '{' tr31Field+ '}';
+tr31Field     : TR31_FIELD_NAME ':' (TR31_FIELD_VALUE | INT) ';';
 
 
 expression    : HEX_STRING

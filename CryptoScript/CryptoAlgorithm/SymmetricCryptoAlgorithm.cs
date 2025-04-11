@@ -39,7 +39,16 @@ namespace CryptoScript.CryptoAlgorithm
             var split = mech.Split(":");
             return split[1];
         }
-        
+
+        public override BlockHeaderVariableDeclaration GenerateBlockHeader(string[] parameters)
+        {
+            return base.GenerateBlockHeader( parameters);
+        }
+
+        public override BlockHeaderVariableDeclaration GenerateBlockHeader(string mechanism)
+        {
+            return base.GenerateBlockHeader(mechanism);
+        }
     }
     
 }

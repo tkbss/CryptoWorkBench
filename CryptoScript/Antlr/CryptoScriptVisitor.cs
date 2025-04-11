@@ -62,6 +62,18 @@ public interface ICryptoScriptVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitType([NotNull] CryptoScriptParser.TypeContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.tr31Header"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTr31Header([NotNull] CryptoScriptParser.Tr31HeaderContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.tr31Field"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTr31Field([NotNull] CryptoScriptParser.Tr31FieldContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CryptoScriptParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

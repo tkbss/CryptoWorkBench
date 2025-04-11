@@ -87,6 +87,26 @@ namespace CryptoScript.Model
             var returnValue = algo.Decrypt(args);
             return returnValue;
         }
+        public VariableDeclaration BlockHeader(params string[] args)
+        {
+            if (args.Length == 0)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            string mech = "BLOCKHEADER-"+args[0];
+            var algo = AlgorithmFactory.Create(mech);
+            if(args.Length == 1)
+            {
+                
+                return algo.GenerateBlockHeader(args[0]);
+                
+            }
+            else
+            {
+                return algo.GenerateBlockHeader(args);
+            }
+            
+        }
         public VariableDeclaration Wrap(params string[] args)
         {
             if (args.Length != 3)
@@ -95,6 +115,16 @@ namespace CryptoScript.Model
             }
             var algo = DetermineAlgorithm(args);
             var returnValue = algo.Wrap(args);
+            return returnValue;
+        }
+        public VariableDeclaration Unwrap(params string[] args)
+        {
+            if (args.Length != 3)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            var algo = DetermineAlgorithm(args);
+            var returnValue = algo.Unwrap(args);
             return returnValue;
         }
         public VariableDeclaration Sign(params string[]args)

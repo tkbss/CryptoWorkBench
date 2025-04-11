@@ -30,6 +30,10 @@ namespace CryptoScript.Model
                         return op.GenerateParameters;
                 case "wrap":
                     return op.Wrap;
+                case "unwrap":
+                    return op.Unwrap;
+                case "blockheader":
+                    return op.BlockHeader;
                 default:
                 {
                         throw new ArgumentException("Unkown function");

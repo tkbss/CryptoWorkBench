@@ -37,7 +37,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
         }
         [Test]
-        public void GenerateKeyAES128_Test()
+        public void GenerateKeyRandomAES128_Test()
         {
             string input = "KEY key2=GenerateKey(AES-CBC,128)";
             AntlrToProgram prog = new AntlrToProgram();
