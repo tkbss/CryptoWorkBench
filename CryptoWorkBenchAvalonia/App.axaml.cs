@@ -7,7 +7,7 @@ using CryptoWorkBenchAvalonia.ViewModels;
 using CryptoWorkBenchAvalonia.Views;
 using Prism.DryIoc;
 using Prism.Ioc;
-using Prism.Regions;
+using Prism.Navigation.Regions;
 
 namespace CryptoWorkBenchAvalonia;
 

@@ -6,7 +6,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Models;
 using Prism.Commands;
-using Prism.Regions;
+using Prism.Navigation.Regions;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
