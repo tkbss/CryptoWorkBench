@@ -1,10 +1,5 @@
 ﻿using CryptoScript.Model;
 using CryptoScript.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CryptoScript.CryptoAlgorithm.WRAPPERS
 {
@@ -48,7 +43,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             blockHeader.Value = v;
             return blockHeader;
         }
-        private readonly string[] FIELD_NAMES=new string[]{"KBVID", "KBLEN", "KEYU", "ALGO", "MODEU", "KEYVN", "EXP", "KEYCTX", "NUMOPTB", "RSV", "OPTID", "OPTBD", "TKL" };    
+        private readonly string[] FIELD_NAMES=new string[]{"KBVID", "KBLEN", "KEYU", "ALGO", "MODEU", "KEYVN", "EXP", "KEYCTX", "NUMOPTB", "RSV", "OPTID", "OPTBD", "WKL" };    
         private static readonly HashSet<string> AllowedVersions = new() { "A", "B", "C", "D" };
         private static readonly HashSet<string> AllowedKeyUsages = new()
         {
@@ -175,12 +170,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
     /// <summary>
     /// Represents an Optional Block as defined by TR-31 standard.
     /// </summary>
-    public class OptionalBlock
-    {
-        public string? ID { get; set; }
-        public int Length { get; set; }
-        public string? Data { get; set; }
-    }
+    
     
 
 }

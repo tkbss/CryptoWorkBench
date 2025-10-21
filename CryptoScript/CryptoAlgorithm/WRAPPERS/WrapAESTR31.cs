@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Modes;
 using CryptoScript.Model;
+using Microsoft.VisualBasic;
 
 namespace CryptoScript.CryptoAlgorithm.WRAPPERS
 {
@@ -59,18 +60,26 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             byte[]? blockHeaderBytes =null;
             byte[]? encryptedKeyData = null;
             byte[]? blockMac = null;
-            TR31String? tr31 =null;
+            TR31Block? block =null;
             // 3) Parse the TR-31 block into (header, wrappedKey, mac).
             //    This depends on how your TR31String is implemented.
             //    Example assumes a constructor that can parse a string:
             if (FormatConversions.ParseString(wrappedBlockVar.Value) == FormatConversions.TR31)
             {
-                tr31 = TR31String.FromString(wrappedBlockVar.Value);
+                TR31String tr31 = TR31String.FromString(wrappedBlockVar.Value);
+                block = TR31Block.FromString(tr31.Block);
                 blockHeaderBytes = FormatConversions.StringToByteArray(tr31.Block);
-                encryptedKeyData = tr31.Cryptogram;
-                blockMac = tr31.Mac;
+                block.Cryptogram=encryptedKeyData = tr31.Cryptogram;
+                block.Mac=blockMac = tr31.Mac;
             }
-
+            if(FormatConversions.ParseString(wrappedBlockVar.Value) == FormatConversions.STR) 
+            {
+                wrappedBlockVar.Value = FormatConversions.ToString(wrappedBlockVar.Value);
+                block =TR31Block.FromString(wrappedBlockVar.Value);
+                blockHeaderBytes = block.HeaderDataToMac;
+                encryptedKeyData = block.Cryptogram;
+                blockMac = block.Mac;
+            }
             // 4) Derive the encryption and MAC keys from the protection key
             byte[] masterKeyBytes = FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue);
             int protKeySizeBits = Convert.ToInt32(keyProtectionKey.KeySize);
@@ -106,8 +115,9 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             {
                 KeyValue = actualKeyHex,
                 KeySize = actualBitSize.ToString(),  // or store the bits as needed
-                Value = "\""+tr31.Block+ "\"" + actualKeyHex, // pick some name or pass in an extra param
-                Type=new CryptoTypeKey(),
+                Value = actualKeyHex, // pick some name or pass in an extra param
+                KeyAttributes=block.HeaderOptionalBlocks(),
+                Type =new CryptoTypeKey(),
                 Mechanism= "WRAP-AES-TR31"
             };
 
@@ -179,9 +189,15 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 Array.Copy(recovered, 2, keyBytes, 0, 32);
                 return (FormatConversions.ByteArrayToHexString(keyBytes), 256);
             }
-
-            // Fallback or throw if the format is unexpected
-            throw new Exception("Unknown key block format in recovered data.");
+            else 
+            {
+                //arbitary length in bits defined in the first two bytes
+                int l = (recovered[0] << 8) | recovered[1];
+                l = l / 8;
+                byte[] keyBytes = new byte[l];
+                Array.Copy(recovered, 2, keyBytes, 0, l);
+                return (FormatConversions.ByteArrayToHexString(keyBytes),l*8);
+            }                
         }
         public override StringVariableDeclaration Wrap(string[] parameters)
         {

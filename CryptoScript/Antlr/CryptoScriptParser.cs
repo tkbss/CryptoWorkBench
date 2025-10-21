@@ -46,7 +46,7 @@ public partial class CryptoScriptParser : Parser {
 		PAD_ISO7816=42, PAD_PKCS7=43, PAD_ISO9797=44, PAD_ANSI_X923=45, PAD_NONE=46, 
 		PARAM_TYPE=47, P_MECHANISM=48, P_IV=49, P_PADDING=50, P_NONCE=51, P_COUNTER=52, 
 		P_ADATA=53, P_BLKHDR=54, P_KEYBIND=55, P_RND=56, WS=57, TR31_FIELD_NAME=58, 
-		TR31_FIELD_VALUE=59, TR31_KB_VERSION_ID=60, TR31_KB_LENGTH=61, TR31_TRANSPORTED_KEYLEN=62, 
+		TR31_FIELD_VALUE=59, TR31_KB_VERSION_ID=60, TR31_KB_LENGTH=61, TR31_WRAPPED_KEYLEN=62, 
 		TR31_KU=63, TR31_ALGO=64, TR31_MODEU=65, TR31_KEY_VERSION_NUM=66, TR31_EXPORTABILITY=67, 
 		TR31_NUM_OPT_BLOCKS=68, TR31_KEY_CONTEXT=69, TR31_RESERVED_FIELD=70, TR31_OPT_BLOCK_ID=71, 
 		TR31_OPT_BLOCK_DATA=72, NUM=73, KU_B0=74, KU_B1=75, KU_B2=76, KU_B3=77, 
@@ -54,11 +54,11 @@ public partial class CryptoScriptParser : Parser {
 		KU_E2=85, KU_E3=86, KU_F3=87, KU_F4=88, KU_F5=89, KU_F6=90, KU_I0=91, 
 		KU_K0=92, KU_K1=93, KU_K2=94, KU_K3=95, KU_K4=96, KU_M0=97, KU_M1=98, 
 		KU_P2=99, KU_V0=100, KU_V1=101, KU_V2=102, KU_V3=103, KU_V4=104, KU_V5=105, 
-		OPT_AL=106, OPT_BI=107, OPT_CT=108, OPT_DA=109, OPT_HM=110, OPT_IK=111, 
-		OPT_KC=112, OPT_KP=113, OPT_KS=114, OPT_KV=115, OPT_LB=116, OPT_PA=117, 
-		OPT_PB=118, OPT_PK=119, OPT_TC=120, OPT_TS=121, OPT_WP=122, H=123, R=124, 
-		S=125, T=126, D=127, E=128, A=129, B=130, C=131, G=132, N=133, V=134, 
-		X=135, Y=136;
+		KV_00=106, OPT_AL=107, OPT_BI=108, OPT_CT=109, OPT_DA=110, OPT_HM=111, 
+		OPT_IK=112, OPT_KC=113, OPT_KP=114, OPT_KS=115, OPT_KV=116, OPT_LB=117, 
+		OPT_PA=118, OPT_PB=119, OPT_PK=120, OPT_TC=121, OPT_TS=122, OPT_WP=123, 
+		H=124, R=125, S=126, T=127, D=128, E=129, A=130, B=131, C=132, G=133, 
+		N=134, V=135, X=136, Y=137;
 	public const int
 		RULE_program = 0, RULE_statement = 1, RULE_declaration = 2, RULE_declareparam = 3, 
 		RULE_type = 4, RULE_tr31Header = 5, RULE_tr31Field = 6, RULE_expression = 7, 
@@ -77,15 +77,15 @@ public partial class CryptoScriptParser : Parser {
 		"'BIND-XOR'", "'BIND-CMAC'", null, "'ISO-7816'", "'PKCS-7'", "'ISO-9797'", 
 		"'ANSI-X923'", "'NONE'", null, "'#MECH'", "'#IV'", "'#PAD'", "'#NONCE'", 
 		"'#COUNTER'", "'#ADATA'", "'#BLKH'", "'#BIND'", "'#RND'", null, null, 
-		null, "'KBVID'", "'KBLEN'", "'TKL'", "'KEYU'", "'ALGO'", "'MODEU'", "'KEYVN'", 
+		null, "'KBVID'", "'KBLEN'", "'WKL'", "'KEYU'", "'ALGO'", "'MODEU'", "'KEYVN'", 
 		"'EXP'", "'NUMOPTB'", "'KEYCTX'", "'RSV'", "'OPTID'", "'OPTBD'", null, 
 		"'B0'", "'B1'", "'B2'", "'B3'", "'C0'", "'D0'", "'D1'", "'D2'", "'D3'", 
 		"'E0'", "'E1'", "'E2'", "'E3'", "'F3'", "'F4'", "'F5'", "'F6'", "'I0'", 
 		"'K0'", "'K1'", "'K2'", "'K3'", "'K4'", "'M0'", "'M1'", "'P2'", "'V0'", 
-		"'V1'", "'V2'", "'V3'", "'V4'", "'V5'", "'AL'", "'BI'", "'CT'", "'DA'", 
-		"'HM'", "'IK'", "'KC'", "'KP'", "'KS'", "'KV'", "'LB'", "'PA'", "'PB'", 
-		"'PK'", "'TC'", "'TS'", "'WP'", "'H'", "'R'", "'S'", "'T'", "'D'", "'E'", 
-		"'A'", "'B'", "'C'", "'G'", "'N'", "'V'", "'X'", "'Y'"
+		"'V1'", "'V2'", "'V3'", "'V4'", "'V5'", "'00'", "'AL'", "'BI'", "'CT'", 
+		"'DA'", "'HM'", "'IK'", "'KC'", "'KP'", "'KS'", "'KV'", "'LB'", "'PA'", 
+		"'PB'", "'PK'", "'TC'", "'TS'", "'WP'", "'H'", "'R'", "'S'", "'T'", "'D'", 
+		"'E'", "'A'", "'B'", "'C'", "'G'", "'N'", "'V'", "'X'", "'Y'"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, null, null, null, "INT", "T_KEY", 
@@ -97,17 +97,17 @@ public partial class CryptoScriptParser : Parser {
 		"M_BIND_CMAC", "PADDING", "PAD_ISO7816", "PAD_PKCS7", "PAD_ISO9797", "PAD_ANSI_X923", 
 		"PAD_NONE", "PARAM_TYPE", "P_MECHANISM", "P_IV", "P_PADDING", "P_NONCE", 
 		"P_COUNTER", "P_ADATA", "P_BLKHDR", "P_KEYBIND", "P_RND", "WS", "TR31_FIELD_NAME", 
-		"TR31_FIELD_VALUE", "TR31_KB_VERSION_ID", "TR31_KB_LENGTH", "TR31_TRANSPORTED_KEYLEN", 
+		"TR31_FIELD_VALUE", "TR31_KB_VERSION_ID", "TR31_KB_LENGTH", "TR31_WRAPPED_KEYLEN", 
 		"TR31_KU", "TR31_ALGO", "TR31_MODEU", "TR31_KEY_VERSION_NUM", "TR31_EXPORTABILITY", 
 		"TR31_NUM_OPT_BLOCKS", "TR31_KEY_CONTEXT", "TR31_RESERVED_FIELD", "TR31_OPT_BLOCK_ID", 
 		"TR31_OPT_BLOCK_DATA", "NUM", "KU_B0", "KU_B1", "KU_B2", "KU_B3", "KU_C0", 
 		"KU_D0", "KU_D1", "KU_D2", "KU_D3", "KU_E0", "KU_E1", "KU_E2", "KU_E3", 
 		"KU_F3", "KU_F4", "KU_F5", "KU_F6", "KU_I0", "KU_K0", "KU_K1", "KU_K2", 
 		"KU_K3", "KU_K4", "KU_M0", "KU_M1", "KU_P2", "KU_V0", "KU_V1", "KU_V2", 
-		"KU_V3", "KU_V4", "KU_V5", "OPT_AL", "OPT_BI", "OPT_CT", "OPT_DA", "OPT_HM", 
-		"OPT_IK", "OPT_KC", "OPT_KP", "OPT_KS", "OPT_KV", "OPT_LB", "OPT_PA", 
-		"OPT_PB", "OPT_PK", "OPT_TC", "OPT_TS", "OPT_WP", "H", "R", "S", "T", 
-		"D", "E", "A", "B", "C", "G", "N", "V", "X", "Y"
+		"KU_V3", "KU_V4", "KU_V5", "KV_00", "OPT_AL", "OPT_BI", "OPT_CT", "OPT_DA", 
+		"OPT_HM", "OPT_IK", "OPT_KC", "OPT_KP", "OPT_KS", "OPT_KV", "OPT_LB", 
+		"OPT_PA", "OPT_PB", "OPT_PK", "OPT_TC", "OPT_TS", "OPT_WP", "H", "R", 
+		"S", "T", "D", "E", "A", "B", "C", "G", "N", "V", "X", "Y"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -1007,7 +1007,7 @@ public partial class CryptoScriptParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,136,118,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+		4,1,137,118,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
 		7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,1,0,5,0,24,8,0,10,0,12,0,27,9,0,1,0,1,
 		0,1,1,1,1,3,1,33,8,1,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
 		2,1,2,5,2,49,8,2,10,2,12,2,52,9,2,1,2,1,2,1,2,1,2,1,2,3,2,59,8,2,1,3,1,

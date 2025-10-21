@@ -84,6 +84,13 @@ namespace CryptoScript.Variables
                 b[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
             return b;
         }
+        public static string HexStringToString(string hexString)
+        {
+            if (hexString.StartsWith("0x("))
+                hexString = hexString.Substring(3, hexString.Length - 4);
+
+            return hexString;
+        }
         public static string ParseString(string input) 
         {
             if (input.StartsWith("\"") && input.Contains("0x("))
