@@ -6,7 +6,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Models;
 using Prism.Commands;
-using Prism.Regions;
+using Prism.Navigation.Regions;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -16,7 +16,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels;
 public class SidebarViewModel : ViewModelBase
 {
     private const int Collapsed = 50;
-    private const int Expanded = 150;
+    private const int Expanded = 170;
     public TopLevel? _window;
     CryptoScriptEditViewModel _cseVm;
 

@@ -1,7 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"		 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"	
+			 xmlns:fi="clr-namespace:FluentIcons.Avalonia;assembly=FluentIcons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 xmlns:prism="http://prismlibrary.com/"
 			 Width="{Binding FlyoutWidth}"
@@ -17,7 +18,7 @@
 			<Setter Property="Margin" Value="0,0,10,0" />
 		</Style>
 	</UserControl.Styles>
-	<Grid RowDefinitions="auto,auto,auto,auto">
+	<Grid RowDefinitions="auto,auto,auto,auto,auto">
 		<!-- Dock the hamburger menu button to the top with no text -->
 		<Button Grid.Row="0"
 				Command="{Binding CmdFlyoutMenu}"
@@ -48,6 +49,19 @@
 				<PathIcon Data="{StaticResource save_regular}" />
 				<TextBlock Text="Save Book" />
 			</StackPanel>
+		</Button>
+		<Button Grid.Row="3"
+				Command="{Binding SaveScriptBookCommand}"
+				ToolTip.Tip="Show the defined variables"
+				Height="35"
+				Margin="5">
+			<Grid ColumnDefinitions="Auto, *" VerticalAlignment="Center">
+				<fi:FluentIcon Icon="BracesVariable"
+                       IconSize="Size20"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0"/>
+				<TextBlock Grid.Column="1" Text="Show Variables" VerticalAlignment="Center"/>
+			</Grid>
 		</Button>
 	</Grid>
 </UserControl>

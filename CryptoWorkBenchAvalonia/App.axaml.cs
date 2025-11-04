@@ -7,7 +7,8 @@ using CryptoWorkBenchAvalonia.ViewModels;
 using CryptoWorkBenchAvalonia.Views;
 using Prism.DryIoc;
 using Prism.Ioc;
-using Prism.Regions;
+using Prism.Navigation.Regions;
+
 
 namespace CryptoWorkBenchAvalonia;
 
@@ -15,31 +16,19 @@ public partial class App : PrismApplication
 {
     public override void Initialize()
     {
-        AvaloniaXamlLoader.Load(this);
+        AvaloniaXamlLoader.Load(this);        
+#if DEBUG
+        this.AttachDeveloperTools();
+#endif
         base.Initialize();
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // Line below is needed to remove Avalonia data validation.
-        // Without this line you will get duplicate validations from both Avalonia and CT
+        // Avalonia-Validierung entfernen (wie bisher)
         BindingPlugins.DataValidators.RemoveAt(0);
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
-        }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
-        {
-            singleViewPlatform.MainView = new MainView
-            {
-                DataContext = new MainViewModel()
-            };
-        }
-
+        // Prism kümmert sich jetzt um das Erzeugen der Shell (CreateShell)
         base.OnFrameworkInitializationCompleted();
     }
 
@@ -61,6 +50,8 @@ public partial class App : PrismApplication
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {           
         containerRegistry.RegisterSingleton<INotificationService, NotificationService>();
+        // 🔹 Hier MainViewModel beim Container registrieren:
+        containerRegistry.RegisterSingleton<MainViewModel>();
         containerRegistry.RegisterSingleton<VariableViewModel>();
         containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
         containerRegistry.RegisterForNavigation<SidebarView>();

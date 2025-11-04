@@ -1,16 +1,14 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CryptoWorkBenchAvalonia.Models;
 using CryptoWorkBenchAvalonia.ViewModels;
-using ImTools;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

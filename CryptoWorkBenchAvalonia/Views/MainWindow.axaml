@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:CryptoWorkBenchAvalonia.Views"
 		xmlns:prism="http://prismlibrary.com/"
 		xmlns:core="clr-namespace:CryptoWorkBenchAvalonia;assembly=CryptoWorkBenchAvalonia"
-		prism:ViewModelLocator.AutoWireViewModel="True"
+		prism:ViewModelLocator.AutoWireViewModel="False"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="CryptoWorkBenchAvalonia.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
@@ -41,7 +41,7 @@
 				<TextBlock  Text="Crypto Script Edit" TextAlignment="Center" FontSize="20" Margin="10" />
 			</Border>
 			<Border Grid.Row="0" Grid.Column="2"  Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="7">
-				<TextBlock  TextAlignment="Center" Text="Variable Definitions" FontSize="20" Margin="10" />
+				<TextBlock  TextAlignment="Center" Text="{Binding InfoViewTitle}" FontSize="20" Margin="10" />
 			</Border>
 			<ContentControl Grid.Row="1"
 						  Grid.Column="1"
