@@ -9,6 +9,7 @@ using Prism.DryIoc;
 using Prism.Ioc;
 using Prism.Navigation.Regions;
 
+
 namespace CryptoWorkBenchAvalonia;
 
 public partial class App : PrismApplication
@@ -16,6 +17,9 @@ public partial class App : PrismApplication
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+#if DEBUG
+        this.AttachDeveloperTools();
+#endif
         base.Initialize();
     }
 
