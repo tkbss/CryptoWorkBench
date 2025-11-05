@@ -24,6 +24,12 @@ public class SidebarViewModel : ViewModelBase
     private readonly IRegionManager _regionManager;
     public DelegateCommand OpenScriptBookCommand { get; }
     public DelegateCommand SaveScriptBookCommand { get; }
+    public DelegateCommand ShowVariableViewCommand { get; }
+    public DelegateCommand CmdFlyoutMenu => new(() =>
+    {
+        var isExpanded = FlyoutWidth == Expanded;
+        FlyoutWidth = isExpanded ? Collapsed : Expanded;
+    });
     private WindowIcon _windowIcon;
     public WindowIcon WindowIcon
     {
@@ -41,19 +47,15 @@ public class SidebarViewModel : ViewModelBase
         _windowIcon = new WindowIcon("./Assets/avalonia-logo.ico");
         OpenScriptBookCommand = new DelegateCommand(async () => await OpenScriptBook());
         SaveScriptBookCommand = new DelegateCommand(async () => await SaveScriptBook());
+        ShowVariableViewCommand = new DelegateCommand(ShowVariableView);
     }
 
-  public DelegateCommand CmdDashboard => new(() =>
+  private void ShowVariableView()
   {
-    // _journal.Clear();
-    //_regionManager.RequestNavigate(RegionNames.ContentRegion, nameof(DashboardView));
-  });
+    _regionManager.RequestNavigate("InfoRegion", "VariableView");
+  }
 
-  public DelegateCommand CmdFlyoutMenu => new(() =>
-  {
-    var isExpanded = FlyoutWidth == Expanded;
-    FlyoutWidth = isExpanded ? Collapsed : Expanded;
-  });
+  
     private async Task SaveScriptBook() 
     {
         

@@ -8,11 +8,11 @@ public partial class MainViewModel : BindableBase, INavigationAware
 {
     private string _infoviewtitle = string.Empty;
     public string InfoViewTitle { get => _infoviewtitle; set => SetProperty(ref _infoviewtitle, value); }
-    public MainViewModel(IContainerProvider containerProvider)
+    public MainViewModel()
     {
         InfoViewTitle = "Variables";
-        var region= containerProvider.Resolve<IRegionManager>();
     }
+    
 
     public bool IsNavigationTarget(NavigationContext navigationContext)
     {

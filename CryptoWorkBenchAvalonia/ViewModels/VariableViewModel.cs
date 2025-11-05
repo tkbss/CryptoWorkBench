@@ -9,6 +9,9 @@ namespace CryptoWorkBenchAvalonia.ViewModels
 {
     public class VariableViewModel:ViewModelBase
     {
+        public VariableViewModel() 
+        {
+        }
         ParameterVariablesViewModel _parameterVariables = new ParameterVariablesViewModel();
         public ParameterVariablesViewModel ParameterVariables
         {

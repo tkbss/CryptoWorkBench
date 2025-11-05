@@ -8,7 +8,10 @@ T_PARAMETER   : 'PARAM';
 T_PATH        : 'PATH';
 T_TR31H       : 'TR31H';
 
-PATH          : ( [a-zA-Z] ':' ( '\\' [^\\]* (ESC | ~["\\])*)* '\\'? )                                                                 ;
+PATH_VALUE    : [a-zA-Z] ':' ~[\r\n]*      // C:\...
+                | '\\\\' ~[\r\n]*           // \\server\share\...
+                | '/' ~[\r\n]*              // /usr/local/...
+                ;
 FN            : [A-Z] [a-z] [a-zA-Z]*;
 INFO		  : 'functions' | 'mechanisms' | 'types';
 ID            : [a-zA-Z] [a-zA-Z0-9]*;

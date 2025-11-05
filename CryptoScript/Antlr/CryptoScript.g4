@@ -36,7 +36,7 @@ expression    : HEX_STRING
               | BASE64_STRING 
               | NORMAL_STRING
               | INT 
-              | PATH
+              | PATH_VALUE
               | TR31_STRING
               ;
 

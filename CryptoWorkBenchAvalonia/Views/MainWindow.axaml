@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:CryptoWorkBenchAvalonia.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,8 +12,12 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="CryptoWorkBenchAvalonia"
 		TransparencyLevelHint="AcrylicBlur"
-        Background="Transparent"
+        Background="Transparent"		
 		ExtendClientAreaToDecorationsHint="True">
+	<!-- ✅ Avalonia-Variante für Design-Time-DataContext -->
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
 	<Panel>
 		<ExperimentalAcrylicBorder IsHitTestVisible="true" >
 			<ExperimentalAcrylicBorder.Material>

@@ -1,6 +1,7 @@
 ﻿using CryptoScript.Variables;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -31,7 +32,7 @@ namespace CryptoScript.Model
             }
             if (stmt is ExpressionTR31String expressionTR31)
             {
-
+                
                 newVariable.Id = Id;
                 newVariable.Value = expressionTR31.Value();
                 newVariable.Type = type;
@@ -83,17 +84,15 @@ namespace CryptoScript.Model
                 pathVariable.Value = expressionPath.Value();
                 pathVariable.Type = type;
                 pathVariable.ValueFormat = FormatConversions.ParseString(expressionPath.Value());
-                VariableDictionary.Instance().Add(newVariable);
-                return newVariable;
+                VariableDictionary.Instance().Add(pathVariable);
+                return pathVariable;
             }
             return stmt; 
         }
         static public Expression Create(string expr)
-        {
-            string PathPattern = @"^[a-zA-Z]:\\(?:[^\\]*\\?)*$";
-            
+        {           
 
-            if (Regex.IsMatch(expr, PathPattern))
+            if (FormatConversions.IsPathRegex(expr))            
             {
                 return new ExpressionPath() { PathValue = expr };
             }

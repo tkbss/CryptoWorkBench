@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CryptoScript.Variables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,6 +26,11 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
+            var pv = res.Statements[0] as PathVariableDeclaration;
+            var variables = VariableDictionary.Instance().GetVariables();
+            Assert.That(variables.Count() == 1);
+            var variable = variables.First() as PathVariableDeclaration;
+            Assert.That(variable != null);
         }
     }
 }

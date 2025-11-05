@@ -51,7 +51,7 @@
 			</StackPanel>
 		</Button>
 		<Button Grid.Row="3"
-				Command="{Binding SaveScriptBookCommand}"
+				Command="{Binding ShowVariableViewCommand}"
 				ToolTip.Tip="Show the defined variables"
 				Height="35"
 				Margin="5">

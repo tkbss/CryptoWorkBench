@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CryptoScript.Variables
@@ -16,6 +17,7 @@ namespace CryptoScript.Variables
         static public readonly string PAR = "PARAM_STRING";
         static public readonly string STR = "NORMAL_STRING";
         static public readonly string TR31 = "TR31_STRING";
+        static public readonly string PATH = "PATH_STRING";
         public static string ByteArrayToHexString(byte[] byteArray)
         {
             StringBuilder hex = new StringBuilder(byteArray.Length * 2);
@@ -118,8 +120,25 @@ namespace CryptoScript.Variables
             {
                 return JSO;
             }
+            if (IsPathRegex(input))
+                return PATH;
             return string.Empty;
         }
+        
+
+        public static bool IsPathRegex(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return false;
+
+            var windowsPattern = @"^[A-Za-z]:[\\/].*";
+            var uncPattern = @"^(\\\\|//)[^\\/\r\n]+[\\/].*";
+            var unixPattern = @"^/[^/\r\n]*";
+
+            return Regex.IsMatch(s, windowsPattern)
+                || Regex.IsMatch(s, uncPattern)
+                || Regex.IsMatch(s, unixPattern);
+        }
+
         public static bool ContainsNumber(string input)
         {
             return input.All(char.IsDigit);

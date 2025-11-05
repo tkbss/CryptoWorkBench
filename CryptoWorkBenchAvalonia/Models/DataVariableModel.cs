@@ -9,7 +9,13 @@ namespace CryptoWorkBenchAvalonia.Models
 {
     public class DataVariableModel: ViewModelBase
     {
-        string _identifier=string.Empty;
+        string _type = string.Empty;
+        public string Type
+        {
+            get => _type;
+            set => SetProperty(ref _type, value);
+        }
+        string _identifier = string.Empty;
         public string Identifier
         {
             get => _identifier;

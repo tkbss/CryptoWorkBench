@@ -37,11 +37,11 @@ public partial class CryptoScriptParser : Parser {
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, INT=9, 
-		T_KEY=10, T_VAR=11, T_PARAMETER=12, T_PATH=13, T_TR31H=14, PATH=15, FN=16, 
-		INFO=17, ID=18, HEX_STRING=19, BASE64_STRING=20, NORMAL_STRING=21, TR31_STRING=22, 
-		MECHANISM=23, M_AES_ECB=24, M_AES_CBC=25, M_AES_CTR=26, M_AES_CMAC=27, 
-		M_AES_GCM=28, M_AES_CCM=29, M_AES_GMAC=30, M_DES3_ECB=31, M_DES3_CBC=32, 
-		M_DES3_RETAIL=33, M_DES3_CMAC=34, M_WRAP_AES_TR31=35, M_WRAP_DES3_TR31=36, 
+		T_KEY=10, T_VAR=11, T_PARAMETER=12, T_PATH=13, T_TR31H=14, PATH_VALUE=15, 
+		FN=16, INFO=17, ID=18, HEX_STRING=19, BASE64_STRING=20, NORMAL_STRING=21, 
+		TR31_STRING=22, MECHANISM=23, M_AES_ECB=24, M_AES_CBC=25, M_AES_CTR=26, 
+		M_AES_CMAC=27, M_AES_GCM=28, M_AES_CCM=29, M_AES_GMAC=30, M_DES3_ECB=31, 
+		M_DES3_CBC=32, M_DES3_RETAIL=33, M_DES3_CMAC=34, M_WRAP_AES_TR31=35, M_WRAP_DES3_TR31=36, 
 		M_WRAP_AES=37, M_WRAP_DES3=38, M_BIND_XOR=39, M_BIND_CMAC=40, PADDING=41, 
 		PAD_ISO7816=42, PAD_PKCS7=43, PAD_ISO9797=44, PAD_ANSI_X923=45, PAD_NONE=46, 
 		PARAM_TYPE=47, P_MECHANISM=48, P_IV=49, P_PADDING=50, P_NONCE=51, P_COUNTER=52, 
@@ -89,8 +89,8 @@ public partial class CryptoScriptParser : Parser {
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, null, null, null, "INT", "T_KEY", 
-		"T_VAR", "T_PARAMETER", "T_PATH", "T_TR31H", "PATH", "FN", "INFO", "ID", 
-		"HEX_STRING", "BASE64_STRING", "NORMAL_STRING", "TR31_STRING", "MECHANISM", 
+		"T_VAR", "T_PARAMETER", "T_PATH", "T_TR31H", "PATH_VALUE", "FN", "INFO", 
+		"ID", "HEX_STRING", "BASE64_STRING", "NORMAL_STRING", "TR31_STRING", "MECHANISM", 
 		"M_AES_ECB", "M_AES_CBC", "M_AES_CTR", "M_AES_CMAC", "M_AES_GCM", "M_AES_CCM", 
 		"M_AES_GMAC", "M_DES3_ECB", "M_DES3_CBC", "M_DES3_RETAIL", "M_DES3_CMAC", 
 		"M_WRAP_AES_TR31", "M_WRAP_DES3_TR31", "M_WRAP_AES", "M_WRAP_DES3", "M_BIND_XOR", 
@@ -711,7 +711,7 @@ public partial class CryptoScriptParser : Parser {
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode BASE64_STRING() { return GetToken(CryptoScriptParser.BASE64_STRING, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode NORMAL_STRING() { return GetToken(CryptoScriptParser.NORMAL_STRING, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode INT() { return GetToken(CryptoScriptParser.INT, 0); }
-		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode PATH() { return GetToken(CryptoScriptParser.PATH, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode PATH_VALUE() { return GetToken(CryptoScriptParser.PATH_VALUE, 0); }
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode TR31_STRING() { return GetToken(CryptoScriptParser.TR31_STRING, 0); }
 		public ExpressionContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -973,7 +973,7 @@ public partial class CryptoScriptParser : Parser {
 				}
 				break;
 			case INT:
-			case PATH:
+			case PATH_VALUE:
 			case HEX_STRING:
 			case BASE64_STRING:
 			case NORMAL_STRING:

@@ -24,15 +24,27 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         }
         public void Add(VariableDeclaration dataVariable)
         {
-            if(dataVariable.Type is CryptoTypeVar  d)
+            if (DataVariables.Where(x => x.Identifier == dataVariable.Id && x.Type== dataVariable.Type.Name).FirstOrDefault() != null)
             {
-                if(DataVariables.Where(x => x.Identifier == dataVariable.Id).FirstOrDefault()!=null)
-                {
-                    return;
-                }
-                var dv= new DataVariableModel() { Identifier=dataVariable.Id, Value=dataVariable.Value, ValueFormat=dataVariable.ValueFormat };
-                DataVariables.Add(dv);                
+                return;
             }
+            var dv = new DataVariableModel()
+            {
+                Type = dataVariable.Type.Name,
+                Identifier = dataVariable.Id,
+                Value = dataVariable.Value,
+                ValueFormat = dataVariable.ValueFormat
+            };
+            DataVariables.Add(dv);
+            //if (dataVariable.Type is CryptoTypeVar  d)
+            //{
+            //    if(DataVariables.Where(x => x.Identifier == dataVariable.Id).FirstOrDefault()!=null)
+            //    {
+            //        return;
+            //    }
+            //    var dv= new DataVariableModel() {Type=dataVariable.Type.Name, Identifier=dataVariable.Id, Value=dataVariable.Value, ValueFormat=dataVariable.ValueFormat };
+            //    DataVariables.Add(dv);                
+            //}
             
         }
         public void Remove(VariableDeclaration dataVariable)

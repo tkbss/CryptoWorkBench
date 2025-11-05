@@ -22,8 +22,9 @@
 						GridLinesVisibility="All"
 						BorderThickness="1" BorderBrush="Gray">
 				<DataGrid.Columns>
+					<DataGridTextColumn Header="Type" Binding="{Binding Type}" />
 					<DataGridTextColumn Header="Identifier" Binding="{Binding Identifier}" />
-					<DataGridTextColumn Header="Format" Binding="{Binding ValueFormat}" />
+					<!--<DataGridTextColumn Header="Format" Binding="{Binding ValueFormat}" />-->
 					<DataGridTextColumn Header="Value" Binding="{Binding Value}" />
 				</DataGrid.Columns>
 			</DataGrid>

@@ -1,0 +1,4 @@
+PATH pt=c:\dir1\dir2\file.txt
+TR31H header={KEYU:B0;ALGO:A;TKL:128;}
+KEY key2=GenerateKey(AES-CBC,128)    
+        
