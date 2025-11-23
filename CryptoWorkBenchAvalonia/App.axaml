@@ -5,7 +5,8 @@
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
-		<FluentTheme />		
+		<FluentTheme />
+		<StyleInclude Source="avares://UVtools.AvaloniaControls/Controls.axaml"/>
 		<StyleInclude Source="avares://CryptoWorkBenchAvalonia/Styles/Icons.axaml" />		
 		<StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>

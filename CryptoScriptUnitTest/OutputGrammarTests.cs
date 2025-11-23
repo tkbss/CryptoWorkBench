@@ -22,15 +22,14 @@ namespace CryptoScriptUnitTest
         public void Path_Test()
         {
             AntlrToProgram prog = new AntlrToProgram();
-            string input = @"PATH p=c:\dir1\dir2\file.txt";
+            string input = @"PATH path567=c:\dir1\dir2\file.txt";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Visit(context);
             var pv = res.Statements[0] as PathVariableDeclaration;
-            var variables = VariableDictionary.Instance().GetVariables();
-            Assert.That(variables.Count() == 1);
-            var variable = variables.First() as PathVariableDeclaration;
-            Assert.That(variable != null);
+            var variables = VariableDictionary.Instance().GetVariables();            
+            var variable = variables.First(v=>v.Id=="path567") as PathVariableDeclaration;
+            Assert.That(variable.Value == @"c:\dir1\dir2\file.txt");
         }
     }
 }

@@ -63,5 +63,19 @@
 				<TextBlock Grid.Column="1" Text="Show Variables" VerticalAlignment="Center"/>
 			</Grid>
 		</Button>
+		<Button Grid.Row="4"
+				Command="{Binding ShowInfoViewCommand}"
+				ToolTip.Tip="Show application information"
+				Height="35"
+				Margin="5">
+			<Grid ColumnDefinitions="Auto, *" VerticalAlignment="Center">
+				<fi:FluentIcon Icon="BookInformation"
+                       IconSize="Size24"
+					   IconVariant="Filled"					   
+                       VerticalAlignment="Center"
+                       Margin="0,0,3,0"/>
+				<TextBlock Grid.Column="1" Text="Show Script Info" VerticalAlignment="Center"/>
+			</Grid>
+		</Button>
 	</Grid>
 </UserControl>

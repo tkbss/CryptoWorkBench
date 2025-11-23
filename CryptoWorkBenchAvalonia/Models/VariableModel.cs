@@ -1,14 +1,33 @@
 ﻿using CryptoWorkBenchAvalonia.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CryptoWorkBenchAvalonia.Models
 {
-    public class DataVariableModel: ViewModelBase
+    public class VariableModel: ViewModelBase
     {
+        ObservableCollection<ParameterModel> parameters = new ObservableCollection<ParameterModel>();
+        public ObservableCollection<ParameterModel> Parameters
+        {
+            get => parameters;
+            set => SetProperty(ref parameters, value);
+        }
+        string _mechanism = string.Empty;
+        public string Mechanism
+        {
+            get => _mechanism;
+            set => SetProperty(ref _mechanism, value);
+        }
+        string _gmac = string.Empty;
+        public string GMAC
+        {
+            get => _gmac;
+            set => SetProperty(ref _gmac, value);
+        }
         string _type = string.Empty;
         public string Type
         {
@@ -32,6 +51,12 @@ namespace CryptoWorkBenchAvalonia.Models
         {
             get => _valueFormat;
             set => SetProperty(ref _valueFormat, value);
+        }
+        string _keySize = string.Empty;
+        public string KeySize
+        {
+            get => _keySize;
+            set => SetProperty(ref _keySize, value);
         }
     }
 }

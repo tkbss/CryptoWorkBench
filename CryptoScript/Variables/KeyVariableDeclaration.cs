@@ -14,7 +14,7 @@ namespace CryptoScript.Variables
         public string KeySize { get; set; } = string.Empty;
         public string KeyValue { get; set; } = string.Empty;
         public List<OptionalBlock> KeyAttributes { get; set; } = new List<OptionalBlock>();
-        public override string Value { get => base.Value; set => base.Value = value; }
+        //public override string Value { get => base.Value; set => base.Value = value; }
         public override string PrintOutput()
         {
             return base.PrintOutput();

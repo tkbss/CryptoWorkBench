@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:html="using:TheArtOfDev.HtmlRenderer.Avalonia"         
+             xmlns:vm="using:CryptoWorkBenchAvalonia.ViewModels"  
+             xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CryptoWorkBenchAvalonia.Views.InfoView">   
+    <Grid RowDefinitions="*">
+        <!--<html:HtmlPanel ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                        ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Stretch" 
+                        Text="{Binding InfoHtml}" /> -->
+    <md:MarkdownScrollViewer Grid.Row="0" 
+                             Margin="10"
+                             ScrollViewer.AllowAutoHide="False"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              HorizontalAlignment="Stretch" 
+                              VerticalAlignment="Stretch"
+                              Markdown="{Binding InfoText}" />
+    
+   </Grid>
+</UserControl>

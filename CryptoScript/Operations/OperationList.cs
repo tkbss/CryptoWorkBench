@@ -14,6 +14,8 @@ namespace CryptoScript.Model
             "GenerateKey",
             "Encrypt",
             "Decrypt",
+            "Wrap",
+            "Unwrap",
             "Print",
             "Info",
         };

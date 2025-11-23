@@ -14,10 +14,14 @@
 		TransparencyLevelHint="AcrylicBlur"
         Background="Transparent"		
 		ExtendClientAreaToDecorationsHint="True">
-	<!-- ✅ Avalonia-Variante für Design-Time-DataContext -->
+	<!-- Avalonia-Variante für Design-Time-DataContext -->
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>
+	<Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+PageUp" Command="{Binding HistoryBackCommand}" />
+        <KeyBinding Gesture="Ctrl+PageDown" Command="{Binding HistoryForwardCommand}" />
+    </Window.KeyBindings>
 	<Panel>
 		<ExperimentalAcrylicBorder IsHitTestVisible="true" >
 			<ExperimentalAcrylicBorder.Material>
@@ -31,15 +35,7 @@
 		<Grid ColumnDefinitions="Auto,*,0.7*" RowDefinitions="Auto,*,Auto" Margin="5,25,5,5">
 			<!-- Sidebar -->
 			<Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"  BoxShadow="5 5 10 2 DarkGray" Margin="7">
-
-				<!--
-          The SidebarView is not using a region on purpose, so it shows in designer mode
-          <ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SidebarRegion}" />
-		  <views:SidebarView/>
-        -->
 				<ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SidebarRegion}" />
-				
-
 			</Border>
 			<Border Grid.Row="0" Grid.Column="1"  Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="7">
 				<TextBlock  Text="Crypto Script Edit" TextAlignment="Center" FontSize="20" Margin="10" />

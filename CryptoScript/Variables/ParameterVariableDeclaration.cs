@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime;
 using CryptoScript.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +20,7 @@ namespace CryptoScript.Variables
         {            
             
             // Split by '#' and remove empty entries
-            var parts = parameters.Split('#', StringSplitOptions.RemoveEmptyEntries);
-            // parts = [ "MECH:AES-CBC", "IV:0x(ed5ec439881464b03215cb6434eef91a)", "PAD:PKCS-7" ]
-
+            var parts = parameters.Split('#', StringSplitOptions.RemoveEmptyEntries);  
             foreach (var part in parts)
             {
                 // Split each part by ':' to separate key and value
@@ -46,35 +45,41 @@ namespace CryptoScript.Variables
         } 
         
         
-        string _value = string.Empty;
-        public override string Value
-        {
-            get { return _value; }
-            //set { _value = value; }
-        } 
+        
         Dictionary<string, string> ParameterTypeValue = new Dictionary<string, string>();
+        public Dictionary<string, string> GetParameters() 
+        {
+            return ParameterTypeValue;
+        }
         public ParameterVariableDeclaration() 
         {
             Type = new CryptoTypeParameters();
+            ValueFormat = FormatConversions.PAR;
         }
         private void BuildValue() 
         {
             ParameterMechanismen(Mechanism);
-            _value = string.Empty;
+            //_value = string.Empty;
+            Value= string.Empty;
             foreach (var item in ParameterTypeValue)
             {
-                _value += item.Key + ":" + item.Value;
+                Value += item.Key + ":" + item.Value;
             }
             
         }
         private void ParameterMechanismen(string mech)
         {
+            if (mech.Contains("#"))
+            {
+                var kv = mech.Split(':', 2);
+                Mechanism = kv[1];
+            }
             if (!ParameterTypeValue.ContainsKey("#MECH"))
                 ParameterTypeValue.Add("#MECH", mech);
             
         }
         public void SetParameter(string type, string value)
-        {
+        {            
             string tu = type.ToUpper();
             string? t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
             if (ParameterTypeValue.ContainsKey(t))

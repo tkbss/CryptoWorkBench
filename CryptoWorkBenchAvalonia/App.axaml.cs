@@ -40,9 +40,10 @@ public partial class App : PrismApplication
     protected override void OnInitialized()
     {
         var regionManager = Container.Resolve<IRegionManager>();
+        regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(InfoView));
         regionManager.RegisterViewWithRegion(RegionNames.SidebarRegion, typeof(SidebarView));
         regionManager.RegisterViewWithRegion(RegionNames.ContentRegion, typeof(CryptoScriptEditView));
-        regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(VariableView));
+        regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(VariableView));        
         regionManager.RegisterViewWithRegion(RegionNames.FooterRegion, typeof(StatusView));
 
     }
@@ -50,15 +51,20 @@ public partial class App : PrismApplication
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {           
         containerRegistry.RegisterSingleton<INotificationService, NotificationService>();
-        // 🔹 Hier MainViewModel beim Container registrieren:
+        containerRegistry.RegisterSingleton<IHistoryService, HistoryService>();
+        
         containerRegistry.RegisterSingleton<MainViewModel>();
+        containerRegistry.RegisterSingleton<InfoViewModel>();
         containerRegistry.RegisterSingleton<VariableViewModel>();
-        containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
-        containerRegistry.RegisterForNavigation<SidebarView>();
-        containerRegistry.RegisterForNavigation<VariableView,VariableViewModel>();
-        containerRegistry.RegisterSingleton<StatusViewModel>();
         containerRegistry.RegisterSingleton<SidebarViewModel>();
         containerRegistry.RegisterSingleton<CryptoScriptEditViewModel>();
+        
+        containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
+        containerRegistry.RegisterForNavigation<SidebarView>();
+        containerRegistry.RegisterForNavigation<InfoView,InfoViewModel>();
+        containerRegistry.RegisterForNavigation<VariableView,VariableViewModel>();
+        containerRegistry.RegisterSingleton<StatusViewModel>();
+        
         
 
 

@@ -49,6 +49,7 @@ namespace CryptoWorkBenchAvalonia.Models
                 "\n- type=types     : List of all supported types "+
                 "\n- type=functions : List of all supported functions" +
                 "\n- type=mechanisms: List of all suportetd mechanism" +
+                "\n- type=parameters : List of all supported parameters" +
                 "\n- type=mechanism : Specific mechanism e.g. AES-CBC"
                 )
             }}

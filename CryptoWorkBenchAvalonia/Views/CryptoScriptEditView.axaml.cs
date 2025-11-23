@@ -69,7 +69,8 @@ public partial class CryptoScriptEditView : UserControl
             _viewModel.ParseLine(lineText);
             if(_viewModel.PrintMessage != string.Empty)
             {
-                doc.Insert(line.EndOffset, "\n" + _viewModel.PrintMessage);
+                //_viewModel.NavigateToInfoView();    
+                //doc.Insert(line.EndOffset, "\n" + _viewModel.PrintMessage);                
             }            
             //var tracker=doc.LineTrackers;
         }
@@ -184,7 +185,7 @@ public class MyOverloadProvider : IOverloadProvider
     public object CurrentHeader => _items[SelectedIndex].header;
     public object CurrentContent => _items[SelectedIndex].content;
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {

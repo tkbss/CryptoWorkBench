@@ -13,7 +13,7 @@ PATH_VALUE    : [a-zA-Z] ':' ~[\r\n]*      // C:\...
                 | '/' ~[\r\n]*              // /usr/local/...
                 ;
 FN            : [A-Z] [a-z] [a-zA-Z]*;
-INFO		  : 'functions' | 'mechanisms' | 'types';
+INFO		  : 'functions' | 'mechanisms' | 'types' | 'parameters' | 'mechnism';
 ID            : [a-zA-Z] [a-zA-Z0-9]*;
 HEX_STRING    : '0x(' [0-9a-fA-F]+ ')';
 BASE64_STRING : 'b64(' [A-Za-z0-9+/=]+ ')';

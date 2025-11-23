@@ -3,10 +3,13 @@ using AvaloniaEdit.Document;
 using CryptoScript.ErrorListner;
 using CryptoScript.Model;
 using CryptoScript.Variables;
+using Prism.Navigation;
+using Prism.Navigation.Regions;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CryptoWorkBenchAvalonia.ViewModels
 {
@@ -14,9 +17,13 @@ namespace CryptoWorkBenchAvalonia.ViewModels
     {
         StatusViewModel _statusViewModel;
         VariableViewModel _variableViewModel;
+        InfoViewModel _infoViewModel;
+        MainViewModel _mainViewModel;
+        IRegionManager _regions;
         string _printMessage = string.Empty;
         private TextEditor? _textEditor;
         bool _syntaxErrorOccured = false;
+        
         public StatusViewModel Status { get => _statusViewModel; }
         public TextEditor? TextEditor
         {
@@ -33,11 +40,15 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             set => SetProperty(ref _printMessage, value); 
         }
         
-        public CryptoScriptEditViewModel(StatusViewModel statusViewModel,VariableViewModel variableViewModel)
+        public CryptoScriptEditViewModel(StatusViewModel statusViewModel,VariableViewModel variableViewModel,InfoViewModel info,MainViewModel mvm,IRegionManager regions)
         {
             _statusViewModel = statusViewModel;
             _variableViewModel = variableViewModel;
             OutputOperations.PrintEvent += OnPrintEvent;
+            OutputOperations.InfoEvent += OnInfoEvent;
+            _regions = regions; 
+            _infoViewModel = info;
+            _mainViewModel = mvm;
         }
         public void ParseLine(string line)
         {
@@ -80,6 +91,19 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             // Handle the event (e.g., update the status view model)
             _printMessage = message;
         }
+        private void OnInfoEvent(string message)
+        {
+            // Handle the event (e.g., update the status view model)
+            _printMessage = message;
+            _infoViewModel.SetInfoText(message);
+            _mainViewModel.InfoViewTitle = "InfoView";
+            _regions.RequestNavigate("InfoRegion", "InfoView");
+        }
+        public void NavigateToInfoView()
+        {            
+            _regions.RequestNavigate("InfoRegion", "InfoView");            
+        }   
+
         public void SaveScriptBook(string filePath)
         {
 

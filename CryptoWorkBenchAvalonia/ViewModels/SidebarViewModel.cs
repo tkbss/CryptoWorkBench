@@ -6,6 +6,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Models;
 using Prism.Commands;
+using Prism.Ioc;
 using Prism.Navigation.Regions;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,7 @@ public class SidebarViewModel : ViewModelBase
     public DelegateCommand OpenScriptBookCommand { get; }
     public DelegateCommand SaveScriptBookCommand { get; }
     public DelegateCommand ShowVariableViewCommand { get; }
+    public DelegateCommand ShowInfoViewCommand { get; }
     public DelegateCommand CmdFlyoutMenu => new(() =>
     {
         var isExpanded = FlyoutWidth == Expanded;
@@ -37,25 +39,33 @@ public class SidebarViewModel : ViewModelBase
         set => SetProperty(ref _windowIcon, value);
     }
     private int _flyoutWidth;
-
-  public SidebarViewModel(IRegionManager regionManager,CryptoScriptEditViewModel cseVm)
+    private readonly IContainerProvider _container;
+    public SidebarViewModel(IRegionManager regionManager,CryptoScriptEditViewModel cseVm, IContainerProvider container)
   {
         _regionManager = regionManager;
         _cseVm = cseVm;
+        _container = container;
         Title = "Navigation";
         FlyoutWidth = Collapsed;
         _windowIcon = new WindowIcon("./Assets/avalonia-logo.ico");
         OpenScriptBookCommand = new DelegateCommand(async () => await OpenScriptBook());
         SaveScriptBookCommand = new DelegateCommand(async () => await SaveScriptBook());
         ShowVariableViewCommand = new DelegateCommand(ShowVariableView);
+        ShowInfoViewCommand = new DelegateCommand(ShowInfoView);
     }
 
-  private void ShowVariableView()
-  {
-    _regionManager.RequestNavigate("InfoRegion", "VariableView");
-  }
+    private void ShowVariableView()
+    {
+        _container.Resolve<MainViewModel>().InfoViewTitle = "Variable View";
+        _regionManager.RequestNavigate("InfoRegion", "VariableView");
+    }
+    private void ShowInfoView()
+    {
+        _container.Resolve<MainViewModel>().InfoViewTitle = "Info View";
+        _regionManager.RequestNavigate("InfoRegion", "InfoView");
+    }
 
-  
+
     private async Task SaveScriptBook() 
     {
         
