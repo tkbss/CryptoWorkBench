@@ -1,13 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.7.34221.43
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoWorkBenchAvalonia", "CryptoWorkBenchAvalonia.csproj", "{DDD6A110-8CD7-4092-AC4A-4B71FA7B0D28}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoWorkBenchAvalonia.Desktop", "..\CryptoWorkBenchAvalonia.Desktop\CryptoWorkBenchAvalonia.Desktop.csproj", "{266117D6-5D95-4539-A146-7782D72026CC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoScript", "..\CryptoScript\CryptoScript.csproj", "{ACB50774-DEAE-42F4-89FA-C5F7632518EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScriptBooks", "ScriptBooks", "{73125EBD-247A-44E4-91F0-86DFD29B7C6B}"
+	ProjectSection(SolutionItems) = preProject
+		..\ScriptBooks\CBC-AES-128-TEST-NIST-SP800-38A.sbk = ..\ScriptBooks\CBC-AES-128-TEST-NIST-SP800-38A.sbk
+		..\ScriptBooks\CBC-AES-192-TEST-NIST-SP800-38A.sbk = ..\ScriptBooks\CBC-AES-192-TEST-NIST-SP800-38A.sbk
+		..\ScriptBooks\CBC-AES-256-TEST-NIST-SP800-38A.sbk = ..\ScriptBooks\CBC-AES-256-TEST-NIST-SP800-38A.sbk
+		..\ScriptBooks\ScriptBook.sbk = ..\ScriptBooks\ScriptBook.sbk
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

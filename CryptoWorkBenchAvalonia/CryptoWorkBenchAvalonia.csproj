@@ -10,6 +10,14 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  
+  <ItemGroup>
+    <None Remove="CBC-AES-128-TEST-NIST-SP800-38A.sbk" />
+    <None Remove="CBC-AES-192-TEST-NIST-SP800-38A.sbk" />
+    <None Remove="CBC-AES-256-TEST-NIST-SP800-38A.sbk" />
+    <None Remove="ScriptBook.sbk" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.9" />
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
