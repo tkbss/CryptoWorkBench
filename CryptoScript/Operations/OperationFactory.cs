@@ -1,4 +1,5 @@
-﻿using CryptoScript.Variables;
+﻿using CryptoScript.Operations;
+using CryptoScript.Variables;
 
 namespace CryptoScript.Model
 {
@@ -34,6 +35,8 @@ namespace CryptoScript.Model
                     return op.Unwrap;
                 case "blockheader":
                     return op.BlockHeader;
+                case "compare":
+                    return GeneralOperations.Compare;
                 default:
                 {
                         throw new ArgumentException("Unkown function");

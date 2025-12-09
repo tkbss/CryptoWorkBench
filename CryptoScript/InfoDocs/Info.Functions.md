@@ -17,6 +17,7 @@ Possible Parameters are given in overlay window during typing.
 - Load variable from file: **VAR d = Load(VAR, path)**
 - Load parameters from file: **PARAM p = Load(PARAM, path)**
 - Load key from file: **KEY k = Load(KEY, path)**
+- Compare two variables of same type: **VAL res = Compare(VAR, VAR)**
 
 
 

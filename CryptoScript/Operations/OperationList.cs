@@ -18,6 +18,7 @@ namespace CryptoScript.Model
             "Unwrap",
             "Print",
             "Info",
+            "Compare",
         };
         public static int MaximalOperationTextLenght()
         {

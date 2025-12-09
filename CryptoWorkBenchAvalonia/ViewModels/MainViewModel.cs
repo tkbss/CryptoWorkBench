@@ -8,9 +8,11 @@ namespace CryptoWorkBenchAvalonia.ViewModels;
 
 public partial class MainViewModel : BindableBase, INavigationAware
 {
-    private readonly IHistoryService _historyService;
-    public DelegateCommand HistoryBackCommand { get; }
-    public DelegateCommand HistoryForwardCommand { get; }
+    private readonly IHistoryService? _historyService;
+    public DelegateCommand InfoHistoryBackCommand { get; }
+    public DelegateCommand InfoHistoryForwardCommand { get; }
+    public DelegateCommand LineHistoryBackCommand { get; }
+    public DelegateCommand LineHistoryForwardCommand { get; }
 
     private string _infoviewtitle = string.Empty;
     public string InfoViewTitle { get => _infoviewtitle; set => SetProperty(ref _infoviewtitle, value); }
@@ -22,13 +24,19 @@ public partial class MainViewModel : BindableBase, INavigationAware
     {
         _historyService = historyService;
 
-        HistoryBackCommand = new DelegateCommand(
-            () => _historyService.Back(),
-            () => _historyService.CanBack);
+        InfoHistoryBackCommand = new DelegateCommand(
+            () => _historyService.InfoBack(),
+            () => _historyService.InfoCanBack);
+        LineHistoryBackCommand = new DelegateCommand(
+            () => _historyService.LineBack(),
+            () => _historyService.LineCanBack);
 
-        HistoryForwardCommand = new DelegateCommand(
-            () => _historyService.Forward(),
-            () => _historyService.CanForward);
+        InfoHistoryForwardCommand = new DelegateCommand(
+            () => _historyService.InfoForward(),
+            () => _historyService.InfoCanForward);
+        LineHistoryForwardCommand = new DelegateCommand(
+            () => _historyService.LineForward(),
+            () => _historyService.LineCanForward);
     }
 
 

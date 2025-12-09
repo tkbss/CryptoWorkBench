@@ -6,20 +6,20 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CryptoWorkBenchAvalonia.CryptoScriptEditView">
 	<Border BoxShadow="5 5 10 2 DarkGray" Margin="5">
-	<Grid RowDefinitions="*,40">
-		<AvaloniaEdit:TextEditor
-			Name="Editor"
-			Text="Hello AvaloniaEdit!"
-                           ShowLineNumbers="True"
-                           FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
-			               HorizontalScrollBarVisibility="Auto"
-                           VerticalScrollBarVisibility="Visible"/>
-		<Border Grid.Row="1" BoxShadow="5 5 10 2 DarkGray" Margin="15,3,5,5">
-			<StackPanel Name="StatusBar" Background="Purple"  Margin="5">
-				<TextBlock Foreground="White" Name="StatusText" Text="Ready" Margin="5" FontSize="12" />
-			</StackPanel>
-		</Border>
-	</Grid>
-		</Border>
+		<Grid RowDefinitions="*,40">
+			<AvaloniaEdit:TextEditor
+				Name="Editor"
+				Text="Hello AvaloniaEdit!"
+							   ShowLineNumbers="True"						 
+							   FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
+							   HorizontalScrollBarVisibility="Auto"
+							   VerticalScrollBarVisibility="Auto"/>
+			<Border Grid.Row="1" BoxShadow="5 5 10 2 DarkGray" Margin="15,3,5,5">
+				<StackPanel Name="StatusBar" Background="Purple"  Margin="5">
+					<TextBlock Foreground="White" Name="StatusText" Text="Ready" Margin="5" FontSize="12" />
+				</StackPanel>
+			</Border>
+		</Grid>
+	</Border>
   
 </UserControl>

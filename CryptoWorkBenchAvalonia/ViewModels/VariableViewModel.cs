@@ -15,6 +15,24 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public VariableViewModel() 
         {
             ModifyVariableCommand = new DelegateCommand<ParameterModel>(OnModifyVariable);
+            ModifyValueCommand = new DelegateCommand<VariableModel>(OnModifyValue);
+        }
+        private void OnModifyValue(VariableModel? obj)
+        {
+            if (obj == null)
+                return;
+            var v = VariableDictionary.Instance().GetVariables();
+            var p = v.FirstOrDefault(x => x.Id == SelectedVariable!.Identifier && x.Type!.Name == SelectedVariable.Type);
+            if (p != null)
+            {
+                p.Value = SelectedVariable.Value;
+                if(p is ParameterVariableDeclaration pv)
+                {
+                    pv.ParseToDictionary(p.Value);
+                }
+                DataVariables = new ObservableCollection<VariableModel>();
+                SetupVariables();                    
+            }
         }
         private void OnModifyVariable(ParameterModel? item)
         {
@@ -25,11 +43,15 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             if(p != null && p is ParameterVariableDeclaration pv)
             {
                 pv.SetParameter(item.Parameter, item.Value);
-                _dataVariables = new ObservableCollection<VariableModel>();
-                SetupVariables();   
+                VariableDictionary.Instance().Update(pv);
+                DataVariables = new ObservableCollection<VariableModel>();
+                SetupVariables();
+                
             }
         }
         public DelegateCommand<ParameterModel> ModifyVariableCommand { get; }
+        public DelegateCommand<VariableModel> ModifyValueCommand { get; }
+
         public void SetupVariables()
         {
 
@@ -57,7 +79,8 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                         dv.Mechanism = c.Mechanism;
                         var parameters = c.GetParameters();
                         foreach (var param in parameters)
-                        {
+                        { 
+                            
                             dv.Parameters.Add(new ParameterModel
                             {
                                 Parameter = param.Key,

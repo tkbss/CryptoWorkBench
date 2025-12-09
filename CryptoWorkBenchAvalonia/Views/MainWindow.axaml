@@ -19,8 +19,10 @@
         <vm:MainViewModel />
     </Design.DataContext>
 	<Window.KeyBindings>
-        <KeyBinding Gesture="Ctrl+PageUp" Command="{Binding HistoryBackCommand}" />
-        <KeyBinding Gesture="Ctrl+PageDown" Command="{Binding HistoryForwardCommand}" />
+        <KeyBinding Gesture="Ctrl+PageUp" Command="{Binding InfoHistoryBackCommand}" />
+        <KeyBinding Gesture="Ctrl+PageDown" Command="{Binding InfoHistoryForwardCommand}" />
+		<KeyBinding Gesture="Alt+PageUp" Command="{Binding LineHistoryBackCommand}" />
+        <KeyBinding Gesture="Alt+PageDown" Command="{Binding LineHistoryForwardCommand}" />
     </Window.KeyBindings>
 	<Panel>
 		<ExperimentalAcrylicBorder IsHitTestVisible="true" >

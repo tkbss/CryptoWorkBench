@@ -12,7 +12,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
             if(FormatConversions.ParseString(Size)== FormatConversions.HEX)
             {
-                return CreateExistingKey(Size);
+                return CreateExistingKey(Size,mechanism);
             }
             int keySize = Convert.ToInt32(Size);
             if (keySize != 128 && keySize != 192 && keySize != 256)
@@ -34,7 +34,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
             }
             return key;
         }
-        private KeyVariableDeclaration CreateExistingKey(string key)
+        private KeyVariableDeclaration CreateExistingKey(string key, string mechanism)
         {
             var k = new KeyVariableDeclaration();
             k.Value = key;
@@ -44,6 +44,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 throw new ArgumentException("wrong key size");
             k.KeySize = keySize.ToString();
             k.KeyValue = key;
+            k.Mechanism = mechanism;
             k.Type = new CryptoTypeKey();
             return k;
         }

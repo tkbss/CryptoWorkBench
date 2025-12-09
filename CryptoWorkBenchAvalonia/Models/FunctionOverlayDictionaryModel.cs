@@ -29,16 +29,19 @@ namespace CryptoWorkBenchAvalonia.Models
                 "\n- data      : The data to decrypt")
             }},
             { "GenerateKey", new List<(string, string)> {
-                ("GenerateKey(mechanism,length)", "Generates a symmetric key for a given algorithm of the specified length:" +
+                ("GenerateKey(mechanism,length)", "Generates a random symmetric key for a given algorithm of the specified length:" +
                 "\n- mechanism: The encryption algorithm (e.g., AES-CBC)" +
-                "\n- length   : Key length in bits")
+                "\n- length   : Key length in bits"),
+                ("GenerateKey(mechanism,length)", "Generates a predined symmetric key for a given algorithm from the supplied key block:" +
+                "\n- mechanism: The encryption algorithm (e.g., AES-CBC)" +
+                "\n- key   : predefined key")
             }},
             { "Parameters", new List<(string, string)> {
                 ("Parameters(mechanism)", "Generates default random parameters for the given mechanism:" +
                 "\n- mechanism: The algorithm to generate default parameters (e.g., AES-CBC)"),
-                ("Parameters(mechanism,param-1,..,param-N)", "Generates default random parameters for the given mechanism except for the parameters supplied in function call" +
-                "\n- mechanism         : The encryption algorithm (e.g., AES-CBC)" +
-                "\n- param-1,..,param-N: A parameter starts with # and a id (e.g. PAD: or IV:) and a predefined value (e.g. #PAD:PKCS-7)")
+                ("Parameters(param-1,..,param-N)", "Generates default random parameters for the given mechanism except for the parameters supplied in function call" +
+                "\n- param-1 : The mechanism as #MECH:ALOG (e.g., AES-CBC)" +
+                "\n- param-2,..,param-N: Predefined parameters needed by  #MECH in the form of #PARAM:VALUE (e.g. #PAD:PKCS-7).")
             }},
             { "Print", new List<(string, string)> {
                 ("Print(data)", "Prints the data to the output window:" +

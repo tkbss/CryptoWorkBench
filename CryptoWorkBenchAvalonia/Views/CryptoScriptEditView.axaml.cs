@@ -70,7 +70,7 @@ public partial class CryptoScriptEditView : UserControl
             if(_viewModel.PrintMessage != string.Empty)
             {
                 //_viewModel.NavigateToInfoView();    
-                //doc.Insert(line.EndOffset, "\n" + _viewModel.PrintMessage);                
+                doc.Insert(line.EndOffset, "\n" + _viewModel.PrintMessage);                
             }            
             //var tracker=doc.LineTrackers;
         }

@@ -73,7 +73,7 @@ namespace CryptoScript.Model
             if (VariableDictionary.Instance().Contains(value))
                 Value = VariableDictionary.Instance().Get(value).Value;
             else
-                throw new ArgumentException("Error: unknown parameter type : " + value);
+                throw new ArgumentException("Unknown parameter value : " + value);
         }
     }
 

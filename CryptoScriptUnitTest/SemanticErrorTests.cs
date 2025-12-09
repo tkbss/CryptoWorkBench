@@ -60,6 +60,33 @@ namespace CryptoScriptUnitTest
 
         }
         [Test]
+        public void Semantic_Parameter_Error()
+        {
+            var prog = new AntlrToProgram();
+            string input = "PARAM p=Parameters(#PAD:YYY)";
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            CryptoScriptParser.ProgramContext context = parser.program();
+            if (SyntaxErrorListner.SyntaxErrorOccured || LexerErrorListener.LexerErrorOccured)
+            {
+                string e = SyntaxErrorListner.ErrorMessage.ToString();
+                SyntaxErrorListner.SyntaxErrorOccured = false;
+
+            }
+            try
+            {
+                var res = prog.Visit(context);
+            }
+            catch (SemanticErrorException e)
+            {
+                Assert.That("FunctionCall".ToLower() == e.SemanticError.Type.ToLower());
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected exception type: " + ex.GetType().Name);
+            }
+
+        }
+        [Test]
         public void Unkown_function_declaration_Error()
         {
             var prog = new AntlrToProgram();
@@ -76,9 +103,14 @@ namespace CryptoScriptUnitTest
             {
                 var res = prog.Visit(context);
             }
+            
             catch (SemanticErrorException e)
             {
                 Assert.That("FunctionCall".ToLower() == e.SemanticError.Type.ToLower());
+            }
+            catch(Exception ex)
+            {
+                Assert.Fail("Unexpected exception type: " + ex.GetType().Name);
             }
 
         }

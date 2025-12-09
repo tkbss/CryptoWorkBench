@@ -2,6 +2,7 @@
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
 using System.Net.WebSockets;
+using System.Xml.Linq;
 using static CryptoScript.Model.Expression;
 
 namespace CryptoScript.Model
@@ -201,6 +202,17 @@ namespace CryptoScript.Model
             string functionName = context.FN().GetText();
             fc.CallText = context.GetText();
             fc.Name = functionName;
+            try 
+            {
+                OperationFactory.CreateOperation(functionName);
+            } 
+            catch (Exception ex) 
+            { 
+                SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
+                se.Message = "Unkown function: "+functionName;
+                SemanticErrors.Add(se);
+                throw new SemanticErrorException() { SemanticError=se};
+            }
             var arguments = context.arguments()?.argument();
             if (arguments == null || arguments.Length == 0)
             {
@@ -212,23 +224,24 @@ namespace CryptoScript.Model
                 catch (Exception e)
                 {
                     SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
-                    se.Message = "Error  function call : " + e.Message;
+                    se.Message = e.Message;
                     SemanticErrors.Add(se);
                     throw new SemanticErrorException() { SemanticError=se};
                 }   
                
             }
-            Statement[] argValues = arguments.Select(arg => Visit(arg)).ToArray();
-            fc.Arguments.AddRange(argValues.OfType<Argument>());
+            
             try
             {
+                Statement[] argValues = arguments.Select(arg => Visit(arg)).ToArray();
+                fc.Arguments.AddRange(argValues.OfType<Argument>());
                 fc.Call();
                 return fc;
             }
             catch(Exception e)
             {
                 SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
-                se.Message = "Error  function call : "  + e.Message;
+                se.Message = e.Message;
                 SemanticErrors.Add(se);
                 throw new SemanticErrorException() { SemanticError=se};
             }

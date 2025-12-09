@@ -43,7 +43,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             _infoHtml = string.Empty;
             _history = history;
             // Service-Event abonnieren
-            _history.HistoryChanged += OnHistoryChanged;
+            _history.InfoHistoryChanged += OnHistoryChanged;
         }
         private void OnHistoryChanged(object? sender, string entry)
         {

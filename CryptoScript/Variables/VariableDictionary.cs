@@ -30,9 +30,10 @@ namespace CryptoScript.Variables
             }
             variables[v.Id] = v;
         }
-        public void Remove(StringVariableDeclaration v)
+        public void Update(VariableDeclaration v)
         {
-            variables.Remove(v.Id);
+            if(variables.ContainsKey(v.Id))
+                variables[v.Id]=v;
         }
         public bool Contains(string Id)
         {

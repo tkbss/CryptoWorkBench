@@ -8,13 +8,19 @@ namespace CryptoWorkBenchAvalonia.Services
 {
     public interface IHistoryService
     {
-        bool CanBack { get; }
-        bool CanForward { get; }
+        bool InfoCanBack { get; }
+        bool InfoCanForward { get; }
+        bool LineCanBack { get; }
+        bool LineCanForward { get; }
 
-        void Back();
-        void Forward();
+        void InfoBack();
+        void InfoForward();
+        void LineBack();
+        void LineForward();
         void AddInfo(string entry);
+        void AddLine(string entry);
 
-        event EventHandler<string>? HistoryChanged;
+        event EventHandler<string>? InfoHistoryChanged;
+        event EventHandler<string>? LineHistoryChanged;
     }
 }

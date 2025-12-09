@@ -1,4 +1,5 @@
-﻿using CryptoWorkBenchAvalonia.ViewModels;
+﻿using CryptoScript.Variables;
+using CryptoWorkBenchAvalonia.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -45,6 +46,7 @@ namespace CryptoWorkBenchAvalonia.Models
         {
             get => _value;
             set => SetProperty(ref _value, value);
+                
         }
         string _valueFormat = string.Empty;
         public string ValueFormat
@@ -58,5 +60,6 @@ namespace CryptoWorkBenchAvalonia.Models
             get => _keySize;
             set => SetProperty(ref _keySize, value);
         }
+       
     }
 }

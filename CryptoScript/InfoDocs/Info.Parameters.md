@@ -1,10 +1,11 @@
 # Parameters
 
-List of all parameters used in CRYPTO-SCRIPT.   
+List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' followed by the parameter name and a colon: '#'PARAMETER_NAME ':' PARAMETER_VALUE
 
----
-- #MECH: Mechanism parameter specifying the cryptographic algorithm used. Information about each mechanism can be obtained through Info(mechanism).
-    - MECHANISM INCLUDED:
+---   
+    
+- MECH: Mechanism parameter specifying the cryptographic algorithm used. Information about each mechanism can be obtained through Info(mechanism).
+    - MECHANISM VALUES:
         - RSA-PSS
         - RSA-OAEP
         - ECDSA
@@ -25,20 +26,20 @@ List of all parameters used in CRYPTO-SCRIPT.
         - WRAP-DES3-TR31
         - WRAP-AES
         - WRAP-DES3
-- #IV: Initialization vector for symmetric encryption.
-- #PAD: Padding scheme to be used in symmetric encryption.
-    - PAD INCLUDED:
+- IV: Initialization vector for symmetric encryption.
+- PAD: Padding scheme to be used in symmetric encryption.
+    - PAD VALUES:
         - PKCS-7
         - ANSI-X923
         - ISO-7816
         - ISO-9797
         - NONE
-- #NONCE: Unique nonce value for symmetric encryption used in certain modes.
-- #COUNTER: Counter value for symmetric encryption for certain modes.
-- #ADATA: Additional authenticated data used in certain modes.
-- #BLKH: Block header information.
-- #BIND: TR31 Key derivation algorithm definition.
-    - BIND INCLUDED:
+- NONCE: Unique nonce value for symmetric encryption used in certain modes.
+- COUNTER: Counter value for symmetric encryption for certain modes.
+- ADATA: Additional authenticated data used in certain modes.
+- BLKH: TR31 Block header information.
+- BIND: TR31 Key derivation algorithm definition.
+    - BIND VALUES:
         - BIND-XOR : Key derivation in TR31 with XOR operation and predifined constant value.
         - BIND-CMAC: Key derivation in TR31 with symmetric encryption in CMAC mode.
-    - #RND: Random value for symmetric encryption used in certain modes.
+    - RND: Random value for symmetric encryption used in certain modes.

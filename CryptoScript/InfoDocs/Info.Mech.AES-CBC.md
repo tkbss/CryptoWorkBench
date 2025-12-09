@@ -1,6 +1,8 @@
 # MECHANISM AES-CBC 
 
-AES-CBC is a mode of operation for symmetric key cryptographic block ciphers with the AES algorithm. It uses a secret key and an initialization vector (IV) to encrypt data in fixed-size blocks. The CBC mode provides confidentiality by XORing each plaintext block with the previous ciphertext block before encryption.
+AES-CBC is a mode of operation for symmetric key cryptographic block ciphers with the AES algorithm. It uses a secret key and an initialization vector (IV) to encrypt data in fixed-size blocks. The CBC mode provides confidentiality by XORing each plaintext block with the previous ciphertext block before encryption.   
+
+---
 
 ## Key Features
 
@@ -18,17 +20,18 @@ The following functions are available for AES-CBC mechanism:
 | Parameters | N/A               | #MECH, #IV, #PAD                    | PARAM variable | N/A              |
 | Encrypt    | #MECH, #IV, #PAD  | parameters, key, data               | VAR cyphertext | 128/192/256 bits |
 | Decrypt    | #MECH, #IV, #PAD  | parameters, key, encrypted data     | VAR data       | 128/192/256 bits |
-| Wrap	     | #MECH, #IV, #PAD  | parameters, wraper key, key to wrap | VAR Wraped     | 128/192/256 bits |
-| Unwrap     | #MECH, #IV, #PAD  | parameters, wraper key, wraped key  | KEY Unwraped   | 128/192/256 bits |
+| Wrap	     | #MECH, #IV, #PAD  | parameters, wrapper key, key to wrap | VAR encrypted key   | 128/192/256 bits |
+| Unwrap     | #MECH, #IV, #PAD  | parameters, wrapper key, wrapped key  | KEY key      | 128/192/256 bits |
 
 ## Parameters
 These parameters are used with the AES-CBC mechanism:
-- **#MECH**: Specifies the AES-CBC mechanism.
+- **#MECH**: Specifies the AES-CBC mechanism. The mechanism assigned to the KEY and the PARAM must match.
 - **#IV**: Initialization vector used for encryption and decryption. In case of AES-CBC, it should be 16 bytes (128 bits) long.
 - **#PAD**: Padding scheme to ensure input data is a multiple of the block size.
     - NONE: No padding if input must is a multiple of block size.
     - PKCS7: Default padding scheme for AES-CBC. Any other padding scheme defined in CRYPTO-SCRIPT can be used.
     
+---
 ## Example Usage  
 ### AES-CBC Encryption and Decryption
 KEY k0         = GenerateKey(AES-CBC, 256)  
@@ -41,3 +44,5 @@ KEY k1          = GenerateKey(AES-CBC, 256)
 KEY keyToWrap   = GenerateKey(AES-CBC, 256)  
 PARAM p1        = Parameters(#MECH=WRAP-AES, #IV:0x(00112233445566778899AABBCCDDEEFF), #PAD:PKCS7)  
 VAR wrappedKey  = Wrap(p1, k1, keyToWrap)  
+
+---

@@ -19,11 +19,14 @@
 			<avaloniacontrols:GroupBox BorderThickness="4"   Margin="2">			
 				<avaloniacontrols:GroupBox.Header>
 					<TextBlock Text="Variable List" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"/>
-				</avaloniacontrols:GroupBox.Header>		
+				</avaloniacontrols:GroupBox.Header>	
+				<Grid RowDefinitions="*,auto">
 					<DataGrid Grid.Row="0" ItemsSource="{Binding Path=DataVariables}"
 								AutoGenerateColumns="False" IsReadOnly="True"
 								GridLinesVisibility="All"					
 								BorderThickness="2" BorderBrush="Gray"
+								HorizontalScrollBarVisibility="Disabled"
+								ColumnWidth="*"
 								SelectedItem="{Binding SelectedVariable, Mode=TwoWay}">
 						<DataGrid.Styles> <!-- Header-Stil -->        
 							<Style Selector="DataGridColumnHeader">
@@ -36,11 +39,30 @@
 							</Style>
 						</DataGrid.Styles>
 							<DataGrid.Columns>
-								<DataGridTextColumn Header="Type" Binding="{Binding Type}" />
-								<DataGridTextColumn Header="Identifier" Binding="{Binding Identifier}" />
+								<DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="90" />
+								<DataGridTextColumn Header="Identifier" Binding="{Binding Identifier}" MaxWidth="150" />
 								<DataGridTextColumn Header="Value"  Binding="{Binding Value}" />
+								<DataGridTemplateColumn Header="Modify" Width="95">
+									<DataGridTemplateColumn.CellTemplate>
+										<DataTemplate>
+											<Button Content="Modify"
+													Padding="4,0"
+													Command="{Binding $parent[DataGrid].DataContext.ModifyValueCommand}"
+													CommandParameter="{Binding}" />
+										</DataTemplate>
+									</DataGridTemplateColumn.CellTemplate>
+								</DataGridTemplateColumn>
 							</DataGrid.Columns>
-					</DataGrid>	
+					</DataGrid>
+					<Border Grid.Row="2" Margin="5" Padding="8" BorderThickness="1" BorderBrush="Gray">							
+						<TextBox Grid.Row="1" Margin="5" 
+									Text="{Binding Path=SelectedVariable.Value, Mode=TwoWay}" 
+									MinHeight="60"
+									TextWrapping="Wrap" 						
+									FontFamily="Consolas"
+									FontSize="12"/>			
+						</Border>
+			</Grid>
 			</avaloniacontrols:GroupBox>
 		</Border>
 		<Grid Grid.Row="1" Margin="5" ColumnDefinitions="auto,auto">
@@ -113,19 +135,7 @@
 			</Border>
 		</Grid>
 		
-		<Border Grid.Row="2" Margin="5" Padding="8"
-			BorderThickness="1"
-			BorderBrush="Gray">
-			<Grid RowDefinitions="auto,auto">
-				<TextBlock Grid.Row="0" Text="{Binding Path=KeyVariables.Identifier}" />
-				<TextBox Grid.Row="1" Margin="5" 
-							Text="{Binding Path=SelectedVariable.Value, Mode=TwoWay}" 
-							AcceptsReturn="True" 						
-							FontFamily="Consolas"
-							FontSize="12"
-							/>
-			</Grid>
-		</Border>
+		
 	</Grid>
 </UserControl>
 

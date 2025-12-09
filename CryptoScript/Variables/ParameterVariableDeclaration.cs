@@ -123,6 +123,24 @@ namespace CryptoScript.Variables
             SetParameter(p.Type, p.Value);            
 
         }
-        
+        public void ParseToDictionary(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return;
+            ParameterTypeValue = new Dictionary<string, string>();      
+            var segments = input.Split('#', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var segment in segments)
+            {                
+                int colonIndex = segment.IndexOf(':');
+                if (colonIndex <= 0 || colonIndex == segment.Length - 1)
+                    continue;
+
+                // Key wieder mit '#' herstellen
+                string key = "#" + segment.Substring(0, colonIndex).Trim();
+                string value = segment.Substring(colonIndex + 1).Trim();
+                ParameterTypeValue[key] = value;
+            }            
+        }
+
     }
 }

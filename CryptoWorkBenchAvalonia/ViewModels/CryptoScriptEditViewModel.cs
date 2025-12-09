@@ -1,8 +1,10 @@
-﻿using AvaloniaEdit;
+﻿using Avalonia.Controls;
+using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using CryptoScript.ErrorListner;
 using CryptoScript.Model;
 using CryptoScript.Variables;
+using CryptoWorkBenchAvalonia.Services;
 using Prism.Navigation;
 using Prism.Navigation.Regions;
 using System;
@@ -20,6 +22,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         InfoViewModel _infoViewModel;
         MainViewModel _mainViewModel;
         IRegionManager _regions;
+        IHistoryService _historyService;
         string _printMessage = string.Empty;
         private TextEditor? _textEditor;
         bool _syntaxErrorOccured = false;
@@ -40,8 +43,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             set => SetProperty(ref _printMessage, value); 
         }
         
-        public CryptoScriptEditViewModel(StatusViewModel statusViewModel,VariableViewModel variableViewModel,InfoViewModel info,MainViewModel mvm,IRegionManager regions)
+        public CryptoScriptEditViewModel(StatusViewModel statusViewModel,VariableViewModel variableViewModel,InfoViewModel info,MainViewModel mvm,IRegionManager regions, IHistoryService historyService)
         {
+            _historyService = historyService;
+            _historyService.LineHistoryChanged += OnHistoryChanged;
             _statusViewModel = statusViewModel;
             _variableViewModel = variableViewModel;
             OutputOperations.PrintEvent += OnPrintEvent;
@@ -50,8 +55,20 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             _infoViewModel = info;
             _mainViewModel = mvm;
         }
+        private void OnHistoryChanged(object? sender, string entry)
+        {
+            TextDocument doc = _textEditor!.Document;
+            // letzte Zeile holen
+            DocumentLine line = doc.Lines[doc.Lines.Count - 1];            
+            doc.Remove(line.Offset, line.Length);
+            // neuen Text am Zeilenanfang einsetzen
+            doc.Insert(line.Offset, entry);
+            _textEditor.Document = doc;
+            _textEditor.IsModified = true;
+        }
         public void ParseLine(string line)
         {
+            _historyService.AddLine(line);
             _printMessage = string.Empty;
             var prog = new AntlrToProgram();            
             CryptoScriptParser parser = ParserBuilder.StringBuild(line);
@@ -76,10 +93,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 }
                 catch (Exception e) {
                     if(e is SemanticErrorException se)
-                        _statusViewModel.StatusString = "Semantic Error: "+se.SemanticError!.Message+": "+se.SemanticError.FunctionCall;
+                        _statusViewModel.StatusString = "Semantic Error: "+se.SemanticError!.Message+" in "+se.SemanticError.FunctionCall;
                     else
                     {
-                        _statusViewModel.StatusString = "Semantic Error: General Error occurred";
+                        _statusViewModel.StatusString = "Semantic "+e.Message;
                     }
                     _syntaxErrorOccured = true;
                 }
@@ -92,17 +109,12 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             _printMessage = message;
         }
         private void OnInfoEvent(string message)
-        {
-            // Handle the event (e.g., update the status view model)
-            _printMessage = message;
+        {            
             _infoViewModel.SetInfoText(message);
             _mainViewModel.InfoViewTitle = "InfoView";
             _regions.RequestNavigate("InfoRegion", "InfoView");
         }
-        public void NavigateToInfoView()
-        {            
-            _regions.RequestNavigate("InfoRegion", "InfoView");            
-        }   
+        
 
         public void SaveScriptBook(string filePath)
         {
