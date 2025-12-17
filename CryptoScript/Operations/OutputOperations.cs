@@ -41,6 +41,12 @@ namespace CryptoScript.Model
                 case "AES-CBC":
                     output += AES_CBC();
                     break;
+                    case "keymap":
+                        output += KeyMap();
+                        break;
+                    case "paddings":
+                        output += PaddingList();
+                        break;
                 default:
                     Console.WriteLine("No info available");
                     break;
@@ -61,9 +67,13 @@ namespace CryptoScript.Model
         {
             var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Functions.md");
             var InfoText = File.ReadAllText(path);
+            return InfoText;         
+        }
+        private string KeyMap() 
+        { 
+            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.KeyMap.md");
+            var InfoText = File.ReadAllText(path);
             return InfoText;
-            
-
         }
         private string ParameterList()
         {
@@ -84,6 +94,12 @@ namespace CryptoScript.Model
             var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Types.md");
             var InfoText = File.ReadAllText(path);
             return InfoText;            
+        }
+        private string PaddingList()
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Paddings.md");
+            var InfoText = File.ReadAllText(path);
+            return InfoText;
         }
     }
 }

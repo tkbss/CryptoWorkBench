@@ -109,8 +109,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             _printMessage = message;
         }
         private void OnInfoEvent(string message)
-        {            
-            _infoViewModel.SetInfoText(message);
+        {
+            if (message.Contains("Gesture="))
+                return;
+                _infoViewModel.SetInfoText(message);
             _mainViewModel.InfoViewTitle = "InfoView";
             _regions.RequestNavigate("InfoRegion", "InfoView");
         }

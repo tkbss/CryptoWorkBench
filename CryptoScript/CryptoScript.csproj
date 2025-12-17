@@ -24,10 +24,16 @@
     <None Update="InfoDocs\Info.Functions.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Keymap.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.AES-CBC.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="InfoDocs\Info.Mechanisms.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Paddings.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="InfoDocs\Info.Parameters.md">

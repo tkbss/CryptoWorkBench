@@ -15,10 +15,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             set
             {
                SetProperty(ref _infoText, value);
-                if (string.IsNullOrEmpty(_infoText)) return;
+                //if (string.IsNullOrEmpty(_infoText)) return;
                 // Bei anderung von Markdown immer neu nach HTML konvertieren
-                var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-                InfoHtml = Markdig.Markdown.ToHtml(_infoText ?? string.Empty);
+                //var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+                //InfoHtml = Markdig.Markdown.ToHtml(_infoText ?? string.Empty);
             }
         }
         public void SetInfoText(string text)

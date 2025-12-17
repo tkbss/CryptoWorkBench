@@ -13,7 +13,7 @@
 							   ShowLineNumbers="True"						 
 							   FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
 							   HorizontalScrollBarVisibility="Auto"
-							   VerticalScrollBarVisibility="Auto"/>
+							   VerticalScrollBarVisibility="Disabled" Padding="2" WordWrap="True"/>
 			<Border Grid.Row="1" BoxShadow="5 5 10 2 DarkGray" Margin="15,3,5,5">
 				<StackPanel Name="StatusBar" Background="Purple"  Margin="5">
 					<TextBlock Foreground="White" Name="StatusText" Text="Ready" Margin="5" FontSize="12" />

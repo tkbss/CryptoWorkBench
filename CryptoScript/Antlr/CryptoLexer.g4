@@ -13,7 +13,7 @@ PATH_VALUE    : [a-zA-Z] ':' ~[\r\n]*      // C:\...
                 | '/' ~[\r\n]*              // /usr/local/...
                 ;
 FN            : [A-Z] [a-z] [a-zA-Z]*;
-INFO		  : 'functions' | 'mechanisms' | 'types' | 'parameters' | 'mechnism';
+INFO		  : 'functions' | 'mechanisms' | 'types' | 'parameters' | 'paddings' | 'mechanism' | 'keymap';
 ID            : [a-zA-Z] [a-zA-Z0-9]*;
 HEX_STRING    : '0x(' [0-9a-fA-F]+ ')';
 BASE64_STRING : 'b64(' [A-Za-z0-9+/=]+ ')';
@@ -50,10 +50,12 @@ M_WRAP_DES3         : 'WRAP-DES3';
 M_BIND_XOR          : 'BIND-XOR';
 M_BIND_CMAC         : 'BIND-CMAC';
 
-PADDING	      :  PAD_ISO7816 | PAD_PKCS7 | PAD_ISO9797 | PAD_ANSI_X923 | PAD_NONE; 
+PADDING	      :  PAD_ISO7816 | PAD_PKCS7 | PAD_ISO9797M1 | PAD_ISO9797M2 | PAD_ISO9797M3 | PAD_ANSI_X923 | PAD_NONE; 
 PAD_ISO7816   : 'ISO-7816';
 PAD_PKCS7     : 'PKCS-7';
-PAD_ISO9797   : 'ISO-9797';
+PAD_ISO9797M1 : 'ISO-9797-M1';
+PAD_ISO9797M2 : 'ISO-9797-M2';
+PAD_ISO9797M3 : 'ISO-9797-M3';
 PAD_ANSI_X923 : 'ANSI-X923';
 PAD_NONE      : 'NONE';
 

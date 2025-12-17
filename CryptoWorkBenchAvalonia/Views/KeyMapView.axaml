@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
+             xmlns:ctxt="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia"
+			 prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CryptoWorkBenchAvalonia.KeyMapView">
+    
+    <Grid RowDefinitions="*">
+       <Border   Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="2">
+		<md:MarkdownScrollViewer Grid.Row="0" 
+                             ScrollViewer.AllowAutoHide="False"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              HorizontalAlignment="Stretch" 
+                              VerticalAlignment="Stretch"
+                              Markdown="{Binding InfoText}"  >           
+            <md:MarkdownScrollViewer.Styles>
+                <Style Selector="ctxt|CTextBlock">
+                    <Setter Property="FontSize" Value="9" />
+                </Style>        
+            </md:MarkdownScrollViewer.Styles> 
+        </md:MarkdownScrollViewer>
+	</Border>
+    
+    
+   </Grid>
+  
+</UserControl>

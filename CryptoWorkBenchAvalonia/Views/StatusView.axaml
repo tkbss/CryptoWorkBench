@@ -6,7 +6,7 @@
 			 prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CryptoWorkBenchAvalonia.Views.StatusView">
-	<Border   Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="7">
-		<TextBlock  Text="{Binding StatusString}" TextAlignment="Center" FontSize="20" Margin="10" />
+	<Border   Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="5">
+		<TextBlock  Text="{Binding StatusString}" TextAlignment="Center" FontSize="12" Margin="2" TextWrapping="Wrap" />
 	</Border>
 </UserControl>

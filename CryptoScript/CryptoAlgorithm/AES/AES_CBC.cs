@@ -22,7 +22,7 @@ namespace CryptoScript.CryptoAlgorithm
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;
-                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat));
+                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Decrypt");
                 aesAlg.Padding = padding;
                 // Create an encryptor to perform the stream transform.
                 using (ICryptoTransform encryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV))
@@ -65,7 +65,7 @@ namespace CryptoScript.CryptoAlgorithm
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;                
-                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat));
+                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Encrypt");
                 aesAlg.Padding = padding;
                 // Create an encryptor to perform the stream transform.
                 using (ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV))

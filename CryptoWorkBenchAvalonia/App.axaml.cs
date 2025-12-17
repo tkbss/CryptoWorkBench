@@ -45,6 +45,7 @@ public partial class App : PrismApplication
         regionManager.RegisterViewWithRegion(RegionNames.ContentRegion, typeof(CryptoScriptEditView));
         regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(VariableView));        
         regionManager.RegisterViewWithRegion(RegionNames.FooterRegion, typeof(StatusView));
+        regionManager.RegisterViewWithRegion(RegionNames.InfoFooterRegion, typeof(KeyMapView));
 
     }
 
@@ -58,11 +59,14 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<VariableViewModel>();
         containerRegistry.RegisterSingleton<SidebarViewModel>();
         containerRegistry.RegisterSingleton<CryptoScriptEditViewModel>();
-        
+        containerRegistry.RegisterSingleton<KeyMapViewModel>();
+
         containerRegistry.RegisterForNavigation<CryptoScriptEditView>();
         containerRegistry.RegisterForNavigation<SidebarView>();
         containerRegistry.RegisterForNavigation<InfoView,InfoViewModel>();
+        containerRegistry.RegisterForNavigation<KeyMapView,KeyMapViewModel>();
         containerRegistry.RegisterForNavigation<VariableView,VariableViewModel>();
+
         containerRegistry.RegisterSingleton<StatusViewModel>();
         
         
