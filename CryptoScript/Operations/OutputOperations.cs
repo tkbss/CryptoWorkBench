@@ -71,7 +71,7 @@ namespace CryptoScript.Model
         }
         private string KeyMap() 
         { 
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.KeyMap.md");
+            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Keymap.md");
             var InfoText = File.ReadAllText(path);
             return InfoText;
         }
