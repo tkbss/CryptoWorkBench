@@ -41,6 +41,7 @@ namespace CryptoScript.CryptoAlgorithm
                     
                 }
             }
+            decrypted = Unpad(parameter, decrypted,"Decrypt");
             StringVariableDeclaration cleartext = new StringVariableDeclaration();
             cleartext.Value = FormatConversions.ByteArrayToHexString(decrypted);
             cleartext.ValueFormat = FormatConversions.ParseString(cleartext.Value);
@@ -65,7 +66,7 @@ namespace CryptoScript.CryptoAlgorithm
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;                
-                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Encrypt");
+                byte[] input= Pad(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Encrypt");
                 aesAlg.Padding = padding;
                 // Create an encryptor to perform the stream transform.
                 using (ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV))

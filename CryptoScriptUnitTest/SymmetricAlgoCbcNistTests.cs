@@ -19,6 +19,7 @@ namespace CryptoScriptUnitTest
             new object[] { "ISO-9797-M2"  },
             new object[] { "ISO-9797-M3"  },
             new object[] { "ANSI-X923"    },
+            new object[] { "TLS-CBC"    },
         };
 
         private static readonly object[] CbcNistVectors =
@@ -194,7 +195,10 @@ namespace CryptoScriptUnitTest
             cVar2.Value.Length.Should().Be(("0x()".Length + 160));
             cVarByte.Take(nistCipherByte.Length).Should().Equal(nistCipherByte);
             var ptxPlusAb=FormatConversions.HexStringToByteArray(plaintextPlusAb);
-            ptVarByte.Take(ptxPlusAb.Length).Should().Equal(ptxPlusAb);
+            if(pad == "ISO-9797-M1")
+                ptVarByte.Take(ptxPlusAb.Length).Should().Equal(ptxPlusAb);
+            else
+                ptVarByte.Take(ptVarByte.Length).Should().Equal(ptxPlusAb);
         }
 
     }
