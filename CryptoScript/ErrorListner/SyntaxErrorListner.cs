@@ -38,7 +38,7 @@ namespace CryptoScript.ErrorListner
                         displayLine = prev.Line;
                         displayColumn = prev.Column;
                         displaySymbol = prev.Text;
-                        displayMsg = $"Unkown Token '{prev.Text}'. ";
+                        displayMsg = $"Unknown Token '{prev.Text}'. ";
                     }
                 }
             }

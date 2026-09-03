@@ -48,7 +48,7 @@ namespace CryptoScript.Model
                 catch(Exception e)
                 {                    
                     var se=new SemanticError() {Type="Argument:Mechanism" };
-                    se.Message = "Error  unkown mechanism : " + res1.GetText();
+                    se.Message = "Error unknown mechanism: " + res1.GetText();
                     se.FunctionName = res1.Parent.Parent.Parent.GetText().Split('(')[0];
                     se.Message=e.Message;
                     se.Value = res1.GetText();  
@@ -209,7 +209,7 @@ namespace CryptoScript.Model
             catch (Exception ex) 
             { 
                 SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
-                se.Message = "Unkown function: "+functionName;
+                se.Message = "Unknown function: "+functionName;
                 SemanticErrors.Add(se);
                 throw new SemanticErrorException() { SemanticError=se};
             }

@@ -22,7 +22,7 @@ namespace CryptoScript.Model
             if (MechanismList.Instance.Mechanisms.Contains(value))
                 Value = value;
             else
-                throw new ArgumentException("Unkown mechanism "+value);
+                throw new ArgumentException("Unknown mechanism "+value);
         }
     }
 }

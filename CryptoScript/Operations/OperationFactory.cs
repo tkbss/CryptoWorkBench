@@ -39,7 +39,7 @@ namespace CryptoScript.Model
                     return GeneralOperations.Compare;
                 default:
                 {
-                        throw new ArgumentException("Unkown function");
+                        throw new ArgumentException("Unknown function");
                 }
                         
             }

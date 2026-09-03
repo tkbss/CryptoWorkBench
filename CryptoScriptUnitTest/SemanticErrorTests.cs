@@ -118,7 +118,7 @@ namespace CryptoScriptUnitTest
         public void Unkown_function_Error()
         {
             var prog = new AntlrToProgram();
-            string input = "Unkown()";
+            string input = "Unknown()";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             if (SyntaxErrorListner.SyntaxErrorOccured || LexerErrorListener.LexerErrorOccured)
