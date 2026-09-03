@@ -47,6 +47,9 @@ namespace CryptoScript.Model
                     case "paddings":
                         output += PaddingList();
                         break;
+                case "iso-9797-m1":
+                    output += ISO_9797_M1();
+                    break;
                 default:
                     Console.WriteLine("No info available");
                     break;
@@ -98,6 +101,12 @@ namespace CryptoScript.Model
         private string PaddingList()
         {
             var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Paddings.md");
+            var InfoText = File.ReadAllText(path);
+            return InfoText;
+        }
+        private string ISO_9797_M1() 
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Paddings_1.md");
             var InfoText = File.ReadAllText(path);
             return InfoText;
         }

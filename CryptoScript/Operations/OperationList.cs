@@ -14,6 +14,8 @@ namespace CryptoScript.Model
             "GenerateKey",
             "Encrypt",
             "Decrypt",
+            "Mac",
+            "Sign",
             "Wrap",
             "Unwrap",
             "Print",

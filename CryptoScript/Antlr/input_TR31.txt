@@ -1,0 +1,4 @@
+PARAM p= #BLKH:"D0112B1AX00E0000" #BIND:BIND-CMAC #MECH:WRAP-TR31
+PATH pt=c:\dir1\dir2\file.txt
+KEY key2=GenerateKey(AES-CBC,128)
+

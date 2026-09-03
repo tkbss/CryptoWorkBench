@@ -30,7 +30,8 @@ fragment ESC                : '\\' [btnrf"'\\];
 MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC | M_AES_CCM
               | M_DES3_ECB| M_DES3_CBC| M_DES3_CMAC
               | M_WRAP_AES_TR31 | M_WRAP_DES3_TR31 | M_WRAP_AES | M_WRAP_DES3 
-              | M_BIND_XOR | M_BIND_CMAC;
+              | M_BIND_XOR | M_BIND_CMAC
+              | M_RSA | M_RSA_OAEP | M_RSA_PSS | M_RSA_PKCS1;
 
 M_AES_ECB           : 'AES-ECB';
 M_AES_CBC           : 'AES-CBC';
