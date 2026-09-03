@@ -1,0 +1,161 @@
+using CryptoScript.ErrorListner;
+using CryptoScript.Model;
+using CryptoScript.Variables;
+using System.Security.Cryptography;
+
+namespace CryptoScript.CryptoAlgorithm.DES3
+{
+    public class DES3 : SymmetricCryptoAlgorithm
+    {
+        private ParameterVariableDeclaration? parameter;
+        private KeyVariableDeclaration? key;
+        private StringVariableDeclaration? data;
+
+        public override KeyVariableDeclaration GenerateKey(string mechanism, string size)
+        {
+            if (FormatConversions.ParseString(size) == FormatConversions.HEX)
+                return CreateExistingKey(size, mechanism);
+
+            if (!int.TryParse(size, out int keySize) || (keySize != 128 && keySize != 192))
+                throw new ArgumentException("DES3 key size must be 128 or 192 bits.");
+
+            using TripleDES des3 = TripleDES.Create();
+            des3.KeySize = keySize;
+            des3.GenerateKey();
+            return CreateKeyVariable(
+                FormatConversions.ByteArrayToHexString(des3.Key),
+                mechanism,
+                keySize);
+        }
+
+        private static KeyVariableDeclaration CreateExistingKey(string value, string mechanism)
+        {
+            byte[] keyBytes = FormatConversions.ToByteArray(value, FormatConversions.HEX);
+            ValidateKeyLength(keyBytes);
+            ValidateUsableKey(keyBytes);
+            return CreateKeyVariable(value, mechanism, keyBytes.Length * 8);
+        }
+
+        private static KeyVariableDeclaration CreateKeyVariable(string value, string mechanism, int keySize)
+        {
+            return new KeyVariableDeclaration
+            {
+                Value = value,
+                KeyValue = value,
+                ValueFormat = FormatConversions.ParseString(value),
+                KeySize = keySize.ToString(),
+                Mechanism = mechanism,
+                Type = new CryptoTypeKey()
+            };
+        }
+
+        internal static void ValidateKeyLength(byte[] keyBytes)
+        {
+            if (keyBytes.Length != 16 && keyBytes.Length != 24)
+                throw new ArgumentException("DES3 key must contain exactly 16 or 24 bytes.");
+        }
+
+        internal static void ValidateUsableKey(byte[] keyBytes)
+        {
+            if (TripleDES.IsWeakKey(keyBytes))
+                throw new ArgumentException("DES3 key is weak or degenerates to single DES.");
+        }
+
+        public override ParameterVariableDeclaration GenerateParameters(string mechanism)
+        {
+            mechanism = ExtractMechanismen(mechanism);
+            if (!mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.");
+
+            var result = DES3DefaultParameters.GenerateDefaultCBCParameters(mechanism);
+            result.ValueFormat = FormatConversions.ParseString(result.Value);
+            return result;
+        }
+
+        public override ParameterVariableDeclaration GenerateParameters(string mechanism, string[] parameters)
+        {
+            mechanism = ExtractMechanismen(mechanism);
+            if (!mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.");
+
+            var result = new ParameterVariableDeclaration { Mechanism = mechanism };
+            foreach (string item in parameters)
+                result.SetParameter(item);
+
+            if (result.GetParameter("IV") == string.Empty)
+                result.SetParameter("IV", FormatConversions.ByteArrayToHexString(RandomNumberGenerator.GetBytes(8)));
+            if (result.GetParameter("PAD") == string.Empty)
+                result.SetParameter("PAD", "PKCS-7");
+
+            result.ValueFormat = FormatConversions.ParseString(result.Value);
+            return result;
+        }
+
+        public override EncryptionMode CreateMode(string mechanism)
+        {
+            return mechanism.ToUpperInvariant() switch
+            {
+                "DES3-CBC" => new DES3_CBC(),
+                _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
+            };
+        }
+
+        public override StringVariableDeclaration Encrypt(string[] parameters)
+        {
+            ParseArguments(parameters);
+            return CreateMode(parameter!.Mechanism).ModeEncryption(parameter, key!, data!);
+        }
+
+        public override StringVariableDeclaration Decrypt(string[] parameters)
+        {
+            ParseArguments(parameters);
+            return CreateMode(parameter!.Mechanism).ModeDecryption(parameter, key!, data!);
+        }
+
+        private void ParseArguments(string[] arguments)
+        {
+            parameter = ResolveParameter(arguments[0]);
+            key = ResolveKey(arguments[1]);
+            data = ResolveData(arguments[2]);
+
+            if (!parameter.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("DES3-CBC requires parameters with mechanism DES3-CBC.");
+            if (!string.IsNullOrEmpty(key.Mechanism) &&
+                !key.Mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("DES3-CBC requires a DES3 key.");
+        }
+
+        private static ParameterVariableDeclaration ResolveParameter(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
+                return declared;
+            if (FormatConversions.ParseString(value) == FormatConversions.PAR)
+            {
+                var inline = new ParameterVariableDeclaration();
+                inline.SetInstance(value);
+                return inline;
+            }
+            throw new ArgumentException("wrong parameter argument");
+        }
+
+        private static KeyVariableDeclaration ResolveKey(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is KeyVariableDeclaration declared)
+                return declared;
+            if (FormatConversions.ParseString(value) == FormatConversions.HEX)
+                return new KeyVariableDeclaration { Value = value, ValueFormat = FormatConversions.HEX };
+            if (FormatConversions.ParseString(value) == FormatConversions.JSO)
+                return KeyVariableDeclaration.Deserialize(value);
+            throw new ArgumentException("wrong key argument");
+        }
+
+        private static StringVariableDeclaration ResolveData(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+                return declared;
+            if (FormatConversions.ParseString(value) != string.Empty)
+                return new StringVariableDeclaration { Value = value, ValueFormat = FormatConversions.ParseString(value) };
+            throw new ArgumentException("wrong data argument");
+        }
+    }
+}

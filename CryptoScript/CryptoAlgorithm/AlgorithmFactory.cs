@@ -17,6 +17,11 @@
             }
             if (mechanism.Contains("AES"))
                 return new AES.AES();
+            string normalizedMechanism = mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
+                ? mechanism["#MECH:".Length..]
+                : mechanism;
+            if (normalizedMechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
+                return new DES3.DES3();
             return new SymmetricCryptoAlgorithm();
         }
     }
