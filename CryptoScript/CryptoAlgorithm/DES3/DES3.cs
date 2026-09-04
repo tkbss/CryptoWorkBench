@@ -64,10 +64,12 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override ParameterVariableDeclaration GenerateParameters(string mechanism)
         {
             mechanism = ExtractMechanismen(mechanism);
-            if (!mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.");
-
-            var result = DES3DefaultParameters.GenerateDefaultCBCParameters(mechanism);
+            var result = mechanism.ToUpperInvariant() switch
+            {
+                "DES3-CBC" => DES3DefaultParameters.GenerateDefaultCBCParameters(mechanism),
+                "DES3-ECB" => DES3DefaultParameters.GenerateDefaultECBParameters(mechanism),
+                _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
+            };
             result.ValueFormat = FormatConversions.ParseString(result.Value);
             return result;
         }
@@ -75,15 +77,23 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override ParameterVariableDeclaration GenerateParameters(string mechanism, string[] parameters)
         {
             mechanism = ExtractMechanismen(mechanism);
-            if (!mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase))
+            if (!mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
+                !mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.");
 
             var result = new ParameterVariableDeclaration { Mechanism = mechanism };
             foreach (string item in parameters)
                 result.SetParameter(item);
 
-            if (result.GetParameter("IV") == string.Empty)
-                result.SetParameter("IV", FormatConversions.ByteArrayToHexString(RandomNumberGenerator.GetBytes(8)));
+            if (mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase))
+            {
+                if (result.GetParameter("IV") == string.Empty)
+                    result.SetParameter("IV", FormatConversions.ByteArrayToHexString(RandomNumberGenerator.GetBytes(8)));
+            }
+            else if (result.GetParameter("IV") != string.Empty)
+            {
+                throw new ArgumentException("DES3-ECB does not use an IV.");
+            }
             if (result.GetParameter("PAD") == string.Empty)
                 result.SetParameter("PAD", "PKCS-7");
 
@@ -96,6 +106,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             return mechanism.ToUpperInvariant() switch
             {
                 "DES3-CBC" => new DES3_CBC(),
+                "DES3-ECB" => new DES3_ECB(),
                 _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
             };
         }
@@ -118,8 +129,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             key = ResolveKey(arguments[1]);
             data = ResolveData(arguments[2]);
 
-            if (!parameter.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("DES3-CBC requires parameters with mechanism DES3-CBC.");
+            if (!parameter.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
+                !parameter.Mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC or DES3-ECB.");
             if (!string.IsNullOrEmpty(key.Mechanism) &&
                 !key.Mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("DES3-CBC requires a DES3 key.");

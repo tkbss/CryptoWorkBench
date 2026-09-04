@@ -20,7 +20,8 @@
             string normalizedMechanism = mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
                 ? mechanism["#MECH:".Length..]
                 : mechanism;
-            if (normalizedMechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
+            if (normalizedMechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) ||
+                normalizedMechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase))
                 return new DES3.DES3();
             return new SymmetricCryptoAlgorithm();
         }
