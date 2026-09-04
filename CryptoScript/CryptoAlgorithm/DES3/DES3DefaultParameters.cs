@@ -27,5 +27,17 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             parameter.SetParameter("PAD", "PKCS-7");
             return parameter;
         }
+
+        public static ParameterVariableDeclaration GenerateDefaultCMACParameters(string mechanism)
+        {
+            var parameter = new ParameterVariableDeclaration
+            {
+                Mechanism = mechanism
+            };
+            parameter.SetParameter("MECH", mechanism);
+            parameter.SetParameter("IV", string.Empty);
+            parameter.SetParameter("PAD", "NONE");
+            return parameter;
+        }
     }
 }

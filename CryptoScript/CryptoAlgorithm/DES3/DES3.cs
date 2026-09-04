@@ -68,6 +68,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             {
                 "DES3-CBC" => DES3DefaultParameters.GenerateDefaultCBCParameters(mechanism),
                 "DES3-ECB" => DES3DefaultParameters.GenerateDefaultECBParameters(mechanism),
+                "DES3-CMAC" => DES3DefaultParameters.GenerateDefaultCMACParameters(mechanism),
                 _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
             };
             result.ValueFormat = FormatConversions.ParseString(result.Value);
@@ -78,7 +79,8 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             mechanism = ExtractMechanismen(mechanism);
             if (!mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
-                !mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase))
+                !mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase) &&
+                !mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.");
 
             var result = new ParameterVariableDeclaration { Mechanism = mechanism };
@@ -92,9 +94,11 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             }
             else if (result.GetParameter("IV") != string.Empty)
             {
-                throw new ArgumentException("DES3-ECB does not use an IV.");
+                throw new ArgumentException($"{mechanism} does not use an IV.");
             }
-            if (result.GetParameter("PAD") == string.Empty)
+            if (mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
+                result.SetParameter("PAD", "NONE");
+            else if (result.GetParameter("PAD") == string.Empty)
                 result.SetParameter("PAD", "PKCS-7");
 
             result.ValueFormat = FormatConversions.ParseString(result.Value);
@@ -107,6 +111,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             {
                 "DES3-CBC" => new DES3_CBC(),
                 "DES3-ECB" => new DES3_ECB(),
+                "DES3-CMAC" => new DES3_CMAC(),
                 _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
             };
         }
@@ -123,6 +128,19 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             return CreateMode(parameter!.Mechanism).ModeDecryption(parameter, key!, data!);
         }
 
+        public override StringVariableDeclaration Mac(string[] parameters)
+        {
+            ParseArguments(parameters);
+            if (!parameter!.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
+            {
+                var error = new SemanticError { Type = "Mechanism" };
+                error.Message = $"Mechanism: {parameter.Mechanism} cannot be used in MAC calculation";
+                error.FunctionName = "Mac";
+                throw new SemanticErrorException { SemanticError = error };
+            }
+            return CreateMode(parameter.Mechanism).ModeMac(parameter, key!, data!);
+        }
+
         private void ParseArguments(string[] arguments)
         {
             parameter = ResolveParameter(arguments[0]);
@@ -130,11 +148,12 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             data = ResolveData(arguments[2]);
 
             if (!parameter.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
-                !parameter.Mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC or DES3-ECB.");
+                !parameter.Mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase) &&
+                !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC, DES3-ECB or DES3-CMAC.");
             if (!string.IsNullOrEmpty(key.Mechanism) &&
                 !key.Mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("DES3-CBC requires a DES3 key.");
+                throw new ArgumentException($"{parameter.Mechanism} requires a DES3 key.");
         }
 
         private static ParameterVariableDeclaration ResolveParameter(string value)
