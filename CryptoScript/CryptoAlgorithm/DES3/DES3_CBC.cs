@@ -16,7 +16,6 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             byte[] keyBytes = GetValidatedKey(key);
             byte[] ivBytes = GetValidatedIv(parameter);
             byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
-            ValidateNoPaddingAlignment(parameter, dataBytes, "plaintext");
 
             byte[] input = Pad(parameter, out PaddingMode padding, dataBytes, "Encrypt", BlockSizeBytes);
             byte[] encrypted = Transform(keyBytes, ivBytes, input, padding, encrypt: true);
@@ -38,6 +37,24 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             byte[] decrypted = Transform(keyBytes, ivBytes, input, padding, encrypt: false);
             decrypted = Unpad(parameter, decrypted, "Decrypt", BlockSizeBytes);
             return CreateResult(decrypted);
+        }
+
+        public override StringVariableDeclaration ModeMac(
+            ParameterVariableDeclaration parameter,
+            KeyVariableDeclaration key,
+            StringVariableDeclaration data)
+        {
+            byte[] keyBytes = GetValidatedKey(key);
+            byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
+
+            byte[] input = Pad(parameter, out PaddingMode padding, dataBytes, "Mac", BlockSizeBytes);
+            byte[] encrypted = Transform(keyBytes, new byte[BlockSizeBytes], input, padding, encrypt: true);
+            if (encrypted.Length == 0)
+                throw new ArgumentException("DES3-CBC-MAC requires padding that produces at least one 8-byte block.");
+
+            int macLength = GetMacLength(parameter);
+            byte[] mac = encrypted[(encrypted.Length - BlockSizeBytes)..][..macLength];
+            return CreateResult(mac);
         }
 
         private static byte[] Transform(
@@ -75,14 +92,14 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             return ivBytes;
         }
 
-        private static void ValidateNoPaddingAlignment(
-            ParameterVariableDeclaration parameter,
-            byte[] input,
-            string inputName)
+        private static int GetMacLength(ParameterVariableDeclaration parameter)
         {
-            if (parameter.GetParameter("PAD").Equals("NONE", StringComparison.OrdinalIgnoreCase) &&
-                input.Length % BlockSizeBytes != 0)
-                throw new ArgumentException($"DES3-CBC with PAD=NONE requires {inputName} length to be a multiple of 8 bytes.");
+            string value = parameter.GetParameter("MACLEN");
+            if (value == string.Empty)
+                return BlockSizeBytes;
+            if (!int.TryParse(value.Trim('"'), out int length) || length < 4 || length > BlockSizeBytes)
+                throw new ArgumentException("DES3-CBC MAC length must be between 4 and 8 bytes.");
+            return length;
         }
 
         private static StringVariableDeclaration CreateResult(byte[] value)

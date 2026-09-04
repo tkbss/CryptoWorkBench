@@ -120,6 +120,15 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             else if (result.GetParameter("PAD") == string.Empty)
                 result.SetParameter("PAD", "PKCS-7");
 
+            if (mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
+                result.GetParameter("MACLEN") != string.Empty)
+            {
+                string macLength = result.GetParameter("MACLEN");
+                if (!int.TryParse(macLength.Trim('"'), out int length) || length < 4 || length > 8)
+                    throw new ArgumentException("DES3-CBC MAC length must be between 4 and 8 bytes.");
+                result.SetParameter("MACLEN", length.ToString());
+            }
+
             result.ValueFormat = FormatConversions.ParseString(result.Value);
             return result;
         }
@@ -160,7 +169,8 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Mac(string[] parameters)
         {
             ParseArguments(parameters);
-            if (!parameter!.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase) &&
+            if (!parameter!.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
+                !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase))
             {
                 var error = new SemanticError { Type = "Mechanism" };

@@ -101,12 +101,8 @@ namespace CryptoScript.CryptoAlgorithm
                     break;
                 case "none":
                     if (input.Length % blocksize != 0)
-                    {
-                        var se = new SemanticError() { Type = "Parameters" };
-                        se.Message = mechanism + " with PAD=NONE requires plaintext length multiple of 16 bytes.";
-                        se.FunctionName = fn;
-                        throw new SemanticErrorException() { SemanticError = se };
-                    }
+                        throw new ArgumentException(
+                            mechanism + $" with PAD=NONE requires input length to be a multiple of {blocksize} bytes.");
                     padding = PaddingMode.None;
                     break;
                 default:
