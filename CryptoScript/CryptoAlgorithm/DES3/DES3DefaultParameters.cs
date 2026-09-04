@@ -39,5 +39,18 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             parameter.SetParameter("PAD", "NONE");
             return parameter;
         }
+
+        public static ParameterVariableDeclaration GenerateDefaultRetailParameters(string mechanism)
+        {
+            var parameter = new ParameterVariableDeclaration
+            {
+                Mechanism = mechanism
+            };
+            parameter.SetParameter("MECH", mechanism);
+            parameter.SetParameter("IV", string.Empty);
+            parameter.SetParameter("PAD", "ISO-9797-M2");
+            parameter.SetParameter("MACLEN", "8");
+            return parameter;
+        }
     }
 }

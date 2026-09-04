@@ -34,6 +34,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - ISO-7816
         - ISO-9797
         - NONE
+- MACLEN: Output length in bytes for DES3-RETAIL; valid values are 4 through 8 (default 8).
 - NONCE: Unique nonce value for symmetric encryption used in certain modes.
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.

@@ -41,6 +41,8 @@ namespace CryptoScript.Variables
                     Mechanism.Add(m);
                 }
             }
+            if (!ParameterTypes.Contains("#MACLEN"))
+                ParameterTypes.Add("#MACLEN");
         }
         public static ParameterTypeList Instance
         {

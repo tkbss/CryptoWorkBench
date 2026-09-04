@@ -22,6 +22,7 @@
                 : mechanism;
             if (normalizedMechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) ||
                 normalizedMechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase) ||
+                normalizedMechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase) ||
                 normalizedMechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
                 return new DES3.DES3();
             return new SymmetricCryptoAlgorithm();

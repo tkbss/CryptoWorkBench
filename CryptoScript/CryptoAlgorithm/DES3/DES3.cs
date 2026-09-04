@@ -68,6 +68,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             {
                 "DES3-CBC" => DES3DefaultParameters.GenerateDefaultCBCParameters(mechanism),
                 "DES3-ECB" => DES3DefaultParameters.GenerateDefaultECBParameters(mechanism),
+                "DES3-RETAIL" => DES3DefaultParameters.GenerateDefaultRetailParameters(mechanism),
                 "DES3-CMAC" => DES3DefaultParameters.GenerateDefaultCMACParameters(mechanism),
                 _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
             };
@@ -80,6 +81,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             mechanism = ExtractMechanismen(mechanism);
             if (!mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
                 !mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase) &&
+                !mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase) &&
                 !mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.");
 
@@ -96,7 +98,24 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             {
                 throw new ArgumentException($"{mechanism} does not use an IV.");
             }
-            if (mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
+            if (mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase))
+            {
+                string padding = result.GetParameter("PAD");
+                if (padding == string.Empty)
+                    result.SetParameter("PAD", "ISO-9797-M2");
+                else if (!padding.Equals("ISO-9797-M1", StringComparison.OrdinalIgnoreCase) &&
+                         !padding.Equals("ISO-9797-M2", StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException("DES3-RETAIL supports only ISO-9797-M1 or ISO-9797-M2 padding.");
+
+                string macLength = result.GetParameter("MACLEN");
+                if (macLength == string.Empty)
+                    result.SetParameter("MACLEN", "8");
+                else if (!int.TryParse(macLength.Trim('"'), out int length) || length < 4 || length > 8)
+                    throw new ArgumentException("DES3-RETAIL MAC length must be between 4 and 8 bytes.");
+                else
+                    result.SetParameter("MACLEN", length.ToString());
+            }
+            else if (mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
                 result.SetParameter("PAD", "NONE");
             else if (result.GetParameter("PAD") == string.Empty)
                 result.SetParameter("PAD", "PKCS-7");
@@ -111,6 +130,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             {
                 "DES3-CBC" => new DES3_CBC(),
                 "DES3-ECB" => new DES3_ECB(),
+                "DES3-RETAIL" => new DES3_RETAIL(),
                 "DES3-CMAC" => new DES3_CMAC(),
                 _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
             };
@@ -119,19 +139,29 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Encrypt(string[] parameters)
         {
             ParseArguments(parameters);
+            RejectRetailEncryption("Encrypt");
             return CreateMode(parameter!.Mechanism).ModeEncryption(parameter, key!, data!);
         }
 
         public override StringVariableDeclaration Decrypt(string[] parameters)
         {
             ParseArguments(parameters);
+            RejectRetailEncryption("Decrypt");
             return CreateMode(parameter!.Mechanism).ModeDecryption(parameter, key!, data!);
+        }
+
+        private void RejectRetailEncryption(string functionName)
+        {
+            if (!parameter!.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase))
+                return;
+            throw new ArgumentException("Mechanism: DES3-RETAIL can only be used in MAC calculation");
         }
 
         public override StringVariableDeclaration Mac(string[] parameters)
         {
             ParseArguments(parameters);
-            if (!parameter!.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
+            if (!parameter!.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase) &&
+                !parameter.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase))
             {
                 var error = new SemanticError { Type = "Mechanism" };
                 error.Message = $"Mechanism: {parameter.Mechanism} cannot be used in MAC calculation";
@@ -149,8 +179,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 
             if (!parameter.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase) &&
+                !parameter.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC, DES3-ECB or DES3-CMAC.");
+                throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC, DES3-ECB, DES3-RETAIL or DES3-CMAC.");
             if (!string.IsNullOrEmpty(key.Mechanism) &&
                 !key.Mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException($"{parameter.Mechanism} requires a DES3 key.");
