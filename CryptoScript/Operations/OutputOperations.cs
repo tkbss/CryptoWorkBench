@@ -41,6 +41,12 @@ namespace CryptoScript.Model
                 case "AES-CBC":
                     output += AES_CBC();
                     break;
+                case "DES3-CBC":
+                case "DES3-ECB":
+                case "DES3-CMAC":
+                case "DES3-RETAIL":
+                    output += File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", $"Info.Mech.{args[0]}.md"));
+                    break;
                     case "keymap":
                         output += KeyMap();
                         break;
