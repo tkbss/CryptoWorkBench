@@ -41,6 +41,13 @@ namespace CryptoScript.Model
                 case "AES-CBC":
                     output += AES_CBC();
                     break;
+                case "AES-ECB":
+                case "AES-CTR":
+                case "AES-CMAC":
+                case "AES-GMAC":
+                case "AES-GCM":
+                case "AES-CCM":
+                case "WRAP-AES-TR31":
                 case "DES3-CBC":
                 case "DES3-ECB":
                 case "DES3-CMAC":
