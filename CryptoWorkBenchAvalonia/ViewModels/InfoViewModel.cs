@@ -1,5 +1,4 @@
 using CryptoWorkBenchAvalonia.Services;
-using Markdig;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
 
