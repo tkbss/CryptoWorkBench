@@ -5,6 +5,8 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:CryptoWorkBenchAvalonia.ViewModels"  
              xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
+             xmlns:ctxt="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia"
+             xmlns:mde="clr-namespace:Markdown.Avalonia.Extensions;assembly=Markdown.Avalonia"
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CryptoWorkBenchAvalonia.Views.InfoView">   
@@ -15,13 +17,22 @@
                         VerticalAlignment="Stretch" 
                         Text="{Binding InfoHtml}" /> -->
     <md:MarkdownScrollViewer Grid.Row="0" 
+                             Classes.mechanism="{Binding IsMechanismDocumentation}"
                              Margin="10"
                              ScrollViewer.AllowAutoHide="False"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               HorizontalAlignment="Stretch" 
                               VerticalAlignment="Stretch"
-                              Markdown="{Binding InfoText}" />
+                              Markdown="{Binding InfoText}">
+        <md:MarkdownScrollViewer.Styles>
+            <!-- Fluent H1 uses 3.2 times the theme size; halve only mechanism titles. -->
+            <Style Selector="md|MarkdownScrollViewer.mechanism ctxt|CTextBlock.Heading1">
+                <Setter Property="FontSize" Value="{mde:Multiply ControlContentThemeFontSize, 1.8}" />
+                <Setter Property="FontWeight" Value="DemiBold" />
+            </Style>
+        </md:MarkdownScrollViewer.Styles>
+    </md:MarkdownScrollViewer>
     
    </Grid>
 </UserControl>

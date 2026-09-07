@@ -13,13 +13,18 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             get => _infoText;
             set
             {
-               SetProperty(ref _infoText, value);
+               if (SetProperty(ref _infoText, value))
+                   RaisePropertyChanged(nameof(IsMechanismDocumentation));
                 //if (string.IsNullOrEmpty(_infoText)) return;
                 // Bei anderung von Markdown immer neu nach HTML konvertieren
                 //var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
                 //InfoHtml = Markdig.Markdown.ToHtml(_infoText ?? string.Empty);
             }
         }
+        // Info history stores Markdown text, so derive the styling scope from its title.
+        public bool IsMechanismDocumentation =>
+            _infoText?.TrimStart().StartsWith("# MECHANISM ", System.StringComparison.Ordinal) == true;
+
         public void SetInfoText(string text)
         {
             InfoText = text;            
