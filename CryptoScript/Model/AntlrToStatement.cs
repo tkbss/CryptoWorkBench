@@ -110,12 +110,17 @@ namespace CryptoScript.Model
 
         public override Statement VisitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context)
         {
-            string Id = context.GetChild(1).GetText();
-            string TypeName= context.GetChild(0).GetText();            
-            var type= (CryptoType)VisitType(context.type());
-            var fcontext = context.functionCall();
-            var exprContext = context.expression();
-            var declarParam=context.declareparam();            
+            return EvaluateDeclaration(AntlrToVariableDeclaration.Map(context));
+        }
+
+        private Statement EvaluateDeclaration(Ast.VariableDeclarationNode declaration)
+        {
+            string Id = declaration.Identifier;
+            string TypeName = declaration.TypeName;
+            var type = CryptoType.Parse(TypeName);
+            var fcontext = declaration.FunctionCall;
+            var exprContext = declaration.Expression;
+            var declarParam = declaration.Parameters;
 
             Statement? stmt = null;
             if (fcontext != null)
@@ -126,7 +131,7 @@ namespace CryptoScript.Model
             {
                 stmt = VisitExpression(exprContext);
             }
-            if(declarParam!=null && declarParam.Length!=0)
+            if(declarParam.Count!=0)
             {
                 if(!(type is CryptoTypeParameters))
                 {
@@ -145,7 +150,7 @@ namespace CryptoScript.Model
                 }
                 var Parameter = new ParameterVariableDeclaration();
                 Parameter.Mechanism = mech.GetText();//declarParam[0].GetText();
-                for (int i = 0; i < declarParam.Length; i++)
+                for (int i = 0; i < declarParam.Count; i++)
                 {
                     try
                     {
@@ -161,9 +166,8 @@ namespace CryptoScript.Model
                     }
                     
                 }
-                var typeCntx = context.type(); 
                 Parameter.Id = Id;
-                Parameter.Type = (CryptoType)VisitType(typeCntx);
+                Parameter.Type = CryptoType.Parse(TypeName);
                 VariableDictionary.Instance().Add(Parameter);
                 stmt = Parameter;
             }
