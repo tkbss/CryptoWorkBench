@@ -119,7 +119,7 @@ namespace CryptoScript.Model
             string TypeName = declaration.TypeName;
             var type = CryptoType.Parse(TypeName);
             var fcontext = declaration.FunctionCall;
-            var exprContext = declaration.Expression;
+            var expression = declaration.Expression;
             var declarParam = declaration.Parameters;
 
             Statement? stmt = null;
@@ -127,9 +127,9 @@ namespace CryptoScript.Model
             {
                 stmt = VisitFunctionCall(fcontext);
             }
-            if (exprContext != null)
+            if (expression != null)
             {
-                stmt = VisitExpression(exprContext);
+                stmt = Expression.Create(expression.RawText);
             }
             if(declarParam.Count!=0)
             {
