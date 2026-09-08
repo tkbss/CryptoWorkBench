@@ -116,7 +116,7 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
-        public void RetainsUnmigratedHeaderWithoutResolvingRuntimeType()
+        public void MapsEmptyHeaderWithoutResolvingRuntimeType()
         {
             // Header lexing is outside this migration; test the mapping boundary directly.
             var context = Parse("TR31H astHeader =");
@@ -126,7 +126,8 @@ namespace CryptoScriptUnitTest
             var node = AntlrToVariableDeclaration.Map(context);
 
             Assert.That(node.TypeName, Is.EqualTo("TR31H"));
-            Assert.That(node.Tr31Header, Is.SameAs(header));
+            Assert.That(node.Tr31Header, Is.Not.Null);
+            Assert.That(node.Tr31Header!.RawText, Is.EqualTo(header.GetText()));
             Assert.That(node.Parameters, Is.Empty);
         }
 

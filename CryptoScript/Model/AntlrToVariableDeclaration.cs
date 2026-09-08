@@ -14,7 +14,7 @@ namespace CryptoScript.Model
                 expression == null ? null : new LiteralInitializerNode(expression.GetText()),
                 context.functionCall() is { } call ? AntlrToFunctionCallInitializer.Map(call) : null,
                 Array.AsReadOnly(context.declareparam().Select(AntlrToParameterInitializer.Map).ToArray()),
-                context.tr31Header());
+                context.tr31Header() is { } header ? new Tr31HeaderInitializerNode(header.GetText()) : null);
         }
     }
 }
