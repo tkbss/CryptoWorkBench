@@ -107,10 +107,10 @@ namespace CryptoScriptUnitTest
             var node = AntlrToVariableDeclaration.Map(context);
 
             Assert.That(node.TypeName, Is.EqualTo("VAR"));
-            Assert.That(node.Parameters.Select(p => p.GetText()),
+            Assert.That(node.Parameters.Select(p => p.RawText),
                 Is.EqualTo(new[] { "#MECH:AES-CBC", "#PAD:PKCS-7", "#IV:0x(1234)" }));
             for (int i = 0; i < node.Parameters.Count; i++)
-                Assert.That(node.Parameters[i], Is.SameAs(context.declareparam(i)));
+                Assert.That(node.Parameters[i].RawText, Is.EqualTo(context.declareparam(i).GetText()));
             Assert.That(node.Expression, Is.Null);
             Assert.That(node.FunctionCall, Is.Null);
         }

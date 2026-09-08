@@ -142,7 +142,7 @@ namespace CryptoScript.Model
                     SemanticErrors.Add(se);
                     throw new SemanticErrorException() { SemanticError=se};
                 }                
-                var mech=declarParam.FirstOrDefault(c => c.GetText().Contains("MECH"));
+                var mech=declarParam.FirstOrDefault(c => c.RawText.Contains("MECH"));
                 if (mech == null) 
                 {
                     SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
@@ -151,18 +151,21 @@ namespace CryptoScript.Model
                     throw new SemanticErrorException() { SemanticError = se };
                 }
                 var Parameter = new ParameterVariableDeclaration();
-                Parameter.Mechanism = mech.GetText();//declarParam[0].GetText();
+                Parameter.Mechanism = mech.RawText;
                 for (int i = 0; i < declarParam.Count; i++)
                 {
                     try
                     {
-                        var param = VisitDeclareparam(declarParam[i]) as ArgumentParameter;
+                        // Preserve the former missing-child failure inside this runtime error boundary.
+                        var param = EvaluateParameter(
+                            declarParam[i].TypeName ?? throw new NullReferenceException(),
+                            declarParam[i].RawValue ?? throw new NullReferenceException());
                         Parameter.SetParameter(param);
                     }
                     catch 
                     {
                         SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
-                        se.Message = "Error in  parameter declaration : " + declarParam[i].GetText();
+                        se.Message = "Error in  parameter declaration : " + declarParam[i].RawText;
                         SemanticErrors.Add(se);
                         throw new SemanticErrorException() { SemanticError = se };
                     }
