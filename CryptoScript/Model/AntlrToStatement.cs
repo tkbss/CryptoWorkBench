@@ -14,12 +14,15 @@ namespace CryptoScript.Model
 
         public override Statement VisitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context)
         {
-            var parameter = new ArgumentParameter();
-            string t=context.GetText();
-            int cnt = context.ChildCount;
             var type=context.GetChild(0).GetText();
             var value=context.GetChild(2).GetText();
-            parameter.SetParameter(type, value);            
+            return EvaluateParameter(type, value);
+        }
+
+        private static ArgumentParameter EvaluateParameter(string type, string value)
+        {
+            var parameter = new ArgumentParameter();
+            parameter.SetParameter(type, value);
             return parameter;
         }
 
@@ -30,37 +33,36 @@ namespace CryptoScript.Model
 
         public override Statement VisitArgument([NotNull] CryptoScriptParser.ArgumentContext context)
         {
-            var res1 = context.MECHANISM();
-            var res2 = context.functionCall();
-            var res3 = context.ID();
-            var res4 = context.expression();
-            var res5 = context.declareparam();
-            var res6 = context.INFO();
-            
-            if (res1 != null)
+            return EvaluateArgument(AntlrToFunctionCallInitializer.MapArgument(context),
+                context.Parent?.Parent?.GetText().Split('(')[0] ?? string.Empty);
+        }
+
+        private Statement EvaluateArgument(Ast.FunctionCallArgumentNode argument, string functionName)
+        {
+            if (argument is Ast.MechanismArgumentNode mechanism)
             {
                 
                 Mechanism m = new Mechanism();
                 try
                 {
-                    m.SetMechanismValue(res1.GetText());
+                    m.SetMechanismValue(mechanism.RawText);
                 }
                 catch(Exception e)
                 {                    
                     var se=new SemanticError() {Type="Argument:Mechanism" };
-                    se.Message = "Error unknown mechanism: " + res1.GetText();
-                    se.FunctionName = res1.Parent.Parent.Parent.GetText().Split('(')[0];
+                    se.Message = "Error unknown mechanism: " + mechanism.RawText;
+                    se.FunctionName = functionName;
                     se.Message=e.Message;
-                    se.Value = res1.GetText();  
+                    se.Value = mechanism.RawText;
                     SemanticErrors.Add(se);
                     throw new SemanticErrorException() { SemanticError=se };
                 }
                 ArgumentMechanism argMech = new ArgumentMechanism() { Mechanism = m };
                 return argMech;
             }
-            if (res2 != null)
+            if (argument is Ast.NestedCallArgumentNode nestedCall)
             {
-                var fc = VisitFunctionCall(res2) as FunctionCall;
+                var fc = EvaluateFunctionCall(nestedCall.Call) as FunctionCall;
                 if (fc != null && fc.ReturnVariable != null)
                 {
                     var expr = Expression.Create(fc.ReturnVariable.Value);
@@ -69,9 +71,9 @@ namespace CryptoScript.Model
                 }
 
             }
-            if (res3 != null)
+            if (argument is Ast.VariableArgumentNode variable)
             {
-                string Id = res3.GetText();
+                string Id = variable.Identifier;
                 //Id is a variable so
                 if (!VariableDictionary.Instance().Contains(Id))
                 {
@@ -84,19 +86,19 @@ namespace CryptoScript.Model
                 argVar.Id = VariableDictionary.Instance().Get(Id);
                 return argVar;
             }
-            if (res4 != null)
+            if (argument is Ast.LiteralArgumentNode literal)
             {
-                ArgumentExpression argExpr = new ArgumentExpression() { Expr = Expression.Create(res4.GetText()) };
+                ArgumentExpression argExpr = new ArgumentExpression() { Expr = Expression.Create(literal.RawText) };
                 return argExpr;
             }
-            if(res5!=null)
+            if (argument is Ast.ParameterArgumentNode parameter)
             {
 
-                return VisitDeclareparam(res5);
+                return EvaluateParameter(parameter.TypeName, parameter.RawValue);
             }
-            if (res6 != null) 
+            if (argument is Ast.InfoArgumentNode infoNode)
             {
-                ArgumentInfo info = new ArgumentInfo() { InfoType= res6.GetText() };
+                ArgumentInfo info = new ArgumentInfo() { InfoType= infoNode.RawText };
                 return info;
             }
             return new Argument();
@@ -125,7 +127,7 @@ namespace CryptoScript.Model
             Statement? stmt = null;
             if (fcontext != null)
             {
-                stmt = VisitFunctionCall(fcontext);
+                stmt = EvaluateFunctionCall(fcontext);
             }
             if (expression != null)
             {
@@ -202,9 +204,14 @@ namespace CryptoScript.Model
 
         public override Statement VisitFunctionCall([NotNull] CryptoScriptParser.FunctionCallContext context)
         {
+            return EvaluateFunctionCall(AntlrToFunctionCallInitializer.Map(context));
+        }
+
+        private Statement EvaluateFunctionCall(Ast.FunctionCallInitializerNode call)
+        {
             FunctionCall fc = new FunctionCall();
-            string functionName = context.FN().GetText();
-            fc.CallText = context.GetText();
+            string functionName = call.Name;
+            fc.CallText = call.CallText;
             fc.Name = functionName;
             try 
             {
@@ -217,8 +224,8 @@ namespace CryptoScript.Model
                 SemanticErrors.Add(se);
                 throw new SemanticErrorException() { SemanticError=se};
             }
-            var arguments = context.arguments()?.argument();
-            if (arguments == null || arguments.Length == 0)
+            var arguments = call.Arguments;
+            if (arguments.Count == 0)
             {
                 try 
                 {
@@ -237,7 +244,7 @@ namespace CryptoScript.Model
             
             try
             {
-                Statement[] argValues = arguments.Select(arg => Visit(arg)).ToArray();
+                Statement[] argValues = arguments.Select(arg => EvaluateArgument(arg, functionName)).ToArray();
                 fc.Arguments.AddRange(argValues.OfType<Argument>());
                 fc.Call();
                 return fc;

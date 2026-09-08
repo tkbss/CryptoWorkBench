@@ -84,14 +84,16 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
-        public void RetainsFunctionCallWithoutExecutingOrResolvingArguments()
+        public void MapsFunctionCallWithoutExecutingOrResolvingArguments()
         {
             var context = Parse("VAR astResult = Encrypt(astMissingParameter,astMissingKey,0x(1234))");
             var variables = VariableDictionary.Instance().GetVariables().ToArray();
 
             var node = AntlrToVariableDeclaration.Map(context);
 
-            Assert.That(node.FunctionCall, Is.SameAs(context.functionCall()));
+            Assert.That(node.FunctionCall, Is.Not.Null);
+            Assert.That(node.FunctionCall!.Name, Is.EqualTo("Encrypt"));
+            Assert.That(node.FunctionCall.CallText, Is.EqualTo(context.functionCall().GetText()));
             Assert.That(node.Expression, Is.Null);
             Assert.That(node.Parameters, Is.Empty);
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(variables));

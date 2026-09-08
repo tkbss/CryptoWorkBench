@@ -12,7 +12,7 @@ namespace CryptoScript.Model
                 context.ID().GetText(),
                 context.type().GetText(),
                 expression == null ? null : new LiteralInitializerNode(expression.GetText()),
-                context.functionCall(),
+                context.functionCall() is { } call ? AntlrToFunctionCallInitializer.Map(call) : null,
                 Array.AsReadOnly(context.declareparam()),
                 context.tr31Header());
         }
