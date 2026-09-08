@@ -112,91 +112,9 @@ namespace CryptoScript.Model
 
         public override Statement VisitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context)
         {
-            return EvaluateDeclaration(AntlrToVariableDeclaration.Map(context));
-        }
-
-        private Statement EvaluateDeclaration(Ast.VariableDeclarationNode declaration)
-        {
-            string Id = declaration.Identifier;
-            string TypeName = declaration.TypeName;
-            var type = CryptoType.Parse(TypeName);
-            var fcontext = declaration.FunctionCall;
-            var expression = declaration.Expression;
-            var declarParam = declaration.Parameters;
-
-            Statement? stmt = null;
-            if (fcontext != null)
-            {
-                stmt = EvaluateFunctionCall(fcontext);
-            }
-            if (expression != null)
-            {
-                stmt = Expression.Create(expression.RawText);
-            }
-            if(declarParam.Count!=0)
-            {
-                if(!(type is CryptoTypeParameters))
-                {
-                    SemanticError se=new SemanticError() { Type = "Declaration", Identifier = TypeName };
-                    se.Message = "Declaration type mismatch. Expected type : " + "PARAM";
-                    SemanticErrors.Add(se);
-                    throw new SemanticErrorException() { SemanticError=se};
-                }                
-                var mech=declarParam.FirstOrDefault(c => c.RawText.Contains("MECH"));
-                if (mech == null) 
-                {
-                    SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
-                    se.Message = "Type PARAM does not contain element #MECH";
-                    SemanticErrors.Add(se);
-                    throw new SemanticErrorException() { SemanticError = se };
-                }
-                var Parameter = new ParameterVariableDeclaration();
-                Parameter.Mechanism = mech.RawText;
-                for (int i = 0; i < declarParam.Count; i++)
-                {
-                    try
-                    {
-                        // Preserve the former missing-child failure inside this runtime error boundary.
-                        var param = EvaluateParameter(
-                            declarParam[i].TypeName ?? throw new NullReferenceException(),
-                            declarParam[i].RawValue ?? throw new NullReferenceException());
-                        Parameter.SetParameter(param);
-                    }
-                    catch 
-                    {
-                        SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
-                        se.Message = "Error in  parameter declaration : " + declarParam[i].RawText;
-                        SemanticErrors.Add(se);
-                        throw new SemanticErrorException() { SemanticError = se };
-                    }
-                    
-                }
-                Parameter.Id = Id;
-                Parameter.Type = CryptoType.Parse(TypeName);
-                VariableDictionary.Instance().Add(Parameter);
-                stmt = Parameter;
-            }
-            if (stmt is FunctionCall functionCall)
-            {
-                var variable = functionCall.ReturnVariable;                
-                if (variable != null)
-                {
-                    if (variable.Type.GetType() != type.GetType())
-                    {
-                        SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
-                        se.Message = "Declaration type mismatch. Expected type : " + variable.Type.Name;
-                        SemanticErrors.Add(se);
-                        throw new SemanticErrorException() { SemanticError = se };
-                    }                           
-                    variable.Id = Id;
-                    VariableDictionary.Instance().Add(variable);
-                }
-                stmt= variable;
-            }
-            
-            stmt = Expression.BuildVariable(stmt, Id, type);
-            return stmt;
-             
+            var declaration = AntlrToVariableDeclaration.Map(context);
+            return VariableDeclarationEvaluator.Evaluate(
+                declaration, SemanticErrors, EvaluateFunctionCall, EvaluateParameter);
         }
 
         public override Statement VisitExpression([NotNull] CryptoScriptParser.ExpressionContext context)
