@@ -7,8 +7,19 @@ using System.Threading.Tasks;
 
 namespace CryptoScriptUnitTest
 {
+    [NonParallelizable]
     public class SyntaxErrorTests
     {
+        [SetUp]
+        [TearDown]
+        public void ResetErrorState()
+        {
+            SyntaxErrorListner.SyntaxErrorOccured = false;
+            LexerErrorListener.LexerErrorOccured = false;
+            SyntaxErrorListner.ErrorMessage.Clear();
+            SyntaxErrorList.Instance().Clear();
+        }
+
         [Test]
         public void Simple_Syntax_Error() 
         {
@@ -16,15 +27,8 @@ namespace CryptoScriptUnitTest
             string input = "B k5=GenerateKey(AES-ECB,128)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            if (SyntaxErrorListner.SyntaxErrorOccured)
-            {
-                string e=SyntaxErrorListner.ErrorMessage.ToString();
-                SyntaxErrorListner.SyntaxErrorOccured=false;
-
-
-            }
-            else
-                ClassicAssert.Fail();
+            Assert.That(parser.NumberOfSyntaxErrors, Is.GreaterThan(0));
+            Assert.That(SyntaxErrorListner.SyntaxErrorOccured, Is.True);
         }
         [Test]
         public void FunctionName_Syntax_Error()
@@ -33,15 +37,8 @@ namespace CryptoScriptUnitTest
             string input = "KEY k5=generateKey(AES-ECB,128)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            if (SyntaxErrorListner.SyntaxErrorOccured)
-            {
-                string e = SyntaxErrorListner.ErrorMessage.ToString();
-                SyntaxErrorListner.SyntaxErrorOccured = false;
-
-
-            }
-            else
-                ClassicAssert.Fail();
+            Assert.That(parser.NumberOfSyntaxErrors, Is.GreaterThan(0));
+            Assert.That(SyntaxErrorListner.SyntaxErrorOccured, Is.True);
         }
         [Test]
         public void Parameter_Argument_Syntax_Error()
@@ -50,17 +47,8 @@ namespace CryptoScriptUnitTest
             string input = "PARAM p6=Parameters(AES-CTR,#NONC:0x(00112233445566778899AABB),#COU:0x(00000000))";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            if (SyntaxErrorListner.SyntaxErrorOccured)
-            {
-                string e = SyntaxErrorListner.ErrorMessage.ToString();
-                SyntaxErrorListner.SyntaxErrorOccured = false;
-            }
-            else if(LexerErrorListener.LexerErrorOccured)
-            {
-                LexerErrorListener.LexerErrorOccured = false;
-            }
-            else
-                ClassicAssert.Fail();
+            Assert.That(parser.NumberOfSyntaxErrors > 0 || LexerErrorListener.LexerErrorOccured, Is.True);
+            Assert.That(SyntaxErrorList.Instance(), Is.Not.Empty);
             
         }
         [Test]
@@ -70,13 +58,8 @@ namespace CryptoScriptUnitTest
             string input = "KEY k5=GenerateKey(AES-CC,128)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            if (LexerErrorListener.LexerErrorOccured)
-            {
-                LexerErrorListener.LexerErrorOccured = false;
-                var list=SyntaxErrorList.Instance();
-            }
-            else
-                ClassicAssert.Fail();
+            Assert.That(LexerErrorListener.LexerErrorOccured, Is.True);
+            Assert.That(SyntaxErrorList.Instance().OfType<LexerError>(), Is.Not.Empty);
 
         }
 
