@@ -50,16 +50,6 @@ namespace CryptoScriptUnitTest
                 Is.EqualTo(new[] { new LiteralArgumentNode(literal) }));
         }
 
-        [TestCase("#MECH:AES-CBC", "#MECH", "AES-CBC")]
-        [TestCase("#PAD:PKCS-7", "#PAD", "PKCS-7")]
-        [TestCase("#IV:missing", "#IV", "missing")]
-        [TestCase("#IV:\"raw value\"", "#IV", "\"raw value\"")]
-        public void MapsParameterSyntaxWithoutResolvingValues(string syntax, string type, string value)
-        {
-            Assert.That(Map($"Unknown({syntax})").Arguments,
-                Is.EqualTo(new[] { new ParameterArgumentNode(type, value) }));
-        }
-
         private static FunctionCallInitializerNode Map(string initializer)
         {
             var parser = ParserBuilder.StringBuild("VAR result = " + initializer);

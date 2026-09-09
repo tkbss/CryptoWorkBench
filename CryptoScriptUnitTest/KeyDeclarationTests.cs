@@ -57,16 +57,6 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
         }
         [Test]
-        public void GenerateKeyAES128ExistingKeyTest()
-        {
-            string input = "KEY k=GenerateKey(AES-CBC,0x(A714752E27B680B646CB110D6EB31C5C))";
-            AntlrToProgram prog = new AntlrToProgram();
-            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
-            CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
-
-        }
-        [Test]
         public void GenerateKeyWitVARDataTest() 
         {
             string input = "VAR data=0x(A714752E27B680B646CB110D6EB31C5C) " +

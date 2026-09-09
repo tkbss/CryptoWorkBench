@@ -40,12 +40,6 @@ namespace CryptoScriptUnitTest
             Assert.That(tr31blockVar.Value == "\"ExampleString\"0x(ABCD1234)0x(1234567890ABCDEF)");            
         }
         [Test]
-        public void TR31HeaderDeclarationTest() 
-        {
-            string[] fieldNames = new string[] { "KBVID", "KBLEN", "KEYU", "ALGO", "MODEU", "KEYVN", "EXP", "KEYCTX", "NUMOPTB" };
-            string input = "TR31H header={KBVID:D;ALGO:A;KEYU:D0;MODEU:B;KEYVN:00;EXP:E;KEYCTX:0;NUMOPTB:0}";
-        }
-        [Test]
         public void WrapperTR31WrapFunctionTest()
         {
             string input = "KEY kbpk = GenerateKey(AES-CBC,0x(88E1AB2A2E3DD38C1FA039A536500CC8A87AB9D62DC92C01058FA79F44657DE6)) " +

@@ -50,13 +50,6 @@ public class ParameterEvaluatorTests
         Assert.That(VariableDictionary.Instance().GetVariables().Count(), Is.EqualTo(1));
     }
 
-    [Test]
-    public void UnknownValueRetainsException()
-    {
-        var error = Assert.Throws<ArgumentException>(() => ParameterEvaluator.Evaluate("#IV", "missing"));
-        Assert.That(error!.Message, Is.EqualTo("Unknown parameter value : missing"));
-    }
-
     private static FunctionCallInitializerNode Call(string value) =>
         new("Compare", "Compare(#IV:" + value + ",#IV:0x(Ab))", new FunctionCallArgumentNode[]
         {

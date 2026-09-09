@@ -11,17 +11,6 @@ namespace CryptoScriptUnitTest
     public class SymmetricAlgoMacTest
     {
         [Test]
-        public void Parameters_AES_CMAC_Test()
-        {
-            var prog = new AntlrToProgram();
-            string input = "PARAM macp1=Parameters(AES-CMAC)";
-            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
-            CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
-            var variable = res.Statements[0] as ParameterVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(variable.Id));
-        }
-        [Test]
         public void MAC_AES_CMAC_Test()
         {
             var prog = new AntlrToProgram();

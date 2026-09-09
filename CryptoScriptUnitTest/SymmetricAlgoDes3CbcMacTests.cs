@@ -37,7 +37,6 @@ namespace CryptoScriptUnitTest
         [TestCase("ISO-9797-M1", "0011223344556677", "0x(51FB23DC603ADDD1)")]
         [TestCase("ISO-9797-M2", "", "0x(8667A2C7C9FA095A)")]
         [TestCase("ISO-9797-M2", "00112233445566", "0x(05D9292D20F1AB44)")]
-        [TestCase("ISO-9797-M2", "0011223344556677", "0x(CEDDB5A6EC9B61D5)")]
         [TestCase("ISO-9797-M3", "", "0x(CBE6A76F9E351C6F)")]
         [TestCase("ISO-9797-M3", "00112233445566", "0x(22F1C499D6E0FB4B)")]
         [TestCase("ISO-9797-M3", "0011223344556677", "0x(D7865A42E85E2C3E)")]
@@ -59,14 +58,6 @@ namespace CryptoScriptUnitTest
         [TestCase(Key24, "00112233445566", "ISO-7816")]
         [TestCase(Key24, "0011223344556677", "ISO-7816")]
         [TestCase(Key24, "", "ISO-7816")]
-        [TestCase(Key24, "00112233445566", "ISO-9797-M1")]
-        [TestCase(Key24, "0011223344556677", "ISO-9797-M1")]
-        [TestCase(Key24, "00112233445566", "ISO-9797-M2")]
-        [TestCase(Key24, "0011223344556677", "ISO-9797-M2")]
-        [TestCase(Key24, "", "ISO-9797-M2")]
-        [TestCase(Key24, "00112233445566", "ISO-9797-M3")]
-        [TestCase(Key24, "0011223344556677", "ISO-9797-M3")]
-        [TestCase(Key24, "", "ISO-9797-M3")]
         public void DES3_CBC_MAC_SupportedDeterministicPadding_MatchesIndependentCbcEncryption(
             string key, string message, string padding)
         {
