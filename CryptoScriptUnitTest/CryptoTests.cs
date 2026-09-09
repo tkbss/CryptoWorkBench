@@ -7,6 +7,9 @@ using System.Security.Cryptography;
 
 namespace CryptoScriptUnitTest
 {
+    // References for the .NET and BouncyCastle cryptography APIs, not CryptoWorkBench tests.
+    // Failures here do not automatically indicate a CryptoWorkBench defect.
+    [Category("ExternalCrypto")]
     public class CryptoTests
     {
         private static T[] ConcatenateArrays<T>(T[] array1, T[] array2)
@@ -37,12 +40,12 @@ namespace CryptoScriptUnitTest
 
         }
         [Test]
-        public void AES_CBC_EncryptionTest() 
+        public void DotNet_AesCbc_CryptoStream_Pkcs7PaddingAndRoundtrip()
         {
             byte[] encrypted;
             using (Aes aesAlg = Aes.Create())
             {
-                //cbc mode 
+                // CBC with PKCS7: 18 input bytes require two 16-byte ciphertext blocks.
                 aesAlg.Mode = CipherMode.CBC;
                 //set key
                 byte[] keyBytes =  {0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf };
@@ -67,6 +70,9 @@ namespace CryptoScriptUnitTest
                             
                         }                        
                         encrypted = msEncrypt.ToArray();
+                        using var decryptor = aesAlg.CreateDecryptor();
+                        Assert.That(decryptor.TransformFinalBlock(encrypted, 0, encrypted.Length),
+                            Is.EqualTo(input));
                     }
                 }
                 
@@ -74,7 +80,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(encrypted.Length == 32);
         }
         [Test]
-        public void AES_CTR_ENC_Test()
+        public void DotNet_AesEcbBasedCtr_Encryption_MatchesExistingVector()
         {
             byte[] keyBytes = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
             byte[] input = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x0, 0x1, 0x2, 0x3, 0x4, 0x5 };
@@ -110,10 +116,11 @@ namespace CryptoScriptUnitTest
 
                 }
             }
-
+            // Fixed ciphertext already used by the decryption example below.
+            Assert.That(output, Is.EqualTo(Convert.FromHexString("DDFEC9A455E7C25DCD3CD3478484B9BDFD8D")));
         }
         [Test]
-        public void AES_CTR_DEC_Test()
+        public void DotNet_AesEcbBasedCtr_Decryption_MatchesExistingVector()
         {
             byte[] keyBytes = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
             byte[] input = { 0xdd,0xfe,0xc9,0xa4,0x55,0xe7,0xc2,0x5d,0xcd,0x3c,0xd3,0x47,0x84,0x84,0xb9,0xbd,0xfd,0x8d};
@@ -154,7 +161,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.That(output, Is.EqualTo(cleartext));
         }
         [Test]
-        public void AES_ECB_Test() 
+        public void DotNet_AesEcb_NoPadding_Roundtrip()
         {
             byte[] keyBytes = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
             byte[] input = { 0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xAA,0xBB,0xCC,0xDD,0xEE,0xFF };
@@ -184,16 +191,13 @@ namespace CryptoScriptUnitTest
 
         }
         [Test]
-        public void AES_GMAC_Test() 
+        public void BouncyCastle_Gmac_MatchesFixedTag()
         {
-            // AES key
-            byte[] key = new byte[16];
-            Org.BouncyCastle.Security.SecureRandom random = new Org.BouncyCastle.Security.SecureRandom();
-            random.NextBytes(key);
+            // Fixed inputs retain the original authenticated message for a repeatable reference.
+            byte[] key = Convert.FromHexString("000102030405060708090A0B0C0D0E0F");
 
             // 96-bit nonce
-            byte[] nonce = new byte[12];
-            random.NextBytes(nonce);
+            byte[] nonce = Convert.FromHexString("000102030405060708090A0B");
 
             // Data to authenticate
             byte[] dataToAuthenticate = System.Text.Encoding.UTF8.GetBytes("Hello GMAC world!");
@@ -202,8 +206,8 @@ namespace CryptoScriptUnitTest
             // "GMac" class takes a GcmBlockCipher internally, but you configure it for MAC only
             var gMac = new GMac(new GcmBlockCipher(new AesEngine()));
 
-            // In BouncyCastle, you'll pass a GcmParameters or AeadParameters 
-            // with the MAC size in bits.
+            // GMac accepts the AES key and nonce via ParametersWithIV.
+            // This constructor uses a 128-bit tag.
             var parameters = new ParametersWithIV(new KeyParameter(key), nonce);
             gMac.Init(parameters);
 
@@ -212,22 +216,25 @@ namespace CryptoScriptUnitTest
 
             // Output the MAC
             byte[] mac = new byte[16]; // 128 bits
-            gMac.DoFinal(mac, 0);
+            Assert.That(gMac.DoFinal(mac, 0), Is.EqualTo(16));
+            // Independently calculated with .NET AesGcm: empty plaintext, the message
+            // above as associated data, and the same fixed key and 96-bit nonce.
+            Assert.That(mac, Is.EqualTo(Convert.FromHexString("0C14CE9B6406EC11CB62C602B02C7B98")));
         }
         [Test]
-        public void AES_CMAC_Test() 
+        public void DotNet_AesCbc_NoPadding_ConfigurationSmokeTest()
         {
             byte[] keyBytes = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
-            byte[] input = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
-            ClassicAssert.IsTrue(input.Length == 16);
             using (Aes aesAlg = Aes.Create())
             {
-                //CMAC mode
+                // Configuration only: CBC is not CMAC; no MAC is calculated here.
                 aesAlg.Mode = CipherMode.CBC;
                 // No padding
                 aesAlg.Padding = PaddingMode.None;
                 aesAlg.Key = keyBytes;
-                byte[] buffer = new byte[16];
+                Assert.That(aesAlg.Mode, Is.EqualTo(CipherMode.CBC));
+                Assert.That(aesAlg.Padding, Is.EqualTo(PaddingMode.None));
+                Assert.That(aesAlg.Key, Is.EqualTo(keyBytes));
 
             }
         }
