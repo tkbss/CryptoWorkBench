@@ -181,7 +181,7 @@ namespace CryptoScriptUnitTest
             var context = ParserBuilder.StringBuild(script).program();
             Assert.That(SyntaxErrorListner.SyntaxErrorOccured, Is.False);
             Assert.That(LexerErrorListener.LexerErrorOccured, Is.False);
-            new AntlrToProgram().Visit(context);
+            new CryptoScriptRunner().Execute(context);
         }
     }
 }

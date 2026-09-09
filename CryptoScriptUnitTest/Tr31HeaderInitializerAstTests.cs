@@ -29,13 +29,13 @@ namespace CryptoScriptUnitTest
         {
             var context = ParseDeclaration(false);
             var previous = VariableDictionary.Instance().GetVariables().ToArray();
-            var visitor = new AntlrToStatement();
+            var errors = new List<CryptoScript.ErrorListner.SemanticError>();
             var expected = Assert.Throws<Exception>(() => CryptoType.Parse("TR31H"));
 
-            var actual = Assert.Throws<Exception>(() => visitor.VisitDeclaration(context));
+            var actual = Assert.Throws<Exception>(() => StatementEvaluator.Evaluate(AntlrToStatement.Map((CryptoScriptParser.StatementContext)context.Parent), errors));
 
             Assert.That(actual!.Message, Is.EqualTo(expected!.Message));
-            Assert.That(visitor.SemanticErrors, Is.Empty);
+            Assert.That(errors, Is.Empty);
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(previous));
         }
 

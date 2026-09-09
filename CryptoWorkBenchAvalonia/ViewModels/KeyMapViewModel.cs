@@ -21,10 +21,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             string infoCmd = "Info(keymap)";            
             try
             {
-                var prog = new AntlrToProgram();
+                var prog = new CryptoScriptRunner();
                 CryptoScriptParser parser = ParserBuilder.StringBuild(infoCmd);
                 CryptoScriptParser.ProgramContext context = parser.program();
-                var res = prog.Visit(context);
+                var res = prog.Execute(context);
                 
             }
             catch (Exception e)

@@ -7,14 +7,14 @@ namespace CryptoScriptUnitTest
         [Test]
         public void AEAD_AES_GCM_Test()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             string input = "KEY gcmk1=GenerateKey(AES-GCM,256) " +
                 "PARAM gcmp2=Parameters(AES-GCM) " +
                 "VAR gcmc1 = Encrypt(gcmp2,gcmk1,0x(00112233445566778899AABBCCDDEEFF))"+
                 "VAR plaintext=Decrypt(gcmp2,gcmk1,gcmc1)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
             Assert.That(VariableDictionary.Instance().Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
@@ -27,14 +27,14 @@ namespace CryptoScriptUnitTest
         [Test]
         public void AEAD_AES_CCM_Test()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             string input = "KEY gcmk1=GenerateKey(AES-GCM,256) " +
                 "PARAM gcmp2=Parameters(AES-CCM) " +
                 "VAR gcmc1 = Encrypt(gcmp2,gcmk1,0x(00112233445566778899AABBCCDDEEFF))" +
                 "VAR plaintext=Decrypt(gcmp2,gcmk1,gcmc1)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
             Assert.That(VariableDictionary.Instance().Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;

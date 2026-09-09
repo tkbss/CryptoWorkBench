@@ -223,21 +223,25 @@ public class FunctionCallEvaluatorTests
     [TestCase("function")]
     [TestCase("argument")]
     [TestCase("declaration")]
-    public void VisitorUsesReassignedErrorList(string entry)
+    public void EvaluationUsesSuppliedErrorList(string entry)
     {
-        var visitor = new AntlrToStatement();
-        var original = visitor.SemanticErrors;
-        visitor.SemanticErrors = errors;
         var parser = ParserBuilder.StringBuild("VAR result = Compare(missing)");
         var declaration = parser.program().statement(0).declaration();
         Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
         var error = Assert.Throws<SemanticErrorException>(() =>
         {
-            if (entry == "function") visitor.VisitFunctionCall(declaration.functionCall());
-            else if (entry == "argument") visitor.VisitArgument(declaration.functionCall().arguments().argument(0));
-            else visitor.VisitDeclaration(declaration);
+            if (entry == "function")
+                FunctionCallEvaluator.EvaluateFunctionCall(
+                    AntlrToFunctionCallInitializer.Map(declaration.functionCall()), errors);
+            else if (entry == "argument")
+                FunctionCallEvaluator.EvaluateArgument(
+                    AntlrToFunctionCallInitializer.MapArgument(declaration.functionCall().arguments().argument(0)),
+                    "Compare", errors);
+            else
+                StatementEvaluator.Evaluate(
+                    AntlrToStatement.Map((CryptoScriptParser.StatementContext)declaration.Parent), errors);
         });
-        Assert.That(original, Is.Empty);
+
         Assert.That(errors.Select(e => e.Type), Is.EqualTo(entry == "argument"
             ? new[] { "Variable" } : new[] { "Variable", "FunctionCall" }));
         Assert.That(errors[^1], Is.SameAs(error!.SemanticError));

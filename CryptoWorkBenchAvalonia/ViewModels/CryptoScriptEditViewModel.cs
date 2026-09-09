@@ -70,7 +70,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         {
             _historyService.AddLine(line);
             _printMessage = string.Empty;
-            var prog = new AntlrToProgram();            
+            var prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(line);
             CryptoScriptParser.ProgramContext context = parser.program();
             _statusViewModel.StatusString =string.Empty;
@@ -87,7 +87,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 _statusViewModel.StatusString = "Line successfull parsed";
                 try
                 {
-                    var res = prog.Visit(context);
+                    var res = prog.Execute(context);
                     _variableViewModel.SetupVariables();
                     _syntaxErrorOccured = false;
                 }

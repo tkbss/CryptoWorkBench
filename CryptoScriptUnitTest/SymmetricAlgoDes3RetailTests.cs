@@ -174,7 +174,7 @@ namespace CryptoScriptUnitTest
             var context = parser.program();
             SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
             LexerErrorListener.LexerErrorOccured.Should().BeFalse();
-            return new AntlrToProgram().Visit(context);
+            return new CryptoScriptRunner().Execute(context);
         }
     }
 }

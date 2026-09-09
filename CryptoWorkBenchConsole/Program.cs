@@ -8,7 +8,7 @@ namespace CryptoWorkBenchConsole
         static void Main(string[] args)
         {
             
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             string[] input = CreateInput();
             foreach (string inputItem in input)
             {
@@ -20,7 +20,7 @@ namespace CryptoWorkBenchConsole
                 parser.RemoveErrorListeners();
                 parser.AddErrorListener(new BaseErrorListener());
                 CryptoScriptParser.ProgramContext context = parser.program();
-                var res = prog.Visit(context);
+                var res = prog.Execute(context);
             }
         }
         private static string[] CreateInput()

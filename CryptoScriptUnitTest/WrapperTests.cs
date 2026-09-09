@@ -31,10 +31,10 @@ namespace CryptoScriptUnitTest
         {
             string input = "VAR v1= \"ExampleString\"0x(ABCD1234)0x(1234567890ABCDEF)";
                            
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);            
+            var res = prog.Execute(context);
             var tr31blockVar = res.Statements[0] as StringVariableDeclaration;
             Assert.That(tr31blockVar.Id == "v1");
             Assert.That(tr31blockVar.Value == "\"ExampleString\"0x(ABCD1234)0x(1234567890ABCDEF)");            
@@ -46,10 +46,10 @@ namespace CryptoScriptUnitTest
                            "KEY ik=GenerateKey(AES-CBC,0x(3F419E1CB7079442AA37474C2EFBF8B8)) " +
                            "PARAM p=#BLKH:\"D0112P0AE00E0000\" #MECH:WRAP-AES-TR31 #RND:0x(1C2965473CE206BB855B01533782)" +
                            "VAR block=Wrap(p,kbpk,ik)";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var tr31blockVar=res.Statements[3] as StringVariableDeclaration;
             TR31String tr31block = TR31String.FromString(tr31blockVar.Value);
@@ -64,10 +64,10 @@ namespace CryptoScriptUnitTest
                            "VAR tr31Blk=\"D0112P0AE00E0000\"0x(B82679114F470F540165EDFBF7E250FCEA43F810D215F8D207E2E417C07156A2)0x(7E8E31DA05F7425509593D03A457DC34)" +
                            "PARAM p=#MECH:WRAP-AES-TR31" +
                            "KEY ik=Unwrap(p,kbpk,tr31Blk)";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
             Assert.That(ik.KeyValue.ToUpper() == "0x(3F419E1CB7079442AA37474C2EFBF8B8)".ToUpper());
@@ -81,10 +81,10 @@ namespace CryptoScriptUnitTest
                            "VAR tr31Blk=\"D0112P0AE00E0000B82679114F470F540165EDFBF7E250FCEA43F810D215F8D207E2E417C07156A27E8E31DA05F7425509593D03A457DC34\"" +
                            "PARAM p=#MECH:WRAP-AES-TR31" +
                            "KEY ik=Unwrap(p,kbpk,tr31Blk)";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
             Assert.That(ik.KeyValue.ToUpper() == "0x(3F419E1CB7079442AA37474C2EFBF8B8)".ToUpper());
@@ -99,10 +99,10 @@ namespace CryptoScriptUnitTest
                 "KEY kbpk = GenerateKey(AES-CBC,0x(FA36E44278DB3AB5F298F9F7DA8F1F88)) " +
                 "PARAM p=#MECH:WRAP-AES-TR31" +
                 "KEY ik=Unwrap(p,kbpk,block)";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
             string partRSAKey="308204a40201000282010100d6c460fb012e8dedf2d78574b451e9bf1c69";

@@ -13,10 +13,10 @@ namespace CryptoScriptUnitTest
         public void GeneratePredefinedAES256KBPKTest()
         {
             string input = "KEY kbpk=GenerateKey(AES-CBC,0x(EF0BA217D99A6D7033227079B3C3F5B16E31E828659AE1A6B5A757C2D8D20133))";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var statement = res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             ClassicAssert.IsTrue(res.Statements.Count == 1);
@@ -27,10 +27,10 @@ namespace CryptoScriptUnitTest
         {
             string input = "KEY kbpk=GenerateKey(AES-CBC,0x(EF0BA217D99A6D7033227079B3C3F5B16E31E828659AE1A6B5A757C2D8D20133)) " +
                             "KEY ik=GenerateKey(AES-CBC,0x(A714752E27B680B646CB110D6EB31C5C))";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var statement = res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             ClassicAssert.IsTrue(res.Statements.Count == 2);
@@ -40,10 +40,10 @@ namespace CryptoScriptUnitTest
         public void GenerateKeyRandomAES128_Test()
         {
             string input = "KEY key2=GenerateKey(AES-CBC,128)";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var statement = res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             ClassicAssert.IsTrue(res.Statements.Count == 1);
@@ -61,10 +61,10 @@ namespace CryptoScriptUnitTest
         {
             string input = "VAR data=0x(A714752E27B680B646CB110D6EB31C5C) " +
                            "KEY k=GenerateKey(AES-CBC,data)";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var statement = res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             ClassicAssert.IsTrue(res.Statements.Count == 2);

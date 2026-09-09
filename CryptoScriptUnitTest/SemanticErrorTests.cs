@@ -26,10 +26,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Argument_Wrong_number_KeyGeneration_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("KEY k=GenerateKey(128)");
 
-            var error = Assert.Throws<SemanticErrorException>(() => prog.Visit(context));
+            var error = Assert.Throws<SemanticErrorException>(() => prog.Execute(context));
 
             Assert.That(error!.SemanticError, Is.Not.Null);
             Assert.That(error.SemanticError!.Type, Is.EqualTo("FunctionCall"));
@@ -41,10 +41,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Argument_Wrong_number_Parameters_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("PARAM p11=Parameters()");
 
-            var error = Assert.Throws<SemanticErrorException>(() => prog.Visit(context));
+            var error = Assert.Throws<SemanticErrorException>(() => prog.Execute(context));
 
             Assert.That(error!.SemanticError, Is.Not.Null);
             Assert.That(error.SemanticError!.Type, Is.EqualTo("FunctionCall"));
@@ -56,10 +56,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Semantic_Parameter_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("PARAM p=Parameters(#PAD:YYY)");
 
-            var error = Assert.Throws<SemanticErrorException>(() => prog.Visit(context));
+            var error = Assert.Throws<SemanticErrorException>(() => prog.Execute(context));
 
             Assert.That(error!.SemanticError, Is.Not.Null);
             Assert.That(error.SemanticError!.Type, Is.EqualTo("FunctionCall"));
@@ -71,10 +71,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Unknown_function_declaration_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("PARAM P=GenerateParameters()");
 
-            var error = Assert.Throws<SemanticErrorException>(() => prog.Visit(context));
+            var error = Assert.Throws<SemanticErrorException>(() => prog.Execute(context));
 
             Assert.That(error!.SemanticError, Is.Not.Null);
             Assert.That(error.SemanticError!.Type, Is.EqualTo("FunctionCall"));
@@ -86,10 +86,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Unknown_function_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("Unknown()");
 
-            var error = Assert.Throws<SemanticErrorException>(() => prog.Visit(context));
+            var error = Assert.Throws<SemanticErrorException>(() => prog.Execute(context));
 
             Assert.That(error!.SemanticError, Is.Not.Null);
             Assert.That(error.SemanticError!.Type, Is.EqualTo("FunctionCall"));
@@ -101,10 +101,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Wrong_Declaration_Type_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("VAR k2=GenerateKey(AES-CBC,128)");
 
-            var error = Assert.Throws<SemanticErrorException>(() => prog.Visit(context));
+            var error = Assert.Throws<SemanticErrorException>(() => prog.Execute(context));
 
             Assert.That(error!.SemanticError, Is.Not.Null);
             Assert.That(error.SemanticError!.Type, Is.EqualTo("Declaration"));
@@ -116,10 +116,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Wrong_Parameter_Declaration_Type_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("KEY p11 = #MECH:AES-CTR #NONCE:0x(00112233445566778899AABB) #COUNTER:0x(00000000) #PAD:PKCS-7 #IV:0x(12345678)");
 
-            var error = Assert.Throws<SemanticErrorException>(() => prog.Visit(context));
+            var error = Assert.Throws<SemanticErrorException>(() => prog.Execute(context));
 
             Assert.That(error!.SemanticError, Is.Not.Null);
             Assert.That(error.SemanticError!.Type, Is.EqualTo("Declaration"));
@@ -131,10 +131,10 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Variable_Redeclaration_ReplacesRegisteredDeclaration()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var context = Parse("KEY k1=GenerateKey(AES-CBC,128) VAR k1=0x(123)");
 
-            var result = prog.Visit(context);
+            var result = prog.Execute(context);
 
             Assert.That(prog.SemanticErrors, Is.Empty);
             Assert.That(result.Statements, Has.Count.EqualTo(2));

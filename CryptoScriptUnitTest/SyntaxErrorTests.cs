@@ -23,7 +23,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Simple_Syntax_Error() 
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             string input = "B k5=GenerateKey(AES-ECB,128)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -33,7 +33,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void FunctionName_Syntax_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             string input = "KEY k5=generateKey(AES-ECB,128)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -43,7 +43,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Parameter_Argument_Syntax_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             string input = "PARAM p6=Parameters(AES-CTR,#NONC:0x(00112233445566778899AABB),#COU:0x(00000000))";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -54,7 +54,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Mechanism_Syntax_Error()
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             string input = "KEY k5=GenerateKey(AES-CC,128)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();

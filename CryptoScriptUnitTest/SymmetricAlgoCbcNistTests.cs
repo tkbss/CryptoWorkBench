@@ -64,7 +64,7 @@ namespace CryptoScriptUnitTest
             string expectedCipherHex)
         {
             
-            var prog = new AntlrToProgram();            
+            var prog = new CryptoScriptRunner();
             var input =
                 $"KEY k=GenerateKey(AES-CBC,{keyHex}) " +
                 $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{ivHex},#PAD:NONE) " +
@@ -74,7 +74,7 @@ namespace CryptoScriptUnitTest
             var parser = ParserBuilder.StringBuild(input);
             var context = parser.program();
             SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse("Syntax errors occurred during parsing.");
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
 
             // Assert (gleiches Muster wie in deinem AEAD-Template, nur mit FluentAssertions)
             var keyVar = res.Statements[0].Should().BeOfType<KeyVariableDeclaration>().Subject;
@@ -98,7 +98,7 @@ namespace CryptoScriptUnitTest
             string plaintextHex,
             string expectedCipherHex)
         {
-            var prog = new AntlrToProgram();
+            var prog = new CryptoScriptRunner();
             var input =
                 $"KEY k=GenerateKey(AES-CBC,{keyHex}) " +
                 $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{ivHex},#PAD:NONE) " +
@@ -108,7 +108,7 @@ namespace CryptoScriptUnitTest
             // Act
             var parser = ParserBuilder.StringBuild(input);
             var context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
 
             // Assert
             var ptVar = res.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject;
@@ -136,7 +136,7 @@ namespace CryptoScriptUnitTest
             // Durchgang 1: exakt NIST-Plaintext (4 Blöcke)
             // ------------------------------------------------------------
             VariableDictionary.Instance().Clear();
-            var prog1 = new AntlrToProgram();
+            var prog1 = new CryptoScriptRunner();
 
             var input1 =
                 $"KEY k=GenerateKey(AES-CBC,{keyHex}) " +
@@ -147,7 +147,7 @@ namespace CryptoScriptUnitTest
             var parser1 = ParserBuilder.StringBuild(input1);
             var ctx1 = parser1.program();
             SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
-            var res1 = prog1.Visit(ctx1);
+            var res1 = prog1.Execute(ctx1);
 
             var cVar1 = res1.Statements[2].Should().BeOfType<StringVariableDeclaration>().Subject;
             var ptVar1 = res1.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject;
@@ -173,7 +173,7 @@ namespace CryptoScriptUnitTest
             // Durchgang 2: NIST-Plaintext + 0xAB
             // ------------------------------------------------------------
             VariableDictionary.Instance().Clear();
-            var prog2 = new AntlrToProgram();
+            var prog2 = new CryptoScriptRunner();
             var plaintextPlusAb =
                 plaintextHex.TrimEnd(')') + "AB)";
             var input2 =
@@ -185,7 +185,7 @@ namespace CryptoScriptUnitTest
             var parser2 = ParserBuilder.StringBuild(input2);
             var ctx2 = parser2.program();
             SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
-            var res2 = prog2.Visit(ctx2);
+            var res2 = prog2.Execute(ctx2);
 
             var cVar2 = res2.Statements[2].Should().BeOfType<StringVariableDeclaration>().Subject;
             var ptVar2 = res2.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject;

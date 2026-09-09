@@ -117,23 +117,22 @@ public class ParameterEvaluatorTests
 
     [TestCase("0x(Ab)")]
     [TestCase("missing")]
-    public void DeclareparamVisitorPreservesEvaluationAndErrors(string value)
+    public void MappedParameterPreservesEvaluationAndErrors(string value)
     {
         var parser = ParserBuilder.StringBuild("#IV:" + value);
         var context = parser.declareparam();
         Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
-        var visitor = new AntlrToStatement();
+        var node = AntlrToParameterInitializer.Map(context);
         if (value == "missing")
         {
-            var error = Assert.Throws<ArgumentException>(() => visitor.VisitDeclareparam(context));
+            var error = Assert.Throws<ArgumentException>(() => ParameterEvaluator.Evaluate(node.TypeName!, node.RawValue!));
             Assert.That(error!.Message, Is.EqualTo("Unknown parameter value : missing"));
         }
         else
         {
-            var result = (ArgumentParameter)visitor.VisitDeclareparam(context);
+            var result = ParameterEvaluator.Evaluate(node.TypeName!, node.RawValue!);
             Assert.That(result.Type, Is.EqualTo("#IV"));
             Assert.That(result.Value, Is.EqualTo(value));
         }
-        Assert.That(visitor.SemanticErrors, Is.Empty);
     }
 }

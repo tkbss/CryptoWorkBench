@@ -61,7 +61,7 @@ namespace CryptoScriptUnitTest
 
                 VariableDeclaration? actual = null;
                 var actualError = CaptureException(() =>
-                    actual = (VariableDeclaration)new AntlrToStatement().VisitDeclaration(context));
+                    actual = (VariableDeclaration)StatementEvaluator.Evaluate(AntlrToStatement.Map((CryptoScriptParser.StatementContext)context.Parent), new())!);
 
                 Assert.That(actualError?.GetType(), Is.EqualTo(expectedError?.GetType()));
                 Assert.That(actualError?.Message, Is.EqualTo(expectedError?.Message));

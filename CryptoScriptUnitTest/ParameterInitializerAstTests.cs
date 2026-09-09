@@ -18,12 +18,12 @@ namespace CryptoScriptUnitTest
 
             // ANTLR recovery leaves an empty declareparam context for the incomplete suffix.
             Assert.That(node.Parameters[1], Is.EqualTo(new ParameterInitializerNode(null, null, "")));
-            var visitor = new AntlrToStatement();
+            var errors = new List<CryptoScript.ErrorListner.SemanticError>();
             var error = Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(
-                () => visitor.VisitDeclaration(context));
+                () => StatementEvaluator.Evaluate(AntlrToStatement.Map((CryptoScriptParser.StatementContext)context.Parent), errors));
             Assert.That(error!.SemanticError.Type, Is.EqualTo("Declaration"));
             Assert.That(error.SemanticError.Message, Is.EqualTo("Error in  parameter declaration : "));
-            Assert.That(visitor.SemanticErrors.Single(), Is.SameAs(error.SemanticError));
+            Assert.That(errors.Single(), Is.SameAs(error.SemanticError));
         }
 
         [TestCase("#MECH : AES-CBC", "#MECH", "AES-CBC")]

@@ -200,18 +200,17 @@ public class VariableDeclarationEvaluatorTests
 
     [TestCase("VAR result = #MECH:AES-CBC", "Declaration")]
     [TestCase("VAR result = Unknown()", "FunctionCall")]
-    public void VisitorUsesReassignedErrorList(string source, string expectedType)
+    public void EvaluationUsesSuppliedErrorList(string source, string expectedType)
     {
-        var visitor = new AntlrToStatement();
-        var original = visitor.SemanticErrors;
         var existing = new SemanticError { Message = "existing" };
         errors.Add(existing);
-        visitor.SemanticErrors = errors;
+
         var parser = ParserBuilder.StringBuild(source);
         var declaration = parser.program().statement(0).declaration();
         Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
-        var error = Assert.Throws<SemanticErrorException>(() => visitor.VisitDeclaration(declaration));
-        Assert.That(original, Is.Empty);
+        var error = Assert.Throws<SemanticErrorException>(() => StatementEvaluator.Evaluate(
+            AntlrToStatement.Map((CryptoScriptParser.StatementContext)declaration.Parent), errors));
+
         Assert.That(errors, Has.Count.EqualTo(2));
         Assert.That(errors[0], Is.SameAs(existing));
         Assert.That(errors[1], Is.SameAs(error!.SemanticError));

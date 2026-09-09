@@ -14,11 +14,11 @@ namespace CryptoScriptUnitTest
         [Test]
         public void DefaultParameters_AES_CCM_Test()
         {
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             string input = "PARAM p1=Parameters(AES-CCM)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var statement = res.Statements.FirstOrDefault();
             var variable = statement as ParameterVariableDeclaration;
             Assert.That(variable.GetParameter("MECH") == "AES-CCM");
@@ -26,11 +26,11 @@ namespace CryptoScriptUnitTest
         [Test]
         public void DefaultParameters_AES_CBC_Test()
         {
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             string input = "PARAM p1=Parameters(AES-CBC)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var statement = res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             Assert.That(res.Statements.Count == 1);
@@ -49,10 +49,10 @@ namespace CryptoScriptUnitTest
         public void Default_Parameters_AES_CTR_Test()
         {
             string input = "PARAM p6=Parameters(#MECH:AES-CTR,#NONCE:0x(00112233445566778899AABB),#COUNTER:0x(00000000))";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             ClassicAssert.IsTrue(res.Statements.Count == 1);
             var variable = res.Statements[0] as ParameterVariableDeclaration;
             ClassicAssert.IsTrue(variable.Value.Contains("AES-CTR"));
@@ -66,10 +66,10 @@ namespace CryptoScriptUnitTest
         public void Default_Parameters_AES_GCM_Test()
         {
             string input = "PARAM p6=Parameters(#MECH:AES-GCM)";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             ClassicAssert.IsTrue(res.Statements.Count == 1);
             var variable = res.Statements[0] as ParameterVariableDeclaration;
             Assert.That(variable.Value.Contains("AES-GCM"));           
@@ -81,10 +81,10 @@ namespace CryptoScriptUnitTest
         public void Default_Parameters_AES_CBC_Test()
         {
             string input = "PARAM p2=Parameters(AES-CBC,#PAD:PKCS-7,#IV:0x(12345678))";
-            AntlrToProgram prog = new AntlrToProgram();
+            CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
-            var res = prog.Visit(context);
+            var res = prog.Execute(context);
             var statement = res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             ClassicAssert.IsTrue(res.Statements.Count == 1);
