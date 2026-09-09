@@ -16,14 +16,7 @@ namespace CryptoScript.Model
         {
             var type=context.GetChild(0).GetText();
             var value=context.GetChild(2).GetText();
-            return EvaluateParameter(type, value);
-        }
-
-        private static ArgumentParameter EvaluateParameter(string type, string value)
-        {
-            var parameter = new ArgumentParameter();
-            parameter.SetParameter(type, value);
-            return parameter;
+            return ParameterEvaluator.Evaluate(type, value);
         }
 
         public AntlrToStatement()
@@ -34,7 +27,7 @@ namespace CryptoScript.Model
         public override Statement VisitArgument([NotNull] CryptoScriptParser.ArgumentContext context)
         {
             return FunctionCallEvaluator.EvaluateArgument(AntlrToFunctionCallInitializer.MapArgument(context),
-                context.Parent?.Parent?.GetText().Split('(')[0] ?? string.Empty, SemanticErrors, EvaluateParameter);
+                context.Parent?.Parent?.GetText().Split('(')[0] ?? string.Empty, SemanticErrors);
         }
 
         public override Statement VisitArguments([NotNull] CryptoScriptParser.ArgumentsContext context)
@@ -48,8 +41,7 @@ namespace CryptoScript.Model
             var declaration = AntlrToVariableDeclaration.Map(context);
             return VariableDeclarationEvaluator.Evaluate(
                 declaration, SemanticErrors,
-                call => FunctionCallEvaluator.EvaluateFunctionCall(call, SemanticErrors, EvaluateParameter),
-                EvaluateParameter);
+                call => FunctionCallEvaluator.EvaluateFunctionCall(call, SemanticErrors));
         }
 
         public override Statement VisitExpression([NotNull] CryptoScriptParser.ExpressionContext context)
@@ -61,7 +53,7 @@ namespace CryptoScript.Model
         public override Statement VisitFunctionCall([NotNull] CryptoScriptParser.FunctionCallContext context)
         {
             return FunctionCallEvaluator.EvaluateFunctionCall(
-                AntlrToFunctionCallInitializer.Map(context), SemanticErrors, EvaluateParameter);
+                AntlrToFunctionCallInitializer.Map(context), SemanticErrors);
         }
 
         public override Statement VisitStatement([NotNull] CryptoScriptParser.StatementContext context)

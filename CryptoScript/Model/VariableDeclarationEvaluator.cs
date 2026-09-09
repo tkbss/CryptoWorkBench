@@ -9,6 +9,12 @@ namespace CryptoScript.Model
         public static Statement Evaluate(
             VariableDeclarationNode declaration,
             List<SemanticError> semanticErrors,
+            Func<FunctionCallInitializerNode, Statement> evaluateFunctionCall) =>
+            Evaluate(declaration, semanticErrors, evaluateFunctionCall, ParameterEvaluator.Evaluate);
+
+        public static Statement Evaluate(
+            VariableDeclarationNode declaration,
+            List<SemanticError> semanticErrors,
             Func<FunctionCallInitializerNode, Statement> evaluateFunctionCall,
             Func<string, string, ArgumentParameter> evaluateParameter)
         {
