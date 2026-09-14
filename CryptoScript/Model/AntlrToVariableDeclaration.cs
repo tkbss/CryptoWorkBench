@@ -11,8 +11,8 @@ namespace CryptoScript.Model
             return new VariableDeclarationNode(
                 context.ID().GetText(),
                 context.type().GetText(),
-                expression == null ? null : new LiteralInitializerNode(expression.GetText()),
-                context.functionCall() is { } call ? AntlrToFunctionCallInitializer.Map(call) : null,
+                expression != null ? new LiteralInitializerNode(expression.GetText()) :
+                    context.functionCall() is { } call ? AntlrToFunctionCallExpression.Map(call) : null,
                 Array.AsReadOnly(context.declareparam().Select(AntlrToParameterInitializer.Map).ToArray()),
                 context.tr31Header() is { } header ? new Tr31HeaderInitializerNode(header.GetText()) : null);
         }

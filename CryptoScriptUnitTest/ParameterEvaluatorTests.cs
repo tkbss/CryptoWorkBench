@@ -50,14 +50,14 @@ public class ParameterEvaluatorTests
         Assert.That(VariableDictionary.Instance().GetVariables().Count(), Is.EqualTo(1));
     }
 
-    private static FunctionCallInitializerNode Call(string value) =>
+    private static FunctionCallExpressionNode Call(string value) =>
         new("Compare", "Compare(#IV:" + value + ",#IV:0x(Ab))", new FunctionCallArgumentNode[]
         {
             new ParameterArgumentNode("#IV", value), new ParameterArgumentNode("#IV", "0x(Ab)")
         });
 
     private static VariableDeclarationNode Declaration(string? value) =>
-        new("result", "PARAM", null, null, new[]
+        new("result", "PARAM", null, new[]
         {
             new ParameterInitializerNode("#MECH", "AES-CBC", "#MECH:AES-CBC"),
             new ParameterInitializerNode("#IV", value, "#IV:" + value)

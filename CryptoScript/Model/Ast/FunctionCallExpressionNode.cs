@@ -1,9 +1,9 @@
 namespace CryptoScript.Model.Ast
 {
-    public sealed record FunctionCallInitializerNode(
+    public sealed record FunctionCallExpressionNode(
         string Name,
         string CallText,
-        IReadOnlyList<FunctionCallArgumentNode> Arguments);
+        IReadOnlyList<FunctionCallArgumentNode> Arguments) : ExpressionNode;
 
     public abstract record FunctionCallArgumentNode;
     public sealed record MechanismArgumentNode(string RawText) : FunctionCallArgumentNode;
@@ -11,6 +11,6 @@ namespace CryptoScript.Model.Ast
     public sealed record LiteralArgumentNode(string RawText) : FunctionCallArgumentNode;
     public sealed record ParameterArgumentNode(string TypeName, string RawValue) : FunctionCallArgumentNode;
     public sealed record InfoArgumentNode(string RawText) : FunctionCallArgumentNode;
-    public sealed record NestedCallArgumentNode(FunctionCallInitializerNode Call) : FunctionCallArgumentNode;
+    public sealed record NestedCallArgumentNode(FunctionCallExpressionNode Call) : FunctionCallArgumentNode;
     public sealed record EmptyArgumentNode : FunctionCallArgumentNode;
 }

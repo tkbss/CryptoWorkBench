@@ -2,11 +2,11 @@ using CryptoScript.Model.Ast;
 
 namespace CryptoScript.Model
 {
-    public static class AntlrToFunctionCallInitializer
+    public static class AntlrToFunctionCallExpression
     {
-        public static FunctionCallInitializerNode Map(CryptoScriptParser.FunctionCallContext context)
+        public static FunctionCallExpressionNode Map(CryptoScriptParser.FunctionCallContext context)
         {
-            return new FunctionCallInitializerNode(
+            return new FunctionCallExpressionNode(
                 context.FN().GetText(), context.GetText(),
                 Array.AsReadOnly(context.arguments()?.argument().Select(MapArgument).ToArray()
                     ?? Array.Empty<FunctionCallArgumentNode>()));

@@ -6,5 +6,5 @@ namespace CryptoScript.Model.Ast
         VariableDeclarationNode Declaration, string RawText) : StatementNode;
 
     public sealed record FunctionCallStatementNode(
-        FunctionCallInitializerNode Call) : StatementNode;
+        FunctionCallExpressionNode Call) : StatementNode;
 }

@@ -122,12 +122,12 @@ public class StatementExecutionTests
     {
         var errors = new List<SemanticError>();
         var declaration = new VariableDeclarationNode("value", "VAR",
-            new LiteralInitializerNode("\"a\\n b\""), null, Array.Empty<ParameterInitializerNode>(), null);
+            new LiteralInitializerNode("\"a\\n b\""), Array.Empty<ParameterInitializerNode>(), null);
         var result = (VariableDeclaration)StatementEvaluator.Evaluate(
             new VariableDeclarationStatementNode(declaration, "declaration raw text"), errors)!;
         Assert.That(result.Text, Is.EqualTo("declaration raw text"));
         Assert.That(result.Value, Is.EqualTo("\"a\\n b\""));
-        var call = new FunctionCallInitializerNode("Print", "call raw text",
+        var call = new FunctionCallExpressionNode("Print", "call raw text",
             new FunctionCallArgumentNode[] { new VariableArgumentNode("value") });
         var executed = (FunctionCall)StatementEvaluator.Evaluate(new FunctionCallStatementNode(call), errors)!;
         Assert.That(executed.Text, Is.Empty);

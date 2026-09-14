@@ -6,8 +6,7 @@ namespace CryptoScript.Model.Ast
     public sealed record VariableDeclarationNode(
         string Identifier,
         string TypeName,
-        LiteralInitializerNode? Expression,
-        FunctionCallInitializerNode? FunctionCall,
+        ExpressionNode? Initializer,
         IReadOnlyList<ParameterInitializerNode> Parameters,
         Tr31HeaderInitializerNode? Tr31Header);
 }

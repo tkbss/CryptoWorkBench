@@ -9,28 +9,26 @@ namespace CryptoScript.Model
         public static Statement Evaluate(
             VariableDeclarationNode declaration,
             List<SemanticError> semanticErrors,
-            Func<FunctionCallInitializerNode, Statement> evaluateFunctionCall) =>
+            Func<FunctionCallExpressionNode, Statement> evaluateFunctionCall) =>
             Evaluate(declaration, semanticErrors, evaluateFunctionCall, ParameterEvaluator.Evaluate);
 
         public static Statement Evaluate(
             VariableDeclarationNode declaration,
             List<SemanticError> semanticErrors,
-            Func<FunctionCallInitializerNode, Statement> evaluateFunctionCall,
+            Func<FunctionCallExpressionNode, Statement> evaluateFunctionCall,
             Func<string, string, ArgumentParameter> evaluateParameter)
         {
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
             var type = CryptoType.Parse(TypeName);
-            var fcontext = declaration.FunctionCall;
-            var expression = declaration.Expression;
             var declarParam = declaration.Parameters;
 
             Statement? stmt = null;
-            if (fcontext != null)
+            if (declaration.Initializer is FunctionCallExpressionNode call)
             {
-                stmt = evaluateFunctionCall(fcontext);
+                stmt = evaluateFunctionCall(call);
             }
-            if (expression != null)
+            if (declaration.Initializer is LiteralInitializerNode expression)
             {
                 stmt = Expression.Create(expression.RawText);
             }

@@ -28,9 +28,9 @@ public class VariableDeclarationEvaluatorTests
     }
 
     private static VariableDeclarationNode Node(string type = "VAR") =>
-        new("result", type, null, null, Array.Empty<ParameterInitializerNode>(), null);
+        new("result", type, null, Array.Empty<ParameterInitializerNode>(), null);
 
-    private static FunctionCallInitializerNode Call() =>
+    private static FunctionCallExpressionNode Call() =>
         new("Unknown", "Unknown()", Array.Empty<FunctionCallArgumentNode>());
 
     private static ArgumentParameter Parameter(string type, string value)
@@ -41,7 +41,7 @@ public class VariableDeclarationEvaluatorTests
     }
 
     private Statement Evaluate(VariableDeclarationNode node,
-        Func<FunctionCallInitializerNode, Statement>? call = null,
+        Func<FunctionCallExpressionNode, Statement>? call = null,
         Func<string, string, ArgumentParameter>? parameter = null) =>
         VariableDeclarationEvaluator.Evaluate(node, errors,
             call ?? (_ => throw new AssertionException("Unexpected function evaluation")),
@@ -52,7 +52,7 @@ public class VariableDeclarationEvaluatorTests
     {
         var result = (VariableDeclaration)Evaluate(Node() with
         {
-            Expression = new LiteralInitializerNode("0x(AbCd)")
+            Initializer = new LiteralInitializerNode("0x(AbCd)")
         });
         Assert.That(result.Value, Is.EqualTo("0x(AbCd)"));
         Assert.That(result.Type, Is.TypeOf<CryptoTypeVar>());
@@ -94,7 +94,7 @@ public class VariableDeclarationEvaluatorTests
         var initializer = Call();
         var returned = new StringVariableDeclaration { Id = "old", Type = new CryptoTypeVar() };
         var count = 0;
-        var result = Evaluate(Node() with { FunctionCall = initializer }, call =>
+        var result = Evaluate(Node() with { Initializer = initializer }, call =>
         {
             count++;
             Assert.That(call, Is.SameAs(initializer));
@@ -114,7 +114,7 @@ public class VariableDeclarationEvaluatorTests
         Exception expected = semantic
             ? new SemanticErrorException { SemanticError = existing }
             : new InvalidOperationException("failure");
-        var actual = Assert.Catch(() => Evaluate(Node() with { FunctionCall = Call() }, _ =>
+        var actual = Assert.Catch(() => Evaluate(Node() with { Initializer = Call() }, _ =>
         {
             errors.Add(existing);
             throw expected;
@@ -159,7 +159,7 @@ public class VariableDeclarationEvaluatorTests
     {
         var returned = new StringVariableDeclaration { Id = "before", Type = new CryptoTypeKey() };
         var error = Assert.Throws<SemanticErrorException>(() => Evaluate(
-            Node() with { FunctionCall = Call() }, _ =>
+            Node() with { Initializer = Call() }, _ =>
             {
                 VariableDictionary.Instance().Add(returned);
                 return new FunctionCall { ReturnVariable = returned };
@@ -179,7 +179,7 @@ public class VariableDeclarationEvaluatorTests
     {
         var node = Node();
         if (kind != 0)
-            node = node with { FunctionCall = Call() };
+            node = node with { Initializer = Call() };
         Assert.That(Evaluate(node, _ => kind == 1 ? new FunctionCall() : null!), Is.Null);
         Assert.That(errors, Is.Empty);
         Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
@@ -191,7 +191,7 @@ public class VariableDeclarationEvaluatorTests
         var expected = Assert.Throws<Exception>(() => CryptoType.Parse("TR31H"));
         var actual = Assert.Throws<Exception>(() => Evaluate(Node("TR31H") with
         {
-            FunctionCall = Call(), Tr31Header = new Tr31HeaderInitializerNode("{KBVID:D;}")
+            Initializer = Call(), Tr31Header = new Tr31HeaderInitializerNode("{KBVID:D;}")
         }));
         Assert.That(actual!.Message, Is.EqualTo(expected!.Message));
         Assert.That(errors, Is.Empty);

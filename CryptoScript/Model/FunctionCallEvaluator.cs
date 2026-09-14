@@ -5,7 +5,7 @@ namespace CryptoScript.Model
 {
     public static class FunctionCallEvaluator
     {
-        public static Statement EvaluateFunctionCall(Ast.FunctionCallInitializerNode call,
+        public static Statement EvaluateFunctionCall(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors) =>
             EvaluateFunctionCall(call, semanticErrors, ParameterEvaluator.Evaluate);
 
@@ -13,7 +13,7 @@ namespace CryptoScript.Model
             List<SemanticError> semanticErrors) =>
             EvaluateArgument(argument, functionName, semanticErrors, ParameterEvaluator.Evaluate);
 
-        public static Statement EvaluateFunctionCall(Ast.FunctionCallInitializerNode call,
+        public static Statement EvaluateFunctionCall(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter)
         {
             FunctionCall fc = new FunctionCall();

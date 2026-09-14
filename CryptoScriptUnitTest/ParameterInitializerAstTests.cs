@@ -45,14 +45,13 @@ namespace CryptoScriptUnitTest
                 new ParameterInitializerNode(type, value, type + ":" + value)
             }));
             Assert.That(node.Parameters[0].RawText, Is.EqualTo(declaration.declareparam(0).GetText()));
-            Assert.That(node.Expression, Is.Null);
-            Assert.That(node.FunctionCall, Is.Null);
+            Assert.That(node.Initializer, Is.Null);
             Assert.That(node.Tr31Header, Is.Null);
 
             // The existing function-call AST and its parameter mapping remain unchanged.
-            var direct = AntlrToVariableDeclaration.Map(Parse("VAR astCall = Unknown(" + syntax + ")")).FunctionCall!;
+            var direct = (FunctionCallExpressionNode)AntlrToVariableDeclaration.Map(Parse("VAR astCall = Unknown(" + syntax + ")")).Initializer!;
             Assert.That(direct.Arguments, Is.EqualTo(new[] { new ParameterArgumentNode(type, value) }));
-            var outer = AntlrToVariableDeclaration.Map(Parse("VAR astCall = Unknown(Nested(" + syntax + "))")).FunctionCall!;
+            var outer = (FunctionCallExpressionNode)AntlrToVariableDeclaration.Map(Parse("VAR astCall = Unknown(Nested(" + syntax + "))")).Initializer!;
             var nested = ((NestedCallArgumentNode)outer.Arguments.Single()).Call;
             Assert.That(nested.Arguments, Is.EqualTo(new[] { new ParameterArgumentNode(type, value) }));
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(previous));

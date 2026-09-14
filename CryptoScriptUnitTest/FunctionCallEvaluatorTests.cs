@@ -27,7 +27,7 @@ public class FunctionCallEvaluatorTests
             VariableDictionary.Instance().Add(variable);
     }
 
-    private static FunctionCallInitializerNode Call(string name, params FunctionCallArgumentNode[] arguments) =>
+    private static FunctionCallExpressionNode Call(string name, params FunctionCallArgumentNode[] arguments) =>
         new(name, name + "(raw text)", arguments);
 
     private static ArgumentParameter Parameter(string type, string value)
@@ -37,7 +37,7 @@ public class FunctionCallEvaluatorTests
         return parameter;
     }
 
-    private FunctionCall Evaluate(FunctionCallInitializerNode call,
+    private FunctionCall Evaluate(FunctionCallExpressionNode call,
         Func<string, string, ArgumentParameter>? parameter = null) =>
         (FunctionCall)FunctionCallEvaluator.EvaluateFunctionCall(call, errors, parameter ?? Parameter);
 
@@ -232,10 +232,10 @@ public class FunctionCallEvaluatorTests
         {
             if (entry == "function")
                 FunctionCallEvaluator.EvaluateFunctionCall(
-                    AntlrToFunctionCallInitializer.Map(declaration.functionCall()), errors);
+                    AntlrToFunctionCallExpression.Map(declaration.functionCall()), errors);
             else if (entry == "argument")
                 FunctionCallEvaluator.EvaluateArgument(
-                    AntlrToFunctionCallInitializer.MapArgument(declaration.functionCall().arguments().argument(0)),
+                    AntlrToFunctionCallExpression.MapArgument(declaration.functionCall().arguments().argument(0)),
                     "Compare", errors);
             else
                 StatementEvaluator.Evaluate(

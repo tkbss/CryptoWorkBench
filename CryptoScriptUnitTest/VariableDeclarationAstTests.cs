@@ -1,4 +1,5 @@
 using CryptoScript.Model;
+using CryptoScript.Model.Ast;
 using CryptoScript.Variables;
 
 namespace CryptoScriptUnitTest
@@ -23,10 +24,9 @@ namespace CryptoScriptUnitTest
 
             Assert.That(node.Identifier, Is.EqualTo("astValue"));
             Assert.That(node.TypeName, Is.EqualTo(type));
-            Assert.That(node.Expression, Is.Not.Null);
-            Assert.That(node.Expression!.RawText, Is.EqualTo(value));
-            Assert.That(node.Expression.RawText, Is.EqualTo(context.expression().GetText()));
-            Assert.That(node.FunctionCall, Is.Null);
+            Assert.That(node.Initializer, Is.TypeOf<LiteralInitializerNode>());
+            Assert.That(((LiteralInitializerNode)node.Initializer!).RawText, Is.EqualTo(value));
+            Assert.That(((LiteralInitializerNode)node.Initializer!).RawText, Is.EqualTo(context.expression().GetText()));
             Assert.That(node.Parameters, Is.Empty);
             Assert.That(node.Tr31Header, Is.Null);
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(variables));
@@ -91,10 +91,9 @@ namespace CryptoScriptUnitTest
 
             var node = AntlrToVariableDeclaration.Map(context);
 
-            Assert.That(node.FunctionCall, Is.Not.Null);
-            Assert.That(node.FunctionCall!.Name, Is.EqualTo("Encrypt"));
-            Assert.That(node.FunctionCall.CallText, Is.EqualTo(context.functionCall().GetText()));
-            Assert.That(node.Expression, Is.Null);
+            Assert.That(node.Initializer, Is.TypeOf<FunctionCallExpressionNode>());
+            Assert.That(((FunctionCallExpressionNode)node.Initializer!).Name, Is.EqualTo("Encrypt"));
+            Assert.That(((FunctionCallExpressionNode)node.Initializer!).CallText, Is.EqualTo(context.functionCall().GetText()));
             Assert.That(node.Parameters, Is.Empty);
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(variables));
         }
@@ -111,8 +110,7 @@ namespace CryptoScriptUnitTest
                 Is.EqualTo(new[] { "#MECH:AES-CBC", "#PAD:PKCS-7", "#IV:0x(1234)" }));
             for (int i = 0; i < node.Parameters.Count; i++)
                 Assert.That(node.Parameters[i].RawText, Is.EqualTo(context.declareparam(i).GetText()));
-            Assert.That(node.Expression, Is.Null);
-            Assert.That(node.FunctionCall, Is.Null);
+            Assert.That(node.Initializer, Is.Null);
         }
 
         [Test]
@@ -137,10 +135,28 @@ namespace CryptoScriptUnitTest
             var node = AntlrToVariableDeclaration.Map(Parse("VAR astEmpty ="));
 
             Assert.That(node.Identifier, Is.EqualTo("astEmpty"));
-            Assert.That(node.Expression, Is.Null);
-            Assert.That(node.FunctionCall, Is.Null);
+            Assert.That(node.Initializer, Is.Null);
             Assert.That(node.Parameters, Is.Empty);
             Assert.That(node.Tr31Header, Is.Null);
+        }
+
+        [TestCase("VAR result = 000123", false)]
+        [TestCase("VAR result = Outer(000123)", false)]
+        [TestCase("VAR result = Outer(000123", true)]
+        [TestCase("VAR result = Outer(,000123)", true)]
+        [TestCase("VAR result = 000123 )", true)]
+        public void ParserAlternativesRemainExclusiveIncludingRecovery(string source, bool recovery)
+        {
+            var parser = ParserBuilder.StringBuild(source);
+            var program = parser.program();
+            Assert.That(parser.NumberOfSyntaxErrors > 0, Is.EqualTo(recovery));
+            var context = program.statement(0).declaration();
+            Assert.That(context, Is.Not.Null);
+            // Accessors select direct children: literals inside calls are not declaration literals.
+            Assert.That(context.expression() != null && context.functionCall() != null, Is.False);
+            // Recovery can also leave both children absent when prediction fails.
+            if (!recovery)
+                Assert.That(context.expression() != null || context.functionCall() != null, Is.True);
         }
 
         private static Exception? CaptureException(Action action)

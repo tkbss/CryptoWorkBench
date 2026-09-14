@@ -18,8 +18,7 @@ namespace CryptoScriptUnitTest
             Assert.That(node.Tr31Header, Is.Not.Null);
             Assert.That(node.Tr31Header!.RawText, Is.EqualTo(expected));
             Assert.That(node.Tr31Header.RawText, Is.EqualTo(context.tr31Header().GetText()));
-            Assert.That(node.Expression, Is.Null);
-            Assert.That(node.FunctionCall, Is.Null);
+            Assert.That(node.Initializer, Is.Null);
             Assert.That(node.Parameters, Is.Empty);
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(previous));
         }

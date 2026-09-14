@@ -4,8 +4,26 @@ using CryptoScript.Variables;
 
 namespace CryptoScriptUnitTest
 {
-    public class FunctionCallInitializerAstTests
+    public class FunctionCallExpressionAstTests
     {
+        [Test]
+        public void SharesExpressionBasisAndCallTypeAcrossAllPositions()
+        {
+            ExpressionNode literal = new LiteralInitializerNode("000123");
+            var parser = ParserBuilder.StringBuild("VAR result = Outer(Inner(000123)) Outer(Inner(000123))");
+            var program = parser.program();
+            Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
+            ExpressionNode initializer = AntlrToVariableDeclaration.Map(program.statement(0).declaration()).Initializer!;
+            var statement = (FunctionCallStatementNode)AntlrToStatement.Map(program.statement(1))!;
+
+            Assert.That(literal, Is.TypeOf<LiteralInitializerNode>());
+            Assert.That(initializer, Is.TypeOf<FunctionCallExpressionNode>());
+            Assert.That(statement.Call, Is.TypeOf<FunctionCallExpressionNode>());
+            var nested = (NestedCallArgumentNode)((FunctionCallExpressionNode)initializer).Arguments[0];
+            Assert.That(nested.Call, Is.TypeOf<FunctionCallExpressionNode>());
+            Assert.That(statement.Call.CallText, Is.EqualTo(((FunctionCallExpressionNode)initializer).CallText));
+        }
+
         [Test]
         public void MapsAllArgumentKindsInOrderWithoutSemanticValidation()
         {
@@ -50,12 +68,12 @@ namespace CryptoScriptUnitTest
                 Is.EqualTo(new[] { new LiteralArgumentNode(literal) }));
         }
 
-        private static FunctionCallInitializerNode Map(string initializer)
+        private static FunctionCallExpressionNode Map(string initializer)
         {
             var parser = ParserBuilder.StringBuild("VAR result = " + initializer);
             var context = parser.program().statement(0).declaration();
             Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
-            return AntlrToVariableDeclaration.Map(context).FunctionCall!;
+            return (FunctionCallExpressionNode)AntlrToVariableDeclaration.Map(context).Initializer!;
         }
     }
 }
