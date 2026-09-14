@@ -1,6 +1,3 @@
-﻿using Antlr4.Runtime;
-using System.Reflection;
-
 namespace CryptoScript.Model
 {
     public class MechanismList
@@ -10,19 +7,26 @@ namespace CryptoScript.Model
         public List<string> Mechanisms { get; set; }
         MechanismList()
         {
-            Mechanisms = new List<string>();
-            var lexer = new CryptoScriptLexer(new AntlrInputStream(""));            
-            foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
+            Mechanisms = new List<string>
             {
-                // Check if the field corresponds to one of our mechanisms
-                if (field.Name.StartsWith("M_"))
-                {
-                    int index = (int)field.GetValue(null);
-                    string m = lexer.Vocabulary.GetDisplayName(index);
-                    m = m.Trim('\'');
-                    Mechanisms.Add(m);
-                }
-            }
+                "AES-ECB",
+                "AES-CBC",
+                "AES-CTR",
+                "AES-CMAC",
+                "AES-GCM",
+                "AES-CCM",
+                "AES-GMAC",
+                "DES3-ECB",
+                "DES3-CBC",
+                "DES3-RETAIL",
+                "DES3-CMAC",
+                "WRAP-AES-TR31",
+                "WRAP-DES3-TR31",
+                "WRAP-AES",
+                "WRAP-DES3",
+                "BIND-XOR",
+                "BIND-CMAC"
+            };
         }
         public static MechanismList Instance
         {
