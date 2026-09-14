@@ -7,26 +7,7 @@ namespace CryptoScript.Model
         public List<string> Mechanisms { get; set; }
         MechanismList()
         {
-            Mechanisms = new List<string>
-            {
-                "AES-ECB",
-                "AES-CBC",
-                "AES-CTR",
-                "AES-CMAC",
-                "AES-GCM",
-                "AES-CCM",
-                "AES-GMAC",
-                "DES3-ECB",
-                "DES3-CBC",
-                "DES3-RETAIL",
-                "DES3-CMAC",
-                "WRAP-AES-TR31",
-                "WRAP-DES3-TR31",
-                "WRAP-AES",
-                "WRAP-DES3",
-                "BIND-XOR",
-                "BIND-CMAC"
-            };
+            Mechanisms = AntlrLanguageMetadata.GetMechanisms();
         }
         public static MechanismList Instance
         {

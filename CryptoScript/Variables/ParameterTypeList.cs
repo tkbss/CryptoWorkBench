@@ -1,5 +1,4 @@
-﻿using Antlr4.Runtime;
-using System.Reflection;
+using CryptoScript.Model;
 
 namespace CryptoScript.Variables
 {
@@ -12,35 +11,9 @@ namespace CryptoScript.Variables
         public List<string> ParameterTypes { get; set; }
         ParameterTypeList()
         {
-            Paddings = new List<string>();
-            ParameterTypes = new List<string>();
-            Mechanism = new List<string>(); 
-            var lexer = new CryptoScriptLexer(new AntlrInputStream(""));
-            foreach (var field in typeof(CryptoScriptLexer).GetFields(BindingFlags.Public | BindingFlags.Static))
-            {
-                // Check if the field corresponds to one of our mechanisms
-                if (field.Name.StartsWith("PAD_"))
-                {
-                    int index = (int)field?.GetValue(null);
-                    string m = lexer.Vocabulary.GetDisplayName(index);
-                    m = m.Trim('\'');
-                    Paddings.Add(m);
-                }
-                if (field.Name.StartsWith("P_"))
-                {
-                    int index = (int)field?.GetValue(null);
-                    string m = lexer.Vocabulary.GetDisplayName(index);
-                    m = m.Trim('\'');
-                    ParameterTypes.Add(m);
-                }
-                if (field.Name.StartsWith("M_"))
-                {
-                    int index = (int)field?.GetValue(null);
-                    string m = lexer.Vocabulary.GetDisplayName(index);
-                    m = m.Trim('\'');
-                    Mechanism.Add(m);
-                }
-            }
+            Paddings = AntlrLanguageMetadata.GetPaddings();
+            ParameterTypes = AntlrLanguageMetadata.GetParameters();
+            Mechanism = AntlrLanguageMetadata.GetMechanisms();
             if (!ParameterTypes.Contains("#MACLEN"))
                 ParameterTypes.Add("#MACLEN");
         }
