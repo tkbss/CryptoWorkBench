@@ -14,7 +14,6 @@ namespace CryptoWorkBenchConsole
             {
                 Console.WriteLine(inputItem);
                 CryptoScriptParser parser = ParserBuilder.StringBuild(inputItem);
-                var lexer = new CryptoScriptLexer(new AntlrInputStream(inputItem));
                 
                 
                 parser.RemoveErrorListeners();
