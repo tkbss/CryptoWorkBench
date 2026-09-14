@@ -122,7 +122,7 @@ public class StatementExecutionTests
     {
         var errors = new List<SemanticError>();
         var declaration = new VariableDeclarationNode("value", "VAR",
-            new LiteralInitializerNode("\"a\\n b\""), Array.Empty<ParameterInitializerNode>(), null);
+            new LiteralInitializerNode("\"a\\n b\""), new ParameterListInitializerNode(Array.Empty<ParameterInitializerNode>()), null);
         var result = (VariableDeclaration)StatementEvaluator.Evaluate(
             new VariableDeclarationStatementNode(declaration, "declaration raw text"), errors)!;
         Assert.That(result.Text, Is.EqualTo("declaration raw text"));

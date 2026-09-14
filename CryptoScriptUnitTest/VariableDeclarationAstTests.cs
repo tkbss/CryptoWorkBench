@@ -27,7 +27,7 @@ namespace CryptoScriptUnitTest
             Assert.That(node.Initializer, Is.TypeOf<LiteralInitializerNode>());
             Assert.That(((LiteralInitializerNode)node.Initializer!).RawText, Is.EqualTo(value));
             Assert.That(((LiteralInitializerNode)node.Initializer!).RawText, Is.EqualTo(context.expression().GetText()));
-            Assert.That(node.Parameters, Is.Empty);
+            Assert.That(node.Parameters.Items, Is.Empty);
             Assert.That(node.Tr31Header, Is.Null);
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(variables));
         }
@@ -94,7 +94,7 @@ namespace CryptoScriptUnitTest
             Assert.That(node.Initializer, Is.TypeOf<FunctionCallExpressionNode>());
             Assert.That(((FunctionCallExpressionNode)node.Initializer!).Name, Is.EqualTo("Encrypt"));
             Assert.That(((FunctionCallExpressionNode)node.Initializer!).CallText, Is.EqualTo(context.functionCall().GetText()));
-            Assert.That(node.Parameters, Is.Empty);
+            Assert.That(node.Parameters.Items, Is.Empty);
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(variables));
         }
 
@@ -106,10 +106,10 @@ namespace CryptoScriptUnitTest
             var node = AntlrToVariableDeclaration.Map(context);
 
             Assert.That(node.TypeName, Is.EqualTo("VAR"));
-            Assert.That(node.Parameters.Select(p => p.RawText),
+            Assert.That(node.Parameters.Items.Select(p => p.RawText),
                 Is.EqualTo(new[] { "#MECH:AES-CBC", "#PAD:PKCS-7", "#IV:0x(1234)" }));
-            for (int i = 0; i < node.Parameters.Count; i++)
-                Assert.That(node.Parameters[i].RawText, Is.EqualTo(context.declareparam(i).GetText()));
+            for (int i = 0; i < node.Parameters.Items.Count; i++)
+                Assert.That(node.Parameters.Items[i].RawText, Is.EqualTo(context.declareparam(i).GetText()));
             Assert.That(node.Initializer, Is.Null);
         }
 
@@ -126,7 +126,7 @@ namespace CryptoScriptUnitTest
             Assert.That(node.TypeName, Is.EqualTo("TR31H"));
             Assert.That(node.Tr31Header, Is.Not.Null);
             Assert.That(node.Tr31Header!.RawText, Is.EqualTo(header.GetText()));
-            Assert.That(node.Parameters, Is.Empty);
+            Assert.That(node.Parameters.Items, Is.Empty);
         }
 
         [Test]
@@ -136,7 +136,7 @@ namespace CryptoScriptUnitTest
 
             Assert.That(node.Identifier, Is.EqualTo("astEmpty"));
             Assert.That(node.Initializer, Is.Null);
-            Assert.That(node.Parameters, Is.Empty);
+            Assert.That(node.Parameters.Items, Is.Empty);
             Assert.That(node.Tr31Header, Is.Null);
         }
 
@@ -157,6 +157,18 @@ namespace CryptoScriptUnitTest
             // Recovery can also leave both children absent when prediction fails.
             if (!recovery)
                 Assert.That(context.expression() != null || context.functionCall() != null, Is.True);
+        }
+
+        [TestCase("VAR result = 000123")]
+        [TestCase("VAR result = Unknown()")]
+        [TestCase("VAR result =")]
+        [TestCase("PARAM result =")]
+        public void MapsAbsentParametersToPresentEmptyListNode(string source)
+        {
+            var node = AntlrToVariableDeclaration.Map(Parse(source));
+
+            Assert.That(node.Parameters, Is.TypeOf<ParameterListInitializerNode>());
+            Assert.That(node.Parameters.Items, Is.Empty);
         }
 
         private static Exception? CaptureException(Action action)

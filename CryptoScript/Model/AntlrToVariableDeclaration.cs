@@ -13,7 +13,8 @@ namespace CryptoScript.Model
                 context.type().GetText(),
                 expression != null ? new LiteralInitializerNode(expression.GetText()) :
                     context.functionCall() is { } call ? AntlrToFunctionCallExpression.Map(call) : null,
-                Array.AsReadOnly(context.declareparam().Select(AntlrToParameterInitializer.Map).ToArray()),
+                new ParameterListInitializerNode(
+                    Array.AsReadOnly(context.declareparam().Select(AntlrToParameterInitializer.Map).ToArray())),
                 context.tr31Header() is { } header ? new Tr31HeaderInitializerNode(header.GetText()) : null);
         }
     }

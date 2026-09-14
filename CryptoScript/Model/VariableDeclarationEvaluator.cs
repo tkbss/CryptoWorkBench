@@ -21,7 +21,7 @@ namespace CryptoScript.Model
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
             var type = CryptoType.Parse(TypeName);
-            var declarParam = declaration.Parameters;
+            var declarParam = declaration.Parameters.Items;
 
             Statement? stmt = null;
             if (declaration.Initializer is FunctionCallExpressionNode call)

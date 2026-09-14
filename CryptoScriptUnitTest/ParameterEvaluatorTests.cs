@@ -57,11 +57,11 @@ public class ParameterEvaluatorTests
         });
 
     private static VariableDeclarationNode Declaration(string? value) =>
-        new("result", "PARAM", null, new[]
+        new("result", "PARAM", null, new ParameterListInitializerNode(new[]
         {
             new ParameterInitializerNode("#MECH", "AES-CBC", "#MECH:AES-CBC"),
             new ParameterInitializerNode("#IV", value, "#IV:" + value)
-        }, null);
+        }), null);
 
     [Test]
     public void DeclarationStandardPathResolvesParameterAndRegistersResult()

@@ -7,6 +7,6 @@ namespace CryptoScript.Model.Ast
         string Identifier,
         string TypeName,
         ExpressionNode? Initializer,
-        IReadOnlyList<ParameterInitializerNode> Parameters,
+        ParameterListInitializerNode Parameters,
         Tr31HeaderInitializerNode? Tr31Header);
 }

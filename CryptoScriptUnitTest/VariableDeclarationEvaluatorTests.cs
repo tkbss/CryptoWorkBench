@@ -28,7 +28,7 @@ public class VariableDeclarationEvaluatorTests
     }
 
     private static VariableDeclarationNode Node(string type = "VAR") =>
-        new("result", type, null, Array.Empty<ParameterInitializerNode>(), null);
+        new("result", type, null, new ParameterListInitializerNode(Array.Empty<ParameterInitializerNode>()), null);
 
     private static FunctionCallExpressionNode Call() =>
         new("Unknown", "Unknown()", Array.Empty<FunctionCallArgumentNode>());
@@ -67,12 +67,12 @@ public class VariableDeclarationEvaluatorTests
         var seen = new List<(string, string)>();
         var result = (ParameterVariableDeclaration)Evaluate(Node("PARAM") with
         {
-            Parameters = new[]
+            Parameters = new ParameterListInitializerNode(new[]
             {
                 new ParameterInitializerNode("#MECH", "AES-CBC", "#MECH:AES-CBC"),
                 new ParameterInitializerNode("#IV", "0x(Ab)", "#IV:0x(Ab)"),
                 new ParameterInitializerNode("#IV", "0x(cd)", "#IV:0x(cd)")
-            }
+            })
         }, parameter: (type, value) =>
         {
             seen.Add((type, value));
@@ -133,7 +133,7 @@ public class VariableDeclarationEvaluatorTests
     {
         var error = Assert.Throws<SemanticErrorException>(() => Evaluate(Node(type) with
         {
-            Parameters = new[] { new ParameterInitializerNode(parameterType, value, raw) }
+            Parameters = new ParameterListInitializerNode(new[] { new ParameterInitializerNode(parameterType, value, raw) })
         }));
         Assert.That(error!.SemanticError!.Type, Is.EqualTo("Declaration"));
         Assert.That(error.SemanticError.Identifier, Is.EqualTo(type));
@@ -147,7 +147,7 @@ public class VariableDeclarationEvaluatorTests
     {
         var error = Assert.Throws<SemanticErrorException>(() => Evaluate(Node("PARAM") with
         {
-            Parameters = new[] { new ParameterInitializerNode("#MECH", "AES-CBC", "#MECH:AES-CBC") }
+            Parameters = new ParameterListInitializerNode(new[] { new ParameterInitializerNode("#MECH", "AES-CBC", "#MECH:AES-CBC") })
         }, parameter: (_, _) => throw new InvalidOperationException("inner")));
         Assert.That(error!.SemanticError!.Message,
             Is.EqualTo("Error in  parameter declaration : #MECH:AES-CBC"));

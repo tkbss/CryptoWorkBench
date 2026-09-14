@@ -17,7 +17,7 @@ namespace CryptoScriptUnitTest
             var node = AntlrToVariableDeclaration.Map(context);
 
             // ANTLR recovery leaves an empty declareparam context for the incomplete suffix.
-            Assert.That(node.Parameters[1], Is.EqualTo(new ParameterInitializerNode(null, null, "")));
+            Assert.That(node.Parameters.Items[1], Is.EqualTo(new ParameterInitializerNode(null, null, "")));
             var errors = new List<CryptoScript.ErrorListner.SemanticError>();
             var error = Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(
                 () => StatementEvaluator.Evaluate(AntlrToStatement.Map((CryptoScriptParser.StatementContext)context.Parent), errors));
@@ -40,11 +40,11 @@ namespace CryptoScriptUnitTest
             var declaration = Parse("VAR astParameters = " + syntax);
             var node = AntlrToVariableDeclaration.Map(declaration);
 
-            Assert.That(node.Parameters, Is.EqualTo(new[]
+            Assert.That(node.Parameters.Items, Is.EqualTo(new[]
             {
                 new ParameterInitializerNode(type, value, type + ":" + value)
             }));
-            Assert.That(node.Parameters[0].RawText, Is.EqualTo(declaration.declareparam(0).GetText()));
+            Assert.That(node.Parameters.Items[0].RawText, Is.EqualTo(declaration.declareparam(0).GetText()));
             Assert.That(node.Initializer, Is.Null);
             Assert.That(node.Tr31Header, Is.Null);
 
@@ -63,7 +63,8 @@ namespace CryptoScriptUnitTest
             var node = AntlrToVariableDeclaration.Map(Parse(
                 "PARAM astParameters = #IV:0x(Ab) #MECH:AES-CBC #IV:0x(cd) #MECH:AES-ECB"));
 
-            Assert.That(node.Parameters.Select(p => p.RawText), Is.EqualTo(new[]
+            Assert.That(node.Parameters, Is.TypeOf<ParameterListInitializerNode>());
+            Assert.That(node.Parameters.Items.Select(p => p.RawText), Is.EqualTo(new[]
             {
                 "#IV:0x(Ab)", "#MECH:AES-CBC", "#IV:0x(cd)", "#MECH:AES-ECB"
             }));
