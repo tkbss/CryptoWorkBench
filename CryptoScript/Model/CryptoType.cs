@@ -1,4 +1,4 @@
-﻿using Antlr4.Runtime;
+using Antlr4.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +43,7 @@ namespace CryptoScript.Model
 
         public CryptoTypeKey() 
         {
-            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_KEY);
+            Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_KEY);
         }
     }
     public class CryptoTypeVar : CryptoType 
@@ -52,7 +52,7 @@ namespace CryptoScript.Model
         public override string Name { get => "VAR"; }
         public CryptoTypeVar() 
         {
-            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_VAR);
+            Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_VAR);
         }
     }
     public class CryptoTypeParameters : CryptoType
@@ -61,7 +61,7 @@ namespace CryptoScript.Model
         public override string Name { get => "PARAM"; }
         public CryptoTypeParameters()
         {
-            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_PARAMETER);
+            Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_PARAMETER);
         }
     }
     public class CryptoTypeTR31Header : CryptoType
@@ -70,7 +70,7 @@ namespace CryptoScript.Model
         public override string Name { get => "TR31H"; }
         public CryptoTypeTR31Header()
         {
-            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_TR31H);
+            Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_TR31H);
         }
     }
     
@@ -80,7 +80,7 @@ namespace CryptoScript.Model
         public override string Name { get => "PATH"; }
         public CryptoTypePath()
         {
-            Id = Lexer.Vocabulary.GetDisplayName(CryptoScriptLexer.T_PATH);
+            Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_PATH);
         }
     }
 }

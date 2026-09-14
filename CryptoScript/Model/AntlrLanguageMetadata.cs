@@ -9,6 +9,10 @@ namespace CryptoScript.Model
         public static List<string> GetParameters() => ReadNames("P_");
         public static List<string> GetPaddings() => ReadNames("PAD_");
 
+        // CryptoType IDs retain vocabulary quotes and honor its public lexer override.
+        public static string GetTypeDisplayName(CryptoScriptLexer lexer, int tokenType) =>
+            lexer.Vocabulary.GetDisplayName(tokenType);
+
         // Return a fresh list on every call; runtime consumers own their mutable copies.
         private static List<string> ReadNames(string prefix)
         {
