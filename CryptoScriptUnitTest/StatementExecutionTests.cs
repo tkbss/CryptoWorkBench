@@ -144,4 +144,56 @@ public class StatementExecutionTests
         Assert.That(AntlrToStatement.Map(context.statement(0)), Is.Null);
         Assert.That(new CryptoScriptRunner().Execute(context).Statements, Is.EqualTo(new Statement?[] { null }));
     }
+
+    [Test]
+    public void RunnerExecutesAstWithoutParserInOrderAndPreservesNulls()
+    {
+        var declaration = new VariableDeclarationNode("value", "VAR",
+            new LiteralInitializerNode("\"first\""),
+            new ParameterListInitializerNode(Array.Empty<ParameterInitializerNode>()), null);
+        var call = new FunctionCallExpressionNode("Print", "call raw text",
+            new FunctionCallArgumentNode[] { new VariableArgumentNode("value") });
+        var runner = new CryptoScriptRunner();
+        var result = runner.Execute(new StatementNode?[]
+        {
+            new VariableDeclarationStatementNode(declaration, "declaration raw text"),
+            null,
+            new FunctionCallStatementNode(call)
+        });
+
+        Assert.That(result.Statements, Has.Count.EqualTo(3));
+        Assert.That(result.Statements[0], Is.SameAs(VariableDictionary.Instance().Get("value")));
+        Assert.That(result.Statements[0].Text, Is.EqualTo("declaration raw text"));
+        Assert.That(result.Statements[1], Is.Null);
+        Assert.That(((FunctionCall)result.Statements[2]).CallText, Is.EqualTo("call raw text"));
+        Assert.That(output, Is.EqualTo(new[] { "out: \"first\"" }));
+        Assert.That(runner.SemanticErrors, Is.Empty);
+    }
+
+    [Test]
+    public void RunnerBindsErrorsBeforeEnumerationAndStopsWithoutReadingAhead()
+    {
+        var runner = new CryptoScriptRunner();
+        var boundErrors = runner.SemanticErrors;
+        var replacementErrors = new List<SemanticError>();
+        var enumerations = 0;
+        IEnumerable<StatementNode?> Statements()
+        {
+            enumerations++;
+            runner.SemanticErrors = replacementErrors;
+            yield return new FunctionCallStatementNode(new FunctionCallExpressionNode("Print", "Print raw",
+                new FunctionCallArgumentNode[] { new LiteralArgumentNode("\"first\"") }));
+            Assert.That(output, Is.EqualTo(new[] { "out: \"first\"" }));
+            yield return new FunctionCallStatementNode(new FunctionCallExpressionNode("Unknown", "Unknown raw",
+                Array.Empty<FunctionCallArgumentNode>()));
+            Assert.Fail("Must not request another statement after failure");
+        }
+
+        var error = Assert.Throws<SemanticErrorException>(() => runner.Execute(Statements()));
+
+        Assert.That(enumerations, Is.EqualTo(1));
+        Assert.That(boundErrors.Single(), Is.SameAs(error!.SemanticError));
+        Assert.That(replacementErrors, Is.Empty);
+        Assert.That(output, Is.EqualTo(new[] { "out: \"first\"" }));
+    }
 }
