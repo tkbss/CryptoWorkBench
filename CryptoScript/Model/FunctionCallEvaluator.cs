@@ -24,7 +24,7 @@ namespace CryptoScript.Model
             {
                 OperationFactory.CreateOperation(functionName);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
                 se.Message = "Unknown function: "+functionName;
