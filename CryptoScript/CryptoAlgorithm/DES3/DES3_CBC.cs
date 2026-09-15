@@ -60,6 +60,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         internal static byte[] EncryptNoPadding(byte[] key, byte[] iv, byte[] plaintext) =>
             Transform(key, iv, plaintext, PaddingMode.None, encrypt: true);
 
+        internal static byte[] DecryptNoPadding(byte[] key, byte[] iv, byte[] ciphertext) =>
+            Transform(key, iv, ciphertext, PaddingMode.None, encrypt: false);
+
         private static byte[] Transform(
             byte[] key,
             byte[] iv,
