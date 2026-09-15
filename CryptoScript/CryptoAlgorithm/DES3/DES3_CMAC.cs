@@ -18,12 +18,8 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             DES3.ValidateKeyLength(keyBytes);
             DES3.ValidateUsableKey(keyBytes);
 
-            IMac mac = new CMac(new DesEdeEngine());
-            mac.Init(new KeyParameter(keyBytes));
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
-            mac.BlockUpdate(input, 0, input.Length);
-            byte[] result = new byte[mac.GetMacSize()];
-            mac.DoFinal(result, 0);
+            byte[] result = Compute(keyBytes, input);
 
             string value = FormatConversions.ByteArrayToHexString(result);
             return new StringVariableDeclaration
@@ -32,6 +28,17 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 ValueFormat = FormatConversions.ParseString(value),
                 Type = new CryptoTypeVar()
             };
+        }
+
+        // Callers validate the key before invoking this shared primitive.
+        internal static byte[] Compute(byte[] keyBytes, byte[] input)
+        {
+            IMac mac = new CMac(new DesEdeEngine());
+            mac.Init(new KeyParameter(keyBytes));
+            mac.BlockUpdate(input, 0, input.Length);
+            byte[] result = new byte[mac.GetMacSize()];
+            mac.DoFinal(result, 0);
+            return result;
         }
     }
 }
