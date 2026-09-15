@@ -16,6 +16,17 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         public byte[]? Mac { get; set; }
         public byte[]? HeaderDataToMac { get; set; } = null;
 
+        /// <summary>Returns the authentication value length in bytes, before hex encoding.</summary>
+        public static int GetAuthenticationValueLength(char version) => version switch
+        {
+            'A' or 'C' => 4,
+            'B' => 8,
+            'D' => 16,
+            // Preserve the parser's previous behavior for unrecognized versions.
+            // Version validation is deliberately separate from this structural change.
+            _ => 16
+        };
+
         
         public List<OptionalBlock> HeaderOptionalBlocks()
         {
@@ -75,14 +86,15 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             int cryptogramAndMacLength = totalLength - currentPosition;
             string cryptogramAndMacHex = tr31.Substring(currentPosition, cryptogramAndMacLength);
             byte[] cryptogramAndMac = HexStringToByteArray(cryptogramAndMacHex);
+            int authenticationValueLength = GetAuthenticationValueLength(block.Header[0]);
 
-            if (cryptogramAndMac.Length < 16) 
+            if (cryptogramAndMac.Length < authenticationValueLength)
             {
                 // Block contains only header
                 return block;
             }               
-            block.Mac = cryptogramAndMac.Skip(cryptogramAndMac.Length - 16).ToArray();
-            block.Cryptogram = cryptogramAndMac.Take(cryptogramAndMac.Length - 16).ToArray();
+            block.Mac = cryptogramAndMac.Skip(cryptogramAndMac.Length - authenticationValueLength).ToArray();
+            block.Cryptogram = cryptogramAndMac.Take(cryptogramAndMac.Length - authenticationValueLength).ToArray();
             return block;
         }
 
