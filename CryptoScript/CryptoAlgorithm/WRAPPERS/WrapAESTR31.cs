@@ -266,60 +266,20 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         }
         private byte[] ConstructBinaryKeyData(string key,int KeySize,string rd)
         {
-            byte[]? binaryKeyData,rndArray;
-            Random rnd = new Random();
-            if(!string.IsNullOrEmpty(rd))
+            byte[]? random = string.IsNullOrEmpty(rd) ? null : FormatConversions.HexStringToByteArray(rd);
+            if (KeySize == 128 || KeySize == 192 || KeySize == 256)
             {
-                rndArray=FormatConversions.HexStringToByteArray(rd);
-            }
-            else
-            {
-                rndArray = null;
-            }
-            switch (KeySize)
-            {
-                case 128:
-                    binaryKeyData = new byte[32];
-                    binaryKeyData[1] = 0x80;
-                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 16);
-                    if (rndArray == null || rndArray.Length!=14)
-                    {
-                        
-                        rndArray = new byte[14];
-                        rnd.NextBytes(rndArray);
-                    }                    
-                    Array.Copy(rndArray, 0, binaryKeyData, 18, 14);
-                    break;
-                case 192:
-                    binaryKeyData = new byte[32];
-                    binaryKeyData[1] = 0xC0;
-                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 24);
-                    if (rndArray == null || rndArray.Length != 6)
-                    {
-
-                        rndArray = new byte[6];
-                        rnd.NextBytes(rndArray);
-                    }
-                    Array.Copy(rndArray, 0, binaryKeyData, 26, 6);
-                    break;
-                case 256:
-                    binaryKeyData = new byte[48];
-                    binaryKeyData[0] = 0x01;
-                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 32);
-                    if (rndArray == null || rndArray.Length != 14)
-                    {
-
-                        rndArray = new byte[14];
-                        rnd.NextBytes(rndArray);
-                    }
-                    Array.Copy(rndArray, 0, binaryKeyData, 34, 14);
-                    break;
-                default:
-                    binaryKeyData = new byte[16];
-                    Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 16);
-                    break;
+                // Preserve D's existing key-size and filler policy, including truncating
+                // excess key bytes. Do not introduce ANSI 2022 AES obfuscation here.
+                byte[] keyBytes = new byte[KeySize / 8];
+                Array.Copy(FormatConversions.HexStringToByteArray(key), 0, keyBytes, 0, keyBytes.Length);
+                return Tr31ConfidentialData.Create(keyBytes, blockSize: 16,
+                    obfuscationPaddingLength: 0, random: random).ToArray();
             }
 
+            // Keep the unsupported-size legacy path unchanged in this extraction.
+            byte[] binaryKeyData = new byte[16];
+            Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 16);
             return binaryKeyData;
         }
         private byte[] DeriveKey(byte[] key, byte[] data, int keySize)
