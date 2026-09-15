@@ -4,9 +4,9 @@ using CryptoScript.Variables;
 
 namespace CryptoScriptUnitTest;
 
-// Legacy characterization: accepting A/B/C here is a defect, not supported TR-31 behavior.
+// Regression tests converted from the former characterization of non-D acceptance.
 [NonParallelizable]
-public class Tr31AesVersionCharacterizationTests
+public class Tr31AesVersionTests
 {
     private const string Kbpk = "000102030405060708090A0B0C0D0E0F";
     private const string Key = "202122232425262728292A2B2C2D2E2F";
@@ -41,11 +41,17 @@ public class Tr31AesVersionCharacterizationTests
     [TestCase(1)]
     [TestCase(2)]
     [TestCase(3)]
-    public void LegacyWrapUsesAesDRegardlessOfHeaderVersion(int index)
+    public void WrapRequiresDAndPreservesDOutput(int index)
     {
         var expected = Outputs[index];
         string header = expected[0] + "0112D0AB00E0000";
-        Run($"PARAM p=#MECH:WRAP-AES-TR31 #BLKH:\"{header}\" #RND:0x(0102030405060708090A0B0C0D0E) VAR b=Wrap(p,k,t)");
+        Run($"PARAM p=#MECH:WRAP-AES-TR31 #BLKH:\"{header}\" #RND:0x(0102030405060708090A0B0C0D0E)");
+        if (index != 3)
+        {
+            AssertScriptVersionFailure("VAR b=Wrap(p,k,t)");
+            return;
+        }
+        Run("VAR b=Wrap(p,k,t)");
         var block = TR31String.FromString(VariableDictionary.Instance().Get("b").Value);
         Assert.Multiple(() =>
         {
@@ -60,12 +66,18 @@ public class Tr31AesVersionCharacterizationTests
     [TestCase(1)]
     [TestCase(2)]
     [TestCase(3)]
-    public void LegacyCompositeUnwrapAcceptsAuthenticatedAesDWithAnyHeaderVersion(int index)
+    public void CompositeUnwrapRequiresDEvenWithCorrectAesAuthentication(int index)
     {
         var expected = Outputs[index];
         // Explicit ciphertext/MAC boundaries bypass wire-parser splitting (A/C=4, B=8, D=16).
         // The 16-byte MAC authenticates the actual A/B/C/D header; no post-MAC relabeling.
-        Run($"PARAM p=#MECH:WRAP-AES-TR31 VAR b=\"{expected[0]}0112D0AB00E0000\"0x({expected[1]})0x({expected[2]}) KEY r=Unwrap(p,k,b)");
+        Run($"PARAM p=#MECH:WRAP-AES-TR31 VAR b=\"{expected[0]}0112D0AB00E0000\"0x({expected[1]})0x({expected[2]})");
+        if (index != 3)
+        {
+            AssertScriptVersionFailure("KEY r=Unwrap(p,k,b)");
+            return;
+        }
+        Run("KEY r=Unwrap(p,k,b)");
         Assert.That(((KeyVariableDeclaration)VariableDictionary.Instance().Get("r")).KeyValue,
             Is.EqualTo($"0x({Key})").IgnoreCase);
     }
@@ -82,19 +94,35 @@ public class Tr31AesVersionCharacterizationTests
     [TestCase(0, 8)]
     [TestCase(2, 4)]
     [TestCase(3, 4)]
-    public void LegacyWireUnwrapReachesAesIvFailureRatherThanVersionValidation(int referenceIndex, int macBytes)
+    public void WireUnwrapRejectsVersionBeforeAesIvProcessing(int referenceIndex, int macBytes)
     {
         // Existing B/C/A reference blocks: correct structure for their own versions.
-        // This test diagnoses the distinct wire failure; it is NOT a versions-contract test.
+        // The adapter must reject the version, rather than reaching the former CBC IV failure.
         var reference = Tr31ReferenceVectors.All[referenceIndex];
         var parsed = TR31Block.FromString(reference.CompleteBlock);
         Assert.That(parsed.Mac, Has.Length.EqualTo(macBytes));
         Assert.That(parsed.Cryptogram, Is.EqualTo(Convert.FromHexString(reference.Ciphertext)));
         Run($"VAR b=\"{reference.CompleteBlock}\"");
-        var error = Assert.Throws<ArgumentException>(() => new WrapAESTR31().Unwrap(
+        var error = Assert.Throws<NotSupportedException>(() => new WrapAESTR31().Unwrap(
             ["#MECH:WRAP-AES-TR31", VariableDictionary.Instance().Get("k").Value,
                 VariableDictionary.Instance().Get("b").Value]));
-        Assert.That(error!.Message, Does.Contain("initialisation vector must be the same length as block size"));
+        Assert.That(error!.Message, Is.EqualTo("WRAP-AES-TR31 supports only version D."));
+    }
+
+    [TestCase('A')]
+    [TestCase('B')]
+    [TestCase('C')]
+    public void WrapRejectsVersionBeforeKeyLookupOrCryptography(char version)
+    {
+        var error = Assert.Throws<NotSupportedException>(() => new WrapAESTR31().Wrap(
+            [$"#MECH:WRAP-AES-TR31#BLKH:\"{version}0112D0AB00E0000\"", "missing", "missing"]));
+        Assert.That(error!.Message, Is.EqualTo("WRAP-AES-TR31 supports only version D."));
+    }
+
+    private static void AssertScriptVersionFailure(string script)
+    {
+        var error = Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(() => Run(script));
+        Assert.That(error!.SemanticError.Message, Is.EqualTo("WRAP-AES-TR31 supports only version D."));
     }
 
     private static void Run(string script) => new CryptoScriptRunner().Execute(ParserBuilder.StringBuild(script).program());

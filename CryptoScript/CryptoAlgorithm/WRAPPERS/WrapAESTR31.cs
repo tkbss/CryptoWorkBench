@@ -67,6 +67,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             if (FormatConversions.ParseString(wrappedBlockVar.Value) == FormatConversions.TR31)
             {
                 TR31String tr31 = TR31String.FromString(wrappedBlockVar.Value);
+                RequireVersionD(tr31.Block);
                 block = TR31Block.FromString(tr31.Block);
                 blockHeaderBytes = FormatConversions.StringToByteArray(tr31.Block);
                 block.Cryptogram=encryptedKeyData = tr31.Cryptogram;
@@ -74,6 +75,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             }
             if(FormatConversions.ParseString(wrappedBlockVar.Value) == FormatConversions.STR) 
             {
+                RequireVersionD(FormatConversions.ToString(wrappedBlockVar.Value));
                 wrappedBlockVar.Value = FormatConversions.ToString(wrappedBlockVar.Value);
                 block =TR31Block.FromString(wrappedBlockVar.Value);
                 blockHeaderBytes = block.HeaderDataToMac;
@@ -203,6 +205,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         {
             ParameterVariableDeclaration p = new ParameterVariableDeclaration();
             p.SetInstance(parameters[0]);
+            RequireVersionD(FormatConversions.ToString(p.GetParameter("#BLKH")));
             string rnd = p.GetParameter("#RND");
             var variables=VariableDictionary.Instance().GetVariables();
             KeyVariableDeclaration? keyProtectionKey = null;
@@ -233,6 +236,12 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             StringVariableDeclaration block = new StringVariableDeclaration() { Value = tr31.ToString(), ValueFormat = FormatConversions.TR31 };
             return block;
         }        
+        private static void RequireVersionD(string header)
+        {
+            if (string.IsNullOrEmpty(header) || header[0] != 'D')
+                throw new NotSupportedException("WRAP-AES-TR31 supports only version D.");
+        }
+
         byte[] ComputeMAC(byte[] dataToMAC, byte[] key)
         {            
             IMac mac = new CMac(new AesEngine());
