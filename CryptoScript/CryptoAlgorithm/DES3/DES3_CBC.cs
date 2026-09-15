@@ -57,6 +57,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             return CreateResult(mac);
         }
 
+        internal static byte[] EncryptNoPadding(byte[] key, byte[] iv, byte[] plaintext) =>
+            Transform(key, iv, plaintext, PaddingMode.None, encrypt: true);
+
         private static byte[] Transform(
             byte[] key,
             byte[] iv,
