@@ -1,0 +1,68 @@
+namespace CryptoScriptUnitTest;
+
+internal enum Tr31VectorOrigin
+{
+    AnsiVector,
+    CorrectedAnsiReferenceVector,
+    DerivedReferenceVector
+}
+
+// Frozen reference data only: no TDEA binding implementation or mechanism registration.
+internal sealed record Tr31ReferenceVector(
+    string Name, Tr31VectorOrigin Origin, string Source, string Correction,
+    string Header, string Kbpk, string Key, string ObfuscationPadding,
+    string CipherBlockPadding, string Kbek, string Kbak,
+    string? S, string? K1, string? K2, string Mac, string Ciphertext,
+    string ConfidentialData, string CompleteBlock)
+{
+    public override string ToString() => Name;
+}
+
+internal static class Tr31ReferenceVectors
+{
+    public static readonly Tr31ReferenceVector[] All =
+    [
+        new("B without optional blocks", Tr31VectorOrigin.AnsiVector,
+            "ANSI X9.143-2022 8.3.2.2; Table 33", "None; independently confirmed.",
+            "B0096P0TE00E0000",
+            "DD7515F2BFC17F85CE48F3CA25CB21F6", "3F419E1CB7079442AA37474C2EFBF8B8",
+            "7CB920D261E9F3AA", "1C2965473CE2",
+            "698832F8778A7CFCBC79559DAB07B88A", "DD6CEEC1782D8453671BF8358AF9DB47",
+            "F7BAA8735192E44A", "EF7550E6A325C88F", "DEEAA1CD464B9105",
+            "308FC49A2AA891BA", "D7ED9E189BC6F715125B265B149DF8FE218A396785608923D6197378386A3759",
+            "00803F419E1CB7079442AA37474C2EFBF8B87CB920D261E9F3AA1C2965473CE2",
+            "B0096P0TE00E0000D7ED9E189BC6F715125B265B149DF8FE218A396785608923D6197378386A3759308FC49A2AA891BA"),
+        new("B with KS", Tr31VectorOrigin.AnsiVector,
+            "ANSI X9.143-2022 8.4.2; Table 36", "None to vector bytes; explanatory length arithmetic in 8.4.2.2 is stale.",
+            "B0120B0TX12S0100KS1800604B120F9292800000",
+            "1D22BF32387C600AD97F9B97A51311AC", "E8BC63E5479455E26577F715D587FE68",
+            "7CB920D261E9F3AA", "30111D18CC4C",
+            "BCE8E2AD5D4489FD0EA5236A884DAC58", "1F9B2BDAF969C7B8B6C933AC7B9C6894",
+            "11B651670DD3B1EC", "236CA2CE1BA763D8", "46D9459C374EC7B0",
+            "6DB5635C95B042D7", "15CEB14B76D551F21EC43A75390FA118A98C6CB049E3B9E864A5F4A8B9A5108A",
+            "0080E8BC63E5479455E26577F715D587FE687CB920D261E9F3AA30111D18CC4C",
+            "B0120B0TX12S0100KS1800604B120F929280000015CEB14B76D551F21EC43A75390FA118A98C6CB049E3B9E864A5F4A8B9A5108A6DB5635C95B042D7"),
+        new("C with KS (corrected)", Tr31VectorOrigin.CorrectedAnsiReferenceVector,
+            "ANSI X9.143-2022 8.4.1",
+            "Use C0112 from 8.4.1.3, not C0096 in final block; IV is ASCII C0112B0T, not printed 41303039364B3054. Ciphertext and MAC confirmed unchanged.",
+            "C0112B0TX12S0100KS1800604B120F9292800000",
+            "B8ED59E0A279A295E9F5ED7944FD06B9", "EDB380DD340BC2620247D445F5B8D678",
+            "7CB920D261E9F3AA", "8546A8ED98D1",
+            "FDA81CA5E73CE7D0ACB0A83C01B843FC", "F5A014ADEF34EFD8A4B8A03409B04BF4",
+            null, null, null,
+            "9EB139E5", "42B758A2400AB598AE37782823DAF0BA4BDB0DAFF34915345CA169AE1F976A42",
+            "0080EDB380DD340BC2620247D445F5B8D6787CB920D261E9F3AA8546A8ED98D1",
+            "C0112B0TX12S0100KS1800604B120F929280000042B758A2400AB598AE37782823DAF0BA4BDB0DAFF34915345CA169AE1F976A429EB139E5"),
+        new("A derived from ANSI inputs", Tr31VectorOrigin.DerivedReferenceVector,
+            "Inputs from ANSI X9.143-2022 8.3.2.1; output independently calculated",
+            "A0088 replaces inconsistent A0072; ciphertext and MAC recomputed, NOT printed ANSI expected outputs. See Tr31ReferenceNotes.md.",
+            "A0088P0TE00E0000",
+            "89E88CF7931444F334BD7547FC3F380C", "F039121BEC83D26B169BDCD5B22AAF8F",
+            "249F30A2B39A7D6B", "720DF563BB07",
+            "CCADC9B2D65101B671F83002B97A7D49", "C4A5C1BADE5909BE79F0380AB1727541",
+            null, null, null,
+            "6E3552DB", "7DD4DD9566DC0E2F956DCAC0FDE915318973835AEC2D731C2AD2E7B6151EB4CA",
+            "0080F039121BEC83D26B169BDCD5B22AAF8F249F30A2B39A7D6B720DF563BB07",
+            "A0088P0TE00E00007DD4DD9566DC0E2F956DCAC0FDE915318973835AEC2D731C2AD2E7B6151EB4CA6E3552DB")
+    ];
+}
