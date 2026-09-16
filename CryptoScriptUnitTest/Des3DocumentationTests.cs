@@ -19,6 +19,7 @@ namespace CryptoScriptUnitTest
         [TestCase("DES3-ECB")]
         [TestCase("DES3-CMAC")]
         [TestCase("DES3-RETAIL")]
+        [TestCase("WRAP-DES3-TR31")]
         public void Info_ResolvesDeployedDocumentationAndExamplesExecute(string mechanism)
         {
             string? displayed = null;
@@ -47,6 +48,14 @@ namespace CryptoScriptUnitTest
             Assert.That(examples, Is.Not.Empty);
             Execute(examples);
 
+            if (mechanism == "WRAP-DES3-TR31")
+            {
+                AssertRecoveredKey("keyA", "recoveredA");
+                AssertRecoveredKey("keyB", "recoveredB");
+                AssertRecoveredKey("keyC", "recoveredC");
+                AssertRecoveredKey("keyB", "recoveredWireB");
+                return;
+            }
             if (mechanism is "DES3-CBC" or "DES3-ECB")
             {
                 var decrypted = (StringVariableDeclaration)VariableDictionary.Instance().Get("decrypted");
@@ -102,6 +111,17 @@ namespace CryptoScriptUnitTest
         {
             var value = (StringVariableDeclaration)VariableDictionary.Instance().Get(name);
             return FormatConversions.ToByteArray(value.Value, value.ValueFormat);
+        }
+
+        private static void AssertRecoveredKey(string originalName, string recoveredName)
+        {
+            var original = (KeyVariableDeclaration)VariableDictionary.Instance().Get(originalName);
+            var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get(recoveredName);
+            Assert.Multiple(() =>
+            {
+                Assert.That(recovered.KeyValue, Is.EqualTo(original.KeyValue).IgnoreCase);
+                Assert.That(recovered.KeySize, Is.EqualTo(original.KeySize));
+            });
         }
 
         private static string[] Sections(string document) => document.Split('\n')

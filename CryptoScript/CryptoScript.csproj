@@ -51,6 +51,9 @@
     <None Update="InfoDocs\Info.Mech.WRAP-AES-TR31.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.WRAP-DES3-TR31.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.DES3-CBC.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

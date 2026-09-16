@@ -48,6 +48,7 @@ namespace CryptoScript.Model
                 case "AES-GCM":
                 case "AES-CCM":
                 case "WRAP-AES-TR31":
+                case "WRAP-DES3-TR31":
                 case "DES3-CBC":
                 case "DES3-ECB":
                 case "DES3-CMAC":

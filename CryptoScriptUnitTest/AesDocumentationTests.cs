@@ -44,8 +44,15 @@ namespace CryptoScriptUnitTest
             {
                 var original = (KeyVariableDeclaration)VariableDictionary.Instance().Get("keyToWrap");
                 var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("recovered");
+                var wrapped = TR31String.FromString(VariableDictionary.Instance().Get("wrappedKey").Value);
+                const string expectedWire =
+                    "D0144P0AE00E00002C77FA3F4A553BED6E88AE5C172A4166" +
+                    "E3D4ACA8E2AC71C158A476FAC12C13C3829DE55D3AB54C48" +
+                    "F4C4FEF7AC75E90FC47F1B77E7B19A73ED46E64410082557";
                 Assert.That(recovered.KeyValue, Is.EqualTo(original.KeyValue).IgnoreCase);
                 Assert.That(recovered.KeySize, Is.EqualTo(original.KeySize));
+                Assert.That(wrapped.Block + Convert.ToHexString(wrapped.Cryptogram) + Convert.ToHexString(wrapped.Mac),
+                    Is.EqualTo(expectedWire));
                 return;
             }
             if (mechanism is "AES-CMAC" or "AES-GMAC")

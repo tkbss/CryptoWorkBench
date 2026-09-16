@@ -19,7 +19,7 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - DES3-CBC : Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.
 - DES3-RETAIL : Symmetric Triple Data Encryption Standard in Retail mode.
 - DES3-CMAC : Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.
-- WRAP-AES-TR31 : Symmetric Key wrapping algorithm using AES in TR31 format.
-- WRAP-DES3-TR31 : Symmetric Key wrapping algorithm using DES3 in TR31 format.
+- WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
+- WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
 - WRAP-AES : Symmetric Key wrapping algorithm using AES.
 - WRAP-DES3 : Symmetric Key wrapping algorithm using DES3.

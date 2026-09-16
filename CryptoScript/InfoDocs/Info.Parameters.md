@@ -38,9 +38,9 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - NONCE: Unique nonce value for symmetric encryption used in certain modes.
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.
-- BLKH: TR31 Block header information.
-- BIND: TR31 Key derivation algorithm definition.
+- BLKH: TR-31 Key Block Header used by Wrap. The header is authenticated, and its declared total length must match the resulting key-block structure.
+- BIND: Binding parameter for mechanisms that explicitly consume it. For WRAP-AES-TR31 and WRAP-DES3-TR31, the TR-31 header version selects the binding method; BIND does not select Version A, B, C or D.
     - BIND VALUES:
         - BIND-XOR : Key derivation in TR31 with XOR operation and predifined constant value.
         - BIND-CMAC: Key derivation in TR31 with symmetric encryption in CMAC mode.
-    - RND: Random value for symmetric encryption used in certain modes.
+- RND: Optional random bytes used by TR-31 Wrap for key-length obfuscation and cipher-block padding. The required length depends on the wrapped-key algorithm and size; an omitted or wrong-sized value is replaced with generated random filler.
