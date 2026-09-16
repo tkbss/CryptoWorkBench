@@ -14,14 +14,16 @@ public class WrapDES3TR31 : CryptoAlgorithm
         var p = new ParameterVariableDeclaration();
         p.SetInstance(parameters[0]);
         string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
-        RequireVersionB(header);
+        char version = RequireSupportedVersion(header);
         byte[] kbpk = GetKey(parameters[1]);
         byte[] key = GetKey(parameters[2]);
         DES3.DES3.ValidateKeyLength(key);
         string random = p.GetParameter("#RND");
         byte[] data = Tr31ConfidentialData.Create(key, 8, 24 - key.Length,
             string.IsNullOrEmpty(random) ? null : FormatConversions.HexStringToByteArray(random)).ToArray();
-        var wrapped = Tr31VersionBWrap.Wrap(header, kbpk, data);
+        var wrapped = version == 'B'
+            ? Tr31VersionBWrap.Wrap(header, kbpk, data)
+            : Tr31TdeaVariantWrap.Wrap(header, kbpk, data);
         return new StringVariableDeclaration
         {
             Value = new TR31String(header, wrapped.Ciphertext, wrapped.Mac).ToString(),
@@ -43,10 +45,13 @@ public class WrapDES3TR31 : CryptoAlgorithm
         else
             throw new ArgumentException("Expected a TR-31 string or a quoted complete key block.");
 
-        RequireVersionB(wire);
+        char version = RequireSupportedVersion(wire);
         var block = TR31Block.FromString(wire);
-        byte[] key = Tr31VersionBUnwrap.Unwrap(Encoding.ASCII.GetString(block.HeaderDataToMac!),
-            block.Cryptogram!, block.Mac!, GetKey(parameters[1]));
+        string header = Encoding.ASCII.GetString(block.HeaderDataToMac!);
+        byte[] kbpk = GetKey(parameters[1]);
+        byte[] key = version == 'B'
+            ? Tr31VersionBUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk)
+            : Tr31TdeaVariantUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk);
         string value = FormatConversions.ByteArrayToHexString(key);
         return new KeyVariableDeclaration
         {
@@ -65,11 +70,12 @@ public class WrapDES3TR31 : CryptoAlgorithm
         return FormatConversions.HexStringToByteArray(key.KeyValue);
     }
 
-    private static void RequireVersionB(string header)
+    private static char RequireSupportedVersion(string header)
     {
         if (string.IsNullOrEmpty(header))
             throw new ArgumentException("TR-31 header is required.");
-        if (header[0] != 'B')
-            throw new NotSupportedException($"{MechanismName} does not yet support version {header[0]}; only version B is supported.");
+        if (header[0] != 'A' && header[0] != 'B' && header[0] != 'C')
+            throw new NotSupportedException($"{MechanismName} does not support version {header[0]}; only versions A, B and C are supported.");
+        return header[0];
     }
 }
