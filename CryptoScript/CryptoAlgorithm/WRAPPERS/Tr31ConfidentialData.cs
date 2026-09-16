@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace CryptoScript.CryptoAlgorithm.WRAPPERS;
 
 /// <summary>Binary key length, key and two distinct padding regions; no binding or cipher logic.</summary>
@@ -38,7 +40,7 @@ public sealed class Tr31ConfidentialData
         if (random == null || random.Length != paddingLength)
         {
             random = new byte[paddingLength];
-            new Random().NextBytes(random);
+            RandomNumberGenerator.Fill(random);
         }
 
         return new Tr31ConfidentialData(key.ToArray(), random[..obfuscationPaddingLength],
