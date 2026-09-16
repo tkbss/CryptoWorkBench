@@ -13,7 +13,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         public override BlockHeaderVariableDeclaration GenerateBlockHeader(string mechanism)
         {
             KeyBlockVersionID = "D";
-            KeyBlockLength = "112";
+            KeyBlockLength = "144";
             KeyUsage = "D0";
             Algorithm = "A";
             ModeOfUse = "B";

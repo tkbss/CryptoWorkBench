@@ -1,10 +1,12 @@
 using System.Security.Cryptography;
+using CryptoScript.CryptoAlgorithm.WRAPPERS;
 using CryptoScript.Model;
 using CryptoScript.Variables;
 
 namespace CryptoScriptUnitTest;
 
-// Compatibility fixtures, NOT assertions of ANSI 2022 padding conformance.
+// Independent structural coverage for ANSI X9.143-2022 AES key-length obfuscation.
+// The published AES-128 reference vector is covered in WrapperTests.
 [NonParallelizable]
 public class Tr31AesCharacterizationTests
 {
@@ -28,11 +30,11 @@ public class Tr31AesCharacterizationTests
     private static readonly string[][] Cases =
     [
         ["128", "6479FE6B7C473786456D2A92EA5BBA7E",
-            "1BE9D5B5B8A31E4947BA064037DA705B8E9F0119AB5D8B340CB6548D735BA116",
-            "1521D79988623B335540BC8FC5B87961"],
+            "03F80C3517F56FE9CD297E05471A6D79045722B9DC77C1BD7BD81F9EBCB9E63CFCDCAC1078B339C4D9FA5895E71DF73D",
+            "496AC24F72AC279763B7D59F4EF67C91"],
         ["192", "9D375F80EF4CF9CE25DFDB111C92F14BC5322C5B23289EE1",
-            "83BF0287838BB9B8AA5863A1AAB1D7AA7D40E06FC5F61CDB649B3B7984E794C4",
-            "97064CA6E2636A2EBB8915A77AFA52F1"],
+            "8FFFD3C64540FC403E8A7392EE1B104C9E33DC3261F9CF221197D5945ABCCB53AB3E25377F4056BDB1AD220E921EE42A",
+            "59EB85E8CB9CEA08EB9888BE69F4D6E6"],
         ["256", "90408CF5B9CB450EC1923DCA3B470B08013CE1FC188C5727BE7637C74EBA9D4E",
             "3A69EE827366138597DB815274D751E2EECD620D5C585A8E6F93ECC31A57CB61DC853CDBE83ED414B4694A6A1A4FAE9F",
             "9B7D870BA7DD45EFF8D749469C747F53"]
@@ -46,17 +48,26 @@ public class Tr31AesCharacterizationTests
         var fixture = Cases[index];
         int bits = int.Parse(fixture[0]);
         string key = Sequence(32, bits / 8);
-        string padding = Sequence(1, bits == 192 ? 6 : 14);
-        string header = bits == 256 ? "D0144D0AB00E0000" : "D0112D0AB00E0000";
+        int obfuscationBytes = 32 - bits / 8;
+        const int blockPaddingBytes = 14;
+        string padding = Sequence(1, obfuscationBytes + blockPaddingBytes);
+        const string header = "D0144D0AB00E0000";
         var block = Wrap(bits, header, padding);
+        byte[] clear = Decrypt(block, fixture[1]);
+        byte[] suppliedPadding = Convert.FromHexString(padding);
         Assert.Multiple(() =>
         {
             Assert.That(block.Block, Is.EqualTo(header));
+            Assert.That(block.Cryptogram, Has.Length.EqualTo(48));
             Assert.That(Convert.ToHexString(block.Cryptogram), Is.EqualTo(fixture[2]));
             Assert.That(Convert.ToHexString(block.Mac), Is.EqualTo(fixture[3]));
             Assert.That(block.ToString(), Is.EqualTo($"\"{header}\"0x({fixture[2]})0x({fixture[3]})").IgnoreCase);
-            Assert.That(Convert.ToHexString(Decrypt(block, fixture[1])),
+            Assert.That(Convert.ToHexString(clear),
                 Is.EqualTo(bits.ToString("X4") + key + padding));
+            Assert.That(clear[(2 + bits / 8)..34],
+                Is.EqualTo(suppliedPadding[..obfuscationBytes]));
+            Assert.That(clear[34..], Is.EqualTo(suppliedPadding[obfuscationBytes..]));
+            Assert.That(clear[34..], Has.Length.EqualTo(blockPaddingBytes));
         });
         CheckUnwrap(block.ToString(), key, bits);
         CheckUnwrap($"\"{header}{fixture[2]}{fixture[3]}\"", key, bits);
@@ -71,39 +82,139 @@ public class Tr31AesCharacterizationTests
     public void MissingOrWrongSizedRandomFallsBackToFiller(int bits, string? random)
     {
         int index = bits == 128 ? 0 : bits == 192 ? 1 : 2;
-        string header = bits == 256 ? "D0144D0AB00E0000" : "D0112D0AB00E0000";
+        const string header = "D0144D0AB00E0000";
         var block = Wrap(bits, header, random);
         byte[] clear = Decrypt(block, Cases[index][1]);
         // Do not assert random byte values, uniqueness or a statistical property.
-        Assert.That(clear, Has.Length.EqualTo(bits == 256 ? 48 : 32));
+        Assert.That(clear, Has.Length.EqualTo(48));
         Assert.That(Convert.ToHexString(clear[..(2 + bits / 8)]),
             Is.EqualTo(bits.ToString("X4") + Sequence(32, bits / 8)));
         CheckUnwrap(block.ToString(), Sequence(32, bits / 8), bits);
     }
 
-    [Test]
-    public void IncorrectDeclaredLengthIsPreservedAndCompositeUnwrapStillAcceptsIt()
+    [TestCase(128, 16, 8, 30, 14)]
+    [TestCase(192, 8, 0, 22, 6)]
+    public void ObfuscationDependsOnWrappedKeyAlgorithm(int bits, int aesObfuscationBytes,
+        int tdeaObfuscationBytes, int aesRandomBytes, int tdeaRandomBytes)
     {
-        var block = Wrap(128, "D9999D0AB00E0000", Sequence(1, 14));
-        Assert.That(block.Block, Is.EqualTo("D9999D0AB00E0000"));
-        Assert.That(block.Cryptogram, Has.Length.EqualTo(32));
-        CheckUnwrap(block.ToString(), Sequence(32, 16), 128);
-        // Full-wire parsing uses the declared length and currently fails on truncation.
-        Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(() =>
-            Run($"VAR ci=\"{block.Block}{Convert.ToHexString(block.Cryptogram)}{Convert.ToHexString(block.Mac)}\" PARAM cu=#MECH:WRAP-AES-TR31 KEY cr=Unwrap(cu,ck,ci)"));
+        int index = bits == 128 ? 0 : 1;
+        int keyBytes = bits / 8;
+        byte[] aesClear = Decrypt(Wrap(bits, "AES-CBC", "D0144D0AB00E0000",
+            Sequence(1, aesRandomBytes)), Cases[index][1]);
+        byte[] tdeaClear = Decrypt(Wrap(bits, "DES3-CBC", "D0112D0TB00E0000",
+            Sequence(1, tdeaRandomBytes)), Cases[index][1]);
+        var aesKey = new KeyVariableDeclaration { Mechanism = "AES-CBC" };
+        var tdeaKey = new KeyVariableDeclaration { Mechanism = "DES3-CBC" };
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(aesKey, keyBytes),
+                Is.EqualTo(aesObfuscationBytes));
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(tdeaKey, keyBytes),
+                Is.EqualTo(tdeaObfuscationBytes));
+            Assert.That(aesClear, Has.Length.EqualTo(48));
+            Assert.That(aesClear[(2 + keyBytes)..34], Has.Length.EqualTo(aesObfuscationBytes));
+            Assert.That(aesClear[34..], Has.Length.EqualTo(14));
+            Assert.That(tdeaClear, Has.Length.EqualTo(32));
+            Assert.That(tdeaClear[(2 + keyBytes)..26], Has.Length.EqualTo(tdeaObfuscationBytes));
+            Assert.That(tdeaClear[26..], Has.Length.EqualTo(6));
+        });
+    }
+
+    [Test]
+    public void RewrapUsesAesAlgorithmFromAuthenticatedUnwrappedHeader()
+    {
+        const string kbpk = "88E1AB2A2E3DD38C1FA039A536500CC8A87AB9D62DC92C01058FA79F44657DE6";
+        const string wire =
+            "D0144P0AE00E00002C77FA3F4A553BED6E88AE5C172A4166E3D4ACA8E2AC71C1" +
+            "58A476FAC12C13C3829DE55D3AB54C48F4C4FEF7AC75E90FC47F1B77E7B19A73" +
+            "ED46E64410082557";
+        const string random = "1A87BBFA2CFE78D383E5F4C6AA83473C1C2965473CE206BB855B01533782";
+        Run($"KEY hk=GenerateKey(AES-CBC,0x({kbpk})) " +
+            $"VAR hi=\"{wire}\" PARAM hu=#MECH:WRAP-AES-TR31 " +
+            "KEY hr=Unwrap(hu,hk,hi)");
+        var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("hr");
+
+        Run($"PARAM hp=#MECH:WRAP-AES-TR31 #BLKH:\"D0144P0AE00E0000\" #RND:0x({random}) " +
+            "VAR ho=Wrap(hp,hk,hr)");
+        var rewrapped = TR31String.FromString(VariableDictionary.Instance().Get("ho").Value);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(recovered.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
+            Assert.That(recovered.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == "D0144P0AE00E0000"), Is.True);
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(recovered, 16), Is.EqualTo(16));
+            Assert.That(rewrapped.Block, Is.EqualTo("D0144P0AE00E0000"));
+            Assert.That(rewrapped.Cryptogram, Has.Length.EqualTo(48));
+        });
+    }
+
+    [Test]
+    public void RewrapUsesTdeaAlgorithmFromAuthenticatedUnwrappedHeader()
+    {
+        const string key = "202122232425262728292A2B2C2D2E2F";
+        string random = Sequence(1, 14);
+        Run($"KEY tk=GenerateKey(AES-CBC,0x({Sequence(0, 16)})) " +
+            $"KEY ts=GenerateKey(DES3-CBC,0x({key})) " +
+            $"PARAM tw=#MECH:WRAP-AES-TR31 #BLKH:\"D0112D0TB00E0000\" #RND:0x({random}) " +
+            "VAR tb=Wrap(tw,tk,ts) PARAM tu=#MECH:WRAP-AES-TR31 KEY tr=Unwrap(tu,tk,tb)");
+        var source = (KeyVariableDeclaration)VariableDictionary.Instance().Get("ts");
+        var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("tr");
+        source.Value = "source-key-not-selected-for-rewrap";
+
+        Run($"PARAM tp=#MECH:WRAP-AES-TR31 #BLKH:\"D0112D0TB00E0000\" #RND:0x({random}) " +
+            "VAR to=Wrap(tp,tk,tr)");
+        var rewrapped = TR31String.FromString(VariableDictionary.Instance().Get("to").Value);
+        byte[] clear = Decrypt(rewrapped, Cases[0][1]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(recovered.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
+            Assert.That(recovered.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == "D0112D0TB00E0000"), Is.True);
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(recovered, 16), Is.EqualTo(8));
+            Assert.That(rewrapped.Block, Is.EqualTo("D0112D0TB00E0000"));
+            Assert.That(rewrapped.Cryptogram, Has.Length.EqualTo(32));
+            Assert.That(Convert.ToHexString(clear), Is.EqualTo("0080" + key + random));
+        });
+    }
+
+    [Test]
+    public void WrapRejectsHeaderWhoseDeclaredLengthDoesNotMatchGeneratedBlock()
+    {
+        var error = Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(() =>
+            Wrap(128, "D0112D0AB00E0000", Sequence(1, 30)));
+        Assert.That(error!.SemanticError.Message,
+            Is.EqualTo("TR-31 header declares total length 112, but wrap produces 144 characters."));
+    }
+
+    [Test]
+    public void WrapLengthValidationIncludesOptionalBlocks()
+    {
+        const string header = "D0156P0AE00E0100KS0C12345678";
+        var block = Wrap(128, header, Sequence(1, 30));
+        string wireBlock = header + Convert.ToHexString(block.Cryptogram) + Convert.ToHexString(block.Mac);
+        Assert.Multiple(() =>
+        {
+            Assert.That(block.Block, Is.EqualTo(header));
+            Assert.That(wireBlock, Has.Length.EqualTo(156));
+        });
+        CheckUnwrap($"\"{wireBlock}\"", Sequence(32, 16), 128);
     }
 
     [Test]
     public void FullWireUnwrapIgnoresCharactersBeyondDeclaredLength()
     {
-        var block = Wrap(128, "D0112D0AB00E0000", Sequence(1, 14));
+        var block = Wrap(128, "D0144D0AB00E0000", Sequence(1, 30));
         CheckUnwrap($"\"{block.Block}{Convert.ToHexString(block.Cryptogram)}{Convert.ToHexString(block.Mac)}DEADBEEF\"", Sequence(32, 16), 128);
     }
 
     private static TR31String Wrap(int bits, string header, string? random)
+        => Wrap(bits, "AES-CBC", header, random);
+
+    private static TR31String Wrap(int bits, string wrappedKeyMechanism, string header, string? random)
     {
         Run($"KEY ck=GenerateKey(AES-CBC,0x({Sequence(0, bits / 8)})) " +
-            $"KEY cv=GenerateKey(AES-CBC,0x({Sequence(32, bits / 8)})) " +
+            $"KEY cv=GenerateKey({wrappedKeyMechanism},0x({Sequence(32, bits / 8)})) " +
             $"PARAM cp=#MECH:WRAP-AES-TR31 #BLKH:\"{header}\" " +
             (random == null ? "" : $"#RND:0x({random}) ") + "VAR cb=Wrap(cp,ck,cv)");
         return TR31String.FromString(VariableDictionary.Instance().Get("cb").Value);

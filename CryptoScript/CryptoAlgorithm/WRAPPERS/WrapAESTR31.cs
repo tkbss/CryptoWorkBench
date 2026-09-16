@@ -227,11 +227,12 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             byte[] encryptionKey = DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue),
                 EncryptionDerivationData(Convert.ToInt32(keyProtectionKey.KeySize)),
                 Convert.ToInt32(keyProtectionKey.KeySize));
-            byte[] keyData = ConstructBinaryKeyData(keyToWrap.KeyValue, Convert.ToInt32(keyToWrap.KeySize),rnd);
+            byte[] keyData = ConstructBinaryKeyData(keyToWrap, rnd);
             byte[] dataToMAC = ConstructDataToMAC(p, keyData);
             byte[] macResult = ComputeMAC(dataToMAC, macKey);
             byte[] wrappedKey = EncryptNoPadding(encryptionKey, macResult, keyData);
-            string header=p.GetParameter("#BLKH");
+            string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
+            ValidateDeclaredBlockLength(header, wrappedKey.Length, macResult.Length);
             TR31String tr31 = new TR31String(header, wrappedKey, macResult);            
             StringVariableDeclaration block = new StringVariableDeclaration() { Value = tr31.ToString(), ValueFormat = FormatConversions.TR31 };
             return block;
@@ -273,23 +274,53 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             Array.Copy(keyData, 0, dataToMAC, byteArray.Length, keyData.Length);
             return dataToMAC;
         }
-        private byte[] ConstructBinaryKeyData(string key,int KeySize,string rd)
+        private byte[] ConstructBinaryKeyData(KeyVariableDeclaration keyToWrap, string rd)
         {
             byte[]? random = string.IsNullOrEmpty(rd) ? null : FormatConversions.HexStringToByteArray(rd);
-            if (KeySize == 128 || KeySize == 192 || KeySize == 256)
+            int keySize = Convert.ToInt32(keyToWrap.KeySize);
+            if (keySize == 128 || keySize == 192 || keySize == 256)
             {
-                // Preserve D's existing key-size and filler policy, including truncating
-                // excess key bytes. Do not introduce ANSI 2022 AES obfuscation here.
-                byte[] keyBytes = new byte[KeySize / 8];
-                Array.Copy(FormatConversions.HexStringToByteArray(key), 0, keyBytes, 0, keyBytes.Length);
+                byte[] keyBytes = new byte[keySize / 8];
+                Array.Copy(FormatConversions.HexStringToByteArray(keyToWrap.KeyValue), 0, keyBytes, 0, keyBytes.Length);
                 return Tr31ConfidentialData.Create(keyBytes, blockSize: 16,
-                    obfuscationPaddingLength: 0, random: random).ToArray();
+                    obfuscationPaddingLength: GetObfuscationPaddingLength(keyToWrap, keyBytes.Length),
+                    random: random).ToArray();
             }
 
             // Keep the unsupported-size legacy path unchanged in this extraction.
             byte[] binaryKeyData = new byte[16];
-            Array.Copy(FormatConversions.HexStringToByteArray(key), 0, binaryKeyData, 2, 16);
+            Array.Copy(FormatConversions.HexStringToByteArray(keyToWrap.KeyValue), 0, binaryKeyData, 2, 16);
             return binaryKeyData;
+        }
+        internal static int GetObfuscationPaddingLength(KeyVariableDeclaration key, int keyLength)
+        {
+            string mechanism = key.Mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
+                ? key.Mechanism["#MECH:".Length..]
+                : key.Mechanism;
+            char? algorithm = mechanism.StartsWith("AES-", StringComparison.OrdinalIgnoreCase) ? 'A'
+                : mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase) ? 'T'
+                : null;
+            if (algorithm == null)
+            {
+                string? header = key.KeyAttributes.FirstOrDefault(block => block.ID == "HDR")?.Data;
+                if (!string.IsNullOrEmpty(header) && header.Length > 7)
+                    algorithm = char.ToUpperInvariant(header[7]);
+            }
+            return algorithm switch
+            {
+                'A' => Math.Max(0, 32 - keyLength),
+                'T' => Math.Max(0, 24 - keyLength),
+                _ => 0
+            };
+        }
+        private static void ValidateDeclaredBlockLength(string header, int ciphertextLength, int authenticationLength)
+        {
+            if (header.Length < 5 || !int.TryParse(header.AsSpan(1, 4), out int declaredLength))
+                throw new ArgumentException("TR-31 header must contain a four-digit total length.");
+            int actualLength = checked(header.Length + 2 * (ciphertextLength + authenticationLength));
+            if (declaredLength != actualLength)
+                throw new ArgumentException(
+                    $"TR-31 header declares total length {declaredLength}, but wrap produces {actualLength} characters.");
         }
         private byte[] DeriveKey(byte[] key, byte[] data, int keySize)
         {

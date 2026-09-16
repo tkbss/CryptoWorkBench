@@ -40,11 +40,13 @@ namespace CryptoScriptUnitTest
             Assert.That(tr31blockVar.Value == "\"ExampleString\"0x(ABCD1234)0x(1234567890ABCDEF)");            
         }
         [Test]
-        public void WrapperTR31WrapFunctionTest()
+        public void WrapperTR31WrapMatchesAnsiX9143VersionDReference()
         {
+            // ANSI X9.143-2022 section 8.1: AES-128 Version-D key block.
             string input = "KEY kbpk = GenerateKey(AES-CBC,0x(88E1AB2A2E3DD38C1FA039A536500CC8A87AB9D62DC92C01058FA79F44657DE6)) " +
                            "KEY ik=GenerateKey(AES-CBC,0x(3F419E1CB7079442AA37474C2EFBF8B8)) " +
-                           "PARAM p=#BLKH:\"D0112P0AE00E0000\" #MECH:WRAP-AES-TR31 #RND:0x(1C2965473CE206BB855B01533782)" +
+                           "PARAM p=#BLKH:\"D0144P0AE00E0000\" #MECH:WRAP-AES-TR31 " +
+                           "#RND:0x(1A87BBFA2CFE78D383E5F4C6AA83473C1C2965473CE206BB855B01533782)" +
                            "VAR block=Wrap(p,kbpk,ik)";
             CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
@@ -53,15 +55,18 @@ namespace CryptoScriptUnitTest
             Assert.That(res.Statements.Count == 4);
             var tr31blockVar=res.Statements[3] as StringVariableDeclaration;
             TR31String tr31block = TR31String.FromString(tr31blockVar.Value);
-            string FromSpec = "\"D0112P0AE00E0000\"" + "0x(B82679114F470F540165EDFBF7E250FCEA43F810D215F8D207E2E417C07156A2)"+"0x(7E8E31DA05F7425509593D03A457DC34)";
+            string FromSpec = "\"D0144P0AE00E0000\"" +
+                              "0x(2C77FA3F4A553BED6E88AE5C172A4166E3D4ACA8E2AC71C158A476FAC12C13C3829DE55D3AB54C48F4C4FEF7AC75E90F)" +
+                              "0x(C47F1B77E7B19A73ED46E64410082557)";
             TR31String blockSpec = TR31String.FromString(FromSpec);
             Assert.That(tr31block.Equals(blockSpec));
         }
         [Test]
-        public void WrapperTr31UnwrapTR31StringAESKeyTest()
+        public void WrapperTr31UnwrapsAnsiX9143VersionDReference()
         {
+            // ANSI X9.143-2022 section 8.1 complete external key-block representation.
             string input = "KEY kbpk = GenerateKey(AES-CBC,0x(88E1AB2A2E3DD38C1FA039A536500CC8A87AB9D62DC92C01058FA79F44657DE6)) " +
-                           "VAR tr31Blk=\"D0112P0AE00E0000\"0x(B82679114F470F540165EDFBF7E250FCEA43F810D215F8D207E2E417C07156A2)0x(7E8E31DA05F7425509593D03A457DC34)" +
+                           "VAR tr31Blk=\"D0144P0AE00E00002C77FA3F4A553BED6E88AE5C172A4166E3D4ACA8E2AC71C158A476FAC12C13C3829DE55D3AB54C48F4C4FEF7AC75E90FC47F1B77E7B19A73ED46E64410082557\"" +
                            "PARAM p=#MECH:WRAP-AES-TR31" +
                            "KEY ik=Unwrap(p,kbpk,tr31Blk)";
             CryptoScriptRunner prog = new CryptoScriptRunner();
@@ -75,8 +80,10 @@ namespace CryptoScriptUnitTest
             Assert.That(ik.Value.ToUpper() == v.ToUpper());
         }
         [Test]
-        public void WrapperTr31UnwrapNormalStringAESKeyTest()
+        public void WrapperTr31UnwrapsLegacyCryptoWorkBenchD0112Block()
         {
+            // Legacy CryptoWorkBench output without AES key-length obfuscation.
+            // New AES-128 wraps must use the ANSI D0144 form tested above.
             string input = "KEY kbpk = GenerateKey(AES-CBC,0x(88E1AB2A2E3DD38C1FA039A536500CC8A87AB9D62DC92C01058FA79F44657DE6)) " +
                            "VAR tr31Blk=\"D0112P0AE00E0000B82679114F470F540165EDFBF7E250FCEA43F810D215F8D207E2E417C07156A27E8E31DA05F7425509593D03A457DC34\"" +
                            "PARAM p=#MECH:WRAP-AES-TR31" +

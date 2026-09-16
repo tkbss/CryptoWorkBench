@@ -36,8 +36,9 @@ public class Tr31BlockParsingTests
     }
 
     [Test]
-    public void ParsesExistingDVectorWithSixteenByteAuthenticationValue()
+    public void ParsesLegacyCryptoWorkBenchD0112BlockWithSixteenByteAuthenticationValue()
     {
+        // Structural legacy fixture; this is not the ANSI X9.143-2022 AES-128 block.
         const string header = "D0112P0AE00E0000";
         const string cipher = "B82679114F470F540165EDFBF7E250FCEA43F810D215F8D207E2E417C07156A2";
         const string mac = "7E8E31DA05F7425509593D03A457DC34";

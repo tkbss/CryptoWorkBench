@@ -12,30 +12,33 @@ Initial `git status --short`: empty (clean working tree).
 
 ## AES/D compatibility coverage
 
-Existing `WrapperTests` already cover the published AES wrap output, composite
-and full-wire unwrap, and RSA/extended CT optional-block parsing. Keep them unchanged.
+`WrapperTests` cover the published ANSI X9.143-2022 section 8.1 AES-128/D
+wrap output and full-wire unwrap. A separate full-wire test preserves acceptance
+of the historical CryptoWorkBench D0112 block, which is not an ANSI vector.
 
 `Tr31AesCharacterizationTests` adds:
 
 - Three deterministic fixtures exercising 128-, 192- and 256-bit KBPKs and
-  contained keys. Assert header, ciphertext, MAC, exact composite serialization,
-  decrypted confidential bytes, both unwrap representations and key metadata.
+  contained keys. Each has 48 confidential bytes and a D0144 header. The tests
+  assert key-length-obfuscation and block-padding regions, ciphertext, MAC,
+  exact composite serialization, both unwrap representations and key metadata.
 - Six omitted/wrong-length `#RND` cases. The existing implementation silently
   generates filler of the expected length. Assert structure and recovered key,
   never random byte values or uniqueness.
-- Incorrect declared total length: wrap preserves `D9999...`; composite unwrap
-  accepts the authenticated header, whereas full-wire unwrap fails when its
-  declared length exceeds available data.
+- Wrapped-key algorithm separation: equal-length AES and TDEA keys receive their
+  respective 256-bit and 192-bit key-length-obfuscation targets.
+- Wrap rejects a declared total length that differs from the generated block;
+  a valid header containing an Optional Block is accepted at its actual length.
 - Trailing full-wire characters beyond the declared length are currently ignored.
 
-These are compatibility tests, not claims of ANSI 2022 conformance. In particular,
-128/192-bit AES keys currently produce 32 confidential bytes; 256-bit keys produce
-48. Do not silently replace this with mandatory AES obfuscation to 256 bits during
-extraction. Both supplied-header behavior and padding behavior are intentional
-characterization targets, not recommendations for a new validator.
+The structural fixtures use ANSI X9.143-2022 key-length obfuscation: AES keys are
+padded to 32 key bytes before the two-byte length plus key field is padded to the
+16-byte cipher boundary. This gives 48 confidential bytes for all three supported
+AES key lengths. Unwrap remains compatible with historical CryptoWorkBench D0112
+blocks that omitted the AES-128/192 obfuscation region.
 
 AES fixture inputs: KBPK bytes starting at 00, key bytes starting at 20, each of
-the indicated length; filler bytes starting at 01 (14, 6, 14 bytes respectively).
+the indicated length; filler bytes starting at 01 (30, 22, 14 bytes respectively).
 Expected KBEK, CMAC and ciphertext were independently calculated with Python
 `cryptography` AES-CMAC and AES-CBC, then matched against current production wrap.
 Tests decrypt actual ciphertext with the independently fixed KBEK using .NET AES
