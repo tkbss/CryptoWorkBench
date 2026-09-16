@@ -1,6 +1,7 @@
 using CryptoScript.Model;
 using CryptoScript.Variables;
 using CryptoScript.ErrorListner;
+using CryptoScript.CryptoAlgorithm.WRAPPERS;
 
 namespace CryptoScriptUnitTest;
 
@@ -67,6 +68,51 @@ public class Tr31ScriptIntegrationTests
         var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("r");
         Assert.That(recovered.KeyAttributes!.Any(a => a.ID == "HDR" && a.Data == v.Header[..16]), Is.True);
         if (index == 2) Assert.That(recovered.KeyAttributes.Any(a => a.ID == "KS"), Is.True);
+    }
+
+    [TestCase(3)] // Version A
+    [TestCase(0)] // Version B
+    [TestCase(2)] // Version C
+    public void CompositeAcceptsExactAuthenticationValueLength(int referenceIndex)
+    {
+        var reference = Tr31ReferenceVectors.All[referenceIndex];
+        string composite = $"\"{reference.Header}\"0x({reference.Ciphertext})0x({reference.Mac})";
+
+        Run(Keys(reference.Kbpk, reference.Key) +
+            $"PARAM p=#MECH:WRAP-DES3-TR31 VAR b={composite} KEY r=Unwrap(p,k,b)");
+
+        CheckKey(reference.Key);
+    }
+
+    [TestCase(3, 3)] // Version A, too short
+    [TestCase(3, 5)] // Version A, too long
+    [TestCase(0, 7)] // Version B, too short
+    [TestCase(0, 9)] // Version B, too long
+    [TestCase(2, 3)] // Version C, too short
+    [TestCase(2, 5)] // Version C, too long
+    public void CompositeRejectsIncorrectAuthenticationValueLength(int referenceIndex, int suppliedLength)
+    {
+        var reference = Tr31ReferenceVectors.All[referenceIndex];
+        byte[] validAuthenticationValue = Convert.FromHexString(reference.Mac);
+        byte[] suppliedAuthenticationValue = new byte[suppliedLength];
+        Array.Copy(
+            validAuthenticationValue,
+            suppliedAuthenticationValue,
+            Math.Min(validAuthenticationValue.Length, suppliedAuthenticationValue.Length));
+        if (suppliedAuthenticationValue.Length > validAuthenticationValue.Length)
+            Array.Fill(suppliedAuthenticationValue, (byte)0xAA, validAuthenticationValue.Length,
+                suppliedAuthenticationValue.Length - validAuthenticationValue.Length);
+
+        string composite = $"\"{reference.Header}\"0x({reference.Ciphertext})0x({Convert.ToHexString(suppliedAuthenticationValue)})";
+        Run(Keys(reference.Kbpk, reference.Key) + $"PARAM p=#MECH:WRAP-DES3-TR31 VAR b={composite}");
+
+        var error = Assert.Throws<SemanticErrorException>(() => Run("KEY r=Unwrap(p,k,b)"));
+        int expectedLength = TR31Block.GetAuthenticationValueLength(reference.Header[0]);
+
+        Assert.That(
+            error!.SemanticError.Message,
+            Does.Contain($"TR-31 version {reference.Header[0]} authentication value must contain exactly {expectedLength} bytes."));
+        Assert.That(VariableDictionary.Instance().Contains("r"), Is.False);
     }
 
     [TestCase(16, 16)]

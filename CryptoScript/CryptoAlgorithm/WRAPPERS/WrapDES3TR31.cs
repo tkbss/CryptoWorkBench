@@ -35,17 +35,22 @@ public class WrapDES3TR31 : CryptoAlgorithm
     {
         string input = parameters[2];
         string wire;
+        char version;
         if (FormatConversions.ParseString(input) == FormatConversions.TR31)
         {
             var composite = TR31String.FromString(input);
+            version = RequireSupportedVersion(composite.Block);
+            RequireAuthenticationValueLength(version, composite.Mac);
             wire = composite.Block + Convert.ToHexString(composite.Cryptogram) + Convert.ToHexString(composite.Mac);
         }
         else if (FormatConversions.ParseString(input) == FormatConversions.STR)
+        {
             wire = FormatConversions.ToString(input);
+            version = RequireSupportedVersion(wire);
+        }
         else
             throw new ArgumentException("Expected a TR-31 string or a quoted complete key block.");
 
-        char version = RequireSupportedVersion(wire);
         var block = TR31Block.FromString(wire);
         string header = Encoding.ASCII.GetString(block.HeaderDataToMac!);
         byte[] kbpk = GetKey(parameters[1]);
@@ -59,6 +64,15 @@ public class WrapDES3TR31 : CryptoAlgorithm
             ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
             Mechanism = MechanismName, KeyAttributes = block.HeaderOptionalBlocks()
         };
+    }
+
+    private static void RequireAuthenticationValueLength(char version, byte[] authenticationValue)
+    {
+        int expectedLength = TR31Block.GetAuthenticationValueLength(version);
+        if (authenticationValue.Length != expectedLength)
+            throw new ArgumentException(
+                $"TR-31 version {version} authentication value must contain exactly {expectedLength} bytes.",
+                nameof(authenticationValue));
     }
 
     private static byte[] GetKey(string value)
