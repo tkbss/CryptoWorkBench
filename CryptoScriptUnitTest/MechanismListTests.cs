@@ -1,3 +1,4 @@
+using CryptoScript.ErrorListner;
 using CryptoScript.Model;
 using CryptoScript.Variables;
 
@@ -6,9 +7,19 @@ namespace CryptoScriptUnitTest;
 [NonParallelizable]
 public class MechanismListTests
 {
+    private static readonly string[] HmacMechanisms =
+    {
+        "HMAC-SHA1", "HMAC-SHA224", "HMAC-SHA256", "HMAC-SHA384", "HMAC-SHA512",
+        "HMAC-SHA512-224", "HMAC-SHA512-256",
+        "HMAC-SHA3-224", "HMAC-SHA3-256", "HMAC-SHA3-384", "HMAC-SHA3-512"
+    };
+
     private static readonly string[] Expected =
     {
         "AES-ECB", "AES-CBC", "AES-CTR", "AES-CMAC", "AES-GCM", "AES-CCM", "AES-GMAC",
+        "HMAC-SHA1", "HMAC-SHA224", "HMAC-SHA256", "HMAC-SHA384", "HMAC-SHA512",
+        "HMAC-SHA512-224", "HMAC-SHA512-256",
+        "HMAC-SHA3-224", "HMAC-SHA3-256", "HMAC-SHA3-384", "HMAC-SHA3-512",
         "DES3-ECB", "DES3-CBC", "DES3-RETAIL", "DES3-CMAC",
         "WRAP-AES-TR31", "WRAP-DES3-TR31", "WRAP-AES", "WRAP-DES3"
     };
@@ -16,8 +27,23 @@ public class MechanismListTests
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(15));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(26));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
+    }
+
+    [TestCaseSource(nameof(HmacMechanisms))]
+    public void ParsesHmacMechanism(string name)
+    {
+        LexerErrorListener.LexerErrorOccured = false;
+        var parser = ParserBuilder.StringBuild($"PARAM p=#MECH:{name}");
+
+        parser.program();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
+            Assert.That(LexerErrorListener.LexerErrorOccured, Is.False);
+        });
     }
 
     [TestCaseSource(nameof(Expected))]

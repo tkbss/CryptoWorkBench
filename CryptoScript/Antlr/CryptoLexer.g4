@@ -28,6 +28,9 @@ fragment HEX_STRING_FRAG    : '0x(' [0-9a-fA-F]+ ')';
 fragment ESC                : '\\' [btnrf"'\\];
 
 MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC | M_AES_CCM
+              | M_HMAC_SHA1 | M_HMAC_SHA224 | M_HMAC_SHA256 | M_HMAC_SHA384 | M_HMAC_SHA512
+              | M_HMAC_SHA512_224 | M_HMAC_SHA512_256
+              | M_HMAC_SHA3_224 | M_HMAC_SHA3_256 | M_HMAC_SHA3_384 | M_HMAC_SHA3_512
               | M_DES3_ECB| M_DES3_CBC| M_DES3_RETAIL | M_DES3_CMAC
               | M_WRAP_AES_TR31 | M_WRAP_DES3_TR31 | M_WRAP_AES | M_WRAP_DES3
               ;
@@ -39,6 +42,17 @@ M_AES_CMAC          : 'AES-CMAC';
 M_AES_GCM           : 'AES-GCM';
 M_AES_CCM           : 'AES-CCM';
 M_AES_GMAC          : 'AES-GMAC';
+M_HMAC_SHA1         : 'HMAC-SHA1';
+M_HMAC_SHA224       : 'HMAC-SHA224';
+M_HMAC_SHA256       : 'HMAC-SHA256';
+M_HMAC_SHA384       : 'HMAC-SHA384';
+M_HMAC_SHA512       : 'HMAC-SHA512';
+M_HMAC_SHA512_224   : 'HMAC-SHA512-224';
+M_HMAC_SHA512_256   : 'HMAC-SHA512-256';
+M_HMAC_SHA3_224     : 'HMAC-SHA3-224';
+M_HMAC_SHA3_256     : 'HMAC-SHA3-256';
+M_HMAC_SHA3_384     : 'HMAC-SHA3-384';
+M_HMAC_SHA3_512     : 'HMAC-SHA3-512';
 M_DES3_ECB          : 'DES3-ECB';
 M_DES3_CBC          : 'DES3-CBC';
 M_DES3_RETAIL       : 'DES3-RETAIL';
