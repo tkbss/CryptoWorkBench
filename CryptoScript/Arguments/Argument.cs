@@ -70,6 +70,11 @@ namespace CryptoScript.Model
                 Value = value;
                 return;
             }
+            if (value.Length > 0 && value.All(char.IsDigit))
+            {
+                Value = value;
+                return;
+            }
             if (VariableDictionary.Instance().Contains(value))
                 Value = VariableDictionary.Instance().Get(value).Value;
             else

@@ -18,8 +18,10 @@ declaration   : type ID '=' expression
 declareparam  :  PARAM_TYPE ':' MECHANISM
               |  PARAM_TYPE ':' PADDING
               |  PARAM_TYPE ':' HEX_STRING
+              |  PARAM_TYPE ':' BASE64_STRING
               |  PARAM_TYPE ':' ID
               |  PARAM_TYPE ':' NORMAL_STRING
+			  |  PARAM_TYPE ':' INT
 			  ;
 type          : T_KEY
               | T_VAR

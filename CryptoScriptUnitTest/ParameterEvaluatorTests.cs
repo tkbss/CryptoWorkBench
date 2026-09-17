@@ -30,6 +30,7 @@ public class ParameterEvaluatorTests
     [TestCase("#ADATA", "\"raw value\"")]
     [TestCase("#MECH", "AES-CBC")]
     [TestCase("#PAD", "PKCS-7")]
+    [TestCase("#OUTLEN", "336")]
     public void PreservesRecognizedValues(string type, string value)
     {
         var result = ParameterEvaluator.Evaluate(type, value);

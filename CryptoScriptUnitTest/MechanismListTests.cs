@@ -31,13 +31,13 @@ public class MechanismListTests
         "HASH-SHA512-224", "HASH-SHA512-256",
         "HASH-SHA3-224", "HASH-SHA3-256", "HASH-SHA3-384", "HASH-SHA3-512",
         "DES3-ECB", "DES3-CBC", "DES3-RETAIL", "DES3-CMAC",
-        "WRAP-AES-TR31", "WRAP-DES3-TR31", "WRAP-AES", "WRAP-DES3"
+        "WRAP-AES-TR31", "WRAP-DES3-TR31", "WRAP-AES", "WRAP-DES3", "KDF-HKDF"
     };
 
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(37));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(38));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
     }
 
