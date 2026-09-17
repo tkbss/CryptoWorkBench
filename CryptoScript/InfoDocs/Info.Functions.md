@@ -10,6 +10,7 @@ Possible Parameters are given in overlay window during typing.
 - Encrypt a message: **VAR e = Encrypt(parameters, key, data)**
 - Decrypt a message: **VAR d = Decrypt(parameters, key, data)**
 - Compute a message authentication code (MAC): **VAR m = Mac(parameters, key, data)**
+- Compute an unkeyed message digest: **VAR h = Hash(parameters, data)**
 - Generate a key: **KEY k = GenerateKey(mechanism, length)**
 - Generate parameters: **PARAM p = Parameters(mechanism, p1, ..., pn)**
 - Print variable to output: **Print(s)**

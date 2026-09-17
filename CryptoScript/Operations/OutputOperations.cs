@@ -64,6 +64,17 @@ namespace CryptoScript.Model
                 case "HMAC-SHA3-256":
                 case "HMAC-SHA3-384":
                 case "HMAC-SHA3-512":
+                case "HASH-SHA1":
+                case "HASH-SHA224":
+                case "HASH-SHA256":
+                case "HASH-SHA384":
+                case "HASH-SHA512":
+                case "HASH-SHA512-224":
+                case "HASH-SHA512-256":
+                case "HASH-SHA3-224":
+                case "HASH-SHA3-256":
+                case "HASH-SHA3-384":
+                case "HASH-SHA3-512":
                     output += File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", $"Info.Mech.{args[0]}.md"));
                     break;
                     case "keymap":

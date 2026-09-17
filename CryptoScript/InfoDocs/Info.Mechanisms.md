@@ -30,6 +30,17 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - HMAC-SHA3-256 : Keyed-Hash Message Authentication Code using SHA3-256.
 - HMAC-SHA3-384 : Keyed-Hash Message Authentication Code using SHA3-384.
 - HMAC-SHA3-512 : Keyed-Hash Message Authentication Code using SHA3-512.
+- HASH-SHA1 : Unkeyed message digest using SHA-1.
+- HASH-SHA224 : Unkeyed message digest using SHA-224.
+- HASH-SHA256 : Unkeyed message digest using SHA-256.
+- HASH-SHA384 : Unkeyed message digest using SHA-384.
+- HASH-SHA512 : Unkeyed message digest using SHA-512.
+- HASH-SHA512-224 : Unkeyed message digest using SHA-512/224.
+- HASH-SHA512-256 : Unkeyed message digest using SHA-512/256.
+- HASH-SHA3-224 : Unkeyed message digest using SHA3-224.
+- HASH-SHA3-256 : Unkeyed message digest using SHA3-256.
+- HASH-SHA3-384 : Unkeyed message digest using SHA3-384.
+- HASH-SHA3-512 : Unkeyed message digest using SHA3-512.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
 - WRAP-AES : Symmetric Key wrapping algorithm using AES.

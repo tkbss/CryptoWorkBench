@@ -33,6 +33,17 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - HMAC-SHA3-256
         - HMAC-SHA3-384
         - HMAC-SHA3-512
+        - HASH-SHA1
+        - HASH-SHA224
+        - HASH-SHA256
+        - HASH-SHA384
+        - HASH-SHA512
+        - HASH-SHA512-224
+        - HASH-SHA512-256
+        - HASH-SHA3-224
+        - HASH-SHA3-256
+        - HASH-SHA3-384
+        - HASH-SHA3-512
         - WRAP-AES-TR31
         - WRAP-DES3-TR31
         - WRAP-AES
@@ -47,6 +58,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - NONE
 - MACLEN: Output length in bytes for DES3-RETAIL; valid values are 4 through 8 (default 8).
 - HMAC parameters contain only MECH. IV, PAD and MACLEN are not supported for HMAC mechanisms.
+- HASH parameters contain only MECH. IV, PAD, MACLEN, Salt and output-length parameters are not supported for HASH mechanisms.
 - NONCE: Unique nonce value for symmetric encryption used in certain modes.
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.
