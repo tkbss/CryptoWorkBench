@@ -19,6 +19,17 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - DES3-CBC : Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.
 - DES3-RETAIL : Symmetric Triple Data Encryption Standard in Retail mode.
 - DES3-CMAC : Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.
+- HMAC-SHA1 : Keyed-Hash Message Authentication Code using SHA-1.
+- HMAC-SHA224 : Keyed-Hash Message Authentication Code using SHA-224.
+- HMAC-SHA256 : Keyed-Hash Message Authentication Code using SHA-256.
+- HMAC-SHA384 : Keyed-Hash Message Authentication Code using SHA-384.
+- HMAC-SHA512 : Keyed-Hash Message Authentication Code using SHA-512.
+- HMAC-SHA512-224 : Keyed-Hash Message Authentication Code using SHA-512/224.
+- HMAC-SHA512-256 : Keyed-Hash Message Authentication Code using SHA-512/256.
+- HMAC-SHA3-224 : Keyed-Hash Message Authentication Code using SHA3-224.
+- HMAC-SHA3-256 : Keyed-Hash Message Authentication Code using SHA3-256.
+- HMAC-SHA3-384 : Keyed-Hash Message Authentication Code using SHA3-384.
+- HMAC-SHA3-512 : Keyed-Hash Message Authentication Code using SHA3-512.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
 - WRAP-AES : Symmetric Key wrapping algorithm using AES.
