@@ -49,6 +49,15 @@ namespace CryptoScript.CryptoAlgorithm.HASH
             throw new ArgumentException("HASH does not support key generation.");
         }
 
+        public override StringVariableDeclaration Hash(string[] parameters)
+        {
+            ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+            NormalizeAndValidateMechanism(parameter.Mechanism);
+            StringVariableDeclaration data = ResolveData(parameters[1]);
+
+            return new HASHMode().ModeHash(parameter, data);
+        }
+
         private static string NormalizeAndValidateMechanism(string mechanism)
         {
             mechanism = NormalizeMechanism(mechanism);
@@ -63,6 +72,32 @@ namespace CryptoScript.CryptoAlgorithm.HASH
             return mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
                 ? mechanism["#MECH:".Length..]
                 : mechanism;
+        }
+
+        private static ParameterVariableDeclaration ResolveParameter(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
+                return declared;
+            if (FormatConversions.ParseString(value) == FormatConversions.PAR)
+            {
+                var parameter = new ParameterVariableDeclaration();
+                parameter.SetInstance(value);
+                return parameter;
+            }
+
+            throw new ArgumentException("wrong parameter argument");
+        }
+
+        private static StringVariableDeclaration ResolveData(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+                return declared;
+
+            string format = FormatConversions.ParseString(value);
+            if (format == FormatConversions.HEX || format == FormatConversions.B64 || format == FormatConversions.STR)
+                return new StringVariableDeclaration { Value = value, ValueFormat = format };
+
+            throw new ArgumentException("wrong data argument");
         }
     }
 }

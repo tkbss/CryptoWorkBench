@@ -62,6 +62,15 @@ namespace CryptoScript.Model
             var returnValue = algo.Mac(args);   
             return returnValue; 
         }
+        public VariableDeclaration Hash(params string[] args)
+        {
+            if (args.Length != 2)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            var algo = DetermineAlgorithm(args);
+            return algo.Hash(args);
+        }
         //the requirement for encrypt/decrypt is that there will be 3 arguments
         //first argument is Parameter
         //second argument is  Key

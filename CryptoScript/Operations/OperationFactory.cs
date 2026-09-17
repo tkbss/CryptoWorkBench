@@ -17,6 +17,8 @@ namespace CryptoScript.Model
                     return op.Sign;
                 case "mac":
                     return op.Mac;
+                case "hash":
+                    return op.Hash;
                 case "encrypt":                                     
                     return op.Encrypt;
                 case "decrypt":

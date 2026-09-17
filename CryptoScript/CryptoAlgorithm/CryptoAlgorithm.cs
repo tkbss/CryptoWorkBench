@@ -36,6 +36,10 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new StringVariableDeclaration();
         }
+        public virtual StringVariableDeclaration Hash(string[] parameters)
+        {
+            return new StringVariableDeclaration();
+        }
         public virtual StringVariableDeclaration Wrap(string[] parameters)
         {
             return new StringVariableDeclaration();
