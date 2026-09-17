@@ -63,5 +63,20 @@ namespace CryptoScriptUnitTest
 
         }
 
+        [TestCase("BIND-CMAC")]
+        [TestCase("BIND-XOR")]
+        public void BindParameterIsNotPartOfTheLanguage(string binding)
+        {
+            string input = $"PARAM p=#MECH:WRAP-AES-TR31 #BIND:{binding}";
+            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
+            parser.program();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(parser.NumberOfSyntaxErrors > 0 || LexerErrorListener.LexerErrorOccured, Is.True);
+                Assert.That(SyntaxErrorList.Instance(), Is.Not.Empty);
+            });
+        }
+
     }
 }

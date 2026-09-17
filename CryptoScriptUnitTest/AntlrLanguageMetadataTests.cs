@@ -46,14 +46,14 @@ public class AntlrLanguageMetadataTests
     }
 
     [Test]
-    public void PreservesParameterAndPaddingSnapshotsAndMaclenFallback()
+    public void PreservesParameterAndPaddingSnapshots()
     {
-        var parameters = new[] { "#MECH", "#IV", "#PAD", "#NONCE", "#COUNTER", "#ADATA", "#BLKH", "#BIND", "#RND" };
+        var parameters = new[] { "#MECH", "#IV", "#PAD", "#MACLEN", "#NONCE", "#COUNTER", "#ADATA", "#BLKH", "#RND" };
         var paddings = new[] { "ISO-7816", "PKCS-7", "ISO-9797-M1", "ISO-9797-M2", "ISO-9797-M3", "ANSI-X923", "TLS-CBC", "NONE" };
         Assert.That(AntlrLanguageMetadata.GetParameters(), Is.EqualTo(parameters));
         Assert.That(AntlrLanguageMetadata.GetPaddings(), Is.EqualTo(paddings));
         Assert.That(ParameterTypeList.Instance.Paddings, Is.EqualTo(paddings));
-        Assert.That(ParameterTypeList.Instance.ParameterTypes, Is.EqualTo(parameters.Append("#MACLEN")));
+        Assert.That(ParameterTypeList.Instance.ParameterTypes, Is.EqualTo(parameters));
         Assert.That(ParameterTypeList.Instance.ParameterTypes.Count(p => p == "#MACLEN"), Is.EqualTo(1));
     }
 }

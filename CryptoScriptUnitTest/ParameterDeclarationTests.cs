@@ -40,49 +40,5 @@ namespace CryptoScriptUnitTest
             Assert.That(variable.GetParameter("ADATA") == "\"AUTEHTICATION_DATA\"");
 
         }
-        [Test]
-        public void WrapperParameterErrorTest()
-        {
-            string input = "PARAM p=#BLKH:\"D0112B1AX00E0000\" #BIND=BIND-CMAC #MECH:WRAP-TR31";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
-            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
-            CryptoScriptParser.ProgramContext context = parser.program();
-            try
-            {
-                var res = prog.Execute(context);
-                var statement = res.Statements.FirstOrDefault();
-                var variable = statement as ParameterVariableDeclaration;
-                Assert.That(variable.GetParameter("MECH") == "WRAP-TR31");
-            }
-            catch (SemanticErrorException e)
-            {
-                Console.WriteLine(e.SemanticError.Message);
-                Assert.Pass();
-                return;
-            }
-
-        }
-        [Test]
-        public void WrapperParameterTest()
-        {
-            string input = "PARAM p=#BLKH:\"D0112B1AX00E0000\" #BIND:BIND-CMAC #MECH:WRAP-AES-TR31";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
-            CryptoScriptParser parser = ParserBuilder.StringBuild(input);
-            CryptoScriptParser.ProgramContext context = parser.program();
-            try
-            {
-                var res = prog.Execute(context);
-                var statement = res.Statements.FirstOrDefault();
-                var variable = statement as ParameterVariableDeclaration;
-                Assert.That(variable.GetParameter("MECH") == "WRAP-AES-TR31");
-            }
-            catch (SemanticErrorException e)
-            {
-                Console.WriteLine(e.SemanticError.Message);
-                Assert.Fail();
-                return;
-            }
-
-        }
     }
 }

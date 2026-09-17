@@ -32,7 +32,6 @@ These parameters are used with the WRAP-DES3-TR31 mechanism:
 - **#MECH**: Set to `WRAP-DES3-TR31` in a directly declared PARAM.
 - **#BLKH**: Required by Wrap. Supply a complete Version A, B or C header, including Optional Blocks when present. The header is authenticated and its declared total length must describe the resulting wire block.
 - **#RND**: Optional hexadecimal filler in wire order: key-length obfuscation first, then TDEA block padding. A 128-bit wrapped TDEA key uses 8 bytes of obfuscation and 6 bytes of block padding, for 14 bytes total. A 192-bit key uses no obfuscation and 6 bytes of block padding, for 6 bytes total. If omitted or supplied with another length, CryptoWorkBench generates the complete filler with a cryptographically secure random generator.
-- **#BIND**: Does not select variant or derivation binding. Versions A and C use Variant Binding; Version B uses Derivation Binding.
 - **Input and Output**: Wrap accepts Versions A, B and C only. No external IV or configurable padding is used by this mechanism.
 
 ---

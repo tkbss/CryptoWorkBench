@@ -6,7 +6,7 @@ WRAP-AES-TR31 creates and reads ANSI X9.143-2022 TR-31 Version D key blocks. Ver
 
 ## Key Features
 
-- **Version and Binding**: CryptoWorkBench supports Version D with AES Key Derivation Binding. The version in the TR-31 header selects the binding method; `#BIND` does not select it.
+- **Version and Binding**: CryptoWorkBench supports Version D with AES Key Derivation Binding. The version in the TR-31 header selects the binding method.
 - **KBPK Requirements**: The AES KBPK must contain 128, 192 or 256 bits and can be generated or imported with an AES mechanism such as AES-CBC.
 - **AES Key-Length Obfuscation**: An AES key is padded with random key-length-obfuscation bytes to 32 key bytes, followed by random padding to the 16-byte AES block boundary.
 
@@ -41,7 +41,6 @@ These parameters are used with the WRAP-AES-TR31 mechanism:
 - **#MECH**: Set to `WRAP-AES-TR31` in a directly declared PARAM.
 - **#BLKH**: Required by Wrap. Supply the complete authenticated TR-31 header, including Optional Blocks when present. The four-digit declared total length must equal the generated wire-block length; a contradictory header is rejected rather than rewritten.
 - **#RND**: Optional hexadecimal random filler in wire order: key-length obfuscation first, then block padding. For AES-128, AES-192 and AES-256 use exactly 30, 22 and 14 bytes respectively for deterministic output; for TDEA-128 and TDEA-192 use 14 and 6 bytes. If omitted or supplied with another length, CryptoWorkBench generates the complete filler with a cryptographically secure random generator.
-- **#BIND**: Not used to choose Version D binding. The header version determines the binding method.
 - **Input and Output**: Wrap receives declared KEY variables. Unwrap accepts a composite TR-31 value or a quoted complete wire block. No external IV or configurable padding is used; the calculated authentication value is the AES-CBC IV.
 
 ---

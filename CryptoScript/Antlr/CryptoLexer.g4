@@ -29,9 +29,8 @@ fragment ESC                : '\\' [btnrf"'\\];
 
 MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC | M_AES_CCM
               | M_DES3_ECB| M_DES3_CBC| M_DES3_RETAIL | M_DES3_CMAC
-              | M_WRAP_AES_TR31 | M_WRAP_DES3_TR31 | M_WRAP_AES | M_WRAP_DES3 
-              | M_BIND_XOR | M_BIND_CMAC
-              | M_RSA | M_RSA_OAEP | M_RSA_PSS | M_RSA_PKCS1;
+              | M_WRAP_AES_TR31 | M_WRAP_DES3_TR31 | M_WRAP_AES | M_WRAP_DES3
+              ;
 
 M_AES_ECB           : 'AES-ECB';
 M_AES_CBC           : 'AES-CBC';
@@ -48,9 +47,6 @@ M_WRAP_AES_TR31     : 'WRAP-AES-TR31';
 M_WRAP_DES3_TR31    : 'WRAP-DES3-TR31';
 M_WRAP_AES          : 'WRAP-AES';
 M_WRAP_DES3         : 'WRAP-DES3';
-M_BIND_XOR          : 'BIND-XOR';
-M_BIND_CMAC         : 'BIND-CMAC';
-
 PADDING	      :  PAD_ISO7816 | PAD_PKCS7 | PAD_ISO9797M1 | PAD_ISO9797M2 | PAD_ISO9797M3 | PAD_ANSI_X923 | PAD_TLS_CBC | PAD_NONE; 
 PAD_ISO7816   : 'ISO-7816';
 PAD_PKCS7     : 'PKCS-7';
@@ -61,7 +57,7 @@ PAD_ANSI_X923 : 'ANSI-X923';
 PAD_TLS_CBC   : 'TLS-CBC';
 PAD_NONE      : 'NONE';
 
-PARAM_TYPE	  : P_MECHANISM | P_IV | P_PADDING | P_MAC_LENGTH | P_NONCE | P_COUNTER|P_ADATA | P_BLKHDR | P_KEYBIND | P_RND;
+PARAM_TYPE	  : P_MECHANISM | P_IV | P_PADDING | P_MAC_LENGTH | P_NONCE | P_COUNTER|P_ADATA | P_BLKHDR | P_RND;
 P_MECHANISM   : '#MECH';
 P_IV          : '#IV';
 P_PADDING     : '#PAD';
@@ -70,6 +66,5 @@ P_NONCE       : '#NONCE';
 P_COUNTER     : '#COUNTER';
 P_ADATA       : '#ADATA';
 P_BLKHDR	  : '#BLKH';
-P_KEYBIND     : '#BIND'; 
 P_RND         : '#RND';
 WS            : [ \t\r\n]+ -> skip;
