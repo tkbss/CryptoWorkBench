@@ -62,6 +62,22 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
                 keySizeBits);
         }
 
+        public override StringVariableDeclaration Mac(string[] parameters)
+        {
+            ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+            NormalizeAndValidateMechanism(parameter.Mechanism);
+            KeyVariableDeclaration key = ResolveKey(parameters[1]);
+            StringVariableDeclaration data = ResolveData(parameters[2]);
+
+            return CreateMode(parameter.Mechanism).ModeMac(parameter, key, data);
+        }
+
+        public override EncryptionMode CreateMode(string mechanism)
+        {
+            NormalizeAndValidateMechanism(mechanism);
+            return new HMACMode();
+        }
+
         private static KeyVariableDeclaration CreateKeyVariable(string value, string mechanism, int keySizeBits)
         {
             return new KeyVariableDeclaration
@@ -82,6 +98,52 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
                 throw new ArgumentException($"Unsupported HMAC mechanism: {mechanism}.");
 
             return mechanism;
+        }
+
+        private static ParameterVariableDeclaration ResolveParameter(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
+                return declared;
+            if (FormatConversions.ParseString(value) == FormatConversions.PAR)
+            {
+                var parameter = new ParameterVariableDeclaration();
+                parameter.SetInstance(value);
+                return parameter;
+            }
+
+            throw new ArgumentException("wrong parameter argument");
+        }
+
+        private static KeyVariableDeclaration ResolveKey(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is KeyVariableDeclaration declared)
+                return declared;
+            if (FormatConversions.ParseString(value) == FormatConversions.HEX)
+            {
+                return new KeyVariableDeclaration
+                {
+                    Value = value,
+                    KeyValue = value,
+                    ValueFormat = FormatConversions.HEX,
+                    Type = new CryptoTypeKey()
+                };
+            }
+            if (FormatConversions.ParseString(value) == FormatConversions.JSO)
+                return KeyVariableDeclaration.Deserialize(value);
+
+            throw new ArgumentException("wrong key argument");
+        }
+
+        private static StringVariableDeclaration ResolveData(string value)
+        {
+            if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+                return declared;
+
+            string format = FormatConversions.ParseString(value);
+            if (format == FormatConversions.HEX || format == FormatConversions.B64 || format == FormatConversions.STR)
+                return new StringVariableDeclaration { Value = value, ValueFormat = format };
+
+            throw new ArgumentException("wrong data argument");
         }
     }
 }

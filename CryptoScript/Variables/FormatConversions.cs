@@ -38,7 +38,12 @@ namespace CryptoScript.Variables
                if(format == HEX)
                 return HexStringToByteArray(input);
             if(format == B64)
-                return Convert.FromBase64String(input);
+            {
+                string base64 = input.StartsWith("b64(", StringComparison.Ordinal) && input.EndsWith(")", StringComparison.Ordinal)
+                    ? input.Substring(4, input.Length - 5)
+                    : input;
+                return Convert.FromBase64String(base64);
+            }
             if(format == STR)
                 return StringToByteArray(input);
             return new byte[0];
