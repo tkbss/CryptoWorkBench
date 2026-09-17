@@ -11,6 +11,7 @@ namespace CryptoScript.Variables
     public class KeyVariableDeclaration : VariableDeclaration
     {
         public string Mechanism { get; set; } = string.Empty;
+        public string DerivationMechanism { get; set; } = string.Empty;
         public string KeySize { get; set; } = string.Empty;
         public string KeyValue { get; set; } = string.Empty;
         public List<OptionalBlock> KeyAttributes { get; set; } = new List<OptionalBlock>();

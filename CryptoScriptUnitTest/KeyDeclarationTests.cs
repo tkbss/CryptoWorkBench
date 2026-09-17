@@ -10,6 +10,36 @@ namespace CryptoScriptUnitTest
     public class KeyDeclarationTests
     {
         [Test]
+        public void NewKeyHasEmptyDerivationMechanism()
+        {
+            var key = new KeyVariableDeclaration();
+
+            Assert.That(key.DerivationMechanism, Is.Empty);
+        }
+
+        [Test]
+        public void SerializationPreservesDerivationMechanism()
+        {
+            var key = new KeyVariableDeclaration { DerivationMechanism = "KDF-HKDF" };
+
+            string json = key.Serialize();
+            var restored = KeyVariableDeclaration.Deserialize(json);
+
+            ClassicAssert.IsTrue(json.Contains("\"DerivationMechanism\":\"KDF-HKDF\""));
+            Assert.That(restored.DerivationMechanism, Is.EqualTo("KDF-HKDF"));
+        }
+
+        [Test]
+        public void LegacyJsonDefaultsToEmptyDerivationMechanism()
+        {
+            const string json = "{\"Mechanism\":\"AES-CBC\",\"KeySize\":\"128\",\"KeyValue\":\"0x(00000000000000000000000000000000)\",\"KeyAttributes\":[],\"Id\":\"legacy\",\"Type\":null,\"Value\":\"0x(00000000000000000000000000000000)\",\"ValueFormat\":\"HEX_STRING\"}";
+
+            var restored = KeyVariableDeclaration.Deserialize(json);
+
+            Assert.That(restored.DerivationMechanism, Is.Empty);
+        }
+
+        [Test]
         public void GeneratePredefinedAES256KBPKTest()
         {
             string input = "KEY kbpk=GenerateKey(AES-CBC,0x(EF0BA217D99A6D7033227079B3C3F5B16E31E828659AE1A6B5A757C2D8D20133))";
@@ -51,6 +81,7 @@ namespace CryptoScriptUnitTest
             var variable = statement as KeyVariableDeclaration;
             ClassicAssert.IsTrue(variable.Id == "key2");
             ClassicAssert.IsTrue(variable.Mechanism == "AES-CBC");
+            ClassicAssert.IsTrue(variable.DerivationMechanism == string.Empty);
             ClassicAssert.IsTrue(variable.KeySize == "128");
             var key = FormatConversions.HexStringToByteArray(variable.Value);
             ClassicAssert.IsTrue(key.Length == 16);
