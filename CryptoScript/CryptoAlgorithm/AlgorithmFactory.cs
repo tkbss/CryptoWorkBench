@@ -34,6 +34,8 @@
                 return new KDF.KDF_EP2_PAN_SURROGATE_TRX();
             if (normalizedMechanism.Equals("KDF-EP2-PAN-RECEIPT-TRX", StringComparison.OrdinalIgnoreCase))
                 return new KDF.KDF_EP2_PAN_RECEIPT_TRX();
+            if (normalizedMechanism.Equals("KDF-EP2-PAN-RECEIPT-TRM", StringComparison.OrdinalIgnoreCase))
+                return new KDF.KDF_EP2_PAN_RECEIPT_TRM();
             if (normalizedMechanism.Equals("WRAP-DES3-TR31", StringComparison.OrdinalIgnoreCase))
                 return new WRAPPERS.WrapDES3TR31();
             if (normalizedMechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) ||
