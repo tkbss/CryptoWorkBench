@@ -44,6 +44,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - HASH-SHA3-256
         - HASH-SHA3-384
         - HASH-SHA3-512
+        - KDF-HKDF
         - WRAP-AES-TR31
         - WRAP-DES3-TR31
         - WRAP-AES
@@ -59,6 +60,10 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - MACLEN: Output length in bytes for DES3-RETAIL; valid values are 4 through 8 (default 8).
 - HMAC parameters contain only MECH. IV, PAD and MACLEN are not supported for HMAC mechanisms.
 - HASH parameters contain only MECH. IV, PAD, MACLEN, Salt and output-length parameters are not supported for HASH mechanisms.
+- KDF-HKDF requires HASH and OUTLEN and accepts optional SALT.
+- HASH: Hash function used by KDF-HKDF. It accepts the eleven supported HASH-* mechanisms, not HMAC-* mechanisms.
+- SALT: Optional KDF-HKDF salt as hexadecimal data, Base64 data, a UTF-8 string or a VAR. If omitted, HKDF uses HashLen zero bytes; an empty string supplies an explicitly empty salt.
+- OUTLEN: Required KDF-HKDF output length in bits. It must be positive, divisible by 8 and at most 255 times HashLen times 8.
 - NONCE: Unique nonce value for symmetric encryption used in certain modes.
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.
