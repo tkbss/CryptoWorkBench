@@ -30,6 +30,8 @@
                 return new KDF.KDF_HKDF();
             if (normalizedMechanism.Equals("KDF-EP2-SESSION", StringComparison.OrdinalIgnoreCase))
                 return new KDF.KDF_EP2_SESSION();
+            if (normalizedMechanism.Equals("KDF-EP2-PAN-SURROGATE-TRX", StringComparison.OrdinalIgnoreCase))
+                return new KDF.KDF_EP2_PAN_SURROGATE_TRX();
             if (normalizedMechanism.Equals("WRAP-DES3-TR31", StringComparison.OrdinalIgnoreCase))
                 return new WRAPPERS.WrapDES3TR31();
             if (normalizedMechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) ||
