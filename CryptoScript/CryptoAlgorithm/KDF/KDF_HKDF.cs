@@ -1,4 +1,5 @@
 using System.Globalization;
+using CryptoScript.Model;
 using CryptoScript.Variables;
 
 namespace CryptoScript.CryptoAlgorithm.KDF;
@@ -75,6 +76,114 @@ public class KDF_HKDF : CryptoAlgorithm
         result.ValueFormat = FormatConversions.PAR;
         return result;
     }
+
+    public override KeyVariableDeclaration Derive(string[] parameters)
+    {
+        ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+        if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Derive requires KDF-HKDF parameters.");
+
+        KeyVariableDeclaration ikm = ResolveKey(parameters[1]);
+        StringVariableDeclaration info = ResolveData(parameters[2]);
+        string hash = parameter.GetParameter("HASH");
+        string outputLengthText = parameter.GetParameter("OUTLEN");
+        if (!int.TryParse(outputLengthText, NumberStyles.None, CultureInfo.InvariantCulture, out int outputLengthBits) ||
+            outputLengthBits <= 0 || outputLengthBits % 8 != 0)
+            throw new ArgumentException("HKDF #OUTLEN must be a positive multiple of 8 bits.");
+
+        int hashLength = DigestFactory.Create(hash).GetDigestSize();
+        if (outputLengthBits > 255 * hashLength * 8)
+            throw new ArgumentException("HKDF #OUTLEN exceeds 255 times HashLen.");
+
+        byte[] ikmBytes = ResolveKeyBytes(ikm);
+        byte[] infoBytes = FormatConversions.ToByteArray(info.Value, info.ValueFormat);
+        bool hasSalt = parameter.GetParameters().ContainsKey("#SALT");
+        byte[]? salt = hasSalt ? ResolveSalt(parameter.GetParameter("SALT")) : null;
+
+        byte[] prk = HKDFMode.Extract(hash, salt, ikmBytes);
+        byte[] okm = HKDFMode.Expand(hash, prk, infoBytes, outputLengthBits / 8);
+        string value = FormatConversions.ByteArrayToHexString(okm);
+        return new KeyVariableDeclaration
+        {
+            Value = value,
+            KeyValue = value,
+            ValueFormat = FormatConversions.HEX,
+            KeySize = outputLengthBits.ToString(CultureInfo.InvariantCulture),
+            Mechanism = string.Empty,
+            DerivationMechanism = MechanismName,
+            Type = new CryptoTypeKey()
+        };
+    }
+
+    private static ParameterVariableDeclaration ResolveParameter(string value)
+    {
+        if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
+            return declared;
+        if (FormatConversions.ParseString(value) == FormatConversions.PAR)
+        {
+            var parameter = new ParameterVariableDeclaration();
+            parameter.SetInstance(value);
+            return parameter;
+        }
+        throw new ArgumentException("wrong parameter argument");
+    }
+
+    private static KeyVariableDeclaration ResolveKey(string value)
+    {
+        KeyVariableDeclaration[] matches = VariableDictionary.Instance().GetVariables()
+            .OfType<KeyVariableDeclaration>()
+            .Where(key => key.Value == value)
+            .ToArray();
+        return matches.Length switch
+        {
+            1 => matches[0],
+            0 => throw new ArgumentException("wrong key argument"),
+            _ => throw new ArgumentException("Ambiguous KEY argument: multiple KEY variables have the same value.")
+        };
+    }
+
+    private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
+    {
+        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string format = FormatConversions.ParseString(value);
+        if (!IsDataFormat(format) && IsDataFormat(key.ValueFormat))
+            format = key.ValueFormat;
+        if (!IsDataFormat(format))
+            throw new ArgumentException("HKDF IKM KEY must contain a valid hex, Base64 or string value.");
+
+        return ConvertToBytes(value, format, "HKDF IKM KEY");
+    }
+
+    private static byte[] ResolveSalt(string value)
+    {
+        string format = FormatConversions.ParseString(value);
+        if (!IsDataFormat(format))
+            throw new ArgumentException("HKDF #SALT must contain a valid hex, Base64 or string value.");
+        return ConvertToBytes(value, format, "HKDF #SALT");
+    }
+
+    private static byte[] ConvertToBytes(string value, string format, string argumentName)
+    {
+        try
+        {
+            return FormatConversions.ToByteArray(value, format);
+        }
+        catch (Exception exception) when (exception is FormatException or ArgumentException or OverflowException or IndexOutOfRangeException)
+        {
+            throw new ArgumentException($"{argumentName} contains an invalid value.", exception);
+        }
+    }
+
+    private static StringVariableDeclaration ResolveData(string value)
+    {
+        string format = FormatConversions.ParseString(value);
+        if (format == FormatConversions.HEX || format == FormatConversions.B64 || format == FormatConversions.STR)
+            return new StringVariableDeclaration { Value = value, ValueFormat = format };
+        throw new ArgumentException("wrong data argument");
+    }
+
+    private static bool IsDataFormat(string format) =>
+        format == FormatConversions.HEX || format == FormatConversions.B64 || format == FormatConversions.STR;
 
     private static string NormalizeMechanism(string mechanism)
     {

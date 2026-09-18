@@ -71,6 +71,15 @@ namespace CryptoScript.Model
             var algo = DetermineAlgorithm(args);
             return algo.Hash(args);
         }
+        public VariableDeclaration Derive(params string[] args)
+        {
+            if (args.Length != 3)
+            {
+                throw new ArgumentException("wrong number of arguments");
+            }
+            var algo = DetermineAlgorithm(args);
+            return algo.Derive(args);
+        }
         //the requirement for encrypt/decrypt is that there will be 3 arguments
         //first argument is Parameter
         //second argument is  Key

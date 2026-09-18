@@ -40,6 +40,10 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new StringVariableDeclaration();
         }
+        public virtual KeyVariableDeclaration Derive(string[] parameters)
+        {
+            throw new NotSupportedException("The selected mechanism does not support key derivation.");
+        }
         public virtual StringVariableDeclaration Wrap(string[] parameters)
         {
             return new StringVariableDeclaration();
