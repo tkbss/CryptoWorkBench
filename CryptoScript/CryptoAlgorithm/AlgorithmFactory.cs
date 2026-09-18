@@ -28,6 +28,8 @@
                 normalizedMechanism.Equals("HKDF-EXTRACT", StringComparison.OrdinalIgnoreCase) ||
                 normalizedMechanism.Equals("HKDF-EXPAND", StringComparison.OrdinalIgnoreCase))
                 return new KDF.KDF_HKDF();
+            if (normalizedMechanism.Equals("KDF-EP2-SESSION", StringComparison.OrdinalIgnoreCase))
+                return new KDF.KDF_EP2_SESSION();
             if (normalizedMechanism.Equals("WRAP-DES3-TR31", StringComparison.OrdinalIgnoreCase))
                 return new WRAPPERS.WrapDES3TR31();
             if (normalizedMechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) ||

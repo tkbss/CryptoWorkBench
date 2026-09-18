@@ -54,6 +54,11 @@ namespace CryptoScript.Model
         }
         private void SetValue(string value)
         {
+            if (Type.Equals("#VARIANT", StringComparison.OrdinalIgnoreCase))
+            {
+                Value = value;
+                return;
+            }
             string formatType=FormatConversions.ParseString(value);
             if (formatType==FormatConversions.HEX || formatType == FormatConversions.B64 || formatType == FormatConversions.STR)
             {

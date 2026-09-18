@@ -31,6 +31,8 @@ public class ParameterEvaluatorTests
     [TestCase("#MECH", "AES-CBC")]
     [TestCase("#PAD", "PKCS-7")]
     [TestCase("#OUTLEN", "336")]
+    [TestCase("#VARIANT", "TC")]
+    [TestCase("#VARIANT", "MAC-SEND")]
     public void PreservesRecognizedValues(string type, string value)
     {
         var result = ParameterEvaluator.Evaluate(type, value);
