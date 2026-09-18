@@ -68,6 +68,15 @@ public class HkdfModeTests
             "HASH-SHA256", new byte[32], Array.Empty<byte>(), 255 * 32 + 1));
     }
 
+    [Test]
+    public void ExpandDefensivelyRejectsPrkShorterThanHashLen()
+    {
+        var exception = Assert.Throws<ArgumentException>(() => HKDFMode.Expand(
+            "HASH-SHA256", new byte[31], Array.Empty<byte>(), 32));
+
+        Assert.That(exception!.Message, Does.Contain("PRK must be at least HashLen bytes"));
+    }
+
     private static string Repeat(string value, int count) => string.Concat(Enumerable.Repeat(value, count));
 
     private static string Sequence(int first, int last) =>

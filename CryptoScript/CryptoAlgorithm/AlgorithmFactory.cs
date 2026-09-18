@@ -24,7 +24,9 @@
                 return new HMAC.HMAC();
             if (HASH.HASH.IsSupportedMechanism(normalizedMechanism))
                 return new HASH.HASH();
-            if (normalizedMechanism.Equals("KDF-HKDF", StringComparison.OrdinalIgnoreCase))
+            if (normalizedMechanism.Equals("KDF-HKDF", StringComparison.OrdinalIgnoreCase) ||
+                normalizedMechanism.Equals("HKDF-EXTRACT", StringComparison.OrdinalIgnoreCase) ||
+                normalizedMechanism.Equals("HKDF-EXPAND", StringComparison.OrdinalIgnoreCase))
                 return new KDF.KDF_HKDF();
             if (normalizedMechanism.Equals("WRAP-DES3-TR31", StringComparison.OrdinalIgnoreCase))
                 return new WRAPPERS.WrapDES3TR31();

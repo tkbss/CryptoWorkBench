@@ -7,6 +7,8 @@ namespace CryptoScript.CryptoAlgorithm.KDF;
 public class KDF_HKDF : CryptoAlgorithm
 {
     private const string MechanismName = "KDF-HKDF";
+    private const string ExtractMechanismName = "HKDF-EXTRACT";
+    private const string ExpandMechanismName = "HKDF-EXPAND";
 
     private static readonly IReadOnlyDictionary<string, int> HashLengths =
         new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
@@ -32,8 +34,11 @@ public class KDF_HKDF : CryptoAlgorithm
     public override ParameterVariableDeclaration GenerateParameters(string mechanism, string[] parameters)
     {
         mechanism = NormalizeMechanism(mechanism);
-        if (!mechanism.Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
+        bool isExtract = mechanism.Equals(ExtractMechanismName, StringComparison.OrdinalIgnoreCase);
+        bool isExpand = mechanism.Equals(ExpandMechanismName, StringComparison.OrdinalIgnoreCase);
+        if (!mechanism.Equals(MechanismName, StringComparison.OrdinalIgnoreCase) && !isExtract && !isExpand)
             throw new ArgumentException($"Unsupported KDF mechanism: {mechanism}.");
+        string canonicalMechanism = isExtract ? ExtractMechanismName : isExpand ? ExpandMechanismName : MechanismName;
 
         var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (string parameter in parameters)
@@ -44,7 +49,8 @@ public class KDF_HKDF : CryptoAlgorithm
 
             string name = parameter[..separator].ToUpperInvariant();
             string value = parameter[(separator + 1)..];
-            if (name != "#HASH" && name != "#SALT" && name != "#OUTLEN")
+            bool supported = name == "#HASH" || (!isExpand && name == "#SALT") || (!isExtract && name == "#OUTLEN");
+            if (!supported)
                 throw new ArgumentException($"HKDF does not support parameter {name}.");
             values[name] = value;
         }
@@ -52,14 +58,18 @@ public class KDF_HKDF : CryptoAlgorithm
         if (!values.TryGetValue("#HASH", out string? hash) || !HashLengths.TryGetValue(hash, out int hashLength))
             throw new ArgumentException("HKDF requires #HASH with a supported HASH-* mechanism.");
 
-        if (!values.TryGetValue("#OUTLEN", out string? outputLengthText))
-            throw new ArgumentException("HKDF requires #OUTLEN.");
-        if (!int.TryParse(outputLengthText, NumberStyles.None, CultureInfo.InvariantCulture, out int outputLength) || outputLength <= 0)
-            throw new ArgumentException("HKDF output length must be a positive integer number of bits.");
-        if (outputLength % 8 != 0)
-            throw new ArgumentException("HKDF output length must be divisible by 8.");
-        if (outputLength / 8 > 255 * hashLength)
-            throw new ArgumentException($"HKDF output length exceeds the RFC 5869 limit for {hash}.");
+        values.TryGetValue("#OUTLEN", out string? outputLengthText);
+        if (!isExtract)
+        {
+            if (outputLengthText == null)
+                throw new ArgumentException("HKDF requires #OUTLEN.");
+            if (!int.TryParse(outputLengthText, NumberStyles.None, CultureInfo.InvariantCulture, out int outputLength) || outputLength <= 0)
+                throw new ArgumentException("HKDF output length must be a positive integer number of bits.");
+            if (outputLength % 8 != 0)
+                throw new ArgumentException("HKDF output length must be divisible by 8.");
+            if (outputLength / 8 > 255 * hashLength)
+                throw new ArgumentException($"HKDF output length exceeds the RFC 5869 limit for {hash}.");
+        }
 
         if (values.TryGetValue("#SALT", out string? salt))
         {
@@ -68,11 +78,12 @@ public class KDF_HKDF : CryptoAlgorithm
                 throw new ArgumentException("HKDF salt must be a hex, Base64 or string value.");
         }
 
-        var result = new ParameterVariableDeclaration { Mechanism = MechanismName };
+        var result = new ParameterVariableDeclaration { Mechanism = canonicalMechanism };
         result.SetParameter("HASH", hash);
         if (salt != null)
             result.SetParameter("SALT", salt);
-        result.SetParameter("OUTLEN", outputLengthText);
+        if (outputLengthText != null)
+            result.SetParameter("OUTLEN", outputLengthText);
         result.ValueFormat = FormatConversions.PAR;
         return result;
     }
@@ -80,29 +91,50 @@ public class KDF_HKDF : CryptoAlgorithm
     public override KeyVariableDeclaration Derive(string[] parameters)
     {
         ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
-        if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
+        string mechanism = NormalizeMechanism(parameter.Mechanism);
+        bool isExtract = mechanism.Equals(ExtractMechanismName, StringComparison.OrdinalIgnoreCase);
+        bool isExpand = mechanism.Equals(ExpandMechanismName, StringComparison.OrdinalIgnoreCase);
+        if (!mechanism.Equals(MechanismName, StringComparison.OrdinalIgnoreCase) && !isExtract && !isExpand)
             throw new ArgumentException("Derive requires KDF-HKDF parameters.");
+        string canonicalMechanism = isExtract ? ExtractMechanismName : isExpand ? ExpandMechanismName : MechanismName;
 
         KeyVariableDeclaration ikm = ResolveKey(parameters[1]);
         StringVariableDeclaration info = ResolveData(parameters[2]);
         string hash = parameter.GetParameter("HASH");
-        string outputLengthText = parameter.GetParameter("OUTLEN");
-        if (!int.TryParse(outputLengthText, NumberStyles.None, CultureInfo.InvariantCulture, out int outputLengthBits) ||
-            outputLengthBits <= 0 || outputLengthBits % 8 != 0)
-            throw new ArgumentException("HKDF #OUTLEN must be a positive multiple of 8 bits.");
-
         int hashLength = DigestFactory.Create(hash).GetDigestSize();
-        if (outputLengthBits > 255 * hashLength * 8)
-            throw new ArgumentException("HKDF #OUTLEN exceeds 255 times HashLen.");
+        int outputLengthBits = hashLength * 8;
+        if (!isExtract)
+        {
+            string outputLengthText = parameter.GetParameter("OUTLEN");
+            if (!int.TryParse(outputLengthText, NumberStyles.None, CultureInfo.InvariantCulture, out outputLengthBits) ||
+                outputLengthBits <= 0 || outputLengthBits % 8 != 0)
+                throw new ArgumentException("HKDF #OUTLEN must be a positive multiple of 8 bits.");
+            if (outputLengthBits > 255 * hashLength * 8)
+                throw new ArgumentException("HKDF #OUTLEN exceeds 255 times HashLen.");
+        }
 
         byte[] ikmBytes = ResolveKeyBytes(ikm);
         byte[] infoBytes = FormatConversions.ToByteArray(info.Value, info.ValueFormat);
+        if (isExtract && infoBytes.Length != 0)
+            throw new ArgumentException("HKDF-EXTRACT does not use info data; the info argument must be empty.");
         bool hasSalt = parameter.GetParameters().ContainsKey("#SALT");
         byte[]? salt = hasSalt ? ResolveSalt(parameter.GetParameter("SALT")) : null;
 
-        byte[] prk = HKDFMode.Extract(hash, salt, ikmBytes);
-        byte[] okm = HKDFMode.Expand(hash, prk, infoBytes, outputLengthBits / 8);
-        string value = FormatConversions.ByteArrayToHexString(okm);
+        byte[] result;
+        if (isExtract)
+        {
+            result = HKDFMode.Extract(hash, salt, ikmBytes);
+        }
+        else if (isExpand)
+        {
+            result = HKDFMode.Expand(hash, ikmBytes, infoBytes, outputLengthBits / 8);
+        }
+        else
+        {
+            byte[] prk = HKDFMode.Extract(hash, salt, ikmBytes);
+            result = HKDFMode.Expand(hash, prk, infoBytes, outputLengthBits / 8);
+        }
+        string value = FormatConversions.ByteArrayToHexString(result);
         return new KeyVariableDeclaration
         {
             Value = value,
@@ -110,7 +142,7 @@ public class KDF_HKDF : CryptoAlgorithm
             ValueFormat = FormatConversions.HEX,
             KeySize = outputLengthBits.ToString(CultureInfo.InvariantCulture),
             Mechanism = string.Empty,
-            DerivationMechanism = MechanismName,
+            DerivationMechanism = canonicalMechanism,
             Type = new CryptoTypeKey()
         };
     }

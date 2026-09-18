@@ -20,6 +20,8 @@ internal static class HKDFMode
             throw new ArgumentException("HKDF output length must be positive.", nameof(outputLength));
 
         int hashLength = DigestFactory.Create(hashMechanism).GetDigestSize();
+        if (prk.Length < hashLength)
+            throw new ArgumentException("HKDF-Expand PRK must be at least HashLen bytes.", nameof(prk));
         if (outputLength > 255 * hashLength)
             throw new ArgumentException("HKDF output length exceeds 255 times HashLen.", nameof(outputLength));
 
