@@ -32,13 +32,14 @@ public class MechanismListTests
         "HASH-SHA3-224", "HASH-SHA3-256", "HASH-SHA3-384", "HASH-SHA3-512",
         "DES3-ECB", "DES3-CBC", "DES3-RETAIL", "DES3-CMAC",
         "WRAP-AES-TR31", "WRAP-DES3-TR31", "WRAP-AES", "WRAP-DES3", "KDF-HKDF",
-        "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-EP2-SESSION", "KDF-EP2-PAN-SURROGATE-TRX"
+        "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-EP2-SESSION", "KDF-EP2-PAN-SURROGATE-TRX",
+        "KDF-EP2-PAN-RECEIPT-TRX"
     };
 
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(42));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(43));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
     }
 
