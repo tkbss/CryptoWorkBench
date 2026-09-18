@@ -77,6 +77,49 @@ public class HkdfModeTests
         Assert.That(exception!.Message, Does.Contain("PRK must be at least HashLen bytes"));
     }
 
+    [Test]
+    public void ExpandAcceptsPrkEqualToHashLen()
+    {
+        byte[] output = HKDFMode.Expand(
+            "HASH-SHA256", new byte[32], Array.Empty<byte>(), 32);
+
+        Assert.That(output, Has.Length.EqualTo(32));
+    }
+
+    [TestCase(15)]
+    [TestCase(17)]
+    [TestCase(32)]
+    public void ExpandEp2Sha256RejectsKeysThatAreNotExactly16Bytes(int keyLength)
+    {
+        var exception = Assert.Throws<ArgumentException>(() => HKDFMode.ExpandEp2Sha256(
+            new byte[keyLength], Array.Empty<byte>(), 32));
+
+        Assert.That(exception!.Message, Does.Contain("exactly 16 bytes"));
+    }
+
+    [Test]
+    public void ExpandEp2Sha256MatchesEp2Section814ReferenceVector()
+    {
+        const string key = "0123456789ABCDEF23456789ABCDEF01";
+        const string info = "5413330089020011";
+        const string expected = "AEA780CDFC3CDA67C0FD0D70D509C9B4C1DD1F40F0C05D922BFD3BC8A01E2E6E";
+
+        byte[] output = HKDFMode.ExpandEp2Sha256(
+            Convert.FromHexString(key), Convert.FromHexString(info), 32);
+
+        Assert.That(Convert.ToHexString(output), Is.EqualTo(expected));
+    }
+
+    [TestCase(0, "positive")]
+    [TestCase(255 * 32 + 1, "255 times HashLen")]
+    public void ExpandEp2Sha256RejectsInvalidOutputLength(int outputLength, string expectedMessage)
+    {
+        var exception = Assert.Throws<ArgumentException>(() => HKDFMode.ExpandEp2Sha256(
+            new byte[16], Array.Empty<byte>(), outputLength));
+
+        Assert.That(exception!.Message, Does.Contain(expectedMessage));
+    }
+
     private static string Repeat(string value, int count) => string.Concat(Enumerable.Repeat(value, count));
 
     private static string Sequence(int first, int last) =>
