@@ -44,6 +44,7 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-HKDF : HMAC-based Extract-and-Expand Key Derivation Function specified in RFC 5869.
 - HKDF-EXTRACT : RFC 5869 HKDF Extract operation only; returns the pseudorandom key (PRK).
 - HKDF-EXPAND : RFC 5869 HKDF Expand operation only; derives output keying material from an existing PRK.
+- DUKPT-AES-INITIAL-KEY : ANSI X9.24-3-2017 derivation of an AES DUKPT Initial Key from an AES BDK and 64-bit IKID.
 - KDF-EP2-SESSION : ep2 8.11 Extract-and-Expand derivation of a selected Session Key Variant.
 - KDF-EP2-PAN-RECEIPT-TRX : ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-RECEIPT-TRM : ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.

@@ -47,6 +47,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - KDF-HKDF
         - HKDF-EXTRACT
         - HKDF-EXPAND
+        - DUKPT-AES-INITIAL-KEY
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
         - KDF-EP2-PAN-RECEIPT-TRM
@@ -77,6 +78,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - HASH: Hash function used by the generic HKDF mechanisms. It accepts HASH-SHA1, HASH-SHA224, HASH-SHA256, HASH-SHA384, HASH-SHA512, HASH-SHA512-224, HASH-SHA512-256, HASH-SHA3-224, HASH-SHA3-256, HASH-SHA3-384 and HASH-SHA3-512. HMAC-* mechanisms are not accepted.
 - SALT: Optional for KDF-HKDF and HKDF-EXTRACT, and not supported by HKDF-EXPAND. It accepts hexadecimal data, Base64 data, a UTF-8 string or a VAR. If omitted, HKDF uses HashLen zero bytes; an empty string supplies an explicitly empty salt.
 - OUTLEN: Required for KDF-HKDF and HKDF-EXPAND, and not supported by HKDF-EXTRACT. It is specified in bits and must be positive, divisible by 8 and at most 255 times HashLen times 8 bits.
+- DUKPT-AES-INITIAL-KEY parameters contain only MECH. OUTLEN, PRF, LABEL and COUNTER are not supported; the BDK fixes the AES type and output length.
 - ep2 KDF parameter contracts:
 
 | Mechanism | HASH | SALT | OUTLEN | VARIANT |
