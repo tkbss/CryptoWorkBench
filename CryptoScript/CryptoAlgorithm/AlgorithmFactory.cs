@@ -5,6 +5,9 @@
         public AlgorithmFactory() { }
         public static CryptoAlgorithm Create(string mechanism) 
         {
+            string normalizedMechanism = mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
+                ? mechanism["#MECH:".Length..]
+                : mechanism;
             if ((mechanism.ToUpper().StartsWith("BLOCKHEADER")))
             {
                 if (mechanism.ToUpper().Contains("AES-TR31"))
@@ -15,11 +18,10 @@
                 if (mechanism.Contains("AES-TR31"))
                     return new WRAPPERS.WrapAESTR31();                
             }
+            if (normalizedMechanism.Equals("DUKPT-AES-INITIAL-KEY", StringComparison.OrdinalIgnoreCase))
+                return new KDF.DUKPT_AES_INITIAL_KEY();
             if (mechanism.Contains("AES"))
                 return new AES.AES();
-            string normalizedMechanism = mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
-                ? mechanism["#MECH:".Length..]
-                : mechanism;
             if (normalizedMechanism.StartsWith("HMAC-", StringComparison.OrdinalIgnoreCase))
                 return new HMAC.HMAC();
             if (HASH.HASH.IsSupportedMechanism(normalizedMechanism))
