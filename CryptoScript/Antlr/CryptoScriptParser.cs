@@ -50,25 +50,26 @@ public partial class CryptoScriptParser : Parser
         M_HASH_SHA3_384 = 52, M_HASH_SHA3_512 = 53, M_DES3_ECB = 54, M_DES3_CBC = 55,
         M_DES3_RETAIL = 56, M_DES3_CMAC = 57, M_WRAP_AES_TR31 = 58, M_WRAP_DES3_TR31 = 59,
         M_WRAP_AES = 60, M_WRAP_DES3 = 61, M_KDF_HKDF = 62, M_HKDF_EXTRACT = 63, M_HKDF_EXPAND = 64,
-        M_KDF_EP2_SESSION = 65, M_KDF_EP2_PAN_SURROGATE_TRX = 66, M_KDF_EP2_PAN_RECEIPT_TRX = 67,
-        M_KDF_EP2_PAN_RECEIPT_TRM = 68, PADDING = 69, PAD_ISO7816 = 70, PAD_PKCS7 = 71,
-        PAD_ISO9797M1 = 72, PAD_ISO9797M2 = 73, PAD_ISO9797M3 = 74, PAD_ANSI_X923 = 75,
-        PAD_TLS_CBC = 76, PAD_NONE = 77, PARAM_TYPE = 78, P_MECHANISM = 79, P_IV = 80, P_PADDING = 81,
-        P_MAC_LENGTH = 82, P_NONCE = 83, P_COUNTER = 84, P_ADATA = 85, P_BLKHDR = 86, P_RND = 87,
-        P_HASH = 88, P_SALT = 89, P_OUT_LENGTH = 90, P_VARIANT = 91, WS = 92, TR31_FIELD_NAME = 93,
-        TR31_FIELD_VALUE = 94, TR31_KB_VERSION_ID = 95, TR31_KB_LENGTH = 96, TR31_WRAPPED_KEYLEN = 97,
-        TR31_KU = 98, TR31_ALGO = 99, TR31_MODEU = 100, TR31_KEY_VERSION_NUM = 101, TR31_EXPORTABILITY = 102,
-        TR31_NUM_OPT_BLOCKS = 103, TR31_KEY_CONTEXT = 104, TR31_RESERVED_FIELD = 105,
-        TR31_OPT_BLOCK_ID = 106, TR31_OPT_BLOCK_DATA = 107, NUM = 108, KU_B0 = 109, KU_B1 = 110,
-        KU_B2 = 111, KU_B3 = 112, KU_C0 = 113, KU_D0 = 114, KU_D1 = 115, KU_D2 = 116, KU_D3 = 117,
-        KU_E0 = 118, KU_E1 = 119, KU_E2 = 120, KU_E3 = 121, KU_F3 = 122, KU_F4 = 123, KU_F5 = 124,
-        KU_F6 = 125, KU_I0 = 126, KU_K0 = 127, KU_K1 = 128, KU_K2 = 129, KU_K3 = 130, KU_K4 = 131,
-        KU_M0 = 132, KU_M1 = 133, KU_P2 = 134, KU_V0 = 135, KU_V1 = 136, KU_V2 = 137, KU_V3 = 138,
-        KU_V4 = 139, KU_V5 = 140, KV_00 = 141, OPT_AL = 142, OPT_BI = 143, OPT_CT = 144, OPT_DA = 145,
-        OPT_HM = 146, OPT_IK = 147, OPT_KC = 148, OPT_KP = 149, OPT_KS = 150, OPT_KV = 151,
-        OPT_LB = 152, OPT_PA = 153, OPT_PB = 154, OPT_PK = 155, OPT_TC = 156, OPT_TS = 157,
-        OPT_WP = 158, H = 159, R = 160, S = 161, T = 162, D = 163, E = 164, A = 165, B = 166, C = 167,
-        G = 168, N = 169, V = 170, X = 171, Y = 172;
+        M_KDF_SP800_108_COUNTER = 65, M_KDF_EP2_SESSION = 66, M_KDF_EP2_PAN_SURROGATE_TRX = 67,
+        M_KDF_EP2_PAN_RECEIPT_TRX = 68, M_KDF_EP2_PAN_RECEIPT_TRM = 69, PADDING = 70,
+        PAD_ISO7816 = 71, PAD_PKCS7 = 72, PAD_ISO9797M1 = 73, PAD_ISO9797M2 = 74, PAD_ISO9797M3 = 75,
+        PAD_ANSI_X923 = 76, PAD_TLS_CBC = 77, PAD_NONE = 78, PARAM_TYPE = 79, P_MECHANISM = 80,
+        P_IV = 81, P_PADDING = 82, P_MAC_LENGTH = 83, P_NONCE = 84, P_COUNTER = 85, P_ADATA = 86,
+        P_BLKHDR = 87, P_RND = 88, P_HASH = 89, P_SALT = 90, P_OUT_LENGTH = 91, P_VARIANT = 92,
+        P_PRF = 93, P_LABEL = 94, WS = 95, TR31_FIELD_NAME = 96, TR31_FIELD_VALUE = 97,
+        TR31_KB_VERSION_ID = 98, TR31_KB_LENGTH = 99, TR31_WRAPPED_KEYLEN = 100, TR31_KU = 101,
+        TR31_ALGO = 102, TR31_MODEU = 103, TR31_KEY_VERSION_NUM = 104, TR31_EXPORTABILITY = 105,
+        TR31_NUM_OPT_BLOCKS = 106, TR31_KEY_CONTEXT = 107, TR31_RESERVED_FIELD = 108,
+        TR31_OPT_BLOCK_ID = 109, TR31_OPT_BLOCK_DATA = 110, NUM = 111, KU_B0 = 112, KU_B1 = 113,
+        KU_B2 = 114, KU_B3 = 115, KU_C0 = 116, KU_D0 = 117, KU_D1 = 118, KU_D2 = 119, KU_D3 = 120,
+        KU_E0 = 121, KU_E1 = 122, KU_E2 = 123, KU_E3 = 124, KU_F3 = 125, KU_F4 = 126, KU_F5 = 127,
+        KU_F6 = 128, KU_I0 = 129, KU_K0 = 130, KU_K1 = 131, KU_K2 = 132, KU_K3 = 133, KU_K4 = 134,
+        KU_M0 = 135, KU_M1 = 136, KU_P2 = 137, KU_V0 = 138, KU_V1 = 139, KU_V2 = 140, KU_V3 = 141,
+        KU_V4 = 142, KU_V5 = 143, KV_00 = 144, OPT_AL = 145, OPT_BI = 146, OPT_CT = 147, OPT_DA = 148,
+        OPT_HM = 149, OPT_IK = 150, OPT_KC = 151, OPT_KP = 152, OPT_KS = 153, OPT_KV = 154,
+        OPT_LB = 155, OPT_PA = 156, OPT_PB = 157, OPT_PK = 158, OPT_TC = 159, OPT_TS = 160,
+        OPT_WP = 161, H = 162, R = 163, S = 164, T = 165, D = 166, E = 167, A = 168, B = 169, C = 170,
+        G = 171, N = 172, V = 173, X = 174, Y = 175;
     public const int
         RULE_program = 0, RULE_statement = 1, RULE_declaration = 2, RULE_declareparam = 3,
         RULE_type = 4, RULE_tr31Header = 5, RULE_tr31Field = 6, RULE_expression = 7,
@@ -90,20 +91,21 @@ public partial class CryptoScriptParser : Parser
         "'HASH-SHA3-256'", "'HASH-SHA3-384'", "'HASH-SHA3-512'", "'DES3-ECB'",
         "'DES3-CBC'", "'DES3-RETAIL'", "'DES3-CMAC'", "'WRAP-AES-TR31'", "'WRAP-DES3-TR31'",
         "'WRAP-AES'", "'WRAP-DES3'", "'KDF-HKDF'", "'HKDF-EXTRACT'", "'HKDF-EXPAND'",
-        "'KDF-EP2-SESSION'", "'KDF-EP2-PAN-SURROGATE-TRX'", "'KDF-EP2-PAN-RECEIPT-TRX'",
-        "'KDF-EP2-PAN-RECEIPT-TRM'", null, "'ISO-7816'", "'PKCS-7'", "'ISO-9797-M1'",
-        "'ISO-9797-M2'", "'ISO-9797-M3'", "'ANSI-X923'", "'TLS-CBC'", "'NONE'",
-        null, "'#MECH'", "'#IV'", "'#PAD'", "'#MACLEN'", "'#NONCE'", "'#COUNTER'",
-        "'#ADATA'", "'#BLKH'", "'#RND'", "'#HASH'", "'#SALT'", "'#OUTLEN'", "'#VARIANT'",
-        null, null, null, "'KBVID'", "'KBLEN'", "'WKL'", "'KEYU'", "'ALGO'", "'MODEU'",
-        "'KEYVN'", "'EXP'", "'NUMOPTB'", "'KEYCTX'", "'RSV'", "'OPTID'", "'OPTBD'",
-        null, "'B0'", "'B1'", "'B2'", "'B3'", "'C0'", "'D0'", "'D1'", "'D2'",
-        "'D3'", "'E0'", "'E1'", "'E2'", "'E3'", "'F3'", "'F4'", "'F5'", "'F6'",
-        "'I0'", "'K0'", "'K1'", "'K2'", "'K3'", "'K4'", "'M0'", "'M1'", "'P2'",
-        "'V0'", "'V1'", "'V2'", "'V3'", "'V4'", "'V5'", "'00'", "'AL'", "'BI'",
-        "'CT'", "'DA'", "'HM'", "'IK'", "'KC'", "'KP'", "'KS'", "'KV'", "'LB'",
-        "'PA'", "'PB'", "'PK'", "'TC'", "'TS'", "'WP'", "'H'", "'R'", "'S'", "'T'",
-        "'D'", "'E'", "'A'", "'B'", "'C'", "'G'", "'N'", "'V'", "'X'", "'Y'"
+        "'KDF-SP800-108-COUNTER'", "'KDF-EP2-SESSION'", "'KDF-EP2-PAN-SURROGATE-TRX'",
+        "'KDF-EP2-PAN-RECEIPT-TRX'", "'KDF-EP2-PAN-RECEIPT-TRM'", null, "'ISO-7816'",
+        "'PKCS-7'", "'ISO-9797-M1'", "'ISO-9797-M2'", "'ISO-9797-M3'", "'ANSI-X923'",
+        "'TLS-CBC'", "'NONE'", null, "'#MECH'", "'#IV'", "'#PAD'", "'#MACLEN'",
+        "'#NONCE'", "'#COUNTER'", "'#ADATA'", "'#BLKH'", "'#RND'", "'#HASH'",
+        "'#SALT'", "'#OUTLEN'", "'#VARIANT'", "'#PRF'", "'#LABEL'", null, null,
+        null, "'KBVID'", "'KBLEN'", "'WKL'", "'KEYU'", "'ALGO'", "'MODEU'", "'KEYVN'",
+        "'EXP'", "'NUMOPTB'", "'KEYCTX'", "'RSV'", "'OPTID'", "'OPTBD'", null,
+        "'B0'", "'B1'", "'B2'", "'B3'", "'C0'", "'D0'", "'D1'", "'D2'", "'D3'",
+        "'E0'", "'E1'", "'E2'", "'E3'", "'F3'", "'F4'", "'F5'", "'F6'", "'I0'",
+        "'K0'", "'K1'", "'K2'", "'K3'", "'K4'", "'M0'", "'M1'", "'P2'", "'V0'",
+        "'V1'", "'V2'", "'V3'", "'V4'", "'V5'", "'00'", "'AL'", "'BI'", "'CT'",
+        "'DA'", "'HM'", "'IK'", "'KC'", "'KP'", "'KS'", "'KV'", "'LB'", "'PA'",
+        "'PB'", "'PK'", "'TC'", "'TS'", "'WP'", "'H'", "'R'", "'S'", "'T'", "'D'",
+        "'E'", "'A'", "'B'", "'C'", "'G'", "'N'", "'V'", "'X'", "'Y'"
     };
     private static readonly string[] _SymbolicNames = {
         null, null, null, null, null, null, null, null, null, "INT", "T_KEY",
@@ -118,23 +120,24 @@ public partial class CryptoScriptParser : Parser
         "M_HASH_SHA3_256", "M_HASH_SHA3_384", "M_HASH_SHA3_512", "M_DES3_ECB",
         "M_DES3_CBC", "M_DES3_RETAIL", "M_DES3_CMAC", "M_WRAP_AES_TR31", "M_WRAP_DES3_TR31",
         "M_WRAP_AES", "M_WRAP_DES3", "M_KDF_HKDF", "M_HKDF_EXTRACT", "M_HKDF_EXPAND",
-        "M_KDF_EP2_SESSION", "M_KDF_EP2_PAN_SURROGATE_TRX", "M_KDF_EP2_PAN_RECEIPT_TRX",
-        "M_KDF_EP2_PAN_RECEIPT_TRM", "PADDING", "PAD_ISO7816", "PAD_PKCS7", "PAD_ISO9797M1",
-        "PAD_ISO9797M2", "PAD_ISO9797M3", "PAD_ANSI_X923", "PAD_TLS_CBC", "PAD_NONE",
-        "PARAM_TYPE", "P_MECHANISM", "P_IV", "P_PADDING", "P_MAC_LENGTH", "P_NONCE",
-        "P_COUNTER", "P_ADATA", "P_BLKHDR", "P_RND", "P_HASH", "P_SALT", "P_OUT_LENGTH",
-        "P_VARIANT", "WS", "TR31_FIELD_NAME", "TR31_FIELD_VALUE", "TR31_KB_VERSION_ID",
-        "TR31_KB_LENGTH", "TR31_WRAPPED_KEYLEN", "TR31_KU", "TR31_ALGO", "TR31_MODEU",
-        "TR31_KEY_VERSION_NUM", "TR31_EXPORTABILITY", "TR31_NUM_OPT_BLOCKS", "TR31_KEY_CONTEXT",
-        "TR31_RESERVED_FIELD", "TR31_OPT_BLOCK_ID", "TR31_OPT_BLOCK_DATA", "NUM",
-        "KU_B0", "KU_B1", "KU_B2", "KU_B3", "KU_C0", "KU_D0", "KU_D1", "KU_D2",
-        "KU_D3", "KU_E0", "KU_E1", "KU_E2", "KU_E3", "KU_F3", "KU_F4", "KU_F5",
-        "KU_F6", "KU_I0", "KU_K0", "KU_K1", "KU_K2", "KU_K3", "KU_K4", "KU_M0",
-        "KU_M1", "KU_P2", "KU_V0", "KU_V1", "KU_V2", "KU_V3", "KU_V4", "KU_V5",
-        "KV_00", "OPT_AL", "OPT_BI", "OPT_CT", "OPT_DA", "OPT_HM", "OPT_IK", "OPT_KC",
-        "OPT_KP", "OPT_KS", "OPT_KV", "OPT_LB", "OPT_PA", "OPT_PB", "OPT_PK",
-        "OPT_TC", "OPT_TS", "OPT_WP", "H", "R", "S", "T", "D", "E", "A", "B",
-        "C", "G", "N", "V", "X", "Y"
+        "M_KDF_SP800_108_COUNTER", "M_KDF_EP2_SESSION", "M_KDF_EP2_PAN_SURROGATE_TRX",
+        "M_KDF_EP2_PAN_RECEIPT_TRX", "M_KDF_EP2_PAN_RECEIPT_TRM", "PADDING", "PAD_ISO7816",
+        "PAD_PKCS7", "PAD_ISO9797M1", "PAD_ISO9797M2", "PAD_ISO9797M3", "PAD_ANSI_X923",
+        "PAD_TLS_CBC", "PAD_NONE", "PARAM_TYPE", "P_MECHANISM", "P_IV", "P_PADDING",
+        "P_MAC_LENGTH", "P_NONCE", "P_COUNTER", "P_ADATA", "P_BLKHDR", "P_RND",
+        "P_HASH", "P_SALT", "P_OUT_LENGTH", "P_VARIANT", "P_PRF", "P_LABEL", "WS",
+        "TR31_FIELD_NAME", "TR31_FIELD_VALUE", "TR31_KB_VERSION_ID", "TR31_KB_LENGTH",
+        "TR31_WRAPPED_KEYLEN", "TR31_KU", "TR31_ALGO", "TR31_MODEU", "TR31_KEY_VERSION_NUM",
+        "TR31_EXPORTABILITY", "TR31_NUM_OPT_BLOCKS", "TR31_KEY_CONTEXT", "TR31_RESERVED_FIELD",
+        "TR31_OPT_BLOCK_ID", "TR31_OPT_BLOCK_DATA", "NUM", "KU_B0", "KU_B1", "KU_B2",
+        "KU_B3", "KU_C0", "KU_D0", "KU_D1", "KU_D2", "KU_D3", "KU_E0", "KU_E1",
+        "KU_E2", "KU_E3", "KU_F3", "KU_F4", "KU_F5", "KU_F6", "KU_I0", "KU_K0",
+        "KU_K1", "KU_K2", "KU_K3", "KU_K4", "KU_M0", "KU_M1", "KU_P2", "KU_V0",
+        "KU_V1", "KU_V2", "KU_V3", "KU_V4", "KU_V5", "KV_00", "OPT_AL", "OPT_BI",
+        "OPT_CT", "OPT_DA", "OPT_HM", "OPT_IK", "OPT_KC", "OPT_KP", "OPT_KS",
+        "OPT_KV", "OPT_LB", "OPT_PA", "OPT_PB", "OPT_PK", "OPT_TC", "OPT_TS",
+        "OPT_WP", "H", "R", "S", "T", "D", "E", "A", "B", "C", "G", "N", "V",
+        "X", "Y"
     };
     public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -199,6 +202,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitProgram(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitProgram(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -272,6 +282,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitStatement(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitStatement(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -370,6 +387,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitDeclaration(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDeclaration(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -492,6 +516,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitDeclareparam(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitDeclareparam(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -633,6 +664,13 @@ public partial class CryptoScriptParser : Parser
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitType(this);
         }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitType(this);
+            else return visitor.VisitChildren(this);
+        }
     }
 
     [RuleVersion(0)]
@@ -699,6 +737,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitTr31Header(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitTr31Header(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -767,6 +812,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitTr31Field(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitTr31Field(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -837,6 +889,13 @@ public partial class CryptoScriptParser : Parser
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitExpression(this);
         }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitExpression(this);
+            else return visitor.VisitChildren(this);
+        }
     }
 
     [RuleVersion(0)]
@@ -899,6 +958,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitFunctionCall(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitFunctionCall(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -972,6 +1038,13 @@ public partial class CryptoScriptParser : Parser
         {
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitArguments(this);
+        }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitArguments(this);
+            else return visitor.VisitChildren(this);
         }
     }
 
@@ -1056,6 +1129,13 @@ public partial class CryptoScriptParser : Parser
             ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
             if (typedListener != null) typedListener.ExitArgument(this);
         }
+        [System.Diagnostics.DebuggerNonUserCode]
+        public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor)
+        {
+            ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+            if (typedVisitor != null) return typedVisitor.VisitArgument(this);
+            else return visitor.VisitChildren(this);
+        }
     }
 
     [RuleVersion(0)]
@@ -1134,7 +1214,7 @@ public partial class CryptoScriptParser : Parser
     }
 
     private static int[] _serializedATN = {
-        4,1,172,127,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+        4,1,175,127,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
         7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,1,0,5,0,24,8,0,10,0,12,0,27,9,0,1,0,1,
         0,1,1,1,1,3,1,33,8,1,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
         2,1,2,5,2,49,8,2,10,2,12,2,52,9,2,1,2,1,2,1,2,1,2,1,2,3,2,59,8,2,1,3,1,
@@ -1143,7 +1223,7 @@ public partial class CryptoScriptParser : Parser
         1,5,1,5,1,6,1,6,1,6,1,6,1,6,1,7,1,7,1,8,1,8,1,8,3,8,107,8,8,1,8,1,8,1,
         9,1,9,1,9,5,9,114,8,9,10,9,12,9,117,9,9,1,10,1,10,1,10,1,10,1,10,1,10,
         3,10,125,8,10,1,10,0,0,11,0,2,4,6,8,10,12,14,16,18,20,0,3,1,0,10,14,2,
-        0,9,9,94,94,3,0,9,9,15,15,20,23,136,0,25,1,0,0,0,2,32,1,0,0,0,4,58,1,0,
+        0,9,9,97,97,3,0,9,9,15,15,20,23,136,0,25,1,0,0,0,2,32,1,0,0,0,4,58,1,0,
         0,0,6,84,1,0,0,0,8,86,1,0,0,0,10,88,1,0,0,0,12,96,1,0,0,0,14,101,1,0,0,
         0,16,103,1,0,0,0,18,110,1,0,0,0,20,124,1,0,0,0,22,24,3,2,1,0,23,22,1,0,
         0,0,24,27,1,0,0,0,25,23,1,0,0,0,25,26,1,0,0,0,26,28,1,0,0,0,27,25,1,0,
@@ -1154,16 +1234,16 @@ public partial class CryptoScriptParser : Parser
         5,1,0,0,47,49,3,6,3,0,48,47,1,0,0,0,49,52,1,0,0,0,50,48,1,0,0,0,50,51,
         1,0,0,0,51,59,1,0,0,0,52,50,1,0,0,0,53,54,3,8,4,0,54,55,5,18,0,0,55,56,
         5,1,0,0,56,57,3,10,5,0,57,59,1,0,0,0,58,34,1,0,0,0,58,39,1,0,0,0,58,44,
-        1,0,0,0,58,53,1,0,0,0,59,5,1,0,0,0,60,61,5,78,0,0,61,62,5,2,0,0,62,85,
-        5,24,0,0,63,64,5,78,0,0,64,65,5,2,0,0,65,85,5,69,0,0,66,67,5,78,0,0,67,
-        68,5,2,0,0,68,85,5,20,0,0,69,70,5,78,0,0,70,71,5,2,0,0,71,85,5,21,0,0,
-        72,73,5,78,0,0,73,74,5,2,0,0,74,85,5,18,0,0,75,76,5,78,0,0,76,77,5,2,0,
-        0,77,85,5,19,0,0,78,79,5,78,0,0,79,80,5,2,0,0,80,85,5,22,0,0,81,82,5,78,
+        1,0,0,0,58,53,1,0,0,0,59,5,1,0,0,0,60,61,5,79,0,0,61,62,5,2,0,0,62,85,
+        5,24,0,0,63,64,5,79,0,0,64,65,5,2,0,0,65,85,5,70,0,0,66,67,5,79,0,0,67,
+        68,5,2,0,0,68,85,5,20,0,0,69,70,5,79,0,0,70,71,5,2,0,0,71,85,5,21,0,0,
+        72,73,5,79,0,0,73,74,5,2,0,0,74,85,5,18,0,0,75,76,5,79,0,0,76,77,5,2,0,
+        0,77,85,5,19,0,0,78,79,5,79,0,0,79,80,5,2,0,0,80,85,5,22,0,0,81,82,5,79,
         0,0,82,83,5,2,0,0,83,85,5,9,0,0,84,60,1,0,0,0,84,63,1,0,0,0,84,66,1,0,
         0,0,84,69,1,0,0,0,84,72,1,0,0,0,84,75,1,0,0,0,84,78,1,0,0,0,84,81,1,0,
         0,0,85,7,1,0,0,0,86,87,7,0,0,0,87,9,1,0,0,0,88,90,5,3,0,0,89,91,3,12,6,
         0,90,89,1,0,0,0,91,92,1,0,0,0,92,90,1,0,0,0,92,93,1,0,0,0,93,94,1,0,0,
-        0,94,95,5,4,0,0,95,11,1,0,0,0,96,97,5,93,0,0,97,98,5,2,0,0,98,99,7,1,0,
+        0,94,95,5,4,0,0,95,11,1,0,0,0,96,97,5,96,0,0,97,98,5,2,0,0,98,99,7,1,0,
         0,99,100,5,5,0,0,100,13,1,0,0,0,101,102,7,2,0,0,102,15,1,0,0,0,103,104,
         5,16,0,0,104,106,5,6,0,0,105,107,3,18,9,0,106,105,1,0,0,0,106,107,1,0,
         0,0,107,108,1,0,0,0,108,109,5,7,0,0,109,17,1,0,0,0,110,115,3,20,10,0,111,

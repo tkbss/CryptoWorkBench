@@ -28,6 +28,8 @@
                 normalizedMechanism.Equals("HKDF-EXTRACT", StringComparison.OrdinalIgnoreCase) ||
                 normalizedMechanism.Equals("HKDF-EXPAND", StringComparison.OrdinalIgnoreCase))
                 return new KDF.KDF_HKDF();
+            if (normalizedMechanism.Equals("KDF-SP800-108-COUNTER", StringComparison.OrdinalIgnoreCase))
+                return new KDF.KDF_SP800_108_COUNTER();
             if (normalizedMechanism.Equals("KDF-EP2-SESSION", StringComparison.OrdinalIgnoreCase))
                 return new KDF.KDF_EP2_SESSION();
             if (normalizedMechanism.Equals("KDF-EP2-PAN-SURROGATE-TRX", StringComparison.OrdinalIgnoreCase))
