@@ -141,6 +141,18 @@
     <None Update="InfoDocs\Info.Mech.HKDF-EXPAND.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.KDF-EP2-SESSION.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.KDF-EP2-PAN-RECEIPT-TRX.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.KDF-EP2-PAN-RECEIPT-TRM.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.KDF-EP2-PAN-SURROGATE-TRX.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mechanisms.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

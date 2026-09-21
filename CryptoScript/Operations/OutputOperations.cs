@@ -78,6 +78,10 @@ namespace CryptoScript.Model
                 case "KDF-HKDF":
                 case "HKDF-EXTRACT":
                 case "HKDF-EXPAND":
+                case "KDF-EP2-SESSION":
+                case "KDF-EP2-PAN-RECEIPT-TRX":
+                case "KDF-EP2-PAN-RECEIPT-TRM":
+                case "KDF-EP2-PAN-SURROGATE-TRX":
                     output += File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", $"Info.Mech.{args[0]}.md"));
                     break;
                     case "keymap":

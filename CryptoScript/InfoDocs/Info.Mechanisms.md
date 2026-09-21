@@ -44,7 +44,20 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-HKDF : HMAC-based Extract-and-Expand Key Derivation Function specified in RFC 5869.
 - HKDF-EXTRACT : RFC 5869 HKDF Extract operation only; returns the pseudorandom key (PRK).
 - HKDF-EXPAND : RFC 5869 HKDF Expand operation only; derives output keying material from an existing PRK.
+- KDF-EP2-SESSION : ep2 8.11 Extract-and-Expand derivation of a selected Session Key Variant.
+- KDF-EP2-PAN-RECEIPT-TRX : ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.
+- KDF-EP2-PAN-RECEIPT-TRM : ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.
+- KDF-EP2-PAN-SURROGATE-TRX : ep2 8.14 direct Expand using raw DOL as info and returning all 32 bytes.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
 - WRAP-AES : Symmetric Key wrapping algorithm using AES.
 - WRAP-DES3 : Symmetric Key wrapping algorithm using DES3.
+
+## ep2 KDF Comparison
+
+| ep2 | Extract | Info | Result |
+|-----|---------|------|--------|
+| 8.11 | yes | variant constant | 16/32 Byte |
+| 8.12 | no | SHA-256(DOL) | leftmost 16 of 32 Byte |
+| 8.13 | yes | SHA-256(Terminal Properties) | leftmost 16 of 32 Byte |
+| 8.14 | no | raw DOL | full 32 Byte |
