@@ -7,6 +7,11 @@ namespace CryptoScriptUnitTest;
 [NonParallelizable]
 public class KdfDocumentationTests
 {
+    private static readonly string[] HkdfMechanisms =
+    {
+        "KDF-HKDF", "HKDF-EXTRACT", "HKDF-EXPAND"
+    };
+
     private static readonly string[] SupportedHashes =
     {
         "HASH-SHA1", "HASH-SHA224", "HASH-SHA256", "HASH-SHA384", "HASH-SHA512",
@@ -22,29 +27,34 @@ public class KdfDocumentationTests
         LexerErrorListener.LexerErrorOccured = false;
     }
 
-    [Test]
-    public void InfoResolvesDeployedKdfHkdfDocumentationAndExampleExecutes()
+    [TestCaseSource(nameof(HkdfMechanisms))]
+    public void InfoResolvesDeployedHkdfDocumentationAndExampleExecutes(string mechanism)
     {
-        string path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Mech.KDF-HKDF.md");
-        Assert.That(File.Exists(path), Is.True, "Missing deployed documentation for KDF-HKDF");
+        string path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", $"Info.Mech.{mechanism}.md");
+        Assert.That(File.Exists(path), Is.True, $"Missing deployed documentation for {mechanism}");
         string document = File.ReadAllText(path);
 
         string? displayed = null;
         void Capture(string text) => displayed = text;
         OutputOperations.InfoEvent += Capture;
-        try { Execute("Info(KDF-HKDF)"); }
+        try { Execute($"Info({mechanism})"); }
         finally { OutputOperations.InfoEvent -= Capture; }
 
         Assert.That(displayed, Is.EqualTo(document));
-        Assert.That(document, Does.StartWith("# MECHANISM KDF-HKDF"));
+        Assert.That(document, Does.StartWith($"# MECHANISM {mechanism}"));
         string template = File.ReadAllText(Path.Combine(
             AppContext.BaseDirectory, "InfoDocs", "Info.Mech.AES-CBC.md"));
         Assert.That(Sections(document), Is.EqualTo(Sections(template)));
 
-        string examples = string.Join(Environment.NewLine, document.Split('\n')
-            .Where(line => line.StartsWith("KEY ") || line.StartsWith("PARAM ") || line.StartsWith("VAR ")));
+        string examples = ExtractExamples(document);
         Assert.That(examples, Is.Not.Empty);
         Execute(examples);
+    }
+
+    [Test]
+    public void KdfHkdfExampleDocumentsAndExecutesCompleteMode()
+    {
+        Execute(ExtractExamples(ReadInfoDocument("Info.Mech.KDF-HKDF.md")));
 
         var parameter = (ParameterVariableDeclaration)VariableDictionary.Instance().Get("hkdf");
         Assert.Multiple(() =>
@@ -70,22 +80,81 @@ public class KdfDocumentationTests
     }
 
     [Test]
+    public void ExtractExampleUsesEmptyInfoAndReturnsHashLengthPrk()
+    {
+        string document = ReadInfoDocument("Info.Mech.HKDF-EXTRACT.md");
+        Assert.That(document, Does.Contain("Derive(extract, ikm, \"\")"));
+        Execute(ExtractExamples(document));
+
+        var prk = (KeyVariableDeclaration)VariableDictionary.Instance().Get("prk");
+        Assert.Multiple(() =>
+        {
+            Assert.That(FormatConversions.HexStringToByteArray(prk.Value), Has.Length.EqualTo(32));
+            Assert.That(prk.KeySize, Is.EqualTo("256"));
+            Assert.That(prk.DerivationMechanism, Is.EqualTo("HKDF-EXTRACT"));
+        });
+    }
+
+    [Test]
+    public void ExpandExampleUsesHashLengthPrkAndReturnsRequestedOkm()
+    {
+        string document = ReadInfoDocument("Info.Mech.HKDF-EXPAND.md");
+        Assert.That(document, Does.Contain("must be a PRK, not arbitrary input keying material"));
+        Execute(ExtractExamples(document));
+
+        var prk = (KeyVariableDeclaration)VariableDictionary.Instance().Get("prk");
+        var okm = (KeyVariableDeclaration)VariableDictionary.Instance().Get("okm");
+        Assert.Multiple(() =>
+        {
+            Assert.That(FormatConversions.HexStringToByteArray(prk.Value), Has.Length.EqualTo(32));
+            Assert.That(FormatConversions.HexStringToByteArray(okm.Value), Has.Length.EqualTo(42));
+            Assert.That(okm.KeySize, Is.EqualTo("336"));
+            Assert.That(okm.DerivationMechanism, Is.EqualTo("HKDF-EXPAND"));
+        });
+    }
+
+    [TestCaseSource(nameof(HkdfMechanisms))]
+    public void EveryHkdfPageDocumentsSupportedHashesAndOutputUnits(string mechanism)
+    {
+        string document = ReadInfoDocument($"Info.Mech.{mechanism}.md");
+        foreach (string hash in SupportedHashes)
+            Assert.That(document, Does.Contain(hash), $"Missing {hash} on {mechanism} page");
+        Assert.Multiple(() =>
+        {
+            Assert.That(document, Does.Contain("HMAC-*"));
+            Assert.That(document, Does.Contain("HashLen"));
+        });
+
+        if (mechanism != "HKDF-EXTRACT")
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(document, Does.Contain("#OUTLEN"));
+                Assert.That(document, Does.Contain("bits"));
+                Assert.That(document, Does.Contain("255 * HashLen bytes"));
+            });
+        }
+    }
+
+    [Test]
     public void CentralDocumentationContainsKdfContract()
     {
         string mechanisms = ReadInfoDocument("Info.Mechanisms.md");
         string functions = ReadInfoDocument("Info.Functions.md");
         string parameters = ReadInfoDocument("Info.Parameters.md");
 
-        Assert.That(mechanisms, Does.Contain("- KDF-HKDF :"));
+        foreach (string mechanism in HkdfMechanisms)
+            Assert.That(mechanisms, Does.Contain($"- {mechanism} :"));
         Assert.That(functions, Does.Contain("Derive(parameters, key, data)"));
-        foreach (string hash in SupportedHashes)
-            Assert.That(ReadInfoDocument("Info.Mech.KDF-HKDF.md"), Does.Contain(hash));
         Assert.Multiple(() =>
         {
             Assert.That(parameters, Does.Contain("- KDF-HKDF"));
+            Assert.That(parameters, Does.Contain("| HKDF-EXTRACT | Required | Optional | Not supported |"));
+            Assert.That(parameters, Does.Contain("| HKDF-EXPAND | Required | Not supported | Required |"));
             Assert.That(parameters, Does.Contain("- HASH:"));
             Assert.That(parameters, Does.Contain("- SALT:"));
             Assert.That(parameters, Does.Contain("- OUTLEN:"));
+            Assert.That(parameters, Does.Contain("specified in bits"));
         });
     }
 
@@ -94,6 +163,11 @@ public class KdfDocumentationTests
 
     private static string[] Sections(string document) => document.Split('\n')
         .Where(line => line.StartsWith("## ")).Select(line => line.Trim()).ToArray();
+
+    private static string ExtractExamples(string document) =>
+        string.Join(Environment.NewLine, document.Split('\n')
+            .Select(line => line.TrimEnd('\r'))
+            .Where(line => line.StartsWith("KEY ") || line.StartsWith("PARAM ") || line.StartsWith("VAR ")));
 
     private static void Execute(string script)
     {

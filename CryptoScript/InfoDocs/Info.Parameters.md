@@ -45,6 +45,8 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - HASH-SHA3-384
         - HASH-SHA3-512
         - KDF-HKDF
+        - HKDF-EXTRACT
+        - HKDF-EXPAND
         - WRAP-AES-TR31
         - WRAP-DES3-TR31
         - WRAP-AES
@@ -60,10 +62,17 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - MACLEN: Output length in bytes for DES3-RETAIL; valid values are 4 through 8 (default 8).
 - HMAC parameters contain only MECH. IV, PAD and MACLEN are not supported for HMAC mechanisms.
 - HASH parameters contain only MECH. IV, PAD, MACLEN, Salt and output-length parameters are not supported for HASH mechanisms.
-- KDF-HKDF requires HASH and OUTLEN and accepts optional SALT.
-- HASH: Hash function used by KDF-HKDF. It accepts the eleven supported HASH-* mechanisms, not HMAC-* mechanisms.
-- SALT: Optional KDF-HKDF salt as hexadecimal data, Base64 data, a UTF-8 string or a VAR. If omitted, HKDF uses HashLen zero bytes; an empty string supplies an explicitly empty salt.
-- OUTLEN: Required KDF-HKDF output length in bits. It must be positive, divisible by 8 and at most 255 times HashLen times 8.
+- Generic HKDF parameter contracts:
+
+| Mechanism | HASH | SALT | OUTLEN |
+|-----------|------|------|--------|
+| KDF-HKDF | Required | Optional | Required |
+| HKDF-EXTRACT | Required | Optional | Not supported |
+| HKDF-EXPAND | Required | Not supported | Required |
+
+- HASH: Hash function used by the generic HKDF mechanisms. It accepts HASH-SHA1, HASH-SHA224, HASH-SHA256, HASH-SHA384, HASH-SHA512, HASH-SHA512-224, HASH-SHA512-256, HASH-SHA3-224, HASH-SHA3-256, HASH-SHA3-384 and HASH-SHA3-512. HMAC-* mechanisms are not accepted.
+- SALT: Optional for KDF-HKDF and HKDF-EXTRACT, and not supported by HKDF-EXPAND. It accepts hexadecimal data, Base64 data, a UTF-8 string or a VAR. If omitted, HKDF uses HashLen zero bytes; an empty string supplies an explicitly empty salt.
+- OUTLEN: Required for KDF-HKDF and HKDF-EXPAND, and not supported by HKDF-EXTRACT. It is specified in bits and must be positive, divisible by 8 and at most 255 times HashLen times 8 bits.
 - NONCE: Unique nonce value for symmetric encryption used in certain modes.
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.

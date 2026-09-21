@@ -42,6 +42,8 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - HASH-SHA3-384 : Unkeyed message digest using SHA3-384.
 - HASH-SHA3-512 : Unkeyed message digest using SHA3-512.
 - KDF-HKDF : HMAC-based Extract-and-Expand Key Derivation Function specified in RFC 5869.
+- HKDF-EXTRACT : RFC 5869 HKDF Extract operation only; returns the pseudorandom key (PRK).
+- HKDF-EXPAND : RFC 5869 HKDF Expand operation only; derives output keying material from an existing PRK.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
 - WRAP-AES : Symmetric Key wrapping algorithm using AES.

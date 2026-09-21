@@ -135,6 +135,12 @@
     <None Update="InfoDocs\Info.Mech.KDF-HKDF.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.HKDF-EXTRACT.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.HKDF-EXPAND.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mechanisms.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
