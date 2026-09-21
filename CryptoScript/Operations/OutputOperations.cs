@@ -78,6 +78,7 @@ namespace CryptoScript.Model
                 case "KDF-HKDF":
                 case "HKDF-EXTRACT":
                 case "HKDF-EXPAND":
+                case "KDF-SP800-108-COUNTER":
                 case "DUKPT-AES-INITIAL-KEY":
                 case "KDF-EP2-SESSION":
                 case "KDF-EP2-PAN-RECEIPT-TRX":
