@@ -167,6 +167,8 @@ public class DukptAesInitialKeyTests
         result.KeyValue.Should().Be(result.Value);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
         result.KeySize.Should().Be(bits.ToString());
+        result.KeySizeInBits.Should().Be(new KeySize(bits));
+        result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Aes));
         result.Mechanism.Should().BeEmpty();
         result.DerivationMechanism.Should().Be(Mechanism);
         result.Type.Should().BeOfType<CryptoTypeKey>();

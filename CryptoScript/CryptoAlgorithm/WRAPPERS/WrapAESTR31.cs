@@ -117,6 +117,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             {
                 KeyValue = actualKeyHex,
                 KeySize = actualBitSize.ToString(),  // or store the bits as needed
+                KeyType = KeyTypeFromHeader(block.Header),
                 Value = actualKeyHex, // pick some name or pass in an extra param
                 KeyAttributes=block.HeaderOptionalBlocks(),
                 Type =new CryptoTypeKey(),
@@ -311,6 +312,19 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 'A' => Math.Max(0, 32 - keyLength),
                 'T' => Math.Max(0, 24 - keyLength),
                 _ => 0
+            };
+        }
+        private static KeyType KeyTypeFromHeader(string? header)
+        {
+            if (string.IsNullOrEmpty(header) || header.Length <= 7)
+                return KeyType.Secret(KeyAlgorithm.Unknown);
+
+            return char.ToUpperInvariant(header[7]) switch
+            {
+                'A' => KeyType.Secret(KeyAlgorithm.Aes),
+                'T' => KeyType.Secret(KeyAlgorithm.Tdea),
+                'H' => KeyType.Secret(KeyAlgorithm.Hmac),
+                _ => KeyType.Secret(KeyAlgorithm.Unknown)
             };
         }
         private static void ValidateDeclaredBlockLength(string header, int ciphertextLength, int authenticationLength)

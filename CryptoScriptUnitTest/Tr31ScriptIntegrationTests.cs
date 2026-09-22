@@ -192,7 +192,27 @@ public class Tr31ScriptIntegrationTests
             Assert.That(r.KeyValue, Is.EqualTo($"0x({key})").IgnoreCase);
             Assert.That(r.Value, Is.EqualTo(r.KeyValue));
             Assert.That(r.KeySize, Is.EqualTo((key.Length * 4).ToString()));
+            Assert.That(r.KeySizeInBits, Is.EqualTo(new KeySize(key.Length * 4)));
+            Assert.That(r.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));
             Assert.That(r.Mechanism, Is.EqualTo("WRAP-DES3-TR31"));
         });
+    }
+
+    [TestCase('H', KeyAlgorithm.Hmac)]
+    [TestCase('D', KeyAlgorithm.Unknown)]
+    public void TdeaUnwrapClassifiesOnlySupportedAuthenticatedHeaderAlgorithms(
+        char algorithmCode, KeyAlgorithm expectedAlgorithm)
+    {
+        const string kbpk = "0123456789ABCDEFFEDCBA9876543210";
+        const string key = "202122232425262728292A2B2C2D2E2F";
+        string header = $"B0096D0{algorithmCode}B00E0000";
+
+        Run(Keys(kbpk, key) +
+            $"PARAM p=#MECH:WRAP-DES3-TR31 #BLKH:\"{header}\" VAR b=Wrap(p,k,t) KEY r=Unwrap(p,k,b)");
+        var result = (KeyVariableDeclaration)VariableDictionary.Instance().Get("r");
+
+        Assert.That(result.KeyType, Is.EqualTo(KeyType.Secret(expectedAlgorithm)));
+        Assert.That(result.Mechanism, Is.EqualTo("WRAP-DES3-TR31"));
+        Assert.That(result.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == header), Is.True);
     }
 }

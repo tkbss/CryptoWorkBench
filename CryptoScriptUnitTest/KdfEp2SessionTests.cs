@@ -45,6 +45,8 @@ public class KdfEp2SessionTests
         result.Value.Should().BeEquivalentTo($"0x({expected})", options => options.IgnoringCase());
         FormatConversions.HexStringToByteArray(result.Value).Should().HaveCount(outputLength);
         result.KeySize.Should().Be((outputLength * 8).ToString());
+        result.KeySizeInBits.Should().Be(new KeySize(outputLength * 8));
+        result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Unknown));
         result.Value.Should().Be(result.KeyValue);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
         result.Mechanism.Should().BeEmpty();

@@ -44,6 +44,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 KeyValue = value,
                 ValueFormat = FormatConversions.ParseString(value),
                 KeySize = keySize.ToString(),
+                KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
                 Mechanism = mechanism,
                 Type = new CryptoTypeKey()
             };

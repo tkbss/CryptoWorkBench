@@ -29,6 +29,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 key.KeyValue = keyValue;
                 key.ValueFormat = FormatConversions.ParseString(keyValue);
                 key.KeySize = Size;
+                key.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
                 key.Mechanism = mechanism;
                 key.Type = new CryptoTypeKey();
             }
@@ -43,6 +44,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
             if (keySize != 128 && keySize != 192 && keySize != 256)
                 throw new ArgumentException("wrong key size");
             k.KeySize = keySize.ToString();
+            k.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
             k.KeyValue = key;
             k.Mechanism = mechanism;
             k.Type = new CryptoTypeKey();

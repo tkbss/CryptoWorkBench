@@ -60,6 +60,7 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
             KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = (bdkBytes.Length * 8).ToString(CultureInfo.InvariantCulture),
+            KeyType = KeyType.Secret(KeyAlgorithm.Aes),
             Mechanism = string.Empty,
             DerivationMechanism = MechanismName,
             Type = new CryptoTypeKey()

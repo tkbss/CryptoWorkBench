@@ -142,6 +142,7 @@ public class Tr31AesCharacterizationTests
         Assert.Multiple(() =>
         {
             Assert.That(recovered.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
+            Assert.That(recovered.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
             Assert.That(recovered.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == "D0144P0AE00E0000"), Is.True);
             Assert.That(WrapAESTR31.GetObfuscationPaddingLength(recovered, 16), Is.EqualTo(16));
             Assert.That(rewrapped.Block, Is.EqualTo("D0144P0AE00E0000"));
@@ -170,11 +171,49 @@ public class Tr31AesCharacterizationTests
         Assert.Multiple(() =>
         {
             Assert.That(recovered.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
+            Assert.That(recovered.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));
             Assert.That(recovered.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == "D0112D0TB00E0000"), Is.True);
             Assert.That(WrapAESTR31.GetObfuscationPaddingLength(recovered, 16), Is.EqualTo(8));
             Assert.That(rewrapped.Block, Is.EqualTo("D0112D0TB00E0000"));
             Assert.That(rewrapped.Cryptogram, Has.Length.EqualTo(32));
             Assert.That(Convert.ToHexString(clear), Is.EqualTo("0080" + key + random));
+        });
+    }
+
+    [TestCase('H', KeyAlgorithm.Hmac)]
+    [TestCase('D', KeyAlgorithm.Unknown)]
+    public void UnwrapClassifiesOnlySupportedAuthenticatedHeaderAlgorithms(
+        char algorithmCode, KeyAlgorithm expectedAlgorithm)
+    {
+        string header = $"D0144D0{algorithmCode}B00E0000";
+        var block = Wrap(128, header, Sequence(1, 30));
+
+        Run($"VAR mi={block} PARAM mu=#MECH:WRAP-AES-TR31 KEY mr=Unwrap(mu,ck,mi)");
+        var result = (KeyVariableDeclaration)VariableDictionary.Instance().Get("mr");
+
+        Assert.That(result.KeyType, Is.EqualTo(KeyType.Secret(expectedAlgorithm)));
+        Assert.That(result.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
+        Assert.That(result.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == header), Is.True);
+    }
+
+    [Test]
+    public void UnwrappedTr31KeyMetadataSurvivesJsonRoundtrip()
+    {
+        const string header = "D0144D0HB00E0000";
+        var block = Wrap(128, header, Sequence(1, 30));
+        Run($"VAR ji={block} PARAM ju=#MECH:WRAP-AES-TR31 KEY jr=Unwrap(ju,ck,ji)");
+        var original = (KeyVariableDeclaration)VariableDictionary.Instance().Get("jr");
+
+        KeyVariableDeclaration restored = KeyVariableDeclaration.Deserialize(original.Serialize());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Hmac)));
+            Assert.That(restored.KeySizeInBits, Is.EqualTo(original.KeySizeInBits));
+            Assert.That(restored.KeySize, Is.EqualTo(original.KeySize));
+            Assert.That(restored.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
+            Assert.That(restored.KeyAttributes.Select(a => (a.ID, a.Length, a.Data)),
+                Is.EqualTo(original.KeyAttributes.Select(a => (a.ID, a.Length, a.Data))));
         });
     }
 

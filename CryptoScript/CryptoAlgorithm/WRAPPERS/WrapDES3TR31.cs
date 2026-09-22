@@ -61,8 +61,23 @@ public class WrapDES3TR31 : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value, KeyValue = value, KeySize = (key.Length * 8).ToString(),
+            KeyType = KeyTypeFromHeader(block.Header),
             ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
             Mechanism = MechanismName, KeyAttributes = block.HeaderOptionalBlocks()
+        };
+    }
+
+    private static KeyType KeyTypeFromHeader(string? header)
+    {
+        if (string.IsNullOrEmpty(header) || header.Length <= 7)
+            return KeyType.Secret(KeyAlgorithm.Unknown);
+
+        return char.ToUpperInvariant(header[7]) switch
+        {
+            'A' => KeyType.Secret(KeyAlgorithm.Aes),
+            'T' => KeyType.Secret(KeyAlgorithm.Tdea),
+            'H' => KeyType.Secret(KeyAlgorithm.Hmac),
+            _ => KeyType.Secret(KeyAlgorithm.Unknown)
         };
     }
 

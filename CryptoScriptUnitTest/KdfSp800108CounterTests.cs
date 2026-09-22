@@ -173,6 +173,8 @@ public class KdfSp800108CounterTests
         result.KeyValue.Should().Be(result.Value);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
         result.KeySize.Should().Be(bits.ToString());
+        result.KeySizeInBits.Should().Be(new KeySize(bits));
+        result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Unknown));
         result.DerivationMechanism.Should().Be("KDF-SP800-108-COUNTER");
         result.Type.Should().BeOfType<CryptoTypeKey>();
     }

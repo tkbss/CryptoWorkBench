@@ -37,6 +37,29 @@ namespace CryptoScriptUnitTest
             var restored = KeyVariableDeclaration.Deserialize(json);
 
             Assert.That(restored.DerivationMechanism, Is.Empty);
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
+            Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(128)));
+            Assert.That(restored.Mechanism, Is.EqualTo("AES-CBC"));
+            Assert.That(restored.KeySize, Is.EqualTo("128"));
+        }
+
+        [Test]
+        public void SerializationPreservesStronglyTypedKeyMetadata()
+        {
+            var key = new KeyVariableDeclaration
+            {
+                KeyType = KeyType.Private(KeyAlgorithm.Rsa),
+                KeySizeInBits = new KeySize(2048),
+                KeySize = "2048",
+                Mechanism = "legacy-mechanism"
+            };
+
+            var restored = KeyVariableDeclaration.Deserialize(key.Serialize());
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Private(KeyAlgorithm.Rsa)));
+            Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(2048)));
+            Assert.That(restored.KeySize, Is.EqualTo("2048"));
+            Assert.That(restored.Mechanism, Is.EqualTo("legacy-mechanism"));
         }
 
         [Test]

@@ -52,6 +52,7 @@ public sealed class KDF_EP2_PAN_SURROGATE_TRX : CryptoAlgorithm
             KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = (OutputLengthBytes * 8).ToString(CultureInfo.InvariantCulture),
+            KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
             Mechanism = string.Empty,
             DerivationMechanism = MechanismName,
             Type = new CryptoTypeKey()

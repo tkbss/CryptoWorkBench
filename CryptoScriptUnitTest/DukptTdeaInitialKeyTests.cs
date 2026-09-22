@@ -40,6 +40,8 @@ public class DukptTdeaInitialKeyTests
             options => options.IgnoringCase());
         result.KeySize.Should().Be("128");
         result.Mechanism.Should().BeEmpty();
+        result.KeySizeInBits.Should().Be(new KeySize(128));
+        result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Tdea));
         result.DerivationMechanism.Should().Be(Mechanism);
     }
 
