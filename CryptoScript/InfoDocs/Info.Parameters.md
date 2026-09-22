@@ -49,6 +49,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - HKDF-EXPAND
         - KDF-SP800-108-COUNTER
         - DUKPT-AES-INITIAL-KEY
+        - DUKPT-TDEA-INITIAL-KEY
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
         - KDF-EP2-PAN-RECEIPT-TRM
@@ -89,6 +90,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - LABEL: Optional KDF-SP800-108-COUNTER binary Label in hexadecimal, Base64 or UTF-8 string form. Omission means an empty Label.
 - For KDF-SP800-108-COUNTER, OUTLEN is measured in bits and parsed as an unsigned 32-bit integer. It must be greater than zero and divisible by 8, making 4,294,967,288 bits the largest value allowed by representation and byte alignment alone. The effective maximum can be lower because `ceil(OUTLEN / h)` must not exceed `2^COUNTER - 1` for the selected PRF. COUNTER denotes the counter width in bits, not a starting counter value.
 - DUKPT-AES-INITIAL-KEY parameters contain only MECH. OUTLEN, PRF, LABEL and COUNTER are not supported; the BDK fixes the AES type and output length.
+- DUKPT-TDEA-INITIAL-KEY parameters contain only MECH. OUTLEN, KEYTYPE, PRF and COUNTER are not supported; the mechanism requires a 16-byte double-length TDEA BDK and a complete 80-bit KSN.
 - ep2 KDF parameter contracts:
 
 | Mechanism | HASH | SALT | OUTLEN | VARIANT |
