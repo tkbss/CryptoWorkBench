@@ -32,15 +32,22 @@ public class MechanismListTests
         "HASH-SHA3-224", "HASH-SHA3-256", "HASH-SHA3-384", "HASH-SHA3-512",
         "DES3-ECB", "DES3-CBC", "DES3-RETAIL", "DES3-CMAC",
         "WRAP-AES-TR31", "WRAP-DES3-TR31", "WRAP-AES", "WRAP-DES3", "KDF-HKDF",
-        "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-SP800-108-COUNTER", "DUKPT-AES-INITIAL-KEY", "KDF-EP2-SESSION",
+        "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-SP800-108-COUNTER", "DUKPT-AES-INITIAL-KEY", "DUKPT-TDEA-INITIAL-KEY", "KDF-EP2-SESSION",
         "KDF-EP2-PAN-SURROGATE-TRX", "KDF-EP2-PAN-RECEIPT-TRX", "KDF-EP2-PAN-RECEIPT-TRM"
     };
 
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(46));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(47));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
+    }
+
+    [Test]
+    public void ContainsTdeaDukptInitialKeyExactlyOnce()
+    {
+        Assert.That(MechanismList.Instance.Mechanisms.Count(
+            mechanism => mechanism == "DUKPT-TDEA-INITIAL-KEY"), Is.EqualTo(1));
     }
 
     [TestCaseSource(nameof(HashMechanisms))]
