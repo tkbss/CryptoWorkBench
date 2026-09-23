@@ -82,6 +82,7 @@ namespace CryptoScript.Model
                 case "DUKPT-AES-INITIAL-KEY":
                 case "DUKPT-AES-WORKING-KEY":
                 case "DUKPT-TDEA-INITIAL-KEY":
+                case "DUKPT-TDEA-WORKING-KEY":
                 case "KDF-EP2-SESSION":
                 case "KDF-EP2-PAN-RECEIPT-TRX":
                 case "KDF-EP2-PAN-RECEIPT-TRM":

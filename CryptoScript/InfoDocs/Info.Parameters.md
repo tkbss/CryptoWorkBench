@@ -51,6 +51,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - DUKPT-AES-INITIAL-KEY
         - DUKPT-AES-WORKING-KEY
         - DUKPT-TDEA-INITIAL-KEY
+        - DUKPT-TDEA-WORKING-KEY
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
         - KDF-EP2-PAN-RECEIPT-TRM
@@ -95,6 +96,8 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - USAGE: For DUKPT-AES-WORKING-KEY, selects the X9.24 Working-Key purpose and the restricted KeyUsagePolicy stored on the result. PIN maps only to PinEncrypt, not to generic Encrypt.
 - KEYTYPE: For DUKPT-AES-WORKING-KEY, selects the Working-Key algorithm family and length. HMAC-128, HMAC-192 and HMAC-256 describe HMAC keying-material length, not a hash algorithm.
 - DUKPT-TDEA-INITIAL-KEY parameters contain only MECH. OUTLEN, KEYTYPE, PRF and COUNTER are not supported; the mechanism requires a 16-byte double-length TDEA BDK and a complete 80-bit KSN.
+- DUKPT-TDEA-WORKING-KEY requires USAGE in addition to MECH. USAGE accepts PIN, MAC-REQUEST, MAC-RESPONSE, MAC-BOTH, DATA-REQUEST, DATA-RESPONSE and DATA-BOTH. KEYTYPE, OUTLEN and COUNTER are not supported; the mechanism always returns a 16-byte double-length TDEA Working Key.
+- USAGE: For DUKPT-TDEA-WORKING-KEY, selects the Annex C Working-Key variant and restricted KeyUsagePolicy. Request/response denotes DUKPT derivation direction, not a Generate/Verify or Encrypt/Decrypt permission split.
 - ep2 KDF parameter contracts:
 
 | Mechanism | HASH | SALT | OUTLEN | VARIANT |

@@ -153,6 +153,9 @@
     <None Update="InfoDocs\Info.Mech.DUKPT-TDEA-INITIAL-KEY.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.DUKPT-TDEA-WORKING-KEY.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.KDF-EP2-SESSION.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
