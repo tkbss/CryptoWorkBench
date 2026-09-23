@@ -75,22 +75,27 @@
 						<ContentControl.ContentTemplate>
 							<DataTemplate>
 								<!-- Hier kannst du zusatzliche "Columns Felder anzeigen -->
-								<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+								<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
 									  ColumnDefinitions="Auto,*"
-									  ColumnSpacing="8"
-									  RowSpacing="4">
-									<TextBlock Grid.Row="0" Grid.Column="0" Text="Type:"/>
-									<TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Type}"/>
-									<TextBlock Grid.Row="1" Grid.Column="0" Text="Identifier:"/>
-									<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Identifier}"/>
-									<TextBlock Grid.Row="2" Grid.Column="0" Text="Format:"/>
-									<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ValueFormat}"/>
-									<TextBlock Grid.Row="3" Grid.Column="0" Text="Mechanism:"/>
-									<TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Mechanism}"/>						
-									<TextBlock Grid.Row="4" Grid.Column="0" Text="KeySize:"/>
-									<TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding KeySize}"/>
-									<TextBlock Grid.Row="5" Grid.Column="0" Text="GMAC:"/>
-									<TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding GMAC}"/>
+									  ColumnSpacing="8">
+									<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,0,4" Text="Type:"/>
+									<TextBlock Grid.Row="0" Grid.Column="1" Margin="0,0,0,4" Text="{Binding Type}"/>
+									<TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,0,4" Text="Identifier:"/>
+									<TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,4" Text="{Binding Identifier}"/>
+									<TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,0,4" Text="Format:"/>
+									<TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,4" Text="{Binding ValueFormat}"/>
+									<TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,0,4" Text="Mechanism:" IsVisible="{Binding IsParameter}"/>
+									<TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,0,4" Text="{Binding Mechanism}" IsVisible="{Binding IsParameter}"/>
+									<TextBlock Grid.Row="4" Grid.Column="0" Margin="0,0,0,4" Text="Algorithm:" IsVisible="{Binding IsKey}"/>
+									<TextBlock Grid.Row="4" Grid.Column="1" Margin="0,0,0,4" Text="{Binding Algorithm}" IsVisible="{Binding IsKey}"/>
+									<TextBlock Grid.Row="5" Grid.Column="0" Margin="0,0,0,4" Text="Material:" IsVisible="{Binding IsKey}"/>
+									<TextBlock Grid.Row="5" Grid.Column="1" Margin="0,0,0,4" Text="{Binding Material}" IsVisible="{Binding IsKey}"/>
+									<TextBlock Grid.Row="6" Grid.Column="0" Margin="0,0,0,4" Text="Key Size:" IsVisible="{Binding HasKeySize}"/>
+									<TextBlock Grid.Row="6" Grid.Column="1" Margin="0,0,0,4" Text="{Binding KeySize}" IsVisible="{Binding HasKeySize}"/>
+									<TextBlock Grid.Row="7" Grid.Column="0" Margin="0,0,0,4" Text="Derivation:" IsVisible="{Binding HasDerivation}"/>
+									<TextBlock Grid.Row="7" Grid.Column="1" Margin="0,0,0,4" Text="{Binding Derivation}" IsVisible="{Binding HasDerivation}"/>
+									<TextBlock Grid.Row="8" Grid.Column="0" Text="GMAC:"/>
+									<TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding GMAC}"/>
 								</Grid>
 							</DataTemplate>
 						</ContentControl.ContentTemplate>

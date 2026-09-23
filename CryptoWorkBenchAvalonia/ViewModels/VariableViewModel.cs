@@ -4,6 +4,7 @@ using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private void OnModifyValue(VariableModel? obj)
         {
             if (obj == null)
+                return;
+            if(SelectedVariable == null)
                 return;
             var v = VariableDictionary.Instance().GetVariables();
             var p = v.FirstOrDefault(x => x.Id == SelectedVariable!.Identifier && x.Type!.Name == SelectedVariable.Type);
@@ -69,12 +72,21 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 switch (v)
                 {
                     case KeyVariableDeclaration a:
-                        dv.KeySize = a.KeySize;
+                        dv.IsKey = true;
+                        dv.Algorithm = FormatAlgorithm(a.KeyType.Algorithm);
+                        dv.Material = a.KeyType.MaterialKind.ToString();
+                        dv.HasKeySize = a.KeySizeInBits.IsKnown;
+                        dv.KeySize = a.KeySizeInBits.IsKnown
+                            ? a.KeySizeInBits.Bits.ToString(CultureInfo.InvariantCulture)
+                            : string.Empty;
+                        dv.Derivation = a.DerivationMechanism;
+                        dv.HasDerivation = !string.IsNullOrWhiteSpace(a.DerivationMechanism);
                         break;
                     case StringVariableDeclaration b:                       
                         dv.GMAC = b.GMAC;
                         break;
                      case ParameterVariableDeclaration c:
+                        dv.IsParameter = true;
                         dv.Mechanism = c.Mechanism;
                         var parameters = c.GetParameters();
                         foreach (var param in parameters)
@@ -91,6 +103,15 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 DataVariables.Add(dv);
             }
         }
+        private static string FormatAlgorithm(KeyAlgorithm algorithm) => algorithm switch
+        {
+            KeyAlgorithm.Aes => "AES",
+            KeyAlgorithm.Tdea => "TDEA",
+            KeyAlgorithm.Hmac => "HMAC",
+            KeyAlgorithm.Rsa => "RSA",
+            KeyAlgorithm.Ec => "EC",
+            _ => "Unknown"
+        };
         ObservableCollection<VariableModel> _dataVariables = new ObservableCollection<VariableModel>();
         public ObservableCollection<VariableModel> DataVariables
         {

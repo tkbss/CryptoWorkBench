@@ -23,6 +23,48 @@ namespace CryptoWorkBenchAvalonia.Models
             get => _mechanism;
             set => SetProperty(ref _mechanism, value);
         }
+        string _algorithm = string.Empty;
+        public string Algorithm
+        {
+            get => _algorithm;
+            set => SetProperty(ref _algorithm, value);
+        }
+        string _material = string.Empty;
+        public string Material
+        {
+            get => _material;
+            set => SetProperty(ref _material, value);
+        }
+        string _derivation = string.Empty;
+        public string Derivation
+        {
+            get => _derivation;
+            set => SetProperty(ref _derivation, value);
+        }
+        bool _isKey;
+        public bool IsKey
+        {
+            get => _isKey;
+            set => SetProperty(ref _isKey, value);
+        }
+        bool _isParameter;
+        public bool IsParameter
+        {
+            get => _isParameter;
+            set => SetProperty(ref _isParameter, value);
+        }
+        bool _hasKeySize;
+        public bool HasKeySize
+        {
+            get => _hasKeySize;
+            set => SetProperty(ref _hasKeySize, value);
+        }
+        bool _hasDerivation;
+        public bool HasDerivation
+        {
+            get => _hasDerivation;
+            set => SetProperty(ref _hasDerivation, value);
+        }
         string _gmac = string.Empty;
         public string GMAC
         {
