@@ -102,6 +102,19 @@ public class DukptTdeaInitialKeyTests
             "0x(1273671EA26AC29AFA4D1084127652A1)", options => options.IgnoringCase());
     }
 
+    [Test]
+    public void DerivedTdeaInitialKeyRemainsUsableByDes3()
+    {
+        CryptoScriptProgram program = Execute(
+            $"KEY bdk=GenerateKey(DES3-ECB,0x({Bdk})) " +
+            $"PARAM derive=Parameters({Mechanism}) " +
+            $"KEY initial=Derive(derive,bdk,0x({Ksn})) " +
+            "PARAM encrypt=Parameters(DES3-ECB,#PAD:NONE) " +
+            "VAR cipher=Encrypt(encrypt,initial,0x(4E6F772069732074))");
+
+        program.Statements[^1].Should().BeOfType<StringVariableDeclaration>();
+    }
+
     private static KeyVariableDeclaration Derive(string bdk, string ksn) =>
         Execute($"KEY bdk=GenerateKey(DES3-ECB,0x({bdk})) " +
                 $"PARAM p=Parameters({Mechanism}) " +

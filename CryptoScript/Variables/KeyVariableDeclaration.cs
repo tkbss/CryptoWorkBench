@@ -1,5 +1,6 @@
 ﻿using CryptoScript.CryptoAlgorithm.WRAPPERS;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +72,28 @@ namespace CryptoScript.Variables
 
         public static KeyVariableDeclaration Deserialize(string json)
         {
-            return JsonConvert.DeserializeObject<KeyVariableDeclaration>(json);
+            var jsonObject = JObject.Parse(json);
+            bool hasKeyType = jsonObject.Properties()
+                .Any(property => property.Name.Equals(nameof(KeyType), StringComparison.OrdinalIgnoreCase));
+            var key = jsonObject.ToObject<KeyVariableDeclaration>()
+                ?? throw new JsonSerializationException("KEY JSON did not contain a key object.");
+
+            if (!hasKeyType)
+                key.KeyType = InferLegacyKeyType(key);
+
+            return key;
+        }
+
+        private static KeyType InferLegacyKeyType(KeyVariableDeclaration key)
+        {
+            string mechanism = key.Mechanism ?? string.Empty;
+            if (mechanism.StartsWith("AES-", StringComparison.OrdinalIgnoreCase))
+                return KeyType.Secret(KeyAlgorithm.Aes);
+            if (mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
+                return KeyType.Secret(KeyAlgorithm.Tdea);
+            if (mechanism.StartsWith("HMAC-", StringComparison.OrdinalIgnoreCase))
+                return KeyType.Secret(KeyAlgorithm.Hmac);
+            return KeyType.Secret(KeyAlgorithm.Unknown);
         }
     }
 }

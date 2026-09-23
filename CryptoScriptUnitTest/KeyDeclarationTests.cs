@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace CryptoScriptUnitTest
 {
@@ -37,7 +38,7 @@ namespace CryptoScriptUnitTest
             var restored = KeyVariableDeclaration.Deserialize(json);
 
             Assert.That(restored.DerivationMechanism, Is.Empty);
-            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
             Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(128)));
             Assert.That(restored.Mechanism, Is.EqualTo("AES-CBC"));
             Assert.That(restored.KeySize, Is.EqualTo("128"));
@@ -60,6 +61,93 @@ namespace CryptoScriptUnitTest
             Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(2048)));
             Assert.That(restored.KeySize, Is.EqualTo("2048"));
             Assert.That(restored.Mechanism, Is.EqualTo("legacy-mechanism"));
+        }
+
+        [TestCase("AES-CBC", KeyAlgorithm.Aes)]
+        [TestCase("aes-gcm", KeyAlgorithm.Aes)]
+        [TestCase("DES3-ECB", KeyAlgorithm.Tdea)]
+        [TestCase("des3-cmac", KeyAlgorithm.Tdea)]
+        [TestCase("HMAC-SHA256", KeyAlgorithm.Hmac)]
+        [TestCase("hmac-sha3-512", KeyAlgorithm.Hmac)]
+        [TestCase("", KeyAlgorithm.Unknown)]
+        [TestCase("UNKNOWN-MECHANISM", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-AES-TR31", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-DES3-TR31", KeyAlgorithm.Unknown)]
+        public void LegacyJsonInfersKeyTypeFromMechanism(string mechanism, KeyAlgorithm expected)
+        {
+            string json = JsonConvert.SerializeObject(new { Mechanism = mechanism });
+
+            var restored = KeyVariableDeclaration.Deserialize(json);
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(expected)));
+            Assert.That(restored.Mechanism, Is.EqualTo(mechanism));
+        }
+
+        [Test]
+        public void ExplicitUnknownKeyTypeIsNotReclassifiedFromLegacyMechanism()
+        {
+            const string json = "{\"Mechanism\":\"AES-CBC\",\"KeyType\":{\"Algorithm\":0,\"MaterialKind\":0}}";
+
+            var restored = KeyVariableDeclaration.Deserialize(json);
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
+        }
+
+        [TestCase("AES-CBC", "D0000D0TB00E0000", KeyAlgorithm.Aes)]
+        [TestCase("DES3-CBC", "D0000D0AB00E0000", KeyAlgorithm.Tdea)]
+        [TestCase("HMAC-SHA256", "D0000D0AB00E0000", KeyAlgorithm.Hmac)]
+        [TestCase("HMAC-SHA256", "D0000D0TB00E0000", KeyAlgorithm.Hmac)]
+        [TestCase("WRAP-AES-TR31", "D0000D0AB00E0000", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-AES-TR31", "D0000D0TB00E0000", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-AES-TR31", "D0000D0HB00E0000", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-DES3-TR31", "D0000D0AB00E0000", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-DES3-TR31", "D0000D0TB00E0000", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-DES3-TR31", "D0000D0HB00E0000", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-AES-TR31", "short", KeyAlgorithm.Unknown)]
+        [TestCase("WRAP-AES-TR31", "", KeyAlgorithm.Unknown)]
+        public void LegacyJsonIgnoresStoredHeaderWhenInferringKeyType(
+            string mechanism, string header, KeyAlgorithm expected)
+        {
+            string json = JsonConvert.SerializeObject(new
+            {
+                Mechanism = mechanism,
+                KeyAttributes = new[] { new { ID = "HDR", Data = header } }
+            });
+
+            var restored = KeyVariableDeclaration.Deserialize(json);
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(expected)));
+            Assert.That(restored.Mechanism, Is.EqualTo(mechanism));
+            Assert.That(restored.KeyAttributes.Single().Data, Is.EqualTo(header));
+        }
+
+        [Test]
+        public void MultipleOrConflictingStoredHeadersDoNotAffectLegacyInference()
+        {
+            const string json = "{\"Mechanism\":\"AES-CBC\",\"KeyAttributes\":[" +
+                                "{\"ID\":\"HDR\",\"Data\":\"short\"}," +
+                                "{\"ID\":\"HDR\",\"Data\":\"D0000D0TB00E0000\"}," +
+                                "{\"ID\":\"HDR\",\"Data\":\"D0000D0HB00E0000\"}]}";
+
+            var restored = KeyVariableDeclaration.Deserialize(json);
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
+            Assert.That(restored.KeyAttributes, Has.Count.EqualTo(3));
+        }
+
+        [Test]
+        public void MigratedLegacyKeyRoundtripPreservesInferredTypeAndLegacyFields()
+        {
+            const string json = "{\"Mechanism\":\"DES3-CBC\",\"DerivationMechanism\":\"legacy-kdf\",\"KeySize\":\"128\",\"KeyAttributes\":[]}";
+            var migrated = KeyVariableDeclaration.Deserialize(json);
+
+            var restored = KeyVariableDeclaration.Deserialize(migrated.Serialize());
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));
+            Assert.That(restored.Mechanism, Is.EqualTo("DES3-CBC"));
+            Assert.That(restored.DerivationMechanism, Is.EqualTo("legacy-kdf"));
+            Assert.That(restored.KeySize, Is.EqualTo("128"));
+            Assert.That(restored.KeyAttributes, Is.Empty);
         }
 
         [Test]

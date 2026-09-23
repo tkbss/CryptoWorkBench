@@ -103,8 +103,14 @@ public class Tr31AesCharacterizationTests
             Sequence(1, aesRandomBytes)), Cases[index][1]);
         byte[] tdeaClear = Decrypt(Wrap(bits, "DES3-CBC", "D0112D0TB00E0000",
             Sequence(1, tdeaRandomBytes)), Cases[index][1]);
-        var aesKey = new KeyVariableDeclaration { Mechanism = "AES-CBC" };
-        var tdeaKey = new KeyVariableDeclaration { Mechanism = "DES3-CBC" };
+        var aesKey = new KeyVariableDeclaration
+        {
+            KeyType = KeyType.Secret(KeyAlgorithm.Aes), Mechanism = "DES3-CBC"
+        };
+        var tdeaKey = new KeyVariableDeclaration
+        {
+            KeyType = KeyType.Secret(KeyAlgorithm.Tdea), Mechanism = "AES-CBC"
+        };
 
         Assert.Multiple(() =>
         {
@@ -118,6 +124,57 @@ public class Tr31AesCharacterizationTests
             Assert.That(tdeaClear, Has.Length.EqualTo(32));
             Assert.That(tdeaClear[(2 + keyBytes)..26], Has.Length.EqualTo(tdeaObfuscationBytes));
             Assert.That(tdeaClear[26..], Has.Length.EqualTo(6));
+        });
+    }
+
+    [Test]
+    public void ObfuscationUsesKeyTypeThenFallsBackToStoredHeader()
+    {
+        var unknownWithAesHeader = new KeyVariableDeclaration
+        {
+            KeyAttributes = [new OptionalBlock { ID = "HDR", Data = "D0000D0AB00E0000" }]
+        };
+        var unknownWithTdeaHeader = new KeyVariableDeclaration
+        {
+            KeyAttributes = [new OptionalBlock { ID = "HDR", Data = "D0000D0TB00E0000" }]
+        };
+        var unknownWithoutHeader = new KeyVariableDeclaration { Mechanism = "AES-CBC" };
+        var hmacWithAesMechanism = new KeyVariableDeclaration
+        {
+            KeyType = KeyType.Secret(KeyAlgorithm.Hmac), Mechanism = "AES-CBC"
+        };
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(unknownWithAesHeader, 16), Is.EqualTo(16));
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(unknownWithTdeaHeader, 16), Is.EqualTo(8));
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(unknownWithoutHeader, 16), Is.Zero);
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(hmacWithAesMechanism, 16), Is.Zero);
+        });
+    }
+
+    [Test]
+    public void LegacyJsonInferencePreservesObfuscationWithoutReadingMechanismAtRuntime()
+    {
+        var legacyAes = KeyVariableDeclaration.Deserialize("{\"Mechanism\":\"AES-CBC\"}");
+        var legacyTdea = KeyVariableDeclaration.Deserialize("{\"Mechanism\":\"DES3-CBC\"}");
+        var wrappedTdea = KeyVariableDeclaration.Deserialize(
+            "{\"Mechanism\":\"WRAP-AES-TR31\",\"KeyAttributes\":[{\"ID\":\"HDR\",\"Data\":\"D0000D0TB00E0000\"}]}");
+        var wrappedAes = KeyVariableDeclaration.Deserialize(
+            "{\"Mechanism\":\"WRAP-DES3-TR31\",\"KeyAttributes\":[{\"ID\":\"HDR\",\"Data\":\"D0000D0AB00E0000\"}]}");
+        var wrapperWithoutHeader = KeyVariableDeclaration.Deserialize(
+            "{\"Mechanism\":\"WRAP-AES-TR31\"}");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(legacyAes, 16), Is.EqualTo(16));
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(legacyTdea, 16), Is.EqualTo(8));
+            Assert.That(wrappedTdea.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(wrappedTdea, 16), Is.EqualTo(8));
+            Assert.That(wrappedAes.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(wrappedAes, 16), Is.EqualTo(16));
+            Assert.That(wrapperWithoutHeader.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(wrapperWithoutHeader, 16), Is.Zero);
         });
     }
 

@@ -193,8 +193,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 !parameter.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC, DES3-ECB, DES3-RETAIL or DES3-CMAC.");
-            if (!string.IsNullOrEmpty(key.Mechanism) &&
-                !key.Mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))
+            if (key.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
                 throw new ArgumentException($"{parameter.Mechanism} requires a DES3 key.");
         }
 

@@ -295,12 +295,12 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         }
         internal static int GetObfuscationPaddingLength(KeyVariableDeclaration key, int keyLength)
         {
-            string mechanism = key.Mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
-                ? key.Mechanism["#MECH:".Length..]
-                : key.Mechanism;
-            char? algorithm = mechanism.StartsWith("AES-", StringComparison.OrdinalIgnoreCase) ? 'A'
-                : mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase) ? 'T'
-                : null;
+            char? algorithm = key.KeyType.Algorithm switch
+            {
+                KeyAlgorithm.Aes => 'A',
+                KeyAlgorithm.Tdea => 'T',
+                _ => null
+            };
             if (algorithm == null)
             {
                 string? header = key.KeyAttributes.FirstOrDefault(block => block.ID == "HDR")?.Data;
