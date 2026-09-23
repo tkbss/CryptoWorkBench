@@ -96,7 +96,6 @@ public sealed class KDF_EP2_SESSION : CryptoAlgorithm
             ValueFormat = FormatConversions.HEX,
             KeySize = (definition.OutputLengthBytes * 8).ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
-            Mechanism = string.Empty,
             DerivationMechanism = MechanismName,
             Type = new CryptoTypeKey()
         };

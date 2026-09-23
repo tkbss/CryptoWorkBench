@@ -19,7 +19,7 @@ public class KeyMechanismReaderMigrationTests
     {
         KeyType type = KeyType.Secret(algorithm);
 
-        Action action = () => Encrypt(type, "AES-CBC");
+        Action action = () => Encrypt(type);
 
         action.Should().NotThrow();
     }
@@ -28,7 +28,7 @@ public class KeyMechanismReaderMigrationTests
     [TestCase(KeyAlgorithm.Hmac)]
     public void Des3RejectsKnownNonTdeaSecretKeys(KeyAlgorithm algorithm)
     {
-        Action action = () => Encrypt(KeyType.Secret(algorithm), "DES3-CBC");
+        Action action = () => Encrypt(KeyType.Secret(algorithm));
 
         action.Should().Throw<ArgumentException>().WithMessage("*requires a DES3 key*");
     }
@@ -36,8 +36,8 @@ public class KeyMechanismReaderMigrationTests
     [Test]
     public void Des3RejectsRsaAndEcKeys()
     {
-        Action rsa = () => Encrypt(KeyType.Public(KeyAlgorithm.Rsa), "DES3-CBC");
-        Action ec = () => Encrypt(KeyType.Private(KeyAlgorithm.Ec), "DES3-CBC");
+        Action rsa = () => Encrypt(KeyType.Public(KeyAlgorithm.Rsa));
+        Action ec = () => Encrypt(KeyType.Private(KeyAlgorithm.Ec));
 
         rsa.Should().Throw<ArgumentException>().WithMessage("*requires a DES3 key*");
         ec.Should().Throw<ArgumentException>().WithMessage("*requires a DES3 key*");
@@ -59,11 +59,10 @@ public class KeyMechanismReaderMigrationTests
             action.Should().NotThrow();
     }
 
-    private static void Encrypt(KeyType type, string legacyMechanism) =>
+    private static void Encrypt(KeyType type) =>
         Encrypt(new KeyVariableDeclaration
         {
             KeyType = type,
-            Mechanism = legacyMechanism,
             Value = KeyValue,
             KeyValue = KeyValue,
             ValueFormat = FormatConversions.HEX

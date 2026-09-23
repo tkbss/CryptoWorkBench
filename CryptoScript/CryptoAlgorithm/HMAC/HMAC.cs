@@ -87,7 +87,6 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
                 ValueFormat = FormatConversions.ParseString(value),
                 KeySize = keySizeBits.ToString(),
                 KeyType = KeyType.Secret(KeyAlgorithm.Hmac),
-                Mechanism = mechanism,
                 Type = new CryptoTypeKey()
             };
         }

@@ -70,7 +70,6 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 {
                     case KeyVariableDeclaration a:
                         dv.KeySize = a.KeySize;
-                        dv.Mechanism = a.Mechanism;
                         break;
                     case StringVariableDeclaration b:                       
                         dv.GMAC = b.GMAC;

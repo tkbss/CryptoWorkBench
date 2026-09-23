@@ -63,7 +63,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
             Value = value, KeyValue = value, KeySize = (key.Length * 8).ToString(),
             KeyType = KeyTypeFromHeader(block.Header),
             ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
-            Mechanism = MechanismName, KeyAttributes = block.HeaderOptionalBlocks()
+            KeyAttributes = block.HeaderOptionalBlocks()
         };
     }
 

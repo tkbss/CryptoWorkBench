@@ -120,8 +120,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 KeyType = KeyTypeFromHeader(block.Header),
                 Value = actualKeyHex, // pick some name or pass in an extra param
                 KeyAttributes=block.HeaderOptionalBlocks(),
-                Type =new CryptoTypeKey(),
-                Mechanism= "WRAP-AES-TR31"
+                Type =new CryptoTypeKey()
             };
 
             // Optionally store it in the dictionary if you want it globally accessible:

@@ -58,7 +58,6 @@ public sealed class KDF_EP2_PAN_RECEIPT_TRX : CryptoAlgorithm
             ValueFormat = FormatConversions.HEX,
             KeySize = (OutputLengthBytes * 8).ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
-            Mechanism = string.Empty,
             DerivationMechanism = MechanismName,
             Type = new CryptoTypeKey()
         };

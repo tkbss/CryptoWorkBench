@@ -31,7 +31,7 @@ public class KeyTypeMigrationTests
     {
         KeyVariableDeclaration key = new AES().GenerateKey(mechanism, "128");
 
-        AssertMetadata(key, mechanism, KeyAlgorithm.Aes, 128);
+        AssertMetadata(key, KeyAlgorithm.Aes, 128);
     }
 
     [TestCaseSource(nameof(TdeaMechanisms))]
@@ -39,7 +39,7 @@ public class KeyTypeMigrationTests
     {
         KeyVariableDeclaration key = new DES3().GenerateKey(mechanism, "128");
 
-        AssertMetadata(key, mechanism, KeyAlgorithm.Tdea, 128);
+        AssertMetadata(key, KeyAlgorithm.Tdea, 128);
     }
 
     [TestCaseSource(nameof(HmacMechanisms))]
@@ -47,7 +47,7 @@ public class KeyTypeMigrationTests
     {
         KeyVariableDeclaration key = new HMAC().GenerateKey(mechanism, "136");
 
-        AssertMetadata(key, mechanism, KeyAlgorithm.Hmac, 136);
+        AssertMetadata(key, KeyAlgorithm.Hmac, 136);
     }
 
     [Test]
@@ -149,13 +149,11 @@ public class KeyTypeMigrationTests
         action.Should().Throw<Exception>();
     }
 
-    private static void AssertMetadata(
-        KeyVariableDeclaration key, string legacyMechanism, KeyAlgorithm algorithm, int bits)
+    private static void AssertMetadata(KeyVariableDeclaration key, KeyAlgorithm algorithm, int bits)
     {
         key.KeyType.Should().Be(KeyType.Secret(algorithm));
         key.KeySizeInBits.Should().Be(new KeySize(bits));
         key.KeySize.Should().Be(bits.ToString());
-        key.Mechanism.Should().Be(legacyMechanism);
         FormatConversions.HexStringToByteArray(key.KeyValue).Length.Should().Be(bits / 8);
     }
 }

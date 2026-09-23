@@ -101,7 +101,6 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
             ValueFormat = FormatConversions.HEX,
             KeySize = outputLength.ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
-            Mechanism = string.Empty,
             DerivationMechanism = MechanismName,
             Type = new CryptoTypeKey()
         };

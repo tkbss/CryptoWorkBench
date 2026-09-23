@@ -105,11 +105,11 @@ public class Tr31AesCharacterizationTests
             Sequence(1, tdeaRandomBytes)), Cases[index][1]);
         var aesKey = new KeyVariableDeclaration
         {
-            KeyType = KeyType.Secret(KeyAlgorithm.Aes), Mechanism = "DES3-CBC"
+            KeyType = KeyType.Secret(KeyAlgorithm.Aes)
         };
         var tdeaKey = new KeyVariableDeclaration
         {
-            KeyType = KeyType.Secret(KeyAlgorithm.Tdea), Mechanism = "AES-CBC"
+            KeyType = KeyType.Secret(KeyAlgorithm.Tdea)
         };
 
         Assert.Multiple(() =>
@@ -138,10 +138,10 @@ public class Tr31AesCharacterizationTests
         {
             KeyAttributes = [new OptionalBlock { ID = "HDR", Data = "D0000D0TB00E0000" }]
         };
-        var unknownWithoutHeader = new KeyVariableDeclaration { Mechanism = "AES-CBC" };
-        var hmacWithAesMechanism = new KeyVariableDeclaration
+        var unknownWithoutHeader = new KeyVariableDeclaration();
+        var hmacKey = new KeyVariableDeclaration
         {
-            KeyType = KeyType.Secret(KeyAlgorithm.Hmac), Mechanism = "AES-CBC"
+            KeyType = KeyType.Secret(KeyAlgorithm.Hmac)
         };
 
         Assert.Multiple(() =>
@@ -149,7 +149,7 @@ public class Tr31AesCharacterizationTests
             Assert.That(WrapAESTR31.GetObfuscationPaddingLength(unknownWithAesHeader, 16), Is.EqualTo(16));
             Assert.That(WrapAESTR31.GetObfuscationPaddingLength(unknownWithTdeaHeader, 16), Is.EqualTo(8));
             Assert.That(WrapAESTR31.GetObfuscationPaddingLength(unknownWithoutHeader, 16), Is.Zero);
-            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(hmacWithAesMechanism, 16), Is.Zero);
+            Assert.That(WrapAESTR31.GetObfuscationPaddingLength(hmacKey, 16), Is.Zero);
         });
     }
 
@@ -198,7 +198,6 @@ public class Tr31AesCharacterizationTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(recovered.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
             Assert.That(recovered.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
             Assert.That(recovered.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == "D0144P0AE00E0000"), Is.True);
             Assert.That(WrapAESTR31.GetObfuscationPaddingLength(recovered, 16), Is.EqualTo(16));
@@ -227,7 +226,6 @@ public class Tr31AesCharacterizationTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(recovered.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
             Assert.That(recovered.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));
             Assert.That(recovered.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == "D0112D0TB00E0000"), Is.True);
             Assert.That(WrapAESTR31.GetObfuscationPaddingLength(recovered, 16), Is.EqualTo(8));
@@ -249,7 +247,6 @@ public class Tr31AesCharacterizationTests
         var result = (KeyVariableDeclaration)VariableDictionary.Instance().Get("mr");
 
         Assert.That(result.KeyType, Is.EqualTo(KeyType.Secret(expectedAlgorithm)));
-        Assert.That(result.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
         Assert.That(result.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == header), Is.True);
     }
 
@@ -268,7 +265,6 @@ public class Tr31AesCharacterizationTests
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Hmac)));
             Assert.That(restored.KeySizeInBits, Is.EqualTo(original.KeySizeInBits));
             Assert.That(restored.KeySize, Is.EqualTo(original.KeySize));
-            Assert.That(restored.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
             Assert.That(restored.KeyAttributes.Select(a => (a.ID, a.Length, a.Data)),
                 Is.EqualTo(original.KeyAttributes.Select(a => (a.ID, a.Length, a.Data))));
         });
@@ -325,7 +321,7 @@ public class Tr31AesCharacterizationTests
             Assert.That(result.KeyValue, Is.EqualTo($"0x({key})").IgnoreCase);
             Assert.That(result.Value, Is.EqualTo(result.KeyValue));
             Assert.That(result.KeySize, Is.EqualTo(bits.ToString()));
-            Assert.That(result.Mechanism, Is.EqualTo("WRAP-AES-TR31"));
+            Assert.That(result.KeySizeInBits, Is.EqualTo(new KeySize(bits)));
         });
     }
 

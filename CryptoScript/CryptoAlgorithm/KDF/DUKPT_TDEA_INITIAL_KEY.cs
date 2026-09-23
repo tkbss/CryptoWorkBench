@@ -55,7 +55,6 @@ public sealed class DUKPT_TDEA_INITIAL_KEY : CryptoAlgorithm
             ValueFormat = FormatConversions.HEX,
             KeySize = (initialKey.Length * 8).ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
-            Mechanism = string.Empty,
             DerivationMechanism = MechanismName,
             Type = new CryptoTypeKey()
         };

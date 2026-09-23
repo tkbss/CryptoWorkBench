@@ -148,7 +148,6 @@ public class KdfEp2PanSurrogateTrxTests
         result.Value.Should().Be(result.KeyValue);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
         result.Type.Should().BeOfType<CryptoTypeKey>();
-        result.Mechanism.Should().BeEmpty();
         result.DerivationMechanism.Should().Be(Mechanism);
         result.KeyAttributes.Should().BeEmpty();
     }

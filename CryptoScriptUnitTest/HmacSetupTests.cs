@@ -57,7 +57,8 @@ public class HmacSetupTests
         var first = result.Statements[0].Should().BeOfType<KeyVariableDeclaration>().Subject;
         var second = result.Statements[1].Should().BeOfType<KeyVariableDeclaration>().Subject;
 
-        first.Mechanism.Should().Be(mechanism);
+        first.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Hmac));
+        first.KeySizeInBits.Should().Be(new KeySize(136));
         first.KeySize.Should().Be("136");
         first.ValueFormat.Should().Be(FormatConversions.HEX);
         first.KeyValue.Should().Be(first.Value);

@@ -16,7 +16,6 @@ namespace CryptoScript.Variables
         private KeySize _keySizeInBits = global::CryptoScript.Variables.KeySize.Unknown;
         private string _keySize = string.Empty;
 
-        public string Mechanism { get; set; } = string.Empty;
         public string DerivationMechanism { get; set; } = string.Empty;
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public KeyType KeyType
@@ -75,18 +74,24 @@ namespace CryptoScript.Variables
             var jsonObject = JObject.Parse(json);
             bool hasKeyType = jsonObject.Properties()
                 .Any(property => property.Name.Equals(nameof(KeyType), StringComparison.OrdinalIgnoreCase));
+            JProperty? legacyMechanismProperty = jsonObject.Properties()
+                .FirstOrDefault(property => property.Name.Equals("Mechanism", StringComparison.OrdinalIgnoreCase));
+            string legacyMechanism = legacyMechanismProperty?.Value.Type == JTokenType.String
+                ? legacyMechanismProperty.Value.Value<string>() ?? string.Empty
+                : string.Empty;
+            legacyMechanismProperty?.Remove();
+
             var key = jsonObject.ToObject<KeyVariableDeclaration>()
                 ?? throw new JsonSerializationException("KEY JSON did not contain a key object.");
 
             if (!hasKeyType)
-                key.KeyType = InferLegacyKeyType(key);
+                key.KeyType = InferLegacyKeyType(legacyMechanism);
 
             return key;
         }
 
-        private static KeyType InferLegacyKeyType(KeyVariableDeclaration key)
+        private static KeyType InferLegacyKeyType(string mechanism)
         {
-            string mechanism = key.Mechanism ?? string.Empty;
             if (mechanism.StartsWith("AES-", StringComparison.OrdinalIgnoreCase))
                 return KeyType.Secret(KeyAlgorithm.Aes);
             if (mechanism.StartsWith("DES3-", StringComparison.OrdinalIgnoreCase))

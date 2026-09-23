@@ -39,7 +39,6 @@ public class KdfSp800108CounterDocumentationTests
                 Is.EqualTo("0x(508BE685D92997294C12712641077442382A77FD41A6F3D0A10CBB805EAEA7A0)")
                     .IgnoreCase);
             Assert.That(key.KeySize, Is.EqualTo("256"));
-            Assert.That(key.Mechanism, Is.Empty);
             Assert.That(key.DerivationMechanism, Is.EqualTo(Mechanism));
         });
     }

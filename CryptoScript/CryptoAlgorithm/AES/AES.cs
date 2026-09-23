@@ -30,7 +30,6 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 key.ValueFormat = FormatConversions.ParseString(keyValue);
                 key.KeySize = Size;
                 key.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
-                key.Mechanism = mechanism;
                 key.Type = new CryptoTypeKey();
             }
             return key;
@@ -46,7 +45,6 @@ namespace CryptoScript.CryptoAlgorithm.AES
             k.KeySize = keySize.ToString();
             k.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
             k.KeyValue = key;
-            k.Mechanism = mechanism;
             k.Type = new CryptoTypeKey();
             return k;
         }

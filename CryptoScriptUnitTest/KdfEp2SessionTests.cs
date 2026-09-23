@@ -49,7 +49,6 @@ public class KdfEp2SessionTests
         result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Unknown));
         result.Value.Should().Be(result.KeyValue);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
-        result.Mechanism.Should().BeEmpty();
         result.DerivationMechanism.Should().Be("KDF-EP2-SESSION");
         result.Type.Should().BeOfType<CryptoTypeKey>();
     }

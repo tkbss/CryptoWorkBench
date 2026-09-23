@@ -194,7 +194,6 @@ public class Tr31ScriptIntegrationTests
             Assert.That(r.KeySize, Is.EqualTo((key.Length * 4).ToString()));
             Assert.That(r.KeySizeInBits, Is.EqualTo(new KeySize(key.Length * 4)));
             Assert.That(r.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));
-            Assert.That(r.Mechanism, Is.EqualTo("WRAP-DES3-TR31"));
         });
     }
 
@@ -212,7 +211,6 @@ public class Tr31ScriptIntegrationTests
         var result = (KeyVariableDeclaration)VariableDictionary.Instance().Get("r");
 
         Assert.That(result.KeyType, Is.EqualTo(KeyType.Secret(expectedAlgorithm)));
-        Assert.That(result.Mechanism, Is.EqualTo("WRAP-DES3-TR31"));
         Assert.That(result.KeyAttributes.Any(a => a.ID == "HDR" && a.Data == header), Is.True);
     }
 }

@@ -142,7 +142,6 @@ public class KDF_HKDF : CryptoAlgorithm
             ValueFormat = FormatConversions.HEX,
             KeySize = outputLengthBits.ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
-            Mechanism = string.Empty,
             DerivationMechanism = canonicalMechanism,
             Type = new CryptoTypeKey()
         };

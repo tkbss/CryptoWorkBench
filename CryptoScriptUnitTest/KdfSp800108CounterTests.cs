@@ -163,7 +163,7 @@ public class KdfSp800108CounterTests
         VariableDictionary.Instance().Add(new KeyVariableDeclaration
         {
             Id = id, Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
-            KeySize = (hex.Length * 4).ToString(), Mechanism = mechanism, Type = new CryptoTypeKey()
+            KeySize = (hex.Length * 4).ToString(), Type = new CryptoTypeKey()
         });
     }
 

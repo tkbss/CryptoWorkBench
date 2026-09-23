@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CryptoScriptUnitTest
 {
@@ -40,7 +41,6 @@ namespace CryptoScriptUnitTest
             Assert.That(restored.DerivationMechanism, Is.Empty);
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
             Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(128)));
-            Assert.That(restored.Mechanism, Is.EqualTo("AES-CBC"));
             Assert.That(restored.KeySize, Is.EqualTo("128"));
         }
 
@@ -51,8 +51,7 @@ namespace CryptoScriptUnitTest
             {
                 KeyType = KeyType.Private(KeyAlgorithm.Rsa),
                 KeySizeInBits = new KeySize(2048),
-                KeySize = "2048",
-                Mechanism = "legacy-mechanism"
+                KeySize = "2048"
             };
 
             var restored = KeyVariableDeclaration.Deserialize(key.Serialize());
@@ -60,7 +59,6 @@ namespace CryptoScriptUnitTest
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Private(KeyAlgorithm.Rsa)));
             Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(2048)));
             Assert.That(restored.KeySize, Is.EqualTo("2048"));
-            Assert.That(restored.Mechanism, Is.EqualTo("legacy-mechanism"));
         }
 
         [TestCase("AES-CBC", KeyAlgorithm.Aes)]
@@ -80,7 +78,19 @@ namespace CryptoScriptUnitTest
             var restored = KeyVariableDeclaration.Deserialize(json);
 
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(expected)));
-            Assert.That(restored.Mechanism, Is.EqualTo(mechanism));
+        }
+
+        [TestCase("null")]
+        [TestCase("123")]
+        [TestCase("true")]
+        [TestCase("{}")]
+        [TestCase("[]")]
+        public void NonStringLegacyMechanismDefaultsToUnknown(string mechanismToken)
+        {
+            KeyVariableDeclaration restored = KeyVariableDeclaration.Deserialize(
+                $"{{\"Mechanism\":{mechanismToken}}}");
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
         }
 
         [Test]
@@ -91,6 +101,16 @@ namespace CryptoScriptUnitTest
             var restored = KeyVariableDeclaration.Deserialize(json);
 
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
+        }
+
+        [Test]
+        public void ExplicitKeyTypeWinsOverNonStringLegacyMechanism()
+        {
+            const string json = "{\"Mechanism\":{\"value\":\"DES3-CBC\"},\"KeyType\":{\"Algorithm\":1,\"MaterialKind\":0}}";
+
+            var restored = KeyVariableDeclaration.Deserialize(json);
+
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
         }
 
         [TestCase("AES-CBC", "D0000D0TB00E0000", KeyAlgorithm.Aes)]
@@ -117,7 +137,6 @@ namespace CryptoScriptUnitTest
             var restored = KeyVariableDeclaration.Deserialize(json);
 
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(expected)));
-            Assert.That(restored.Mechanism, Is.EqualTo(mechanism));
             Assert.That(restored.KeyAttributes.Single().Data, Is.EqualTo(header));
         }
 
@@ -136,16 +155,18 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
-        public void MigratedLegacyKeyRoundtripPreservesInferredTypeAndLegacyFields()
+        public void MigratedLegacyKeyRoundtripOmitsMechanismAndPreservesCurrentState()
         {
-            const string json = "{\"Mechanism\":\"DES3-CBC\",\"DerivationMechanism\":\"legacy-kdf\",\"KeySize\":\"128\",\"KeyAttributes\":[]}";
+            const string json = "{\"Mechanism\":\"DES3-CBC\",\"DerivationMechanism\":\"legacy-kdf\",\"KeySize\":\"128\",\"KeyAttributes\":[],\"LegacyExtra\":\"ignored\"}";
             var migrated = KeyVariableDeclaration.Deserialize(json);
+            string currentJson = migrated.Serialize();
 
-            var restored = KeyVariableDeclaration.Deserialize(migrated.Serialize());
+            var restored = KeyVariableDeclaration.Deserialize(currentJson);
 
+            Assert.That(JObject.Parse(currentJson).Property("Mechanism", StringComparison.OrdinalIgnoreCase), Is.Null);
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));
-            Assert.That(restored.Mechanism, Is.EqualTo("DES3-CBC"));
             Assert.That(restored.DerivationMechanism, Is.EqualTo("legacy-kdf"));
+            Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(128)));
             Assert.That(restored.KeySize, Is.EqualTo("128"));
             Assert.That(restored.KeyAttributes, Is.Empty);
         }
@@ -191,7 +212,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
             var variable = statement as KeyVariableDeclaration;
             ClassicAssert.IsTrue(variable.Id == "key2");
-            ClassicAssert.IsTrue(variable.Mechanism == "AES-CBC");
+            ClassicAssert.IsTrue(variable.KeyType == KeyType.Secret(KeyAlgorithm.Aes));
             ClassicAssert.IsTrue(variable.DerivationMechanism == string.Empty);
             ClassicAssert.IsTrue(variable.KeySize == "128");
             var key = FormatConversions.HexStringToByteArray(variable.Value);

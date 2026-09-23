@@ -59,7 +59,7 @@ namespace CryptoScriptUnitTest
             var result = Execute($"KEY k=GenerateKey(DES3-CMAC,{keyBits})");
 
             var key = result.Statements[0].Should().BeOfType<KeyVariableDeclaration>().Subject;
-            key.Mechanism.Should().Be("DES3-CMAC");
+            key.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Tdea));
             FormatConversions.HexStringToByteArray(key.Value).Should().HaveCount(expectedBytes);
         }
 

@@ -39,7 +39,6 @@ public class DukptTdeaInitialKeyTests
         result.Value.Should().BeEquivalentTo("0x(6AC292FAA1315B4D858AB3A3D7D5933A)",
             options => options.IgnoringCase());
         result.KeySize.Should().Be("128");
-        result.Mechanism.Should().BeEmpty();
         result.KeySizeInBits.Should().Be(new KeySize(128));
         result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Tdea));
         result.DerivationMechanism.Should().Be(Mechanism);

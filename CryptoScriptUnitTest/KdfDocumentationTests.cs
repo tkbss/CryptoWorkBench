@@ -74,7 +74,6 @@ public class KdfDocumentationTests
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(FormatConversions.HexStringToByteArray(key.Value), Has.Length.EqualTo(32));
             Assert.That(key.KeySize, Is.EqualTo("256"));
-            Assert.That(key.Mechanism, Is.Empty);
             Assert.That(key.DerivationMechanism, Is.EqualTo("KDF-HKDF"));
         });
     }

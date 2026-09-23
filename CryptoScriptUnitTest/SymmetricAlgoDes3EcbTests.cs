@@ -36,7 +36,7 @@ namespace CryptoScriptUnitTest
             var result = Execute($"KEY k=GenerateKey(DES3-ECB,{keyBits})");
 
             var key = result.Statements[0].Should().BeOfType<KeyVariableDeclaration>().Subject;
-            key.Mechanism.Should().Be("DES3-ECB");
+            key.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Tdea));
             key.KeySize.Should().Be(keyBits.ToString());
             FormatConversions.HexStringToByteArray(key.Value).Should().HaveCount(expectedBytes);
         }

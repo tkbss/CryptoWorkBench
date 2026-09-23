@@ -268,7 +268,6 @@ public class DeriveHkdfIntegrationTests
         okm.KeySize.Should().Be(keySize);
         okm.KeySizeInBits.Should().Be(new KeySize(int.Parse(keySize)));
         okm.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Unknown));
-        okm.Mechanism.Should().BeEmpty();
         okm.DerivationMechanism.Should().Be("KDF-HKDF");
         okm.KeyAttributes.Should().BeEmpty();
         VariableDictionary.Instance().Get("okm").Should().BeSameAs(okm);
