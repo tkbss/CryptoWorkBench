@@ -24,6 +24,8 @@
                 return new KDF.DUKPT_AES_WORKING_KEY();
             if (normalizedMechanism.Equals("DUKPT-TDEA-INITIAL-KEY", StringComparison.OrdinalIgnoreCase))
                 return new KDF.DUKPT_TDEA_INITIAL_KEY();
+            if (normalizedMechanism.Equals("DUKPT-TDEA-WORKING-KEY", StringComparison.OrdinalIgnoreCase))
+                return new KDF.DUKPT_TDEA_WORKING_KEY();
             if (mechanism.Contains("AES"))
                 return new AES.AES();
             if (normalizedMechanism.StartsWith("HMAC-", StringComparison.OrdinalIgnoreCase))
