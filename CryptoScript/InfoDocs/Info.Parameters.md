@@ -49,6 +49,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - HKDF-EXPAND
         - KDF-SP800-108-COUNTER
         - DUKPT-AES-INITIAL-KEY
+        - DUKPT-AES-WORKING-KEY
         - DUKPT-TDEA-INITIAL-KEY
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
@@ -90,6 +91,9 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - LABEL: Optional KDF-SP800-108-COUNTER binary Label in hexadecimal, Base64 or UTF-8 string form. Omission means an empty Label.
 - For KDF-SP800-108-COUNTER, OUTLEN is measured in bits and parsed as an unsigned 32-bit integer. It must be greater than zero and divisible by 8, making 4,294,967,288 bits the largest value allowed by representation and byte alignment alone. The effective maximum can be lower because `ceil(OUTLEN / h)` must not exceed `2^COUNTER - 1` for the selected PRF. COUNTER denotes the counter width in bits, not a starting counter value.
 - DUKPT-AES-INITIAL-KEY parameters contain only MECH. OUTLEN, PRF, LABEL and COUNTER are not supported; the BDK fixes the AES type and output length.
+- DUKPT-AES-WORKING-KEY requires USAGE and KEYTYPE in addition to MECH. USAGE accepts PIN, MAC-GENERATE, MAC-VERIFY, MAC-BOTH, DATA-ENCRYPT, DATA-DECRYPT and DATA-BOTH. KEYTYPE accepts TDEA-2, TDEA-3, AES-128, AES-192, AES-256, HMAC-128, HMAC-192 and HMAC-256.
+- USAGE: For DUKPT-AES-WORKING-KEY, selects the X9.24 Working-Key purpose and the restricted KeyUsagePolicy stored on the result. PIN maps only to PinEncrypt, not to generic Encrypt.
+- KEYTYPE: For DUKPT-AES-WORKING-KEY, selects the Working-Key algorithm family and length. HMAC-128, HMAC-192 and HMAC-256 describe HMAC keying-material length, not a hash algorithm.
 - DUKPT-TDEA-INITIAL-KEY parameters contain only MECH. OUTLEN, KEYTYPE, PRF and COUNTER are not supported; the mechanism requires a 16-byte double-length TDEA BDK and a complete 80-bit KSN.
 - ep2 KDF parameter contracts:
 
