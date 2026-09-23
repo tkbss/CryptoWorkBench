@@ -13,6 +13,7 @@ namespace CryptoScript.Variables
     public class KeyVariableDeclaration : VariableDeclaration
     {
         private KeyType _keyType = KeyType.Secret(KeyAlgorithm.Unknown);
+        private KeyUsagePolicy _usage = KeyUsagePolicy.Unspecified;
         private KeySize _keySizeInBits = global::CryptoScript.Variables.KeySize.Unknown;
         private string _keySize = string.Empty;
 
@@ -22,6 +23,12 @@ namespace CryptoScript.Variables
         {
             get => _keyType;
             set => _keyType = value ?? throw new ArgumentNullException(nameof(value));
+        }
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public KeyUsagePolicy Usage
+        {
+            get => _usage;
+            set => _usage = value ?? throw new ArgumentNullException(nameof(value));
         }
         public KeySize KeySizeInBits
         {
