@@ -54,7 +54,9 @@ namespace CryptoScript.Model
         }
         private void SetValue(string value)
         {
-            if (Type.Equals("#VARIANT", StringComparison.OrdinalIgnoreCase))
+            if (Type.Equals("#VARIANT", StringComparison.OrdinalIgnoreCase) ||
+                Type.Equals("#USAGE", StringComparison.OrdinalIgnoreCase) ||
+                Type.Equals("#KEYTYPE", StringComparison.OrdinalIgnoreCase))
             {
                 Value = value;
                 return;

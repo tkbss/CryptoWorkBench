@@ -73,20 +73,11 @@ public class DukptTdeaInitialKeyTests
     [TestCase("#OUTLEN:128")]
     [TestCase("#PRF:AES-CMAC")]
     [TestCase("#COUNTER:1")]
+    [TestCase("#KEYTYPE:AES")]
     public void RejectsAdditionalParameters(string additionalParameter)
     {
         Action action = () => Parameter($"PARAM p=Parameters({Mechanism},{additionalParameter})");
         action.Should().Throw<SemanticErrorException>();
-    }
-
-    [Test]
-    public void RejectsUnknownKeyTypeParameterInGrammar()
-    {
-        var parser = ParserBuilder.StringBuild($"PARAM p=Parameters({Mechanism},#KEYTYPE:AES)");
-
-        parser.program();
-
-        Assert.That(SyntaxErrorListner.SyntaxErrorOccured || LexerErrorListener.LexerErrorOccured, Is.True);
     }
 
     [Test]

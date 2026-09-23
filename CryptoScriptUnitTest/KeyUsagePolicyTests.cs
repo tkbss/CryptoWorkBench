@@ -51,8 +51,8 @@ public class KeyUsagePolicyTests
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
 
-    [TestCase((KeyUsage)(1 << 7))]
-    [TestCase(KeyUsage.Encrypt | (KeyUsage)(1 << 7))]
+    [TestCase((KeyUsage)(1 << 8))]
+    [TestCase(KeyUsage.Encrypt | (KeyUsage)(1 << 8))]
     public void UnknownUsageBitsAreRejected(KeyUsage usages)
     {
         Action action = () => KeyUsagePolicy.Restricted(usages);
@@ -79,8 +79,8 @@ public class KeyUsagePolicyTests
     [TestCase("{\"Mode\":0,\"AllowedUsages\":1}")]
     [TestCase("{\"Mode\":1,\"AllowedUsages\":0}")]
     [TestCase("{\"Mode\":999,\"AllowedUsages\":0}")]
-    [TestCase("{\"Mode\":1,\"AllowedUsages\":128}")]
-    [TestCase("{\"Mode\":1,\"AllowedUsages\":129}")]
+    [TestCase("{\"Mode\":1,\"AllowedUsages\":256}")]
+    [TestCase("{\"Mode\":1,\"AllowedUsages\":257}")]
     public void InvalidJsonCannotBypassUsageInvariants(string usageJson)
     {
         Action action = () => JsonConvert.DeserializeObject<KeyUsagePolicy>(usageJson);

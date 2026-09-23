@@ -12,7 +12,8 @@ public enum KeyUsage
     MacVerify = 1 << 3,
     DeriveKey = 1 << 4,
     WrapKey = 1 << 5,
-    UnwrapKey = 1 << 6
+    UnwrapKey = 1 << 6,
+    PinEncrypt = 1 << 7
 }
 
 public enum KeyUsageMode
@@ -30,7 +31,8 @@ public sealed record KeyUsagePolicy
         KeyUsage.MacVerify |
         KeyUsage.DeriveKey |
         KeyUsage.WrapKey |
-        KeyUsage.UnwrapKey;
+        KeyUsage.UnwrapKey |
+        KeyUsage.PinEncrypt;
 
     [JsonConstructor]
     public KeyUsagePolicy(KeyUsageMode mode, KeyUsage allowedUsages)

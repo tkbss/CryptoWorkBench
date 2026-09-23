@@ -20,6 +20,8 @@
             }
             if (normalizedMechanism.Equals("DUKPT-AES-INITIAL-KEY", StringComparison.OrdinalIgnoreCase))
                 return new KDF.DUKPT_AES_INITIAL_KEY();
+            if (normalizedMechanism.Equals("DUKPT-AES-WORKING-KEY", StringComparison.OrdinalIgnoreCase))
+                return new KDF.DUKPT_AES_WORKING_KEY();
             if (normalizedMechanism.Equals("DUKPT-TDEA-INITIAL-KEY", StringComparison.OrdinalIgnoreCase))
                 return new KDF.DUKPT_TDEA_INITIAL_KEY();
             if (mechanism.Contains("AES"))

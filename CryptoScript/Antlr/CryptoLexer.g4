@@ -15,7 +15,11 @@ PATH_VALUE    : [a-zA-Z] ':' ~[\r\n]*      // C:\...
 FN            : [A-Z] [a-z] [a-zA-Z]*;
 INFO		  : 'functions' | 'mechanisms' | 'types' | 'parameters' | 'paddings' | 'mechanism' | 'keymap';
 ID            : [a-zA-Z] [a-zA-Z0-9]*;
-VARIANT_VALUE : 'MAC-SEND' | 'MAC-RECEIVE' | 'KEY-ENCRYPTION';
+VARIANT_VALUE : 'MAC-SEND' | 'MAC-RECEIVE' | 'KEY-ENCRYPTION'
+              | 'PIN' | 'MAC-GENERATE' | 'MAC-VERIFY' | 'MAC-BOTH'
+              | 'DATA-ENCRYPT' | 'DATA-DECRYPT' | 'DATA-BOTH'
+              | 'TDEA-2' | 'TDEA-3' | 'AES-128' | 'AES-192' | 'AES-256'
+              | 'HMAC-128' | 'HMAC-192' | 'HMAC-256';
 HEX_STRING    : '0x(' [0-9a-fA-F]+ ')';
 BASE64_STRING : 'b64(' [A-Za-z0-9+/=]+ ')';
 NORMAL_STRING : '"' (ESC | ~["\\])* '"';
@@ -40,6 +44,7 @@ MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_A
               | M_KDF_HKDF | M_HKDF_EXTRACT | M_HKDF_EXPAND | M_KDF_EP2_SESSION
               | M_KDF_SP800_108_COUNTER
               | M_DUKPT_AES_INITIAL_KEY
+              | M_DUKPT_AES_WORKING_KEY
               | M_DUKPT_TDEA_INITIAL_KEY
               | M_KDF_EP2_PAN_SURROGATE_TRX | M_KDF_EP2_PAN_RECEIPT_TRX | M_KDF_EP2_PAN_RECEIPT_TRM
               ;
@@ -86,6 +91,7 @@ M_HKDF_EXTRACT      : 'HKDF-EXTRACT';
 M_HKDF_EXPAND       : 'HKDF-EXPAND';
 M_KDF_SP800_108_COUNTER : 'KDF-SP800-108-COUNTER';
 M_DUKPT_AES_INITIAL_KEY : 'DUKPT-AES-INITIAL-KEY';
+M_DUKPT_AES_WORKING_KEY : 'DUKPT-AES-WORKING-KEY';
 M_DUKPT_TDEA_INITIAL_KEY : 'DUKPT-TDEA-INITIAL-KEY';
 M_KDF_EP2_SESSION   : 'KDF-EP2-SESSION';
 M_KDF_EP2_PAN_SURROGATE_TRX : 'KDF-EP2-PAN-SURROGATE-TRX';
@@ -101,7 +107,7 @@ PAD_ANSI_X923 : 'ANSI-X923';
 PAD_TLS_CBC   : 'TLS-CBC';
 PAD_NONE      : 'NONE';
 
-PARAM_TYPE	  : P_MECHANISM | P_IV | P_PADDING | P_MAC_LENGTH | P_NONCE | P_COUNTER|P_ADATA | P_BLKHDR | P_RND | P_HASH | P_SALT | P_OUT_LENGTH | P_VARIANT | P_PRF | P_LABEL;
+PARAM_TYPE	  : P_MECHANISM | P_IV | P_PADDING | P_MAC_LENGTH | P_NONCE | P_COUNTER|P_ADATA | P_BLKHDR | P_RND | P_HASH | P_SALT | P_OUT_LENGTH | P_VARIANT | P_PRF | P_LABEL | P_USAGE | P_KEY_TYPE;
 P_MECHANISM   : '#MECH';
 P_IV          : '#IV';
 P_PADDING     : '#PAD';
@@ -117,4 +123,6 @@ P_OUT_LENGTH  : '#OUTLEN';
 P_VARIANT     : '#VARIANT';
 P_PRF         : '#PRF';
 P_LABEL       : '#LABEL';
+P_USAGE       : '#USAGE';
+P_KEY_TYPE    : '#KEYTYPE';
 WS            : [ \t\r\n]+ -> skip;

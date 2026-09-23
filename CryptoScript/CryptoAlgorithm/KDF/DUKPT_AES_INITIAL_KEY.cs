@@ -43,16 +43,9 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
         if (initialKeyId.Length != 8)
             throw new ArgumentException($"{MechanismName} IKID must be exactly 64 bits (8 bytes).");
 
-        int blockCount = (bdkBytes.Length + 15) / 16;
-        byte[] derived = new byte[blockCount * 16];
-        for (int block = 0; block < blockCount; block++)
-        {
-            byte[] derivationData = BuildDerivationData(bdkBytes.Length, initialKeyId, (byte)(block + 1));
-            byte[] encrypted = EncryptBlock(bdkBytes, derivationData);
-            Buffer.BlockCopy(encrypted, 0, derived, block * 16, encrypted.Length);
-        }
-
-        byte[] initialKey = derived[..bdkBytes.Length];
+        byte[] derivationData = BuildDerivationData(bdkBytes.Length, initialKeyId, 1);
+        byte[] initialKey = AesDukptDerivation.DeriveKey(
+            bdkBytes, checked((ushort)(bdkBytes.Length * 8)), derivationData);
         string value = FormatConversions.ByteArrayToHexString(initialKey);
         return new KeyVariableDeclaration
         {
@@ -81,37 +74,10 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
             _ => throw new InvalidOperationException()
         };
         ushort keyLengthBits = checked((ushort)(keyLengthBytes * 8));
-        byte[] data = new byte[16];
-        data[0] = 0x01;
+        byte[] data = AesDukptDerivation.CreateDerivationData(
+            0x8001, algorithm, keyLengthBits, initialKeyId, 0, initialKey: true);
         data[1] = counter;
-        data[2] = 0x80;
-        data[3] = 0x01;
-        data[4] = (byte)(algorithm >> 8);
-        data[5] = (byte)algorithm;
-        data[6] = (byte)(keyLengthBits >> 8);
-        data[7] = (byte)keyLengthBits;
-        Buffer.BlockCopy(initialKeyId, 0, data, 8, initialKeyId.Length);
         return data;
-    }
-
-    private static byte[] EncryptBlock(byte[] bdk, byte[] derivationData)
-    {
-        string keyValue = FormatConversions.ByteArrayToHexString(bdk);
-        var key = new KeyVariableDeclaration
-        {
-            Value = keyValue,
-            KeyValue = keyValue,
-            ValueFormat = FormatConversions.HEX,
-            Type = new CryptoTypeKey()
-        };
-        var data = new StringVariableDeclaration
-        {
-            Value = FormatConversions.ByteArrayToHexString(derivationData),
-            ValueFormat = FormatConversions.HEX
-        };
-        var aesParameters = new ParameterVariableDeclaration { Mechanism = "AES-ECB" };
-        StringVariableDeclaration encrypted = new AES_ECB().ModeEncryption(aesParameters, key, data);
-        return FormatConversions.ToByteArray(encrypted.Value, encrypted.ValueFormat);
     }
 
     private static ParameterVariableDeclaration ResolveParameter(string value)
