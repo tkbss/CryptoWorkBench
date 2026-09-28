@@ -1,162 +1,45 @@
-﻿using CryptoScript.CryptoAlgorithm;
+using CryptoScript.Documentation;
 using CryptoScript.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CryptoScript.Model
 {
     public class OutputOperations
     {
+        private readonly IInfoDocumentationProvider _infoDocumentationProvider;
+
         public static event Action<string>? PrintEvent;
         public static event Action<string>? InfoEvent;
-        public VariableDeclaration Print(string[] args) 
+
+        public OutputOperations()
+            : this(new FileInfoDocumentationProvider())
         {
-            string output= "out: "+ args[0];
-            if(PrintEvent != null)
+        }
+
+        public OutputOperations(IInfoDocumentationProvider infoDocumentationProvider)
+        {
+            _infoDocumentationProvider = infoDocumentationProvider ??
+                throw new ArgumentNullException(nameof(infoDocumentationProvider));
+        }
+
+        public VariableDeclaration Print(string[] args)
+        {
+            string output = "out: " + args[0];
+            if (PrintEvent != null)
                 PrintEvent?.Invoke(output);
             Console.WriteLine(output);
             return new VariableDeclaration();
         }
+
         public VariableDeclaration Info(string[] args)
         {
-            
-            string output=string.Empty;
-            switch (args[0])
-            {
-                case "functions":
-                    output+=FunctionList();
-                    break;
-                case "mechanisms":
-                    output += MechanismList();
-                    break;
-                case "types":
-                    output += TypeList();
-                    break;
-                case "parameters":
-                    output += ParameterList();
-                    break;
-                case "AES-CBC":
-                    output += AES_CBC();
-                    break;
-                case "AES-ECB":
-                case "AES-CTR":
-                case "AES-CMAC":
-                case "AES-GMAC":
-                case "AES-GCM":
-                case "AES-CCM":
-                case "WRAP-AES-TR31":
-                case "WRAP-DES3-TR31":
-                case "DES3-CBC":
-                case "DES3-ECB":
-                case "DES3-CMAC":
-                case "DES3-RETAIL":
-                case "HMAC-SHA1":
-                case "HMAC-SHA224":
-                case "HMAC-SHA256":
-                case "HMAC-SHA384":
-                case "HMAC-SHA512":
-                case "HMAC-SHA512-224":
-                case "HMAC-SHA512-256":
-                case "HMAC-SHA3-224":
-                case "HMAC-SHA3-256":
-                case "HMAC-SHA3-384":
-                case "HMAC-SHA3-512":
-                case "HASH-SHA1":
-                case "HASH-SHA224":
-                case "HASH-SHA256":
-                case "HASH-SHA384":
-                case "HASH-SHA512":
-                case "HASH-SHA512-224":
-                case "HASH-SHA512-256":
-                case "HASH-SHA3-224":
-                case "HASH-SHA3-256":
-                case "HASH-SHA3-384":
-                case "HASH-SHA3-512":
-                case "KDF-HKDF":
-                case "HKDF-EXTRACT":
-                case "HKDF-EXPAND":
-                case "KDF-SP800-108-COUNTER":
-                case "DUKPT-AES-INITIAL-KEY":
-                case "DUKPT-AES-WORKING-KEY":
-                case "DUKPT-TDEA-INITIAL-KEY":
-                case "DUKPT-TDEA-WORKING-KEY":
-                case "KDF-EP2-SESSION":
-                case "KDF-EP2-PAN-RECEIPT-TRX":
-                case "KDF-EP2-PAN-RECEIPT-TRM":
-                case "KDF-EP2-PAN-SURROGATE-TRX":
-                    output += File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", $"Info.Mech.{args[0]}.md"));
-                    break;
-                    case "keymap":
-                        output += KeyMap();
-                        break;
-                    case "paddings":
-                        output += PaddingList();
-                        break;
-                case "iso-9797-m1":
-                    output += ISO_9797_M1();
-                    break;
-                default:
-                    Console.WriteLine("No info available");
-                    break;
-            }
-            
+            string output = string.Empty;
+            if (!_infoDocumentationProvider.TryGetDocumentation(args[0], out output))
+                Console.WriteLine("No info available");
+
             if (InfoEvent != null)
                 InfoEvent?.Invoke(output);
             Console.WriteLine(output);
             return new VariableDeclaration();
-        }
-        private string AES_CBC()
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Mech.AES-CBC.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;
-        }
-        private string FunctionList()
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Functions.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;         
-        }
-        private string KeyMap() 
-        { 
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Keymap.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;
-        }
-        private string ParameterList()
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Parameters.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;
-        }
-        private string MechanismList() 
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Mechanisms.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;
-            
-
-        }
-        private string TypeList()
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Types.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;            
-        }
-        private string PaddingList()
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Paddings.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;
-        }
-        private string ISO_9797_M1() 
-        {
-            var path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Paddings_1.md");
-            var InfoText = File.ReadAllText(path);
-            return InfoText;
         }
     }
 }

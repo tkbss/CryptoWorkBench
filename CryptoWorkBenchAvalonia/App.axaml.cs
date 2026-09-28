@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using CryptoScript.Documentation;
 using CryptoWorkBenchAvalonia.Services;
 using CryptoWorkBenchAvalonia.ViewModels;
 using CryptoWorkBenchAvalonia.Views;
@@ -53,6 +54,7 @@ public partial class App : PrismApplication
     {           
         containerRegistry.RegisterSingleton<INotificationService, NotificationService>();
         containerRegistry.RegisterSingleton<IHistoryService, HistoryService>();
+        containerRegistry.RegisterSingleton<IInfoDocumentationProvider, FileInfoDocumentationProvider>();
         
         containerRegistry.RegisterSingleton<MainViewModel>();
         containerRegistry.RegisterSingleton<InfoViewModel>();

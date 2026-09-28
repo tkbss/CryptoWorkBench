@@ -5,18 +5,28 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:CryptoWorkBenchAvalonia.ViewModels"  
              xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
+             xmlns:mdt="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
              xmlns:ctxt="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia"
              xmlns:mde="clr-namespace:Markdown.Avalonia.Extensions;assembly=Markdown.Avalonia"
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CryptoWorkBenchAvalonia.Views.InfoView">   
-    <Grid RowDefinitions="*">
+    <Grid RowDefinitions="Auto,*">
         <!--<html:HtmlPanel ScrollViewer.HorizontalScrollBarVisibility="Auto" 
                         ScrollViewer.VerticalScrollBarVisibility="Auto" 
                         HorizontalAlignment="Stretch" 
                         VerticalAlignment="Stretch" 
                         Text="{Binding InfoHtml}" /> -->
-    <md:MarkdownScrollViewer Grid.Row="0" 
+        <Button Grid.Row="0"
+                Content="← Mechanisms"
+                Command="{Binding ShowMechanismsCommand}"
+                IsVisible="{Binding IsInternalMechanismDetail}"
+                HorizontalAlignment="Left"
+                Margin="10,8,10,0"
+                Padding="6,2"
+                Background="Transparent" />
+    <md:MarkdownScrollViewer x:Name="InfoMarkdownViewer"
+                             Grid.Row="1"
                              Classes.mechanism="{Binding IsMechanismDocumentation}"
                              Margin="10"
                              ScrollViewer.AllowAutoHide="False"
@@ -25,6 +35,9 @@
                               HorizontalAlignment="Stretch" 
                               VerticalAlignment="Stretch"
                               Markdown="{Binding InfoText}">
+        <md:MarkdownScrollViewer.Engine>
+            <mdt:Markdown />
+        </md:MarkdownScrollViewer.Engine>
         <md:MarkdownScrollViewer.Styles>
             <!-- Fluent H1 uses 3.2 times the theme size; halve only mechanism titles. -->
             <Style Selector="md|MarkdownScrollViewer.mechanism ctxt|CTextBlock.Heading1">
