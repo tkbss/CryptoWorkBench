@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoWorkBenchAvalonia.Des
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoScript", "..\CryptoScript\CryptoScript.csproj", "{ACB50774-DEAE-42F4-89FA-C5F7632518EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBenchGuiTest", "..\CryptoWorkBenchGuiTest\CryptoWorkBenchGuiTest.csproj", "{B4D18A2D-FE47-4E86-B2F5-8E40FE2D551E}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScriptBooks", "ScriptBooks", "{73125EBD-247A-44E4-91F0-86DFD29B7C6B}"
 	ProjectSection(SolutionItems) = preProject
 		..\ScriptBooks\CBC-AES-128-TEST-NIST-SP800-38A.sbk = ..\ScriptBooks\CBC-AES-128-TEST-NIST-SP800-38A.sbk
@@ -35,6 +37,10 @@ Global
 		{ACB50774-DEAE-42F4-89FA-C5F7632518EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACB50774-DEAE-42F4-89FA-C5F7632518EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACB50774-DEAE-42F4-89FA-C5F7632518EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4D18A2D-FE47-4E86-B2F5-8E40FE2D551E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4D18A2D-FE47-4E86-B2F5-8E40FE2D551E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4D18A2D-FE47-4E86-B2F5-8E40FE2D551E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4D18A2D-FE47-4E86-B2F5-8E40FE2D551E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
