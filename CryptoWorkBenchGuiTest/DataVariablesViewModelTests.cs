@@ -49,4 +49,22 @@ public class DataVariablesViewModelTests
 
         sut.DataVariables.Should().ContainSingle();
     }
+
+    [Test]
+    public void Remove_WithStringVariable_RemovesMatchingVisibleEntry()
+    {
+        var sut = new DataVariablesViewModel();
+        var dataVariable = new StringVariableDeclaration
+        {
+            Id = "message",
+            Value = "\"Hello\"",
+            ValueFormat = FormatConversions.STR
+        };
+        sut.Add(dataVariable);
+        sut.DataVariables.Should().ContainSingle();
+
+        sut.Remove(dataVariable);
+
+        sut.DataVariables.Should().BeEmpty();
+    }
 }
