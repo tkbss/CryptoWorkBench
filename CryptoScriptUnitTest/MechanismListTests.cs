@@ -31,7 +31,7 @@ public class MechanismListTests
         "HASH-SHA512-224", "HASH-SHA512-256",
         "HASH-SHA3-224", "HASH-SHA3-256", "HASH-SHA3-384", "HASH-SHA3-512",
         "DES3-ECB", "DES3-CBC", "DES3-RETAIL", "DES3-CMAC",
-        "WRAP-AES-TR31", "WRAP-DES3-TR31", "WRAP-AES", "WRAP-DES3", "KDF-HKDF",
+        "WRAP-AES-TR31", "WRAP-DES3-TR31", "KDF-HKDF",
         "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-SP800-108-COUNTER", "DUKPT-AES-INITIAL-KEY", "DUKPT-AES-WORKING-KEY", "DUKPT-TDEA-INITIAL-KEY", "DUKPT-TDEA-WORKING-KEY", "KDF-EP2-SESSION",
         "KDF-EP2-PAN-SURROGATE-TRX", "KDF-EP2-PAN-RECEIPT-TRX", "KDF-EP2-PAN-RECEIPT-TRM"
     };
@@ -39,8 +39,19 @@ public class MechanismListTests
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(49));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(47));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
+    }
+
+    [TestCase("WRAP-AES")]
+    [TestCase("WRAP-DES3")]
+    [TestCase("RSA-PSS")]
+    [TestCase("RSA-OAEP")]
+    [TestCase("ECDSA")]
+    public void RoadmapMechanismsAreNotProductiveMechanisms(string name)
+    {
+        Assert.That(MechanismList.Instance.Mechanisms, Does.Not.Contain(name));
+        Assert.That(FormatConversions.ParseString(name), Is.EqualTo(string.Empty));
     }
 
     [Test]

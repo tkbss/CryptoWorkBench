@@ -32,6 +32,16 @@ public class InfoCompletionProviderTests
             Is.EqualTo(MechanismList.Instance.Mechanisms));
     }
 
+    [TestCase("WRAP-AES")]
+    [TestCase("WRAP-DES3")]
+    [TestCase("RSA-PSS")]
+    [TestCase("RSA-OAEP")]
+    [TestCase("ECDSA")]
+    public void InfoCompletionDoesNotOfferRoadmapMechanisms(string mechanism)
+    {
+        Assert.That(GetItems("Info("), Does.Not.Contain(mechanism));
+    }
+
     [TestCase("Info(A", "A")]
     [TestCase("Info(AES", "AES")]
     [TestCase("Info(DES3-", "DES3-")]

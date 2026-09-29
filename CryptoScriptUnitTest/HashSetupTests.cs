@@ -53,8 +53,10 @@ public class HashSetupTests
     [Test]
     public void AlgorithmFactory_DoesNotMapUnknownHashPrefixToHashImplementation()
     {
-        AlgorithmFactory.Create("HASH-SHA999")
-            .Should().NotBeOfType<CryptoScript.CryptoAlgorithm.HASH.HASH>();
+        Action create = () => AlgorithmFactory.Create("HASH-SHA999");
+
+        create.Should().Throw<NotSupportedException>()
+            .WithMessage("Unsupported mechanism: HASH-SHA999.");
     }
 
     [Test]

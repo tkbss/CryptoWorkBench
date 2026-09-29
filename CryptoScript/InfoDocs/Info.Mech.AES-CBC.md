@@ -39,10 +39,5 @@ PARAM p0       = Parameters(#MECH=AES-CBC, #IV:0x(00112233445566778899AABBCCDDEE
 VAR cleartext  = "This is a secret message."  
 VAR ciphertext = Encrypt(p0, k0, cleartext)  
 VAR decrypted  = Decrypt(p0, k0, ciphertext) 
-### AES-CBC Key Wrapping and Unwrapping
-KEY k1          = GenerateKey(AES-CBC, 256)  
-KEY keyToWrap   = GenerateKey(AES-CBC, 256)  
-PARAM p1        = Parameters(#MECH=WRAP-AES, #IV:0x(00112233445566778899AABBCCDDEEFF), #PAD:PKCS7)  
-VAR wrappedKey  = Wrap(p1, k1, keyToWrap)  
 
 ---

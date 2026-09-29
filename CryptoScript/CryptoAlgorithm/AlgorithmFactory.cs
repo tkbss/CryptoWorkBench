@@ -8,52 +8,53 @@
             string normalizedMechanism = mechanism.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
                 ? mechanism["#MECH:".Length..]
                 : mechanism;
-            if ((mechanism.ToUpper().StartsWith("BLOCKHEADER")))
-            {
-                if (mechanism.ToUpper().Contains("AES-TR31"))
-                    return new WRAPPERS.Tr31BlockHeader();
-            }
-            if (mechanism.StartsWith("WRAP")) 
-            {
-                if (mechanism.Contains("AES-TR31"))
-                    return new WRAPPERS.WrapAESTR31();                
-            }
-            if (normalizedMechanism.Equals("DUKPT-AES-INITIAL-KEY", StringComparison.OrdinalIgnoreCase))
+            string canonicalMechanism = normalizedMechanism.ToUpperInvariant();
+
+            if (canonicalMechanism == "BLOCKHEADER-WRAP-AES-TR31")
+                return new WRAPPERS.Tr31BlockHeader();
+            if (canonicalMechanism == "WRAP-AES-TR31")
+                return new WRAPPERS.WrapAESTR31();
+            if (canonicalMechanism == "DUKPT-AES-INITIAL-KEY")
                 return new KDF.DUKPT_AES_INITIAL_KEY();
-            if (normalizedMechanism.Equals("DUKPT-AES-WORKING-KEY", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "DUKPT-AES-WORKING-KEY")
                 return new KDF.DUKPT_AES_WORKING_KEY();
-            if (normalizedMechanism.Equals("DUKPT-TDEA-INITIAL-KEY", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "DUKPT-TDEA-INITIAL-KEY")
                 return new KDF.DUKPT_TDEA_INITIAL_KEY();
-            if (normalizedMechanism.Equals("DUKPT-TDEA-WORKING-KEY", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "DUKPT-TDEA-WORKING-KEY")
                 return new KDF.DUKPT_TDEA_WORKING_KEY();
-            if (mechanism.Contains("AES"))
+            if (IsAesMechanism(canonicalMechanism))
                 return new AES.AES();
-            if (normalizedMechanism.StartsWith("HMAC-", StringComparison.OrdinalIgnoreCase))
+            if (IsHmacMechanism(canonicalMechanism))
                 return new HMAC.HMAC();
-            if (HASH.HASH.IsSupportedMechanism(normalizedMechanism))
+            if (HASH.HASH.IsSupportedMechanism(canonicalMechanism))
                 return new HASH.HASH();
-            if (normalizedMechanism.Equals("KDF-HKDF", StringComparison.OrdinalIgnoreCase) ||
-                normalizedMechanism.Equals("HKDF-EXTRACT", StringComparison.OrdinalIgnoreCase) ||
-                normalizedMechanism.Equals("HKDF-EXPAND", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism is "KDF-HKDF" or "HKDF-EXTRACT" or "HKDF-EXPAND")
                 return new KDF.KDF_HKDF();
-            if (normalizedMechanism.Equals("KDF-SP800-108-COUNTER", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "KDF-SP800-108-COUNTER")
                 return new KDF.KDF_SP800_108_COUNTER();
-            if (normalizedMechanism.Equals("KDF-EP2-SESSION", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "KDF-EP2-SESSION")
                 return new KDF.KDF_EP2_SESSION();
-            if (normalizedMechanism.Equals("KDF-EP2-PAN-SURROGATE-TRX", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "KDF-EP2-PAN-SURROGATE-TRX")
                 return new KDF.KDF_EP2_PAN_SURROGATE_TRX();
-            if (normalizedMechanism.Equals("KDF-EP2-PAN-RECEIPT-TRX", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "KDF-EP2-PAN-RECEIPT-TRX")
                 return new KDF.KDF_EP2_PAN_RECEIPT_TRX();
-            if (normalizedMechanism.Equals("KDF-EP2-PAN-RECEIPT-TRM", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "KDF-EP2-PAN-RECEIPT-TRM")
                 return new KDF.KDF_EP2_PAN_RECEIPT_TRM();
-            if (normalizedMechanism.Equals("WRAP-DES3-TR31", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism == "WRAP-DES3-TR31")
                 return new WRAPPERS.WrapDES3TR31();
-            if (normalizedMechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) ||
-                normalizedMechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase) ||
-                normalizedMechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase) ||
-                normalizedMechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
+            if (canonicalMechanism is "DES3-CBC" or "DES3-ECB" or "DES3-RETAIL" or "DES3-CMAC")
                 return new DES3.DES3();
-            return new SymmetricCryptoAlgorithm();
+            throw new NotSupportedException($"Unsupported mechanism: {normalizedMechanism}.");
         }
+
+        private static bool IsAesMechanism(string mechanism) =>
+            mechanism is "AES-CBC" or "AES-CCM" or "AES-CMAC" or "AES-CTR" or
+                "AES-ECB" or "AES-GCM" or "AES-GMAC";
+
+        private static bool IsHmacMechanism(string mechanism) =>
+            mechanism is "HMAC-SHA1" or "HMAC-SHA224" or "HMAC-SHA256" or
+                "HMAC-SHA384" or "HMAC-SHA512" or "HMAC-SHA512-224" or
+                "HMAC-SHA512-256" or "HMAC-SHA3-224" or "HMAC-SHA3-256" or
+                "HMAC-SHA3-384" or "HMAC-SHA3-512";
     }
 }

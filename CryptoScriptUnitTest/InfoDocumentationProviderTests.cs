@@ -1,10 +1,16 @@
 using CryptoScript.Documentation;
 using FluentAssertions;
+using System.Text.RegularExpressions;
 
 namespace CryptoScriptUnitTest;
 
 public class InfoDocumentationProviderTests
 {
+    private static readonly string[] RoadmapMechanisms =
+    {
+        "WRAP-AES", "WRAP-DES3", "RSA-PSS", "RSA-OAEP", "ECDSA"
+    };
+
     private static readonly string[] ExpectedDocumentNames =
     {
         "functions", "mechanisms", "types", "parameters", "keymap", "paddings",
@@ -81,6 +87,68 @@ public class InfoDocumentationProviderTests
             documentation.Should().NotBeNullOrWhiteSpace(name);
         }
     }
+
+    [Test]
+    public void EveryProductiveMechanismHasReadableDocumentation()
+    {
+        foreach (string mechanism in CryptoScript.Model.MechanismList.Instance.Mechanisms)
+        {
+            _sut.HasDocumentation(mechanism).Should().BeTrue(mechanism);
+            _sut.TryGetDocumentation(mechanism, out string documentation).Should().BeTrue(mechanism);
+            documentation.Should().NotBeNullOrWhiteSpace(mechanism);
+        }
+    }
+
+    [Test]
+    public void RoadmapMechanismsAreSeparatedFromProductiveDocumentation()
+    {
+        string mechanisms = File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Mechanisms.md"));
+        string parameters = File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Parameters.md"));
+        string roadmap = File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "InfoDocs", "MechanismRoadmap.md"));
+
+        foreach (string mechanism in RoadmapMechanisms)
+        {
+            mechanisms.Should().NotContain($"- {mechanism} ");
+            parameters.Split(Environment.NewLine)
+                .Select(line => line.Trim())
+                .Should().NotContain($"- {mechanism}");
+            roadmap.Should().Contain($"## {mechanism}");
+        }
+
+        roadmap.Should().Contain("not implemented");
+    }
+
+    [Test]
+    public void ProductiveMechanismDocumentsDoNotPresentRoadmapMechanismsAsSupported()
+    {
+        string infoDocsDirectory = Path.Combine(AppContext.BaseDirectory, "InfoDocs");
+
+        foreach (string productiveMechanism in CryptoScript.Model.MechanismList.Instance.Mechanisms)
+        {
+            string fileName = $"Info.Mech.{productiveMechanism}.md";
+            string[] lines = File.ReadAllLines(Path.Combine(infoDocsDirectory, fileName));
+
+            foreach (string roadmapMechanism in RoadmapMechanisms)
+            {
+                string[] unsupportedReferences = lines
+                    .Where(line => ReferencesExactMechanism(line, roadmapMechanism))
+                    .Where(line => !line.Contains("not implemented", StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+
+                unsupportedReferences.Should().BeEmpty(
+                    $"{fileName} must not present roadmap mechanism {roadmapMechanism} as supported");
+            }
+        }
+    }
+
+    private static bool ReferencesExactMechanism(string line, string mechanism) =>
+        Regex.IsMatch(
+            line,
+            $@"(?<![A-Z0-9-]){Regex.Escape(mechanism)}(?![A-Z0-9-])",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     [TestCase("RSA-PSS")]
     [TestCase("RSA-OAEP")]

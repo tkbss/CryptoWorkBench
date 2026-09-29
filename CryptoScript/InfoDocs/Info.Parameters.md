@@ -6,9 +6,6 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
     
 - MECH: Mechanism parameter specifying the cryptographic algorithm used. Information about each mechanism can be obtained through Info(mechanism).
     - MECHANISM VALUES:
-        - RSA-PSS
-        - RSA-OAEP
-        - ECDSA
         - AES-CBC
         - AES-CTR
         - AES-GCM
@@ -58,8 +55,6 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - KDF-EP2-PAN-SURROGATE-TRX
         - WRAP-AES-TR31
         - WRAP-DES3-TR31
-        - WRAP-AES
-        - WRAP-DES3
 - IV: Initialization vector for symmetric encryption.
 - PAD: Padding scheme to be used in symmetric encryption.
     - PAD VALUES:

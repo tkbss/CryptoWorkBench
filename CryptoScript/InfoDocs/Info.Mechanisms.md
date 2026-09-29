@@ -5,9 +5,6 @@ List of all cryptograhic algorithms implemented in CRYPTO-SCRIPT.
 ---
 Every mechanism is specifying a certain cryptographic algorithm. Detailed information about each mechanism can be obtained through Info(mechanism).
 
-- RSA-PSS : Asymmetric Signature algorithm based on the RSA concept.
-- RSA-OAEP : Asymmetric Encryption algorithm based on the RSA concept.
-- ECDSA : Asymmetric Elliptic Curve Digital Signature Algorithm.
 - AES-CBC : Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.
 - AES-CTR : Symmetric Advanced Encryption Standard in Counter mode.
 - AES-GCM : Symmetric Advanced Encryption Standard in Galois/Counter mode.
@@ -55,8 +52,6 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-EP2-PAN-SURROGATE-TRX : ep2 8.14 direct Expand using raw DOL as info and returning all 32 bytes.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
-- WRAP-AES : Symmetric Key wrapping algorithm using AES.
-- WRAP-DES3 : Symmetric Key wrapping algorithm using DES3.
 
 ## ep2 KDF Comparison
 
