@@ -48,12 +48,12 @@ namespace CryptoWorkBenchAvalonia.Models
                 "\n- data: The data to print")
             }},
             { "Info", new List<(string, string)> {
-                ("Info(type)", "Prints information about the current type to output window:"+
-                "\n- type=types     : List of all supported types "+
-                "\n- type=functions : List of all supported functions" +
-                "\n- type=mechanisms: List of all suportetd mechanism" +
-                "\n- type=parameters : List of all supported parameters" +
-                "\n- type=mechanism : Specific mechanism e.g. AES-CBC"
+                ("Info(topic)", "Prints information about a topic to the output window:"+
+                "\n- Info(types)      : List of all supported types "+
+                "\n- Info(functions)  : List of all supported functions" +
+                "\n- Info(mechanisms) : List of all supported mechanisms" +
+                "\n- Info(parameters) : List of all supported parameters" +
+                "\n- Info(AES-CBC)    : Information about a specific mechanism"
                 )
             }}
         };

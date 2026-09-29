@@ -1,12 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Media;
 using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
-using AvaloniaEdit.Editing;
 using CryptoWorkBenchAvalonia.Models;
+using CryptoWorkBenchAvalonia.Services;
 using CryptoWorkBenchAvalonia.ViewModels;
 
 using System;
@@ -18,9 +17,9 @@ namespace CryptoWorkBenchAvalonia;
 
 public partial class CryptoScriptEditView : UserControl
 {
-    public CompletionWindow? _completionWindow;
     private OverloadInsightWindow _insightWindow;
     private readonly TextEditor? _textEditor;
+    private InfoCompletionController? _infoCompletionController;
     private TextBlock? _statusTextBlock;
     private CryptoScriptEditViewModel? _viewModel;
     public CryptoScriptEditView()
@@ -38,18 +37,36 @@ public partial class CryptoScriptEditView : UserControl
             _viewModel.TextEditor = _textEditor;
         }
         _statusTextBlock = this.Find<TextBlock>("StatusText");
+        EnsureInfoCompletionController();
+        AttachedToVisualTree += (sender, args) => EnsureInfoCompletionController();
+        DetachedFromVisualTree += (sender, args) =>
+        {
+            _infoCompletionController?.Dispose();
+            _infoCompletionController = null;
+        };
         _textEditor!.TextArea.TextEntering += this.textEditor_TextArea_TextEntering!;
         _textEditor.TextArea.TextEntered += this.textEditor_TextArea_TextEntered!;
         _textEditor.TextArea.Caret.PositionChanged += Caret_PositionChanged!;
         
 
     }
+    private void EnsureInfoCompletionController()
+    {
+        if (_infoCompletionController == null && _textEditor != null)
+        {
+            _infoCompletionController = new InfoCompletionController(
+                _textEditor,
+                new InfoCompletionProvider());
+        }
+    }
     private void textEditor_TextArea_TextEntering(object sender, TextInputEventArgs e)
     {
         
         if (e == null || e.Text==null)
             return;
-        
+
+        _infoCompletionController?.HandleTextEntering(e.Text);
+
         if (e.Text.Length > 0 && _insightWindow != null)
             _insightWindow?.Hide();
         //{
@@ -88,28 +105,16 @@ public partial class CryptoScriptEditView : UserControl
             DocumentLine line = doc.Lines[l];
             string lineText = doc.GetText(line);
             var provider=new FunctionOverlayDictionaryModel().GetOverlays(lineText,line.Length);
-            if (provider != null)
+            bool infoCompletionOpened =
+                _infoCompletionController?.OpenForTypedParenthesis() == true;
+
+            if (!infoCompletionOpened && provider != null)
             {
                 _insightWindow = new OverloadInsightWindow(_textEditor.TextArea);
                 _insightWindow.Closed += (o, args) => _insightWindow = null;
                 _insightWindow.Provider = provider;
                 _insightWindow.Show();
             }
-            
-
-            //_completionWindow = new CompletionWindow(_textEditor.TextArea);
-            //_completionWindow.Closed += (o, args) => _completionWindow = null;
-
-            //var data = _completionWindow.CompletionList.CompletionData;
-            //data.Add(new MyCompletionData("Encrypt(parameter,key,data)"));
-            ////for (int i = 0; i < 5; i++)
-            ////{
-            ////    data.Add(new MyCompletionData("Item" + i.ToString()));
-            ////}
-
-            ////data.Insert(3, new MyCompletionData("long item to demosntrate dynamic poup resizing"));
-
-            //_completionWindow.Show();
         }
     }
     private void Caret_PositionChanged(object sender, EventArgs e)
@@ -118,42 +123,6 @@ public partial class CryptoScriptEditView : UserControl
          _textEditor!.TextArea.Caret.Line,
          _textEditor.TextArea.Caret.Column);
     }
-}
-public class MyCompletionData : ICompletionData
-{
-    public MyCompletionData(string text)
-    {
-        Text = text;
-    }
-
-    public IImage Image => null;
-
-    public string Text { get; }
-
-    // Use this property if you want to show a fancy UIElement in the list.
-    public object Content => _contentControl ??= BuildContentControl();
-
-    public object Description => "Description for " + Text;
-
-    public double Priority { get; } = 0;
-
-    public void Complete(TextArea textArea, ISegment completionSegment,
-        EventArgs insertionRequestEventArgs)
-    {
-        textArea.Document.Replace(completionSegment, Text);
-    }
-
-    Control BuildContentControl()
-    {
-        TextBlock textBlock = new TextBlock();
-        textBlock.Text = Text;
-        textBlock.Margin = new Thickness(5);
-        textBlock.Width = 500;
-
-        return textBlock;
-    }
-
-    Control _contentControl;
 }
 public class MyOverloadProvider : IOverloadProvider
 {
