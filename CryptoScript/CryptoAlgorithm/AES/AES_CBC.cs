@@ -6,6 +6,65 @@ namespace CryptoScript.CryptoAlgorithm
 {
     public class AES_CBC : EncryptionMode
     {
+        internal static byte[] ValidateAndDecodeIv(string iv)
+        {
+            string format = FormatConversions.ParseString(iv);
+            if (format != FormatConversions.HEX && format != FormatConversions.B64)
+            {
+                throw new ArgumentException(
+                    "AES-CBC #IV must be a hexadecimal or Base64 value, or a variable resolving to one.",
+                    nameof(iv));
+            }
+
+            if (!HasValidEncodingShape(iv, format))
+            {
+                throw new ArgumentException(
+                    $"AES-CBC #IV contains invalid {GetEncodingName(format)} encoding.",
+                    nameof(iv));
+            }
+
+            byte[] ivBytes;
+            try
+            {
+                ivBytes = FormatConversions.ToByteArray(iv, format);
+            }
+            catch (Exception exception) when (exception is FormatException or
+                                              ArgumentOutOfRangeException or
+                                              IndexOutOfRangeException or
+                                              OverflowException)
+            {
+                throw new ArgumentException(
+                    $"AES-CBC #IV contains invalid {GetEncodingName(format)} encoding.",
+                    nameof(iv), exception);
+            }
+
+            if (ivBytes.Length != 16)
+            {
+                throw new ArgumentException(
+                    $"AES-CBC #IV must decode to exactly 16 bytes; actual length is {ivBytes.Length} bytes.",
+                    nameof(iv));
+            }
+
+            return ivBytes;
+        }
+
+        private static string GetEncodingName(string format) =>
+            format == FormatConversions.HEX ? "hexadecimal" : "Base64";
+
+        private static bool HasValidEncodingShape(string iv, string format)
+        {
+            if (!iv.EndsWith(')'))
+                return false;
+
+            string encodedValue = iv.Substring(format == FormatConversions.HEX ? 3 : 4,
+                iv.Length - (format == FormatConversions.HEX ? 4 : 5));
+            if (encodedValue.Length == 0)
+                return false;
+
+            return format != FormatConversions.HEX ||
+                   encodedValue.Length % 2 == 0 && encodedValue.All(Uri.IsHexDigit);
+        }
+
         public override StringVariableDeclaration ModeDecryption(ParameterVariableDeclaration parameter, KeyVariableDeclaration key, StringVariableDeclaration data)
         {
             byte[] decrypted;
@@ -17,8 +76,7 @@ namespace CryptoScript.CryptoAlgorithm
                 //set key
                 byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
                 aesAlg.Key = keyBytes;
-                string IV = parameter.GetParameter("IV");
-                byte[] iv= FormatConversions.ToByteArray(IV,FormatConversions.ParseString(IV));
+                byte[] iv = ValidateAndDecodeIv(parameter.GetParameter("IV"));
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;
@@ -61,8 +119,7 @@ namespace CryptoScript.CryptoAlgorithm
                 //set key
                 byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
                 aesAlg.Key = keyBytes;
-                string IV = parameter.GetParameter("IV");
-                byte[] iv= FormatConversions.ToByteArray(IV,FormatConversions.ParseString(IV));
+                byte[] iv = ValidateAndDecodeIv(parameter.GetParameter("IV"));
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;                

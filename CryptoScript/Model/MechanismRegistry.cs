@@ -9,20 +9,170 @@ public sealed record MechanismRegistryEntry
         string canonicalName,
         string description,
         string documentationFileName,
-        IEnumerable<CryptoScriptFunction> supportedFunctions)
+        IEnumerable<CryptoScriptFunction> supportedFunctions,
+        IEnumerable<MechanismFunctionMetadata>? functionMetadata = null)
     {
         CanonicalName = canonicalName;
         Description = description;
         DocumentationFileName = documentationFileName;
         SupportedFunctions = supportedFunctions.ToFrozenSet();
+
+        MechanismFunctionMetadata[] copiedFunctionMetadata =
+            (functionMetadata ?? Array.Empty<MechanismFunctionMetadata>()).ToArray();
+        if (copiedFunctionMetadata.Any(metadata =>
+                !SupportedFunctions.Contains(metadata.Function)))
+        {
+            throw new ArgumentException(
+                "Function metadata may only describe supported functions.",
+                nameof(functionMetadata));
+        }
+
+        FunctionMetadata = copiedFunctionMetadata
+            .ToFrozenDictionary(metadata => metadata.Function);
     }
 
     public string CanonicalName { get; }
     public string Description { get; }
     public string DocumentationFileName { get; }
     public IReadOnlySet<CryptoScriptFunction> SupportedFunctions { get; }
+    public IReadOnlyDictionary<CryptoScriptFunction, MechanismFunctionMetadata> FunctionMetadata { get; }
 
     public bool Supports(CryptoScriptFunction function) => SupportedFunctions.Contains(function);
+}
+
+public enum MechanismParameterKind
+{
+    PositionalArgument,
+    NamedParameter
+}
+
+public enum MechanismParameterDataType
+{
+    Mechanism,
+    ParameterSet,
+    Key,
+    Data,
+    BinaryData,
+    Integer,
+    HexString,
+    Padding
+}
+
+public enum MechanismParameterInputForm
+{
+    HexLiteral,
+    Base64Literal,
+    StringLiteral,
+    VariableReference
+}
+
+public enum AdditionalNamedParameterHandling
+{
+    None,
+    StoreGloballyKnown,
+    IgnoreStored
+}
+
+public enum MechanismParameterDefaultKind
+{
+    None,
+    Literal,
+    Generated
+}
+
+public sealed record MechanismParameterMetadata
+{
+    public MechanismParameterMetadata(
+        string name,
+        MechanismParameterKind kind,
+        bool isRequired,
+        IEnumerable<MechanismParameterDataType> resultingDataTypes,
+        string description,
+        string valueConstraint,
+        MechanismParameterDefaultKind defaultKind = MechanismParameterDefaultKind.None,
+        string? defaultValue = null,
+        string? combinationConstraint = null,
+        IEnumerable<MechanismParameterInputForm>? acceptedInputForms = null)
+    {
+        if (defaultKind == MechanismParameterDefaultKind.None && defaultValue is not null)
+        {
+            throw new ArgumentException(
+                "A parameter without a default kind cannot have a default value.",
+                nameof(defaultValue));
+        }
+
+        if (defaultKind != MechanismParameterDefaultKind.None && defaultValue is null)
+        {
+            throw new ArgumentException(
+                "A literal or generated default requires a default value.",
+                nameof(defaultValue));
+        }
+
+        MechanismParameterInputForm[] copiedInputForms = (acceptedInputForms ??
+            Array.Empty<MechanismParameterInputForm>()).ToArray();
+        if (copiedInputForms.Any(inputForm => !Enum.IsDefined(inputForm)))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(acceptedInputForms),
+                "Accepted input forms must contain only defined values.");
+        }
+
+        Name = name;
+        Kind = kind;
+        IsRequired = isRequired;
+        ResultingDataTypes = resultingDataTypes.ToFrozenSet();
+        AcceptedInputForms = copiedInputForms.ToFrozenSet();
+        Description = description;
+        ValueConstraint = valueConstraint;
+        DefaultKind = defaultKind;
+        DefaultValue = defaultValue;
+        CombinationConstraint = combinationConstraint;
+    }
+
+    public string Name { get; }
+    public MechanismParameterKind Kind { get; }
+    public bool IsRequired { get; }
+    public IReadOnlySet<MechanismParameterDataType> ResultingDataTypes { get; }
+    public IReadOnlySet<MechanismParameterInputForm> AcceptedInputForms { get; }
+    public string Description { get; }
+    public string ValueConstraint { get; }
+    public MechanismParameterDefaultKind DefaultKind { get; }
+    public string? DefaultValue { get; }
+    public string? CombinationConstraint { get; }
+}
+
+public sealed record MechanismFunctionMetadata
+{
+    public MechanismFunctionMetadata(
+        CryptoScriptFunction function,
+        IEnumerable<MechanismParameterMetadata> parameters,
+        AdditionalNamedParameterHandling additionalNamedParameterHandling =
+            AdditionalNamedParameterHandling.None)
+    {
+        if (!Enum.IsDefined(additionalNamedParameterHandling))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(additionalNamedParameterHandling),
+                "Additional named parameter handling must be a defined value.");
+        }
+
+        MechanismParameterMetadata[] copiedParameters = parameters.ToArray();
+        if (copiedParameters.Select(parameter => parameter.Name)
+            .Distinct(StringComparer.OrdinalIgnoreCase).Count() != copiedParameters.Length)
+        {
+            throw new ArgumentException(
+                "Parameter names must be unique within function metadata.",
+                nameof(parameters));
+        }
+
+        Function = function;
+        Parameters = Array.AsReadOnly(copiedParameters);
+        AdditionalNamedParameterHandling = additionalNamedParameterHandling;
+    }
+
+    public CryptoScriptFunction Function { get; }
+    public IReadOnlyList<MechanismParameterMetadata> Parameters { get; }
+    public AdditionalNamedParameterHandling AdditionalNamedParameterHandling { get; }
 }
 
 public enum CryptoScriptFunction
@@ -41,6 +191,99 @@ public enum CryptoScriptFunction
 
 public static class MechanismRegistry
 {
+    private static MechanismParameterMetadata Argument(
+        string name,
+        bool required,
+        MechanismParameterDataType[] types,
+        string description,
+        string constraint,
+        string? combination = null) =>
+        new(name, MechanismParameterKind.PositionalArgument, required, types,
+            description, constraint, combinationConstraint: combination);
+
+    private static MechanismParameterMetadata NamedParameter(
+        string name,
+        bool required,
+        MechanismParameterDataType type,
+        string description,
+        string constraint,
+        MechanismParameterDefaultKind defaultKind = MechanismParameterDefaultKind.None,
+        string? defaultValue = null,
+        string? combination = null,
+        MechanismParameterInputForm[]? inputForms = null) =>
+        new(name, MechanismParameterKind.NamedParameter, required, new[] { type },
+            description, constraint, defaultKind, defaultValue, combination, inputForms);
+
+    private static readonly MechanismParameterInputForm[] AesCbcIvInputForms =
+    {
+        MechanismParameterInputForm.HexLiteral,
+        MechanismParameterInputForm.Base64Literal,
+        MechanismParameterInputForm.VariableReference
+    };
+
+    private static readonly MechanismParameterMetadata[] AesCbcConsumedParameters =
+    {
+        NamedParameter("#MECH", true, MechanismParameterDataType.Mechanism,
+            "Selects AES-CBC for parameter creation and algorithm dispatch.",
+            "Exactly AES-CBC.", combination: "Use either AES-CBC or #MECH:AES-CBC as the first Parameters argument."),
+        NamedParameter("#IV", true, MechanismParameterDataType.BinaryData,
+            "Initialization vector consumed by AES-CBC encryption and decryption.",
+            "Hexadecimal or Base64 literal, or variable resolving to either; must decode to exactly 16 bytes.",
+            inputForms: AesCbcIvInputForms),
+        NamedParameter("#PAD", true, MechanismParameterDataType.Padding,
+            "Padding mode consumed by AES-CBC encryption and decryption.",
+            "PKCS-7, ISO-10126, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, ANSI-X923, TLS-CBC, or NONE.")
+    };
+
+    private static readonly MechanismFunctionMetadata[] AesCbcFunctionMetadata =
+    {
+        new(CryptoScriptFunction.Parameters, new MechanismParameterMetadata[]
+        {
+            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+                "Selects the parameter generator.", "AES-CBC or #MECH:AES-CBC.",
+                "This is the first argument; the named form is an alternative, not an additional mechanism."),
+            NamedParameter("#IV", false, MechanismParameterDataType.BinaryData,
+                "Initialization vector.",
+                "Hexadecimal or Base64 literal, or variable resolving to either; must decode to exactly 16 bytes.",
+                MechanismParameterDefaultKind.Generated, "A random 16-byte value",
+                inputForms: AesCbcIvInputForms),
+            NamedParameter("#PAD", false, MechanismParameterDataType.Padding,
+                "Padding mode.",
+                "PKCS-7, ISO-10126, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, ANSI-X923, TLS-CBC, or NONE.",
+                MechanismParameterDefaultKind.Literal,
+                "PKCS-7")
+        }, AdditionalNamedParameterHandling.StoreGloballyKnown),
+        new(CryptoScriptFunction.GenerateKey, new[]
+        {
+            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+                "Selects AES key generation or import.", "Exactly AES-CBC."),
+            Argument("keySizeOrValue", true,
+                new[] { MechanismParameterDataType.Integer, MechanismParameterDataType.HexString },
+                "Generates a key of the requested size or imports the supplied key bytes.",
+                "Integer 128, 192, or 256; or a hexadecimal value of exactly 16, 24, or 32 bytes.")
+        }),
+        new(CryptoScriptFunction.Encrypt, new[]
+        {
+            Argument("parameters", true, new[] { MechanismParameterDataType.ParameterSet },
+                "AES-CBC parameter variable or serialized parameter value.", "Must contain processed #MECH, #IV, and #PAD values."),
+            Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
+                "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
+            Argument("data", true, new[] { MechanismParameterDataType.Data },
+                "Plaintext variable or literal.", "With #PAD:NONE, length must be a multiple of 16 bytes."),
+        }.Concat(AesCbcConsumedParameters),
+            AdditionalNamedParameterHandling.IgnoreStored),
+        new(CryptoScriptFunction.Decrypt, new[]
+        {
+            Argument("parameters", true, new[] { MechanismParameterDataType.ParameterSet },
+                "AES-CBC parameter variable or serialized parameter value.", "Must contain processed #MECH, #IV, and #PAD values."),
+            Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
+                "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
+            Argument("data", true, new[] { MechanismParameterDataType.Data },
+                "Ciphertext variable or literal.", "Length must be a multiple of 16 bytes."),
+        }.Concat(AesCbcConsumedParameters),
+            AdditionalNamedParameterHandling.IgnoreStored)
+    };
+
     private static readonly CryptoScriptFunction[] CipherFunctions =
     {
         CryptoScriptFunction.Parameters,
@@ -93,7 +336,7 @@ public static class MechanismRegistry
     private static readonly ReadOnlyCollection<MechanismRegistryEntry> RegistryEntries =
         Array.AsReadOnly(new MechanismRegistryEntry[]
         {
-            new("AES-CBC", "Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.AES-CBC.md", CipherFunctions),
+            new("AES-CBC", "Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.AES-CBC.md", CipherFunctions, AesCbcFunctionMetadata),
             new("AES-CCM", "Symmetric Advanced Encryption Standard in Counter with CBC-MAC mode.", "Info.Mech.AES-CCM.md", CipherFunctions),
             new("AES-CMAC", "Symmetric Advanced Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.AES-CMAC.md", MacFunctions),
             new("AES-CTR", "Symmetric Advanced Encryption Standard in Counter mode.", "Info.Mech.AES-CTR.md", CipherFunctions),

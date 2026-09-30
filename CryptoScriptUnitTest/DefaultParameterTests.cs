@@ -80,7 +80,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void Default_Parameters_AES_CBC_Test()
         {
-            string input = "PARAM p2=Parameters(AES-CBC,#PAD:PKCS-7,#IV:0x(12345678))";
+            string input = "PARAM p2=Parameters(AES-CBC,#PAD:PKCS-7,#IV:0x(000102030405060708090A0B0C0D0E0F))";
             CryptoScriptRunner prog = new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -90,7 +90,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(res.Statements.Count == 1);
             ClassicAssert.IsTrue(statement is ParameterVariableDeclaration);
             var variable = statement as ParameterVariableDeclaration;
-            ClassicAssert.IsTrue(variable.GetParameter("IV") == "0x(12345678)");
+            ClassicAssert.IsTrue(variable.GetParameter("IV") == "0x(000102030405060708090A0B0C0D0E0F)");
             ClassicAssert.IsTrue(variable.GetParameter("PAD") == "PKCS-7");
             ClassicAssert.IsTrue(variable.Mechanism == "AES-CBC");
             ClassicAssert.IsTrue(variable.Id == "p2");

@@ -92,7 +92,9 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 param.SetParameter(p);
                 
             }
-            SetDefaultParameterValues(param);            
+            SetDefaultParameterValues(param);
+            if (param.Mechanism.Equals("AES-CBC", StringComparison.OrdinalIgnoreCase))
+                AES_CBC.ValidateAndDecodeIv(param.GetParameter("IV"));
             param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
