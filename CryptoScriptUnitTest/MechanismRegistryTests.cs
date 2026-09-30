@@ -1,6 +1,11 @@
+using CryptoScript.CryptoAlgorithm;
 using CryptoScript.Documentation;
 using CryptoScript.Model;
+using System.Collections.Frozen;
+using System.Reflection;
 using System.Text.RegularExpressions;
+
+using Algorithm = CryptoScript.CryptoAlgorithm.CryptoAlgorithm;
 
 namespace CryptoScriptUnitTest;
 
@@ -62,8 +67,111 @@ public class MechanismRegistryTests
         {
             Assert.That(list.IsReadOnly, Is.True);
             Assert.Throws<NotSupportedException>(() => list.Add(
-                new MechanismRegistryEntry("TEST", "Test.", "Info.Mech.TEST.md")));
+                new MechanismRegistryEntry(
+                    "TEST",
+                    "Test.",
+                    "Info.Mech.TEST.md",
+                    Array.Empty<CryptoScriptFunction>())));
         });
+    }
+
+    [Test]
+    public void SupportedFunctionsAreCopiedIntoImmutableSets()
+    {
+        var source = new[] { CryptoScriptFunction.Encrypt };
+        var entry = new MechanismRegistryEntry(
+            "TEST",
+            "Test.",
+            "Info.Mech.TEST.md",
+            source);
+
+        source[0] = CryptoScriptFunction.Decrypt;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(
+                entry.SupportedFunctions,
+                Is.InstanceOf<FrozenSet<CryptoScriptFunction>>());
+            Assert.That(entry.SupportedFunctions, Is.EquivalentTo(new[]
+            {
+                CryptoScriptFunction.Encrypt
+            }));
+            Assert.That(
+                typeof(MechanismRegistryEntry)
+                    .GetProperty(nameof(MechanismRegistryEntry.SupportedFunctions))!
+                    .SetMethod,
+                Is.Null);
+        });
+    }
+
+    [Test]
+    public void SupportsPerformsAnExactTypedMembershipCheck()
+    {
+        foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
+        {
+            foreach (CryptoScriptFunction function in Enum.GetValues<CryptoScriptFunction>())
+            {
+                Assert.That(
+                    entry.Supports(function),
+                    Is.EqualTo(entry.SupportedFunctions.Contains(function)),
+                    $"{entry.CanonicalName}: {function}");
+            }
+        }
+    }
+
+    [Test]
+    public void SupportedFunctionsMatchConcreteAlgorithmImplementations()
+    {
+        foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
+        {
+            IReadOnlySet<CryptoScriptFunction> implementedFunctions =
+                DiscoverImplementedFunctions(entry.CanonicalName);
+
+            Assert.That(
+                entry.SupportedFunctions,
+                Is.EquivalentTo(implementedFunctions),
+                entry.CanonicalName);
+        }
+    }
+
+    [Test]
+    public void HashKeyGenerationIsAnExplicitRejectionNotSupport()
+    {
+        foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries.Where(
+                     entry => entry.CanonicalName.StartsWith("HASH-", StringComparison.Ordinal)))
+        {
+            Algorithm algorithm = AlgorithmFactory.Create(entry.CanonicalName);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    entry.Supports(CryptoScriptFunction.GenerateKey),
+                    Is.False,
+                    entry.CanonicalName);
+                Assert.Throws<ArgumentException>(
+                    () => algorithm.GenerateKey(entry.CanonicalName, "256"),
+                    entry.CanonicalName);
+            });
+        }
+    }
+
+    [TestCase("AES-CBC", CryptoScriptFunction.Mac)]
+    [TestCase("AES-CMAC", CryptoScriptFunction.Encrypt)]
+    [TestCase("AES-CMAC", CryptoScriptFunction.Decrypt)]
+    [TestCase("DES3-ECB", CryptoScriptFunction.Mac)]
+    [TestCase("DES3-CMAC", CryptoScriptFunction.Encrypt)]
+    [TestCase("DES3-RETAIL", CryptoScriptFunction.Decrypt)]
+    [TestCase("HASH-SHA256", CryptoScriptFunction.GenerateKey)]
+    [TestCase("HMAC-SHA256", CryptoScriptFunction.Hash)]
+    [TestCase("KDF-HKDF", CryptoScriptFunction.Encrypt)]
+    [TestCase("WRAP-AES-TR31", CryptoScriptFunction.Parameters)]
+    [TestCase("WRAP-DES3-TR31", CryptoScriptFunction.BlockHeader)]
+    public void KnownUnsupportedFunctionCombinationsAreExcluded(
+        string mechanism,
+        CryptoScriptFunction function)
+    {
+        Assert.That(MechanismRegistry.TryGet(mechanism, out MechanismRegistryEntry? entry), Is.True);
+        Assert.That(entry!.Supports(function), Is.False);
     }
 
     [Test]
@@ -194,5 +302,128 @@ public class MechanismRegistryTests
         }
 
         return descriptions;
+    }
+
+    private static IReadOnlySet<CryptoScriptFunction> DiscoverImplementedFunctions(
+        string mechanism)
+    {
+        Algorithm algorithm = AlgorithmFactory.Create(mechanism);
+        var functions = new HashSet<CryptoScriptFunction>();
+
+        if (HasConcreteAlgorithmOverride(
+                algorithm,
+                nameof(Algorithm.GenerateParameters),
+                typeof(string)) &&
+            HasConcreteAlgorithmOverride(
+                algorithm,
+                nameof(Algorithm.GenerateParameters),
+                typeof(string),
+                typeof(string[])))
+        {
+            functions.Add(CryptoScriptFunction.Parameters);
+        }
+
+        // HASH overrides GenerateKey only to reject it explicitly.
+        if (algorithm is not CryptoScript.CryptoAlgorithm.HASH.HASH &&
+            HasConcreteAlgorithmOverride(
+                algorithm,
+                nameof(Algorithm.GenerateKey),
+                typeof(string),
+                typeof(string)))
+        {
+            functions.Add(CryptoScriptFunction.GenerateKey);
+        }
+
+        if (algorithm is SymmetricCryptoAlgorithm symmetric)
+        {
+            EncryptionMode mode = symmetric.CreateMode(mechanism);
+            AddModeFunction(
+                functions,
+                mode,
+                nameof(EncryptionMode.ModeEncryption),
+                CryptoScriptFunction.Encrypt);
+            AddModeFunction(
+                functions,
+                mode,
+                nameof(EncryptionMode.ModeDecryption),
+                CryptoScriptFunction.Decrypt);
+            AddModeFunction(
+                functions,
+                mode,
+                nameof(EncryptionMode.ModeMac),
+                CryptoScriptFunction.Mac);
+        }
+
+        AddAlgorithmFunction(
+            functions,
+            algorithm,
+            nameof(Algorithm.Hash),
+            CryptoScriptFunction.Hash);
+        AddAlgorithmFunction(
+            functions,
+            algorithm,
+            nameof(Algorithm.Derive),
+            CryptoScriptFunction.Derive);
+        AddAlgorithmFunction(
+            functions,
+            algorithm,
+            nameof(Algorithm.Wrap),
+            CryptoScriptFunction.Wrap);
+        AddAlgorithmFunction(
+            functions,
+            algorithm,
+            nameof(Algorithm.Unwrap),
+            CryptoScriptFunction.Unwrap);
+
+        try
+        {
+            Algorithm blockHeaderAlgorithm = AlgorithmFactory.Create($"BLOCKHEADER-{mechanism}");
+            if (HasConcreteAlgorithmOverride(
+                    blockHeaderAlgorithm,
+                    nameof(Algorithm.GenerateBlockHeader),
+                    typeof(string)))
+            {
+                functions.Add(CryptoScriptFunction.BlockHeader);
+            }
+        }
+        catch (NotSupportedException)
+        {
+            // No internal BlockHeader dispatch exists for this mechanism.
+        }
+
+        return functions.ToFrozenSet();
+    }
+
+    private static void AddAlgorithmFunction(
+        ISet<CryptoScriptFunction> functions,
+        Algorithm algorithm,
+        string methodName,
+        CryptoScriptFunction function)
+    {
+        if (HasConcreteAlgorithmOverride(algorithm, methodName, typeof(string[])))
+            functions.Add(function);
+    }
+
+    private static void AddModeFunction(
+        ISet<CryptoScriptFunction> functions,
+        EncryptionMode mode,
+        string methodName,
+        CryptoScriptFunction function)
+    {
+        MethodInfo method = mode.GetType().GetMethod(methodName) ??
+            throw new InvalidOperationException($"Missing mode method {methodName}.");
+        if (method.DeclaringType != typeof(EncryptionMode))
+            functions.Add(function);
+    }
+
+    private static bool HasConcreteAlgorithmOverride(
+        Algorithm algorithm,
+        string methodName,
+        params Type[] parameterTypes)
+    {
+        MethodInfo method = algorithm.GetType().GetMethod(methodName, parameterTypes) ??
+            throw new InvalidOperationException($"Missing algorithm method {methodName}.");
+        return method.DeclaringType != typeof(Algorithm) &&
+               method.DeclaringType != typeof(SymmetricCryptoAlgorithm);
     }
 }
