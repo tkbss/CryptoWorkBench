@@ -30,6 +30,7 @@ public class ParameterEvaluatorTests
     [TestCase("#ADATA", "\"raw value\"")]
     [TestCase("#MECH", "AES-CBC")]
     [TestCase("#PAD", "PKCS-7")]
+    [TestCase("#PAD", "ISO-10126")]
     [TestCase("#OUTLEN", "336")]
     [TestCase("#VARIANT", "TC")]
     [TestCase("#VARIANT", "MAC-SEND")]

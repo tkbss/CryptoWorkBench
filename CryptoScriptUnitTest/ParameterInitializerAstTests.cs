@@ -28,6 +28,7 @@ namespace CryptoScriptUnitTest
 
         [TestCase("#MECH : AES-CBC", "#MECH", "AES-CBC")]
         [TestCase("#PAD : PKCS-7", "#PAD", "PKCS-7")]
+        [TestCase("#PAD : ISO-10126", "#PAD", "ISO-10126")]
         [TestCase("#IV : 0x(AbCd)", "#IV", "0x(AbCd)")]
         [TestCase("#IV : astMissing", "#IV", "astMissing")]
         [TestCase("#IV : \"raw value\"", "#IV", "\"raw value\"")]

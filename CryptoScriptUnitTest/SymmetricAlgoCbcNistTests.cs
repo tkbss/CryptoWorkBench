@@ -14,6 +14,7 @@ namespace CryptoScriptUnitTest
         private static readonly object[] CbcNist128PaddingCases =
         {
             new object[] { "ISO-7816"     },
+            new object[] { "ISO-10126"    },
             new object[] { "PKCS-7"       },
             new object[] { "ISO-9797-M1"  },
             new object[] { "ISO-9797-M2"  },
