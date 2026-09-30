@@ -108,7 +108,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
                     param.SetParameter("IV", FormatConversions.ByteArrayToHexString(IV));
                 }
                 if (param.GetParameter("PAD") == string.Empty)                    
-                    param.SetParameter("PAD", "PKCS7");
+                    param.SetParameter("PAD", "PKCS-7");
                 return;
             }
             if (param.Mechanism.ToLower().Contains("ctr"))
