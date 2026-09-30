@@ -77,9 +77,13 @@ namespace CryptoScript.Variables
             
         }
         public void SetParameter(string type, string value)
-        {            
-            string tu = type.ToUpper();
-            string? t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
+        {
+            string normalizedType = type.StartsWith('#') ? type : "#" + type;
+            string? t = ParameterTypeList.Instance.ParameterTypes.Find(
+                item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase));
+            if (t == null)
+                throw new ArgumentException($"Unknown parameter name '{type}'.", nameof(type));
+
             if (ParameterTypeValue.ContainsKey(t))
             {
                 ParameterTypeValue[t] = value;
