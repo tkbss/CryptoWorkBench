@@ -1,4 +1,5 @@
 using CryptoScript.Documentation;
+using CryptoScript.Model;
 using FluentAssertions;
 using System.Text.RegularExpressions;
 
@@ -11,29 +12,28 @@ public class InfoDocumentationProviderTests
         "WRAP-AES", "WRAP-DES3", "RSA-PSS", "RSA-OAEP", "ECDSA"
     };
 
-    private static readonly string[] ExpectedDocumentNames =
+    private static readonly (string Key, InfoDocumentId Id, string FileName)[] CatalogOverviews =
     {
-        "functions", "mechanisms", "types", "parameters", "keymap", "paddings",
-        "AES-CBC", "AES-ECB", "AES-CTR", "AES-CMAC", "AES-GMAC", "AES-GCM", "AES-CCM",
-        "WRAP-AES-TR31", "WRAP-DES3-TR31",
-        "DES3-CBC", "DES3-ECB", "DES3-CMAC", "DES3-RETAIL",
-        "HMAC-SHA1", "HMAC-SHA224", "HMAC-SHA256", "HMAC-SHA384", "HMAC-SHA512",
-        "HMAC-SHA512-224", "HMAC-SHA512-256", "HMAC-SHA3-224", "HMAC-SHA3-256",
-        "HMAC-SHA3-384", "HMAC-SHA3-512",
-        "HASH-SHA1", "HASH-SHA224", "HASH-SHA256", "HASH-SHA384", "HASH-SHA512",
-        "HASH-SHA512-224", "HASH-SHA512-256", "HASH-SHA3-224", "HASH-SHA3-256",
-        "HASH-SHA3-384", "HASH-SHA3-512",
-        "KDF-HKDF", "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-SP800-108-COUNTER",
-        "DUKPT-AES-INITIAL-KEY", "DUKPT-AES-WORKING-KEY",
-        "DUKPT-TDEA-INITIAL-KEY", "DUKPT-TDEA-WORKING-KEY",
-        "KDF-EP2-SESSION", "KDF-EP2-PAN-RECEIPT-TRX", "KDF-EP2-PAN-RECEIPT-TRM",
-        "KDF-EP2-PAN-SURROGATE-TRX"
+        ("functions", InfoDocumentId.CreateFunctionsOverview(), "Info.Functions.md"),
+        ("mechanisms", InfoDocumentId.CreateMechanismsOverview(), "Info.Mechanisms.md"),
+        ("parameters", InfoDocumentId.CreateParametersOverview(), "Info.Parameters.md")
     };
 
-    private readonly FileInfoDocumentationProvider _sut = new();
+    private static readonly (string Key, string FileName)[] LegacyOverviews =
+    {
+        ("types", "Info.Types.md"),
+        ("keymap", "Info.Keymap.md"),
+        ("paddings", "Info.Paddings.md")
+    };
+
+    private readonly IInfoDocumentationProvider _sut = new FileInfoDocumentationProvider();
 
     [TestCase("mechanisms", "Info.Mechanisms.md")]
     [TestCase("functions", "Info.Functions.md")]
+    [TestCase("parameters", "Info.Parameters.md")]
+    [TestCase("types", "Info.Types.md")]
+    [TestCase("keymap", "Info.Keymap.md")]
+    [TestCase("paddings", "Info.Paddings.md")]
     [TestCase("AES-CBC", "Info.Mech.AES-CBC.md")]
     [TestCase("AES-GCM", "Info.Mech.AES-GCM.md")]
     [TestCase("DES3-ECB", "Info.Mech.DES3-ECB.md")]
@@ -64,39 +64,190 @@ public class InfoDocumentationProviderTests
     }
 
     [Test]
+    public void StringApiAcceptsDirectNullLiterals()
+    {
+#pragma warning disable CS8625
+        bool available = _sut.HasDocumentation(null);
+        bool found = _sut.TryGetDocumentation(null, out string documentation);
+#pragma warning restore CS8625
+
+        Assert.Multiple(() =>
+        {
+            available.Should().BeFalse();
+            found.Should().BeFalse();
+            documentation.Should().BeEmpty();
+        });
+    }
+
+    [Test]
+    public void TypedApiRejectsNullIdentities()
+    {
+        bool available = _sut.HasDocument(null!);
+        bool found = _sut.TryGetDocument(null!, out string documentation);
+
+        Assert.Multiple(() =>
+        {
+            available.Should().BeFalse();
+            found.Should().BeFalse();
+            documentation.Should().BeEmpty();
+        });
+    }
+
+    [Test]
+    public void TypedDefaultsRejectDocumentsForStringOnlyProviders()
+    {
+        IInfoDocumentationProvider provider = new StringOnlyDocumentationProvider();
+        InfoDocumentId documentId = InfoDocumentId.CreateMechanismsOverview();
+
+        bool available = provider.HasDocument(documentId);
+        bool found = provider.TryGetDocument(documentId, out string documentation);
+
+        Assert.Multiple(() =>
+        {
+            available.Should().BeFalse();
+            found.Should().BeFalse();
+            documentation.Should().BeEmpty();
+        });
+    }
+
+    [Test]
     public void HasDocumentation_KnownName_DoesNotReadDocument()
     {
         string missingBaseDirectory = Path.Combine(
             Path.GetTempPath(), $"missing-info-docs-{Guid.NewGuid():N}");
         var sut = new FileInfoDocumentationProvider(missingBaseDirectory);
 
-        bool available = sut.HasDocumentation("AES-CBC");
+        InfoDocumentId documentId = InfoDocumentId.CreateMechanism("AES-CBC");
 
-        available.Should().BeTrue();
-        Action read = () => sut.TryGetDocumentation("AES-CBC", out _);
-        read.Should().Throw<DirectoryNotFoundException>();
+        Assert.Multiple(() =>
+        {
+            sut.HasDocumentation("AES-CBC").Should().BeTrue();
+            sut.HasDocument(documentId).Should().BeTrue();
+            sut.HasDocumentation("types").Should().BeTrue();
+        });
+
+        Action readByName = () => sut.TryGetDocumentation("AES-CBC", out _);
+        Action readById = () => sut.TryGetDocument(documentId, out _);
+        Action readLegacy = () => sut.TryGetDocumentation("types", out _);
+        readByName.Should().Throw<DirectoryNotFoundException>();
+        readById.Should().Throw<DirectoryNotFoundException>();
+        readLegacy.Should().Throw<DirectoryNotFoundException>();
     }
 
     [Test]
-    public void DocumentationWhitelist_AllExpectedDocumentsAreAvailableAndReadable()
+    public void TryGetDocument_RegisteredFileMissing_ThrowsFileNotFoundException()
     {
-        foreach (string name in ExpectedDocumentNames)
+        string baseDirectory = Path.Combine(
+            Path.GetTempPath(), $"info-provider-test-{Guid.NewGuid():N}");
+        string infoDocsDirectory = Path.Combine(baseDirectory, "InfoDocs");
+        Directory.CreateDirectory(infoDocsDirectory);
+
+        try
         {
-            _sut.HasDocumentation(name).Should().BeTrue(name);
-            _sut.TryGetDocumentation(name, out string documentation).Should().BeTrue(name);
-            documentation.Should().NotBeNullOrWhiteSpace(name);
+            var sut = new FileInfoDocumentationProvider(baseDirectory);
+            InfoDocumentId documentId = InfoDocumentId.CreateMechanism("AES-CBC");
+
+            sut.HasDocument(documentId).Should().BeTrue();
+            Action read = () => sut.TryGetDocument(documentId, out _);
+            read.Should().Throw<FileNotFoundException>();
+        }
+        finally
+        {
+            Directory.Delete(baseDirectory, recursive: true);
         }
     }
 
     [Test]
-    public void EveryProductiveMechanismHasReadableDocumentation()
+    public void AllOverviewKeysAreAvailableAndReadable()
     {
-        foreach (string mechanism in CryptoScript.Model.MechanismList.Instance.Mechanisms)
+        foreach ((string key, InfoDocumentId _, string _) in CatalogOverviews)
         {
-            _sut.HasDocumentation(mechanism).Should().BeTrue(mechanism);
-            _sut.TryGetDocumentation(mechanism, out string documentation).Should().BeTrue(mechanism);
-            documentation.Should().NotBeNullOrWhiteSpace(mechanism);
+            _sut.HasDocumentation(key).Should().BeTrue(key);
+            _sut.TryGetDocumentation(key, out string documentation).Should().BeTrue(key);
+            documentation.Should().NotBeNullOrWhiteSpace(key);
         }
+
+        foreach ((string key, string _) in LegacyOverviews)
+        {
+            _sut.HasDocumentation(key).Should().BeTrue(key);
+            _sut.TryGetDocumentation(key, out string documentation).Should().BeTrue(key);
+            documentation.Should().NotBeNullOrWhiteSpace(key);
+        }
+    }
+
+    [Test]
+    public void CatalogOverviewsReturnIdenticalContentThroughBothApis()
+    {
+        foreach ((string key, InfoDocumentId documentId, string fileName) in CatalogOverviews)
+        {
+            string expected = File.ReadAllText(
+                Path.Combine(AppContext.BaseDirectory, "InfoDocs", fileName));
+
+            Assert.Multiple(() =>
+            {
+                _sut.HasDocumentation(key).Should().BeTrue(key);
+                _sut.HasDocument(documentId).Should().BeTrue(key);
+                _sut.TryGetDocumentation(key, out string byName).Should().BeTrue(key);
+                _sut.TryGetDocument(documentId, out string byId).Should().BeTrue(key);
+                byName.Should().Be(expected);
+                byId.Should().Be(byName);
+            });
+        }
+    }
+
+    [Test]
+    public void EveryRegistryMechanismReturnsIdenticalContentThroughBothApis()
+    {
+        foreach (MechanismRegistryEntry mechanism in MechanismRegistry.Entries)
+        {
+            InfoDocumentId documentId = InfoDocumentId.CreateMechanism(mechanism.CanonicalName);
+
+            Assert.Multiple(() =>
+            {
+                _sut.HasDocumentation(mechanism.CanonicalName)
+                    .Should().BeTrue(mechanism.CanonicalName);
+                _sut.HasDocument(documentId).Should().BeTrue(mechanism.CanonicalName);
+                _sut.TryGetDocumentation(mechanism.CanonicalName, out string byName)
+                    .Should().BeTrue(mechanism.CanonicalName);
+                _sut.TryGetDocument(documentId, out string byId)
+                    .Should().BeTrue(mechanism.CanonicalName);
+                byName.Should().Be(byId, mechanism.CanonicalName);
+            });
+        }
+    }
+
+    [Test]
+    public void ValidButUncataloguedDocumentIdentitiesAreRejected()
+    {
+        InfoDocumentId[] documentIds =
+        {
+            InfoDocumentId.CreateFunction("Encrypt"),
+            InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC"),
+            InfoDocumentId.CreateMechanismParameter("AES-CBC", "IV")
+        };
+
+        foreach (InfoDocumentId documentId in documentIds)
+        {
+            _sut.HasDocument(documentId).Should().BeFalse(documentId.ToString());
+            _sut.TryGetDocument(documentId, out string documentation)
+                .Should().BeFalse(documentId.ToString());
+            documentation.Should().BeEmpty();
+        }
+    }
+
+    [TestCase("Functions")]
+    [TestCase("MECHANISMS")]
+    [TestCase("Parameters")]
+    [TestCase("Types")]
+    [TestCase("KEYMAP")]
+    [TestCase("Paddings")]
+    [TestCase("aes-cbc")]
+    [TestCase("AES-cbc")]
+    public void StringKeysRequireExactCanonicalCasing(string name)
+    {
+        _sut.HasDocumentation(name).Should().BeFalse();
+        _sut.TryGetDocumentation(name, out string documentation).Should().BeFalse();
+        documentation.Should().BeEmpty();
     }
 
     [Test]
@@ -159,5 +310,16 @@ public class InfoDocumentationProviderTests
     public void HasDocumentation_UndocumentedName_ReturnsFalse(string name)
     {
         _sut.HasDocumentation(name).Should().BeFalse();
+    }
+
+    private sealed class StringOnlyDocumentationProvider : IInfoDocumentationProvider
+    {
+        public bool HasDocumentation(string name) => name == "mechanisms";
+
+        public bool TryGetDocumentation(string name, out string documentation)
+        {
+            documentation = name == "mechanisms" ? "# Mechanisms" : string.Empty;
+            return documentation.Length > 0;
+        }
     }
 }
