@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.LogicalTree;
 using CryptoScript.Documentation;
 using CryptoWorkBenchAvalonia.ViewModels;
 using CryptoWorkBenchAvalonia.Views;
@@ -27,7 +28,7 @@ public class InfoViewIntegrationTests
             .Execute("cryptoscript-info://mechanism/AES-CBC");
 
         viewModel.InfoText.Should().Be(documentation);
-        viewModel.IsInternalMechanismDetail.Should().BeTrue();
+        viewModel.CanNavigateBack.Should().BeTrue();
     }
 
     [Test]
@@ -43,6 +44,35 @@ public class InfoViewIntegrationTests
             .CanExecute("https://example.test/documentation");
 
         canOpenExternalLink.Should().BeTrue();
+    }
+
+    [Test]
+    public void BackButton_BindsVisibilityAndCommandToInternalNavigationState()
+    {
+        const string mechanisms = "# Mechnisms\n\n- AES-CBC : documented";
+        const string documentation = "# MECHANISM AES-CBC\nDocumentation";
+        var viewModel = new InfoViewModel(
+            null,
+            new DocumentationProviderFake(mechanisms, documentation));
+        viewModel.SetInfoText(mechanisms);
+        var view = new InfoView { DataContext = viewModel };
+        Button backButton = view.GetLogicalDescendants()
+            .OfType<Button>()
+            .Single(button => Equals(button.Content, "← Back"));
+
+        backButton.IsVisible.Should().BeFalse();
+        backButton.Command.Should().BeSameAs(viewModel.NavigateBackCommand);
+
+        viewModel.OpenInfoLinkCommand.Execute(
+            "cryptoscript-info://mechanism/AES-CBC");
+
+        backButton.IsVisible.Should().BeTrue();
+        backButton.IsEnabled.Should().BeTrue();
+        backButton.Command!.Execute(backButton.CommandParameter);
+
+        viewModel.InfoText.Should().Contain("# Mechnisms");
+        backButton.IsVisible.Should().BeFalse();
+        backButton.Command.CanExecute(backButton.CommandParameter).Should().BeFalse();
     }
 
     private sealed class DocumentationProviderFake : IInfoDocumentationProvider
@@ -66,6 +96,15 @@ public class InfoViewIntegrationTests
                 "AES-CBC" => _documentation,
                 _ => string.Empty
             };
+            return documentation.Length > 0;
+        }
+
+        public bool HasDocument(InfoDocumentId id) =>
+            id == InfoDocumentId.CreateMechanism("AES-CBC");
+
+        public bool TryGetDocument(InfoDocumentId id, out string documentation)
+        {
+            documentation = HasDocument(id) ? _documentation : string.Empty;
             return documentation.Length > 0;
         }
     }

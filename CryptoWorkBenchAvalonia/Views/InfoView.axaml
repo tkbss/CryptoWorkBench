@@ -18,9 +18,9 @@
                         VerticalAlignment="Stretch" 
                         Text="{Binding InfoHtml}" /> -->
         <Button Grid.Row="0"
-                Content="← Mechanisms"
-                Command="{Binding ShowMechanismsCommand}"
-                IsVisible="{Binding IsInternalMechanismDetail}"
+                Content="← Back"
+                Command="{Binding NavigateBackCommand}"
+                IsVisible="{Binding CanNavigateBack}"
                 HorizontalAlignment="Left"
                 Margin="10,8,10,0"
                 Padding="6,2"

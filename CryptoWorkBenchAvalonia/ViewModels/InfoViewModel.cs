@@ -1,9 +1,11 @@
 using CryptoScript.Documentation;
+using CryptoScript.Model;
 using CryptoWorkBenchAvalonia.Services;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -11,14 +13,12 @@ namespace CryptoWorkBenchAvalonia.ViewModels
 {
     public class InfoViewModel : BindableBase, INavigationAware
     {
-        private const string InternalLinkScheme = "cryptoscript-info";
-        private const string MechanismLinkHost = "mechanism";
-
         private readonly IHistoryService? _history;
         private readonly IInfoDocumentationProvider _documentationProvider;
-        private string? _mechanismsOverview;
+        private readonly Stack<InternalNavigationEntry> _internalNavigation = new();
         private string _infoText;
-        private bool _isInternalMechanismDetail;
+        private InfoDocumentId? _currentDocumentId;
+        private string? _currentDocumentTitle;
 
         public string InfoText
         {
@@ -34,14 +34,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public bool IsMechanismDocumentation =>
             _infoText?.TrimStart().StartsWith("# MECHANISM ", StringComparison.Ordinal) == true;
 
-        public bool IsInternalMechanismDetail
-        {
-            get => _isInternalMechanismDetail;
-            private set => SetProperty(ref _isInternalMechanismDetail, value);
-        }
+        public bool CanNavigateBack => _internalNavigation.Count > 0;
 
         public DelegateCommand<string> OpenInfoLinkCommand { get; }
-        public DelegateCommand ShowMechanismsCommand { get; }
+        public DelegateCommand NavigateBackCommand { get; }
 
         public InfoViewModel()
             : this(null, new FileInfoDocumentationProvider())
@@ -62,7 +58,9 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 throw new ArgumentNullException(nameof(documentationProvider));
             _history = history;
             OpenInfoLinkCommand = new DelegateCommand<string>(OpenInfoLink);
-            ShowMechanismsCommand = new DelegateCommand(ShowMechanisms);
+            NavigateBackCommand = new DelegateCommand(
+                NavigateBack,
+                () => CanNavigateBack);
 
             if (_history != null)
                 _history.InfoHistoryChanged += OnHistoryChanged;
@@ -75,59 +73,59 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             _history?.AddInfo(text);
         }
 
-        public bool NavigateToMechanism(string mechanism)
-        {
-            if (_mechanismsOverview == null ||
-                !_documentationProvider.TryGetDocumentation(mechanism, out string documentation))
-            {
-                return false;
-            }
-
-            InfoText = documentation;
-            IsInternalMechanismDetail = true;
-            return true;
-        }
-
         private void OpenInfoLink(string link)
         {
-            if (!TryGetMechanismFromInternalLink(link, out string mechanism))
+            if (!InfoDocumentUri.TryParse(link, out InfoDocumentId? documentId) ||
+                documentId is null ||
+                !TryLoadDocument(documentId, out string documentation))
                 return;
 
-            NavigateToMechanism(mechanism);
+            _internalNavigation.Push(new InternalNavigationEntry(
+                InfoText,
+                _currentDocumentId,
+                _currentDocumentTitle));
+
+            string? title = InfoDocumentCatalog.TryGet(
+                documentId,
+                out InfoDocumentCatalogEntry? entry)
+                ? entry!.DisplayTitle
+                : null;
+            ShowDocument(documentation, documentId, title);
+            OnInternalNavigationChanged();
         }
 
-        private static bool TryGetMechanismFromInternalLink(string link, out string mechanism)
+        private bool TryLoadDocument(
+            InfoDocumentId documentId,
+            out string documentation)
         {
-            mechanism = string.Empty;
-            if (!Uri.TryCreate(link, UriKind.Absolute, out Uri? uri) ||
-                !uri.Scheme.Equals(InternalLinkScheme, StringComparison.Ordinal) ||
-                !uri.Host.Equals(MechanismLinkHost, StringComparison.Ordinal) ||
-                !string.IsNullOrEmpty(uri.UserInfo) ||
-                !uri.IsDefaultPort ||
-                !string.IsNullOrEmpty(uri.Query) ||
-                !string.IsNullOrEmpty(uri.Fragment))
+            try
             {
+                return _documentationProvider.TryGetDocument(
+                    documentId,
+                    out documentation);
+            }
+            catch (IOException)
+            {
+                documentation = string.Empty;
                 return false;
             }
-
-            string path = Uri.UnescapeDataString(uri.AbsolutePath).Trim('/');
-            if (string.IsNullOrEmpty(path) || path.Contains('/') ||
-                !link.Equals(
-                    $"{InternalLinkScheme}://{MechanismLinkHost}/{Uri.EscapeDataString(path)}",
-                    StringComparison.Ordinal))
+            catch (UnauthorizedAccessException)
+            {
+                documentation = string.Empty;
                 return false;
-
-            mechanism = path;
-            return true;
+            }
         }
 
-        private void ShowMechanisms()
+        private void NavigateBack()
         {
-            if (_mechanismsOverview == null || !IsInternalMechanismDetail)
+            if (_internalNavigation.Count == 0)
                 return;
 
-            InfoText = AddInternalMechanismLinks(_mechanismsOverview);
-            IsInternalMechanismDetail = false;
+            InternalNavigationEntry previous = _internalNavigation.Pop();
+            InfoText = previous.Markdown;
+            _currentDocumentId = previous.DocumentId;
+            _currentDocumentTitle = previous.Title;
+            OnInternalNavigationChanged();
         }
 
         private void OnHistoryChanged(object? sender, string entry)
@@ -140,13 +138,29 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         {
             if (IsMechanismsOverview(text))
             {
-                _mechanismsOverview = text;
                 InfoText = AddInternalMechanismLinks(text);
+                _currentDocumentId = InfoDocumentId.CreateMechanismsOverview();
+                _currentDocumentTitle = InfoDocumentCatalog.TryGet(
+                    _currentDocumentId,
+                    out InfoDocumentCatalogEntry? entry)
+                    ? entry!.DisplayTitle
+                    : null;
                 return;
             }
 
-            _mechanismsOverview = null;
             InfoText = text;
+        }
+
+        private void ShowDocument(
+            string markdown,
+            InfoDocumentId documentId,
+            string? title)
+        {
+            InfoText = documentId.Kind == InfoDocumentKind.MechanismsOverview
+                ? AddInternalMechanismLinks(markdown)
+                : markdown;
+            _currentDocumentId = documentId;
+            _currentDocumentTitle = title;
         }
 
         private bool IsMechanismsOverview(string text) =>
@@ -186,18 +200,35 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 return line;
 
             string mechanism = line[prefix.Length..separatorIndex];
-            if (!_documentationProvider.HasDocumentation(mechanism))
+            if (!MechanismRegistry.TryGet(mechanism, out _))
                 return line;
 
-            string link = $"{InternalLinkScheme}://{MechanismLinkHost}/{Uri.EscapeDataString(mechanism)}";
+            InfoDocumentId documentId = InfoDocumentId.CreateMechanism(mechanism);
+            if (!_documentationProvider.HasDocument(documentId))
+                return line;
+
+            string link = InfoDocumentUri.ToCanonicalString(documentId);
             return $"- [{mechanism}]({link}){line[separatorIndex..]}";
         }
 
         private void EndInternalNavigation()
         {
-            IsInternalMechanismDetail = false;
-            _mechanismsOverview = null;
+            _internalNavigation.Clear();
+            _currentDocumentId = null;
+            _currentDocumentTitle = null;
+            OnInternalNavigationChanged();
         }
+
+        private void OnInternalNavigationChanged()
+        {
+            RaisePropertyChanged(nameof(CanNavigateBack));
+            NavigateBackCommand.RaiseCanExecuteChanged();
+        }
+
+        private sealed record InternalNavigationEntry(
+            string Markdown,
+            InfoDocumentId? DocumentId,
+            string? Title);
 
         public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 
