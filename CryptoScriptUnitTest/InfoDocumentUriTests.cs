@@ -1,4 +1,5 @@
 using CryptoScript.Documentation;
+using CryptoScript.Model;
 using FluentAssertions;
 using System.Reflection;
 
@@ -18,8 +19,17 @@ public class InfoDocumentUriTests
             InfoDocumentId.CreateParametersOverview(),
             "cryptoscript-info://overview/parameters");
         yield return DocumentCase(
+            InfoDocumentId.CreatePaddingsOverview(),
+            "cryptoscript-info://overview/paddings");
+        yield return DocumentCase(
             InfoDocumentId.CreateMechanism("AES-CBC"),
             "cryptoscript-info://mechanism/AES-CBC");
+        foreach (PaddingDefinition padding in PaddingRegistry.Entries)
+        {
+            yield return DocumentCase(
+                InfoDocumentId.CreatePadding(padding.CanonicalName),
+                $"cryptoscript-info://padding/{padding.CanonicalName}");
+        }
         yield return DocumentCase(
             InfoDocumentId.CreateFunction("Encrypt"),
             "cryptoscript-info://function/Encrypt");
@@ -38,16 +48,19 @@ public class InfoDocumentUriTests
             InfoDocumentId Document,
             InfoDocumentKind Kind,
             string? Mechanism,
+            string? Padding,
             string? Function,
             string? Parameter)[]
         {
-            (InfoDocumentId.CreateMechanismsOverview(), InfoDocumentKind.MechanismsOverview, null, null, null),
-            (InfoDocumentId.CreateFunctionsOverview(), InfoDocumentKind.FunctionsOverview, null, null, null),
-            (InfoDocumentId.CreateParametersOverview(), InfoDocumentKind.ParametersOverview, null, null, null),
-            (InfoDocumentId.CreateMechanism("AES-CBC"), InfoDocumentKind.Mechanism, "AES-CBC", null, null),
-            (InfoDocumentId.CreateFunction("Encrypt"), InfoDocumentKind.Function, null, "Encrypt", null),
-            (InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC"), InfoDocumentKind.MechanismFunction, "AES-CBC", "Encrypt", null),
-            (InfoDocumentId.CreateMechanismParameter("AES-CBC", "IV"), InfoDocumentKind.MechanismParameter, "AES-CBC", null, "IV")
+            (InfoDocumentId.CreateMechanismsOverview(), InfoDocumentKind.MechanismsOverview, null, null, null, null),
+            (InfoDocumentId.CreateFunctionsOverview(), InfoDocumentKind.FunctionsOverview, null, null, null, null),
+            (InfoDocumentId.CreateParametersOverview(), InfoDocumentKind.ParametersOverview, null, null, null, null),
+            (InfoDocumentId.CreatePaddingsOverview(), InfoDocumentKind.PaddingsOverview, null, null, null, null),
+            (InfoDocumentId.CreateMechanism("AES-CBC"), InfoDocumentKind.Mechanism, "AES-CBC", null, null, null),
+            (InfoDocumentId.CreatePadding("PKCS-7"), InfoDocumentKind.Padding, null, "PKCS-7", null, null),
+            (InfoDocumentId.CreateFunction("Encrypt"), InfoDocumentKind.Function, null, null, "Encrypt", null),
+            (InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC"), InfoDocumentKind.MechanismFunction, "AES-CBC", null, "Encrypt", null),
+            (InfoDocumentId.CreateMechanismParameter("AES-CBC", "IV"), InfoDocumentKind.MechanismParameter, "AES-CBC", null, null, "IV")
         };
 
         foreach (var item in expected)
@@ -56,8 +69,24 @@ public class InfoDocumentUriTests
             {
                 item.Document.Kind.Should().Be(item.Kind);
                 item.Document.Mechanism.Should().Be(item.Mechanism);
+                item.Document.Padding.Should().Be(item.Padding);
                 item.Document.Function.Should().Be(item.Function);
                 item.Document.Parameter.Should().Be(item.Parameter);
+            });
+        }
+    }
+
+    [Test]
+    public void CreatesCanonicalPaddingIdentityForEveryRegisteredPadding()
+    {
+        foreach (PaddingDefinition padding in PaddingRegistry.Entries)
+        {
+            InfoDocumentId document = InfoDocumentId.CreatePadding(padding.CanonicalName);
+
+            Assert.Multiple(() =>
+            {
+                document.Kind.Should().Be(InfoDocumentKind.Padding);
+                document.Padding.Should().Be(padding.CanonicalName);
             });
         }
     }
@@ -70,6 +99,21 @@ public class InfoDocumentUriTests
         typeof(InfoDocumentId).GetProperties()
             .Select(property => property.SetMethod)
             .Should().OnlyContain(setter => setter == null);
+    }
+
+    [Test]
+    public void PreservesExistingDocumentKindNumericValues()
+    {
+        Assert.Multiple(() =>
+        {
+            ((int)InfoDocumentKind.MechanismsOverview).Should().Be(0);
+            ((int)InfoDocumentKind.FunctionsOverview).Should().Be(1);
+            ((int)InfoDocumentKind.ParametersOverview).Should().Be(2);
+            ((int)InfoDocumentKind.Mechanism).Should().Be(3);
+            ((int)InfoDocumentKind.Function).Should().Be(4);
+            ((int)InfoDocumentKind.MechanismFunction).Should().Be(5);
+            ((int)InfoDocumentKind.MechanismParameter).Should().Be(6);
+        });
     }
 
     [Test]
@@ -101,6 +145,16 @@ public class InfoDocumentUriTests
             InfoDocumentId.CreateMechanismFunction("Encrypt", mechanism!));
         Assert.Catch<ArgumentException>(() =>
             InfoDocumentId.CreateMechanismParameter(mechanism!, "IV"));
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase(" ")]
+    [TestCase("pkcs-7")]
+    [TestCase("UNKNOWN")]
+    public void RejectsMissingUnknownOrNonCanonicalPaddings(string? padding)
+    {
+        Assert.Catch<ArgumentException>(() => InfoDocumentId.CreatePadding(padding!));
     }
 
     [TestCase(null)]
@@ -204,6 +258,7 @@ public class InfoDocumentUriTests
     }
 
     [TestCase("cryptoscript-info://mechanism/UNKNOWN")]
+    [TestCase("cryptoscript-info://padding/UNKNOWN")]
     [TestCase("cryptoscript-info://parameter/AES-CBC/UNKNOWN")]
     [TestCase("cryptoscript-info://parameter/UNKNOWN/IV")]
     public void RejectsUrisWithUnknownRegistryNames(string uri)
@@ -219,6 +274,8 @@ public class InfoDocumentUriTests
     [TestCase("CRYPTOSCRIPT-INFO://mechanism/AES-CBC")]
     [TestCase("cryptoscript-info://MECHANISM/AES-CBC")]
     [TestCase("cryptoscript-info://mechanism/aes-cbc")]
+    [TestCase("cryptoscript-info://padding/pkcs-7")]
+    [TestCase("cryptoscript-info://padding/PKCS-7/extra")]
     [TestCase("cryptoscript-info://function/encrypt")]
     [TestCase("cryptoscript-info://parameter/AES-CBC/iv")]
     [TestCase("cryptoscript-info://overview/Mechanisms")]

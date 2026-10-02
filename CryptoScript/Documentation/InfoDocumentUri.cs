@@ -13,8 +13,11 @@ public static class InfoDocumentUri
             InfoDocumentKind.MechanismsOverview => $"{Scheme}://overview/mechanisms",
             InfoDocumentKind.FunctionsOverview => $"{Scheme}://overview/functions",
             InfoDocumentKind.ParametersOverview => $"{Scheme}://overview/parameters",
+            InfoDocumentKind.PaddingsOverview => $"{Scheme}://overview/paddings",
             InfoDocumentKind.Mechanism =>
                 $"{Scheme}://mechanism/{Escape(documentId.Mechanism!)}",
+            InfoDocumentKind.Padding =>
+                $"{Scheme}://padding/{Escape(documentId.Padding!)}",
             InfoDocumentKind.Function =>
                 $"{Scheme}://function/{Escape(documentId.Function!)}",
             InfoDocumentKind.MechanismFunction =>
@@ -51,8 +54,12 @@ public static class InfoDocumentUri
                     InfoDocumentId.CreateFunctionsOverview(),
                 "overview" when segments is ["parameters"] =>
                     InfoDocumentId.CreateParametersOverview(),
+                "overview" when segments is ["paddings"] =>
+                    InfoDocumentId.CreatePaddingsOverview(),
                 "mechanism" when segments is [var mechanism] =>
                     InfoDocumentId.CreateMechanism(mechanism),
+                "padding" when segments is [var padding] =>
+                    InfoDocumentId.CreatePadding(padding),
                 "function" when segments is [var function] =>
                     InfoDocumentId.CreateFunction(function),
                 "function" when segments is [var function, var mechanism] =>

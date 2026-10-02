@@ -10,7 +10,9 @@ public enum InfoDocumentKind
     Mechanism,
     Function,
     MechanismFunction,
-    MechanismParameter
+    MechanismParameter,
+    PaddingsOverview,
+    Padding
 }
 
 public sealed record InfoDocumentId
@@ -18,17 +20,20 @@ public sealed record InfoDocumentId
     private InfoDocumentId(
         InfoDocumentKind kind,
         string? mechanism = null,
+        string? padding = null,
         string? function = null,
         string? parameter = null)
     {
         Kind = kind;
         Mechanism = mechanism;
+        Padding = padding;
         Function = function;
         Parameter = parameter;
     }
 
     public InfoDocumentKind Kind { get; }
     public string? Mechanism { get; }
+    public string? Padding { get; }
     public string? Function { get; }
     public string? Parameter { get; }
 
@@ -41,8 +46,14 @@ public sealed record InfoDocumentId
     public static InfoDocumentId CreateParametersOverview() =>
         new(InfoDocumentKind.ParametersOverview);
 
+    public static InfoDocumentId CreatePaddingsOverview() =>
+        new(InfoDocumentKind.PaddingsOverview);
+
     public static InfoDocumentId CreateMechanism(string mechanism) =>
         new(InfoDocumentKind.Mechanism, mechanism: RequireMechanism(mechanism));
+
+    public static InfoDocumentId CreatePadding(string padding) =>
+        new(InfoDocumentKind.Padding, padding: RequirePadding(padding));
 
     public static InfoDocumentId CreateFunction(string function) =>
         new(InfoDocumentKind.Function, function: RequireFunction(function));
@@ -70,6 +81,19 @@ public sealed record InfoDocumentId
         }
 
         return mechanism;
+    }
+
+    private static string RequirePadding(string padding)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(padding);
+        if (!PaddingRegistry.TryGet(padding, out _))
+        {
+            throw new ArgumentException(
+                $"Unknown or non-canonical padding '{padding}'.",
+                nameof(padding));
+        }
+
+        return padding;
     }
 
     private static string RequireFunction(string function)
