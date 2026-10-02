@@ -228,6 +228,25 @@ namespace CryptoScriptUnitTest
                 ptVarByte.Take(ptVarByte.Length).Should().Equal(ptxPlusAb);
         }
 
+        [Test]
+        public void AES_CBC_Iso9797M1_EmptyInput_EncryptsOneZeroBlockAndDecryptRetainsIt()
+        {
+            const string input =
+                "KEY k=GenerateKey(AES-CBC,0x(2B7E151628AED2A6ABF7158809CF4F3C)) " +
+                "PARAM p=Parameters(#MECH:AES-CBC,#IV:0x(000102030405060708090A0B0C0D0E0F),#PAD:ISO-9797-M1) " +
+                "VAR c=Encrypt(p,k,\"\") VAR clear=Decrypt(p,k,c)";
+
+            var parser = ParserBuilder.StringBuild(input);
+            var result = new CryptoScriptRunner().Execute(parser.program());
+
+            result.Statements[2].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+                .Should().BeEquivalentTo("0x(50FE67CC996D32B6DA0937E99BAFEC60)",
+                    options => options.IgnoringCase());
+            result.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+                .Should().BeEquivalentTo("0x(00000000000000000000000000000000)",
+                    options => options.IgnoringCase());
+        }
+
     }
 }
 

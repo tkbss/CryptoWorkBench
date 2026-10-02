@@ -53,10 +53,10 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
-        public void DES3_RETAIL_M1_RejectsEmptyMessage()
+        public void DES3_RETAIL_M1_EmptyMessage_UsesOneZeroBlock()
         {
-            Action act = () => Mac(Key16, string.Empty, "ISO-9797-M1");
-            act.Should().Throw<SemanticErrorException>().Where(e => e.SemanticError!.Message.Contains("non-empty"));
+            Mac(Key16, string.Empty, "ISO-9797-M1")
+                .Should().Be("0x(08D7B4FB629D0885)");
         }
 
         [TestCase("0011223344556677")]
@@ -143,7 +143,7 @@ namespace CryptoScriptUnitTest
             byte[] key = Convert.FromHexString(keyHex);
             byte[] message = Convert.FromHexString(messageHex);
             int length = padding == "ISO-9797-M1"
-                ? ((message.Length + 7) / 8) * 8
+                ? message.Length == 0 ? 8 : ((message.Length + 7) / 8) * 8
                 : ((message.Length + 8) / 8) * 8;
             byte[] padded = new byte[length];
             message.CopyTo(padded, 0);

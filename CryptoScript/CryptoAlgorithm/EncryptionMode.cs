@@ -82,7 +82,9 @@ namespace CryptoScript.CryptoAlgorithm
                     output = iso7816.Pad(input);
                     break;
                 case "iso-9797-m1":
-                    padding = PaddingMode.Zeros;
+                    padding = PaddingMode.None;
+                    var iso9797m1 = new Iso9797M1Padding(blocksize);
+                    output = iso9797m1.Pad(input);
                     break;
                 case "iso-9797-m2":
                     padding = PaddingMode.None;
@@ -129,7 +131,9 @@ namespace CryptoScript.CryptoAlgorithm
                     padding = PaddingMode.None;                    
                     break;
                 case "iso-9797-m1":
-                    padding = PaddingMode.Zeros;
+                    // Method 1 is not self-describing, so decryption retains all
+                    // zero bytes and does not attempt to remove padding.
+                    padding = PaddingMode.None;
                     break;
                 case "iso-9797-m2":
                     padding = PaddingMode.None;                    

@@ -69,12 +69,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             if (padding.Equals("ISO-9797-M1", StringComparison.OrdinalIgnoreCase))
             {
-                if (input.Length == 0)
-                    throw new ArgumentException("DES3-RETAIL with ISO-9797-M1 requires a non-empty message.");
-                int paddedLength = ((input.Length + BlockSize - 1) / BlockSize) * BlockSize;
-                byte[] output = new byte[paddedLength];
-                Buffer.BlockCopy(input, 0, output, 0, input.Length);
-                return output;
+                return new Iso9797M1Padding(BlockSize).Pad(input);
             }
 
             int m2Length = ((input.Length + 1 + BlockSize - 1) / BlockSize) * BlockSize;

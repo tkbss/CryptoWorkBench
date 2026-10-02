@@ -93,6 +93,26 @@ namespace CryptoScriptUnitTest
                 .Should().BeEquivalentTo(plaintext, options => options.IgnoringCase());
         }
 
+        [TestCase("", "8EBA77C9C788E775", "0000000000000000")]
+        [TestCase("01", "E751A430F8C595C0", "0100000000000000")]
+        [TestCase("0011223344556677", "1CA1818E471562C1", "0011223344556677")]
+        public void DES3_CBC_Iso9797M1_UsesStandardPaddingAndRetainsZeroesOnDecrypt(
+            string plaintextHex, string expectedCiphertextHex, string expectedDecryptedHex)
+        {
+            string plaintext = plaintextHex.Length == 0 ? "\"\"" : $"0x({plaintextHex})";
+            string input =
+                "KEY k=GenerateKey(DES3-CBC,0x(0123456789ABCDEFFEDCBA98765432100011223344556677)) " +
+                "PARAM p=Parameters(#MECH:DES3-CBC,#IV:0x(1234567890ABCDEF),#PAD:ISO-9797-M1) " +
+                $"VAR c=Encrypt(p,k,{plaintext}) VAR clear=Decrypt(p,k,c)";
+
+            var result = Execute(input);
+
+            result.Statements[2].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+                .Should().BeEquivalentTo($"0x({expectedCiphertextHex})", options => options.IgnoringCase());
+            result.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+                .Should().BeEquivalentTo($"0x({expectedDecryptedHex})", options => options.IgnoringCase());
+        }
+
         [Test]
         public void DES3_CBC_RejectsIvThatIsNotEightBytes()
         {

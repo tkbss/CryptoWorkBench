@@ -35,6 +35,7 @@ namespace CryptoScriptUnitTest
 
         [TestCase("ISO-9797-M1", "00112233445566", "0x(6DF9E60DE45A60DB)")]
         [TestCase("ISO-9797-M1", "0011223344556677", "0x(51FB23DC603ADDD1)")]
+        [TestCase("ISO-9797-M1", "", "0x(CBE6A76F9E351C6F)")]
         [TestCase("ISO-9797-M2", "", "0x(8667A2C7C9FA095A)")]
         [TestCase("ISO-9797-M2", "00112233445566", "0x(05D9292D20F1AB44)")]
         [TestCase("ISO-9797-M3", "", "0x(58C371C532D07F22)")]
@@ -92,11 +93,10 @@ namespace CryptoScriptUnitTest
                 .Where(e => e.SemanticError!.Message.Contains("multiple of 8 bytes"));
         }
 
-        [TestCase("NONE")]
-        [TestCase("ISO-9797-M1")]
-        public void DES3_CBC_MAC_EmptyInputWithoutGeneratedBlock_IsRejected(string padding)
+        [Test]
+        public void DES3_CBC_MAC_NoneRejectsEmptyInputBecauseItGeneratesNoBlock()
         {
-            Action act = () => Mac(Key24, string.Empty, padding);
+            Action act = () => Mac(Key24, string.Empty, "NONE");
             act.Should().Throw<SemanticErrorException>()
                 .Where(e => e.SemanticError!.Message.Contains("at least one 8-byte block"));
         }
@@ -138,7 +138,6 @@ namespace CryptoScriptUnitTest
         {
             "PKCS-7" => PaddingMode.PKCS7,
             "ANSI-X923" => PaddingMode.ANSIX923,
-            "ISO-9797-M1" => PaddingMode.Zeros,
             _ => PaddingMode.None
         };
 
