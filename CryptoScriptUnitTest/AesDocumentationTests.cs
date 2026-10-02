@@ -32,11 +32,9 @@ namespace CryptoScriptUnitTest
             string document = File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
                 "InfoDocs", $"Info.Mech.{mechanism}.md"));
             Assert.That(displayed, Is.EqualTo(document));
-            string template = File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-                "InfoDocs", "Info.Mech.AES-CBC.md"));
-            Assert.That(Sections(document), Is.EqualTo(Sections(template)));
-            string examples = string.Join(Environment.NewLine, document.Split('\n')
-                .Where(line => line.StartsWith("KEY ") || line.StartsWith("PARAM ") || line.StartsWith("VAR ")));
+            MechanismDocumentationContract.AssertRequiredSections(document);
+            string examples = MechanismDocumentationContract
+                .ExtractCombinedExecutableExample(document);
             Assert.That(examples, Is.Not.Empty);
             Execute(examples);
 
@@ -73,6 +71,53 @@ namespace CryptoScriptUnitTest
                 Assert.That(Param("p0").GetParameter("PAD"), Is.EqualTo("NONE"));
             if (mechanism == "AES-CTR")
                 Assert.That(Param("p0").GetParameter("COUNTER"), Is.EqualTo("0x(00000000)"));
+        }
+
+        [Test]
+        public void AesCbcInfo_ResolvesDeployedDocumentationAndMatchesSectionContract()
+        {
+            const string mechanism = "AES-CBC";
+            const string fileName = "Info.Mech.AES-CBC.md";
+            string? displayed = null;
+            void Capture(string text) => displayed = text;
+            OutputOperations.InfoEvent += Capture;
+            try { Execute($"Info({mechanism})"); }
+            finally { OutputOperations.InfoEvent -= Capture; }
+
+            string documentationDirectory = Path.Combine(AppContext.BaseDirectory, "InfoDocs");
+            string[] deployedNames = Directory.EnumerateFiles(documentationDirectory)
+                .Select(Path.GetFileName)
+                .OfType<string>()
+                .ToArray();
+            string document = File.ReadAllText(Path.Combine(documentationDirectory, fileName));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(deployedNames.Any(name => string.Equals(
+                        name, fileName, StringComparison.Ordinal)),
+                    Is.True, $"deployed documentation filename must be exactly {fileName}");
+                Assert.That(displayed, Is.EqualTo(document));
+                Assert.That(document, Does.StartWith("# MECHANISM AES-CBC"));
+            });
+            MechanismDocumentationContract.AssertRequiredSections(document);
+        }
+
+        [Test]
+        [Explicit("Blocked by the known invalid #MECH=AES-CBC and PKCS7 example; enable when the AES-CBC Markdown is corrected in the next phase.")]
+        [Category("PendingDocumentationFix")]
+        public void AesCbcDocumentedExamples_Execute()
+        {
+            string document = File.ReadAllText(Path.Combine(
+                AppContext.BaseDirectory, "InfoDocs", "Info.Mech.AES-CBC.md"));
+            IReadOnlyList<string> examples =
+                MechanismDocumentationContract.ExtractExecutableExamples(document);
+
+            Assert.That(examples, Is.Not.Empty);
+            foreach (string example in examples)
+            {
+                VariableDictionary.Instance().Clear();
+                Execute(example);
+            }
         }
 
         [Test]
@@ -181,8 +226,6 @@ namespace CryptoScriptUnitTest
             var value = (StringVariableDeclaration)VariableDictionary.Instance().Get(name);
             return FormatConversions.ToByteArray(value.Value, value.ValueFormat);
         }
-        private static string[] Sections(string document) => document.Split('\n')
-            .Where(line => line.StartsWith("## ")).Select(line => line.Trim()).ToArray();
         private static void Execute(string script)
         {
             var context = ParserBuilder.StringBuild(script).program();

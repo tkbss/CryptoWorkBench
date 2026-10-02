@@ -39,12 +39,10 @@ namespace CryptoScriptUnitTest
             Assert.That(displayed, Is.EqualTo(document));
             Assert.That(document, Does.StartWith($"# MECHANISM {mechanism}"));
 
-            string template = File.ReadAllText(Path.Combine(
-                AppContext.BaseDirectory, "InfoDocs", "Info.Mech.AES-CBC.md"));
-            Assert.That(Sections(document), Is.EqualTo(Sections(template)));
+            MechanismDocumentationContract.AssertRequiredSections(document);
 
-            string examples = string.Join(Environment.NewLine, document.Split('\n')
-                .Where(line => line.StartsWith("KEY ") || line.StartsWith("PARAM ") || line.StartsWith("VAR ")));
+            string examples = MechanismDocumentationContract
+                .ExtractCombinedExecutableExample(document);
             Assert.That(examples, Is.Not.Empty);
             Execute(examples);
 
@@ -123,9 +121,6 @@ namespace CryptoScriptUnitTest
                 Assert.That(recovered.KeySize, Is.EqualTo(original.KeySize));
             });
         }
-
-        private static string[] Sections(string document) => document.Split('\n')
-            .Where(line => line.StartsWith("## ")).Select(line => line.Trim()).ToArray();
 
         private static void Execute(string script)
         {

@@ -42,9 +42,7 @@ public class KdfDocumentationTests
 
         Assert.That(displayed, Is.EqualTo(document));
         Assert.That(document, Does.StartWith($"# MECHANISM {mechanism}"));
-        string template = File.ReadAllText(Path.Combine(
-            AppContext.BaseDirectory, "InfoDocs", "Info.Mech.AES-CBC.md"));
-        Assert.That(Sections(document), Is.EqualTo(Sections(template)));
+        MechanismDocumentationContract.AssertRequiredSections(document);
 
         string examples = ExtractExamples(document);
         Assert.That(examples, Is.Not.Empty);
@@ -160,13 +158,8 @@ public class KdfDocumentationTests
     private static string ReadInfoDocument(string name) =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", name));
 
-    private static string[] Sections(string document) => document.Split('\n')
-        .Where(line => line.StartsWith("## ")).Select(line => line.Trim()).ToArray();
-
     private static string ExtractExamples(string document) =>
-        string.Join(Environment.NewLine, document.Split('\n')
-            .Select(line => line.TrimEnd('\r'))
-            .Where(line => line.StartsWith("KEY ") || line.StartsWith("PARAM ") || line.StartsWith("VAR ")));
+        MechanismDocumentationContract.ExtractCombinedExecutableExample(document);
 
     private static void Execute(string script)
     {
