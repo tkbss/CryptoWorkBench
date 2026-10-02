@@ -72,11 +72,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 return new Iso9797M1Padding(BlockSize).Pad(input);
             }
 
-            int m2Length = ((input.Length + 1 + BlockSize - 1) / BlockSize) * BlockSize;
-            byte[] m2Output = new byte[m2Length];
-            Buffer.BlockCopy(input, 0, m2Output, 0, input.Length);
-            m2Output[input.Length] = 0x80;
-            return m2Output;
+            return new Iso7816Padding(BlockSize).Pad(input);
         }
     }
 }

@@ -22,10 +22,11 @@ public sealed class Iso7816Padding
             throw new ArgumentNullException(nameof(input));
 
         int paddingLength = _blockSize - (input.Length % _blockSize);
-        if (paddingLength == 0)
-            paddingLength = _blockSize;
+        long paddedLength = (long)input.Length + paddingLength;
+        if (paddedLength > int.MaxValue)
+            throw new ArgumentException("Input is too large for ISO7816 padding.", nameof(input));
 
-        byte[] output = new byte[input.Length + paddingLength];
+        byte[] output = new byte[(int)paddedLength];
 
         Buffer.BlockCopy(input, 0, output, 0, input.Length);
         output[input.Length] = 0x80;
@@ -45,13 +46,15 @@ public sealed class Iso7816Padding
         if (input.Length == 0 || input.Length % _blockSize != 0)
             throw new CryptographicException("Invalid ISO7816 padded data length.");
 
+        int firstPaddingIndex = input.Length - _blockSize;
         int index = input.Length - 1;
 
-        // Skip zero bytes
-        while (index >= 0 && input[index] == 0x00)
+        // Canonical padding is at most one block long, so the marker must be
+        // present in the final block.
+        while (index >= firstPaddingIndex && input[index] == 0x00)
             index--;
 
-        if (index < 0 || input[index] != 0x80)
+        if (index < firstPaddingIndex || input[index] != 0x80)
             throw new CryptographicException("Invalid ISO7816 padding.");
 
         byte[] output = new byte[index];

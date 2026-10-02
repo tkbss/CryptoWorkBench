@@ -25,17 +25,6 @@ namespace CryptoScript.CryptoAlgorithm
             return macModes.Contains(mechanism);
             
         }
-       
-        //iso7816 padding   
-        public byte[] ISO7816(byte[] input)
-        {
-            int length = input.Length;
-            int padding = 16 - length % 16;
-            byte[] output = new byte[length + padding];
-            Array.Copy(input, output, length);
-            output[length] = 0x80;
-            return output;
-        }
         public byte[] Unpad(ParameterVariableDeclaration parameter, byte[] input, string fn, int blocksize = 16) 
         {
             byte[] output = input;
