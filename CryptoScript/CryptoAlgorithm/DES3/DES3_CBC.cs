@@ -44,6 +44,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             KeyVariableDeclaration key,
             StringVariableDeclaration data)
         {
+            if (parameter.GetParameter("PAD").Equals("ISO-10126", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("DES3-CBC-MAC does not support ISO-10126 padding.");
+
             byte[] keyBytes = GetValidatedKey(key);
             byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
 

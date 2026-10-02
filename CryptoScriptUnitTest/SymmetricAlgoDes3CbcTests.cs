@@ -93,6 +93,24 @@ namespace CryptoScriptUnitTest
                 .Should().BeEquivalentTo(plaintext, options => options.IgnoringCase());
         }
 
+        [Test]
+        public void DES3_CBC_Iso10126RoundtripReturnsPlaintext()
+        {
+            const string plaintext = "0x(00112233445566778899AABBCC)";
+            const string input =
+                "KEY k=GenerateKey(DES3-CBC,0x(0123456789ABCDEFFEDCBA9876543210)) " +
+                "PARAM p=Parameters(#MECH:DES3-CBC,#IV:0x(1234567890ABCDEF),#PAD:ISO-10126) " +
+                $"VAR c=Encrypt(p,k,{plaintext}) VAR clear=Decrypt(p,k,c)";
+
+            var result = Execute(input);
+
+            FormatConversions.HexStringToByteArray(
+                result.Statements[2].Should().BeOfType<StringVariableDeclaration>().Subject.Value)
+                .Should().HaveCount(16);
+            result.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+                .Should().BeEquivalentTo(plaintext, options => options.IgnoringCase());
+        }
+
         [TestCase("", "8EBA77C9C788E775", "0000000000000000")]
         [TestCase("01", "E751A430F8C595C0", "0100000000000000")]
         [TestCase("0011223344556677", "1CA1818E471562C1", "0011223344556677")]

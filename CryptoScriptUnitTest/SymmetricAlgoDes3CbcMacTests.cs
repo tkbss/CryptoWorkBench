@@ -59,6 +59,7 @@ namespace CryptoScriptUnitTest
         [TestCase(Key24, "00112233445566", "ISO-7816")]
         [TestCase(Key24, "0011223344556677", "ISO-7816")]
         [TestCase(Key24, "", "ISO-7816")]
+        [TestCase(Key24, "00112233445566", "TLS-CBC")]
         public void DES3_CBC_MAC_SupportedDeterministicPadding_MatchesIndependentCbcEncryption(
             string key, string message, string padding)
         {
@@ -102,6 +103,16 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
+        public void DES3_CBC_MAC_RejectsIso10126Padding()
+        {
+            Action act = () => Mac(Key24, "00112233445566", "ISO-10126");
+
+            act.Should().Throw<SemanticErrorException>()
+                .Where(e => e.SemanticError!.Message.Contains(
+                    "DES3-CBC-MAC does not support ISO-10126 padding."));
+        }
+
+        [Test]
         public void DES3_CBC_MAC_AlwaysUsesZeroIv()
         {
             Mac(Key24, "0011223344556677", "NONE", iv: "FFFFFFFFFFFFFFFF").Should()
@@ -124,6 +135,8 @@ namespace CryptoScriptUnitTest
             byte[] input = Convert.FromHexString(messageHex);
             if (customPadding is "ISO-7816" or "ISO-9797-M2")
                 input = PadIso7816(input);
+            else if (customPadding == "TLS-CBC")
+                input = PadTlsCbc(input);
 
             using TripleDES des3 = TripleDES.Create();
             des3.Mode = CipherMode.CBC;
@@ -146,6 +159,16 @@ namespace CryptoScriptUnitTest
             byte[] output = new byte[((input.Length + 1 + 7) / 8) * 8];
             Buffer.BlockCopy(input, 0, output, 0, input.Length);
             output[input.Length] = 0x80;
+            return output;
+        }
+
+        private static byte[] PadTlsCbc(byte[] input)
+        {
+            int paddingLength = 8 - input.Length % 8;
+            byte paddingValue = (byte)(paddingLength - 1);
+            byte[] output = new byte[input.Length + paddingLength];
+            Buffer.BlockCopy(input, 0, output, 0, input.Length);
+            Array.Fill(output, paddingValue, input.Length, paddingLength);
             return output;
         }
 

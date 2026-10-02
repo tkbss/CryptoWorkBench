@@ -66,6 +66,7 @@ namespace CryptoScriptUnitTest
 
         [TestCase("PKCS-7")]
         [TestCase("ANSI-X923")]
+        [TestCase("ISO-10126")]
         [TestCase("ISO-7816")]
         [TestCase("ISO-9797-M2")]
         [TestCase("ISO-9797-M3")]
