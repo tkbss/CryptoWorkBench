@@ -7,8 +7,12 @@ public sealed class TlsCbcPadding
 
     public TlsCbcPadding(int blockSizeBytes)
     {
-        if (blockSizeBytes <= 0)
-            throw new ArgumentOutOfRangeException(nameof(blockSizeBytes));
+        if (blockSizeBytes is < 1 or > 256)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(blockSizeBytes),
+                "TLS-CBC block size must be between 1 and 256 bytes.");
+        }
 
         _blockSizeBytes = blockSizeBytes;
     }
@@ -36,7 +40,11 @@ public sealed class TlsCbcPadding
 
         byte padByte = (byte)(paddingLen - 1);
 
-        byte[] output = new byte[input.Length + paddingLen];
+        long paddedLength = (long)input.Length + paddingLen;
+        if (paddedLength > int.MaxValue)
+            throw new ArgumentException("Input is too large for TLS-CBC padding.", nameof(input));
+
+        byte[] output = new byte[(int)paddedLength];
         Buffer.BlockCopy(input, 0, output, 0, input.Length);
 
         for (int i = input.Length; i < output.Length; i++)
