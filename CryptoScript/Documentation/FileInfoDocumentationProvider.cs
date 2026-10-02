@@ -9,8 +9,7 @@ public sealed class FileInfoDocumentationProvider : IInfoDocumentationProvider
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["types"] = "Info.Types.md",
-            ["keymap"] = "Info.Keymap.md",
-            ["paddings"] = "Info.Paddings.md"
+            ["keymap"] = "Info.Keymap.md"
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
     private readonly string _infoDocsDirectory;
@@ -77,6 +76,7 @@ public sealed class FileInfoDocumentationProvider : IInfoDocumentationProvider
             "functions" => InfoDocumentId.CreateFunctionsOverview(),
             "mechanisms" => InfoDocumentId.CreateMechanismsOverview(),
             "parameters" => InfoDocumentId.CreateParametersOverview(),
+            "paddings" => InfoDocumentId.CreatePaddingsOverview(),
             _ => null
         };
 

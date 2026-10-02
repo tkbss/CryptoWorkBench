@@ -16,14 +16,14 @@ public class InfoDocumentationProviderTests
     {
         ("functions", InfoDocumentId.CreateFunctionsOverview(), "Info.Functions.md"),
         ("mechanisms", InfoDocumentId.CreateMechanismsOverview(), "Info.Mechanisms.md"),
-        ("parameters", InfoDocumentId.CreateParametersOverview(), "Info.Parameters.md")
+        ("parameters", InfoDocumentId.CreateParametersOverview(), "Info.Parameters.md"),
+        ("paddings", InfoDocumentId.CreatePaddingsOverview(), "Info.Paddings.md")
     };
 
     private static readonly (string Key, string FileName)[] LegacyOverviews =
     {
         ("types", "Info.Types.md"),
-        ("keymap", "Info.Keymap.md"),
-        ("paddings", "Info.Paddings.md")
+        ("keymap", "Info.Keymap.md")
     };
 
     private readonly IInfoDocumentationProvider _sut = new FileInfoDocumentationProvider();
@@ -150,6 +150,40 @@ public class InfoDocumentationProviderTests
             sut.HasDocument(documentId).Should().BeTrue();
             Action read = () => sut.TryGetDocument(documentId, out _);
             read.Should().Throw<FileNotFoundException>();
+        }
+        finally
+        {
+            Directory.Delete(baseDirectory, recursive: true);
+        }
+    }
+
+    [Test]
+    public void PaddingDetailIdentitiesAreCataloguedButMissingFilesStillThrow()
+    {
+        string baseDirectory = Path.Combine(
+            Path.GetTempPath(), $"padding-provider-test-{Guid.NewGuid():N}");
+        string infoDocsDirectory = Path.Combine(baseDirectory, "InfoDocs");
+        Directory.CreateDirectory(infoDocsDirectory);
+
+        try
+        {
+            var sut = new FileInfoDocumentationProvider(baseDirectory);
+
+            foreach (PaddingDefinition padding in PaddingRegistry.Entries)
+            {
+                InfoDocumentId documentId = InfoDocumentId.CreatePadding(padding.CanonicalName);
+                InfoDocumentCatalog.TryGet(documentId, out InfoDocumentCatalogEntry? entry)
+                    .Should().BeTrue(padding.CanonicalName);
+                entry!.MarkdownFileName.Should()
+                    .Be($"Info.Padding.{padding.CanonicalName}.md");
+                sut.HasDocument(documentId).Should().BeTrue(padding.CanonicalName);
+
+                Action read = () => sut.TryGetDocument(documentId, out _);
+                read.Should().Throw<FileNotFoundException>()
+                    .Where(exception => exception.FileName != null &&
+                        Path.GetFileName(exception.FileName)
+                            .Equals(entry.MarkdownFileName, StringComparison.Ordinal));
+            }
         }
         finally
         {

@@ -63,8 +63,20 @@ public static class InfoDocumentCatalog
             new(
                 InfoDocumentId.CreateParametersOverview(),
                 "Info.Parameters.md",
-                "Parameters")
+                "Parameters"),
+            new(
+                InfoDocumentId.CreatePaddingsOverview(),
+                "Info.Paddings.md",
+                "Paddings")
         };
+
+        foreach (PaddingDefinition padding in PaddingRegistry.Entries)
+        {
+            entries.Add(new InfoDocumentCatalogEntry(
+                InfoDocumentId.CreatePadding(padding.CanonicalName),
+                $"Info.Padding.{padding.CanonicalName}.md",
+                padding.CanonicalName));
+        }
 
         foreach (MechanismRegistryEntry mechanism in MechanismRegistry.Entries)
         {
@@ -128,8 +140,11 @@ public static class InfoDocumentCatalog
             InfoDocumentKind.MechanismsOverview => "Info.Mechanisms.md",
             InfoDocumentKind.FunctionsOverview => "Info.Functions.md",
             InfoDocumentKind.ParametersOverview => "Info.Parameters.md",
+            InfoDocumentKind.PaddingsOverview => "Info.Paddings.md",
             InfoDocumentKind.Mechanism =>
                 $"Info.Mech.{documentId.Mechanism}.md",
+            InfoDocumentKind.Padding =>
+                $"Info.Padding.{documentId.Padding}.md",
             InfoDocumentKind.Function =>
                 $"Info.Func.{documentId.Function}.md",
             InfoDocumentKind.MechanismFunction =>

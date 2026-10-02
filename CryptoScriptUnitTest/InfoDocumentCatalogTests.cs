@@ -8,13 +8,14 @@ namespace CryptoScriptUnitTest;
 public class InfoDocumentCatalogTests
 {
     [Test]
-    public void ContainsTheThreeOverviewDocuments()
+    public void ContainsTheFourOverviewDocumentsExactlyOnce()
     {
         var expected = new[]
         {
             (InfoDocumentId.CreateMechanismsOverview(), "Info.Mechanisms.md", "Mechanisms"),
             (InfoDocumentId.CreateFunctionsOverview(), "Info.Functions.md", "Functions"),
-            (InfoDocumentId.CreateParametersOverview(), "Info.Parameters.md", "Parameters")
+            (InfoDocumentId.CreateParametersOverview(), "Info.Parameters.md", "Parameters"),
+            (InfoDocumentId.CreatePaddingsOverview(), "Info.Paddings.md", "Paddings")
         };
 
         foreach (var (documentId, fileName, displayTitle) in expected)
@@ -28,6 +29,39 @@ public class InfoDocumentCatalogTests
                 entry!.DocumentId.Should().Be(documentId);
                 entry.MarkdownFileName.Should().Be(fileName);
                 entry.DisplayTitle.Should().Be(displayTitle);
+                InfoDocumentCatalog.Entries.Count(candidate => candidate.DocumentId == documentId)
+                    .Should().Be(1);
+            });
+        }
+    }
+
+    [Test]
+    public void ContainsExactlyTheRegistryPaddingDocuments()
+    {
+        InfoDocumentCatalogEntry[] paddingDocuments = InfoDocumentCatalog.Entries
+            .Where(entry => entry.DocumentId.Kind == InfoDocumentKind.Padding)
+            .ToArray();
+
+        Assert.Multiple(() =>
+        {
+            paddingDocuments.Should().HaveCount(PaddingRegistry.Entries.Count);
+            paddingDocuments.Select(entry => entry.DocumentId.Padding)
+                .Should().Equal(PaddingRegistry.Entries.Select(entry => entry.CanonicalName));
+        });
+
+        foreach (PaddingDefinition padding in PaddingRegistry.Entries)
+        {
+            InfoDocumentId documentId = InfoDocumentId.CreatePadding(padding.CanonicalName);
+            bool found = InfoDocumentCatalog.TryGet(documentId, out InfoDocumentCatalogEntry? entry);
+
+            Assert.Multiple(() =>
+            {
+                found.Should().BeTrue(padding.CanonicalName);
+                entry.Should().NotBeNull();
+                entry!.DocumentId.Should().Be(documentId);
+                entry.DocumentId.Padding.Should().Be(padding.CanonicalName);
+                entry.MarkdownFileName.Should().Be($"Info.Padding.{padding.CanonicalName}.md");
+                entry.DisplayTitle.Should().Be(padding.CanonicalName);
             });
         }
     }
@@ -44,7 +78,8 @@ public class InfoDocumentCatalogTests
             mechanismDocuments.Should().HaveCount(47);
             mechanismDocuments.Select(entry => entry.DocumentId.Mechanism)
                 .Should().Equal(MechanismRegistry.Entries.Select(entry => entry.CanonicalName));
-            InfoDocumentCatalog.Entries.Should().HaveCount(MechanismRegistry.Entries.Count + 3);
+            InfoDocumentCatalog.Entries.Should().HaveCount(
+                MechanismRegistry.Entries.Count + PaddingRegistry.Entries.Count + 4);
         });
 
         foreach (MechanismRegistryEntry mechanism in MechanismRegistry.Entries)
@@ -174,7 +209,7 @@ public class InfoDocumentCatalogTests
     }
 
     [Test]
-    public void EveryCatalogFileExistsInTheSourceDirectoryWithExactCasing()
+    public void EveryDeliveredCatalogFileExistsInTheSourceDirectoryWithExactCasing()
     {
         string infoDocsDirectory = FindSourceInfoDocsDirectory();
         HashSet<string> sourceFileNames = Directory
@@ -183,7 +218,42 @@ public class InfoDocumentCatalogTests
             .OfType<string>()
             .ToHashSet(StringComparer.Ordinal);
 
-        foreach (InfoDocumentCatalogEntry entry in InfoDocumentCatalog.Entries)
+        InfoDocumentCatalogEntry[] pendingPaddingDocuments = PaddingRegistry.Entries
+            .Select(padding =>
+            {
+                InfoDocumentId documentId = InfoDocumentId.CreatePadding(padding.CanonicalName);
+                InfoDocumentCatalog.TryGet(documentId, out InfoDocumentCatalogEntry? entry)
+                    .Should().BeTrue(padding.CanonicalName);
+                entry!.DocumentId.Should().Be(documentId);
+                entry.MarkdownFileName.Should().Be($"Info.Padding.{padding.CanonicalName}.md");
+                return entry;
+            })
+            .ToArray();
+
+        Assert.Multiple(() =>
+        {
+            PaddingRegistry.Entries.Should().HaveCount(9);
+            pendingPaddingDocuments.Should().HaveCount(9);
+            InfoDocumentCatalog.Entries
+                .Where(entry => entry.DocumentId.Kind == InfoDocumentKind.Padding)
+                .Should().Equal(pendingPaddingDocuments);
+        });
+
+        // Phase 2.4 must remove this pending-file contract when it adds the detail files.
+        foreach (InfoDocumentCatalogEntry pending in pendingPaddingDocuments)
+        {
+            sourceFileNames.Any(fileName => fileName.Equals(
+                    pending.MarkdownFileName,
+                    StringComparison.OrdinalIgnoreCase))
+                .Should().BeFalse($"{pending.MarkdownFileName} must still be absent in Phase 2.3");
+        }
+
+        HashSet<InfoDocumentId> pendingDocumentIds = pendingPaddingDocuments
+            .Select(entry => entry.DocumentId)
+            .ToHashSet();
+
+        foreach (InfoDocumentCatalogEntry entry in InfoDocumentCatalog.Entries
+            .Where(entry => !pendingDocumentIds.Contains(entry.DocumentId)))
         {
             sourceFileNames.Should().Contain(
                 entry.MarkdownFileName,
