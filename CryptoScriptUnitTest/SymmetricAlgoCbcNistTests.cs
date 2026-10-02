@@ -167,7 +167,21 @@ namespace CryptoScriptUnitTest
                 // Ciphertext = 5 Blöcke = 80 Bytes = 160 Hex-Zeichen (+ 0x())
                 cVar1.Value.Length.Should().Be(("0x()".Length + 160));
 
-            cVarByte.Take(nistCipherByte.Length).Should().Equal(nistCipherByte);            
+            if (pad == "ISO-9797-M3")
+            {
+                // ISO/IEC 9797-1 method 3 prefixes the block-sized bit length, so the
+                // NIST plaintext is no longer the first encrypted block. This fixed
+                // result uses the clause 6.3.4 byte layout and AES-CBC with no padding.
+                cVar1.Value.Should().BeEquivalentTo(
+                    "0x(161982DF6CBD5D84AF3BB5E6B47AEA54D97BB69ADE206AFD434D3DC53E706ADB" +
+                    "BCA1A916C7D20B1C4E154665824217DFF73A17159814676F81274280400E67026" +
+                    "1573E9F0C2617ACAFDAAF6603A6FE4B)",
+                    options => options.IgnoringCase());
+            }
+            else
+            {
+                cVarByte.Take(nistCipherByte.Length).Should().Equal(nistCipherByte);
+            }
             ptVarByte.Take(nistPlainTxtByte.Length).Should().Equal(nistPlainTxtByte);
 
             // ------------------------------------------------------------
@@ -193,8 +207,20 @@ namespace CryptoScriptUnitTest
             cVarByte = FormatConversions.HexStringToByteArray(cVar2.Value);
             ptVarByte = FormatConversions.HexStringToByteArray(ptVar2.Value);
             
-            cVar2.Value.Length.Should().Be(("0x()".Length + 160));
-            cVarByte.Take(nistCipherByte.Length).Should().Equal(nistCipherByte);
+            if (pad == "ISO-9797-M3")
+            {
+                cVar2.Value.Length.Should().Be(("0x()".Length + 192));
+                cVar2.Value.Should().BeEquivalentTo(
+                    "0x(9EC7A192D713A10942C8322AC06FA34DDAEB5DCE0C4D23D9218842FE17A99A89" +
+                    "D0696E84DB2E2E29C4F69F9336980D8383DDB9CEC3A4EE507DB92EEC69562403C" +
+                    "9BBEE6A44F3CCF03915B0ACFF6349DB417BFEC892F7BE1E945C3583ABF8D5D3)",
+                    options => options.IgnoringCase());
+            }
+            else
+            {
+                cVar2.Value.Length.Should().Be(("0x()".Length + 160));
+                cVarByte.Take(nistCipherByte.Length).Should().Equal(nistCipherByte);
+            }
             var ptxPlusAb=FormatConversions.HexStringToByteArray(plaintextPlusAb);
             if(pad == "ISO-9797-M1")
                 ptVarByte.Take(ptxPlusAb.Length).Should().Equal(ptxPlusAb);

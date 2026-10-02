@@ -150,23 +150,7 @@ namespace CryptoScript.CryptoAlgorithm
         }
         public byte[] Iso9797M3(byte[] input, int blockSizeBytes)
         {
-            const int lengthFieldBytes = 8; // 64 Bit
-
-            ulong bitLength = (ulong)input.Length * 8;
-
-            int totalLen = input.Length + lengthFieldBytes;
-            int paddedLen = ((totalLen + blockSizeBytes - 1) / blockSizeBytes) * blockSizeBytes;
-
-            byte[] output = new byte[paddedLen];
-            Buffer.BlockCopy(input, 0, output, 0, input.Length);
-
-            // length field: big endian, unsigned
-            for (int i = 0; i < lengthFieldBytes; i++)
-            {
-                output[paddedLen - 1 - i] = (byte)(bitLength >> (8 * i));
-            }
-
-            return output;
+            return new Iso9797M3Padding(blockSizeBytes).Pad(input);
         }
 
     }

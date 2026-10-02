@@ -37,9 +37,9 @@ namespace CryptoScriptUnitTest
         [TestCase("ISO-9797-M1", "0011223344556677", "0x(51FB23DC603ADDD1)")]
         [TestCase("ISO-9797-M2", "", "0x(8667A2C7C9FA095A)")]
         [TestCase("ISO-9797-M2", "00112233445566", "0x(05D9292D20F1AB44)")]
-        [TestCase("ISO-9797-M3", "", "0x(CBE6A76F9E351C6F)")]
-        [TestCase("ISO-9797-M3", "00112233445566", "0x(22F1C499D6E0FB4B)")]
-        [TestCase("ISO-9797-M3", "0011223344556677", "0x(D7865A42E85E2C3E)")]
+        [TestCase("ISO-9797-M3", "", "0x(58C371C532D07F22)")]
+        [TestCase("ISO-9797-M3", "00112233445566", "0x(898511F97F2ABAB7)")]
+        [TestCase("ISO-9797-M3", "0011223344556677", "0x(7C2B7EDF42766950)")]
         public void DES3_CBC_MAC_Iso9797Padding_MatchesFixedExpectedMac(
             string padding, string message, string expected)
         {
@@ -124,8 +124,6 @@ namespace CryptoScriptUnitTest
             byte[] input = Convert.FromHexString(messageHex);
             if (customPadding is "ISO-7816" or "ISO-9797-M2")
                 input = PadIso7816(input);
-            else if (customPadding == "ISO-9797-M3")
-                input = PadIso9797M3(input);
 
             using TripleDES des3 = TripleDES.Create();
             des3.Mode = CipherMode.CBC;
@@ -149,16 +147,6 @@ namespace CryptoScriptUnitTest
             byte[] output = new byte[((input.Length + 1 + 7) / 8) * 8];
             Buffer.BlockCopy(input, 0, output, 0, input.Length);
             output[input.Length] = 0x80;
-            return output;
-        }
-
-        private static byte[] PadIso9797M3(byte[] input)
-        {
-            byte[] output = new byte[((input.Length + 8 + 7) / 8) * 8];
-            Buffer.BlockCopy(input, 0, output, 0, input.Length);
-            ulong bitLength = (ulong)input.Length * 8;
-            for (int i = 0; i < 8; i++)
-                output[output.Length - 1 - i] = (byte)(bitLength >> (8 * i));
             return output;
         }
 
