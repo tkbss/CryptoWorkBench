@@ -81,9 +81,10 @@ namespace CryptoScript.CryptoAlgorithm
                 aesAlg.IV = iv;
                 PaddingMode padding;
                 byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Decrypt");
-                if (padding == PaddingMode.ISO10126 && input.Length == 0)
+                if (input.Length == 0 &&
+                    padding is PaddingMode.ISO10126 or PaddingMode.ANSIX923)
                     throw new ArgumentException(
-                        "AES-CBC with PAD=ISO-10126 requires ciphertext length to be a non-zero multiple of 16 bytes.");
+                        $"AES-CBC with PAD={parameter.GetParameter("PAD")} requires ciphertext length to be a non-zero multiple of 16 bytes.");
                 aesAlg.Padding = padding;
                 // Create an encryptor to perform the stream transform.
                 using (ICryptoTransform encryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV))
