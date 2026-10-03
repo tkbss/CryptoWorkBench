@@ -82,7 +82,7 @@ namespace CryptoScript.CryptoAlgorithm
                 PaddingMode padding;
                 byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Decrypt");
                 if (input.Length == 0 &&
-                    padding is PaddingMode.ISO10126 or PaddingMode.ANSIX923)
+                    padding is PaddingMode.ISO10126 or PaddingMode.ANSIX923 or PaddingMode.PKCS7)
                     throw new ArgumentException(
                         $"AES-CBC with PAD={parameter.GetParameter("PAD")} requires ciphertext length to be a non-zero multiple of 16 bytes.");
                 aesAlg.Padding = padding;
