@@ -36,8 +36,6 @@ namespace CryptoScriptUnitTest
         [TestCase("ISO-9797-M1", "00112233445566", "0x(6DF9E60DE45A60DB)")]
         [TestCase("ISO-9797-M1", "0011223344556677", "0x(51FB23DC603ADDD1)")]
         [TestCase("ISO-9797-M1", "", "0x(CBE6A76F9E351C6F)")]
-        [TestCase("ISO-9797-M2", "", "0x(8667A2C7C9FA095A)")]
-        [TestCase("ISO-9797-M2", "00112233445566", "0x(05D9292D20F1AB44)")]
         [TestCase("ISO-9797-M3", "", "0x(58C371C532D07F22)")]
         [TestCase("ISO-9797-M3", "00112233445566", "0x(898511F97F2ABAB7)")]
         [TestCase("ISO-9797-M3", "0011223344556677", "0x(7C2B7EDF42766950)")]
@@ -45,6 +43,17 @@ namespace CryptoScriptUnitTest
             string padding, string message, string expected)
         {
             Mac(Key24, message, padding).Should()
+                .BeEquivalentTo(expected, options => options.IgnoringCase());
+        }
+
+        [TestCase("", "0x(8667A2C7C9FA095A)")]
+        [TestCase("01020304050607", "0x(E6C0B6E700F9E4AB)")]
+        [TestCase("0102030405060708", "0x(2005717B1775295D)")]
+        [TestCase("010203040506070809", "0x(A91E50AA9AA76D58)")]
+        public void DES3_CBC_MAC_M2_BoundariesMatchFixedExpectedMac(
+            string message, string expected)
+        {
+            Mac(Key24, message, "ISO-9797-M2").Should()
                 .BeEquivalentTo(expected, options => options.IgnoringCase());
         }
 

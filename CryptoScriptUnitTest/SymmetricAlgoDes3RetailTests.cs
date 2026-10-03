@@ -45,11 +45,14 @@ namespace CryptoScriptUnitTest
             Mac(Key16, message, padding).Should().Be(ReferenceMac(Key16, message, true, padding));
         }
 
-        [Test]
-        public void DES3_RETAIL_M2_AllowsEmptyMessage()
+        [TestCase("", "0x(F1FBCF2A56D19BA7)")]
+        [TestCase("01020304050607", "0x(4463C63420688B31)")]
+        [TestCase("0102030405060708", "0x(59997D5B782645F9)")]
+        [TestCase("010203040506070809", "0x(A5227242B3A62DC4)")]
+        public void DES3_RETAIL_M2_BoundariesMatchFixedExpectedMac(
+            string message, string expected)
         {
-            Mac(Key16, string.Empty, "ISO-9797-M2")
-                .Should().Be(ReferenceMac(Key16, string.Empty, true, "ISO-9797-M2"));
+            Mac(Key16, message, "ISO-9797-M2").Should().Be(expected);
         }
 
         [Test]
