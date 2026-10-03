@@ -16,7 +16,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             ValidateNoIv(parameter);
             byte[] keyBytes = GetValidatedKey(key);
             byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
-            ValidateNoPaddingAlignment(parameter, dataBytes, "plaintext");
+            ValidateNoPaddingBlockInput(parameter, dataBytes, BlockSizeBytes, "plaintext");
 
             byte[] input = Pad(parameter, out PaddingMode padding, dataBytes, "Encrypt", BlockSizeBytes);
             return CreateResult(Transform(keyBytes, input, padding, encrypt: true));
@@ -30,6 +30,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             ValidateNoIv(parameter);
             byte[] keyBytes = GetValidatedKey(key);
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
+            ValidateNoPaddingBlockInput(parameter, input, BlockSizeBytes, "ciphertext");
             if (input.Length == 0 || input.Length % BlockSizeBytes != 0)
                 throw new ArgumentException("DES3-ECB ciphertext length must be a non-zero multiple of 8 bytes.");
 
@@ -60,16 +61,6 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             if (parameter.GetParameter("IV") != string.Empty)
                 throw new ArgumentException("DES3-ECB does not use an IV.");
-        }
-
-        private static void ValidateNoPaddingAlignment(
-            ParameterVariableDeclaration parameter,
-            byte[] input,
-            string inputName)
-        {
-            if (parameter.GetParameter("PAD").Equals("NONE", StringComparison.OrdinalIgnoreCase) &&
-                input.Length % BlockSizeBytes != 0)
-                throw new ArgumentException($"DES3-ECB with PAD=NONE requires {inputName} length to be a multiple of 8 bytes.");
         }
 
         private static StringVariableDeclaration CreateResult(byte[] value)

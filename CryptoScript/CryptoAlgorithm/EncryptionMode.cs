@@ -50,6 +50,22 @@ namespace CryptoScript.CryptoAlgorithm
             }
             return output;  
         }
+
+        protected static void ValidateNoPaddingBlockInput(
+            ParameterVariableDeclaration parameter,
+            byte[] input,
+            int blockSize,
+            string inputName)
+        {
+            if (parameter.GetParameter("PAD").Equals("NONE", StringComparison.OrdinalIgnoreCase) &&
+                (input.Length == 0 || input.Length % blockSize != 0))
+            {
+                string mechanism = parameter.GetParameter("MECH").ToUpperInvariant();
+                throw new ArgumentException(
+                    $"{mechanism} with PAD=NONE requires {inputName} length to be a non-zero multiple of {blockSize} bytes.");
+            }
+        }
+
         public byte[] Pad(ParameterVariableDeclaration parameter, out PaddingMode padding, byte[] input, string fn, int blocksize = 16)
         {
             byte[] output = input;

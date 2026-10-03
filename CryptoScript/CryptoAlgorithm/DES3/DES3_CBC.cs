@@ -17,6 +17,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             byte[] ivBytes = GetValidatedIv(parameter);
             byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
 
+            ValidateNoPaddingBlockInput(parameter, dataBytes, BlockSizeBytes, "plaintext");
             byte[] input = Pad(parameter, out PaddingMode padding, dataBytes, "Encrypt", BlockSizeBytes);
             byte[] encrypted = Transform(keyBytes, ivBytes, input, padding, encrypt: true);
             return CreateResult(encrypted);
@@ -30,6 +31,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             byte[] keyBytes = GetValidatedKey(key);
             byte[] ivBytes = GetValidatedIv(parameter);
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
+            ValidateNoPaddingBlockInput(parameter, input, BlockSizeBytes, "ciphertext");
             if (input.Length == 0 || input.Length % BlockSizeBytes != 0)
                 throw new ArgumentException("DES3-CBC ciphertext length must be a non-zero multiple of 8 bytes.");
 

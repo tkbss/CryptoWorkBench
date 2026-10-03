@@ -80,7 +80,9 @@ namespace CryptoScript.CryptoAlgorithm
                 //set iv
                 aesAlg.IV = iv;
                 PaddingMode padding;
-                byte[] input= SetPadding(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Decrypt");
+                byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
+                ValidateNoPaddingBlockInput(parameter, input, 16, "ciphertext");
+                input = SetPadding(parameter,out padding,input,"Decrypt");
                 if (input.Length == 0 &&
                     padding is PaddingMode.ISO10126 or PaddingMode.ANSIX923 or PaddingMode.PKCS7)
                     throw new ArgumentException(
@@ -126,8 +128,10 @@ namespace CryptoScript.CryptoAlgorithm
                 byte[] iv = ValidateAndDecodeIv(parameter.GetParameter("IV"));
                 //set iv
                 aesAlg.IV = iv;
-                PaddingMode padding;                
-                byte[] input= Pad(parameter,out padding,FormatConversions.ToByteArray(data.Value,data.ValueFormat),"Encrypt");
+                PaddingMode padding;
+                byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
+                ValidateNoPaddingBlockInput(parameter, dataBytes, 16, "plaintext");
+                byte[] input= Pad(parameter,out padding,dataBytes,"Encrypt");
                 aesAlg.Padding = padding;
                 // Create an encryptor to perform the stream transform.
                 using (ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV))
