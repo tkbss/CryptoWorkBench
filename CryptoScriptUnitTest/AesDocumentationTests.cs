@@ -103,8 +103,6 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
-        [Explicit("Blocked by the known invalid #MECH=AES-CBC and PKCS7 example; enable when the AES-CBC Markdown is corrected in the next phase.")]
-        [Category("PendingDocumentationFix")]
         public void AesCbcDocumentedExamples_Execute()
         {
             string document = File.ReadAllText(Path.Combine(

@@ -219,6 +219,7 @@ public class InfoDocumentCatalogTests
             .ToHashSet(StringComparer.Ordinal);
 
         InfoDocumentCatalogEntry[] pendingPaddingDocuments = PaddingRegistry.Entries
+            .Where(padding => padding.CanonicalName is not ("NONE" or "PKCS-7"))
             .Select(padding =>
             {
                 InfoDocumentId documentId = InfoDocumentId.CreatePadding(padding.CanonicalName);
@@ -233,19 +234,21 @@ public class InfoDocumentCatalogTests
         Assert.Multiple(() =>
         {
             PaddingRegistry.Entries.Should().HaveCount(9);
-            pendingPaddingDocuments.Should().HaveCount(9);
+            pendingPaddingDocuments.Should().HaveCount(7);
+            pendingPaddingDocuments.Select(entry => entry.DocumentId.Padding)
+                .Should().NotContain(new[] { "NONE", "PKCS-7" });
             InfoDocumentCatalog.Entries
                 .Where(entry => entry.DocumentId.Kind == InfoDocumentKind.Padding)
-                .Should().Equal(pendingPaddingDocuments);
+                .Should().HaveCount(9);
         });
 
-        // Phase 2.4 must remove this pending-file contract when it adds the detail files.
+        // Padding detail pages leave this set as they are delivered.
         foreach (InfoDocumentCatalogEntry pending in pendingPaddingDocuments)
         {
             sourceFileNames.Any(fileName => fileName.Equals(
                     pending.MarkdownFileName,
                     StringComparison.OrdinalIgnoreCase))
-                .Should().BeFalse($"{pending.MarkdownFileName} must still be absent in Phase 2.3");
+                .Should().BeFalse($"{pending.MarkdownFileName} is not delivered yet");
         }
 
         HashSet<InfoDocumentId> pendingDocumentIds = pendingPaddingDocuments

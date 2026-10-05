@@ -269,7 +269,7 @@ public static class MechanismRegistry
             Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
                 "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
             Argument("data", true, new[] { MechanismParameterDataType.Data },
-                "Plaintext variable or literal.", "With #PAD:NONE, length must be a multiple of 16 bytes."),
+                "Plaintext variable or literal.", "With #PAD:NONE, length must be a non-zero multiple of 16 bytes."),
         }.Concat(AesCbcConsumedParameters),
             AdditionalNamedParameterHandling.IgnoreStored),
         new(CryptoScriptFunction.Decrypt, new[]
@@ -279,7 +279,7 @@ public static class MechanismRegistry
             Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
                 "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
             Argument("data", true, new[] { MechanismParameterDataType.Data },
-                "Ciphertext variable or literal.", "Length must be a multiple of 16 bytes."),
+                "Ciphertext variable or literal.", "With #PAD:NONE, length must be a non-zero multiple of 16 bytes; otherwise length must be a multiple of 16 bytes."),
         }.Concat(AesCbcConsumedParameters),
             AdditionalNamedParameterHandling.IgnoreStored)
     };

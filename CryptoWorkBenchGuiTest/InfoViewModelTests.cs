@@ -12,6 +12,8 @@ public class InfoViewModelTests
     private const string AesCbc = "# MECHANISM AES-CBC\nDocumentation";
     private const string Functions = "# Functions";
     private const string Parameters = "# Parameters";
+    private const string NonePadding = "# PADDING NONE\nDocumentation";
+    private const string Pkcs7Padding = "# PADDING PKCS-7\nDocumentation";
     private const string Encrypt = "# Encrypt";
     private const string EncryptAesCbc = "# Encrypt with AES-CBC";
     private const string AesCbcIv = "# AES-CBC parameter IV";
@@ -19,6 +21,8 @@ public class InfoViewModelTests
     private static readonly InfoDocumentId MechanismsId = InfoDocumentId.CreateMechanismsOverview();
     private static readonly InfoDocumentId FunctionsId = InfoDocumentId.CreateFunctionsOverview();
     private static readonly InfoDocumentId ParametersId = InfoDocumentId.CreateParametersOverview();
+    private static readonly InfoDocumentId NonePaddingId = InfoDocumentId.CreatePadding("NONE");
+    private static readonly InfoDocumentId Pkcs7PaddingId = InfoDocumentId.CreatePadding("PKCS-7");
     private static readonly InfoDocumentId AesCbcId = InfoDocumentId.CreateMechanism("AES-CBC");
     private static readonly InfoDocumentId EncryptId = InfoDocumentId.CreateFunction("Encrypt");
     private static readonly InfoDocumentId EncryptAesCbcId = InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC");
@@ -29,6 +33,8 @@ public class InfoViewModelTests
         yield return LinkCase(MechanismsId, Mechanisms);
         yield return LinkCase(FunctionsId, Functions);
         yield return LinkCase(ParametersId, Parameters);
+        yield return LinkCase(NonePaddingId, NonePadding);
+        yield return LinkCase(Pkcs7PaddingId, Pkcs7Padding);
         yield return LinkCase(AesCbcId, AesCbc);
         yield return LinkCase(EncryptId, Encrypt);
         yield return LinkCase(EncryptAesCbcId, EncryptAesCbc);
@@ -342,6 +348,8 @@ public class InfoViewModelTests
             [MechanismsId] = Mechanisms,
             [FunctionsId] = Functions,
             [ParametersId] = Parameters,
+            [NonePaddingId] = NonePadding,
+            [Pkcs7PaddingId] = Pkcs7Padding,
             [AesCbcId] = AesCbc,
             [EncryptId] = Encrypt,
             [EncryptAesCbcId] = EncryptAesCbc,

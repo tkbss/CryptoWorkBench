@@ -58,11 +58,15 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - IV: Initialization vector for symmetric encryption.
 - PAD: Padding scheme to be used in symmetric encryption.
     - PAD VALUES:
-        - PKCS-7
         - ANSI-X923
+        - ISO-10126
         - ISO-7816
-        - ISO-9797
+        - ISO-9797-M1
+        - ISO-9797-M2
+        - ISO-9797-M3
         - NONE
+        - PKCS-7
+        - TLS-CBC
 - MACLEN: Output length in bytes for DES3-RETAIL; valid values are 4 through 8 (default 8).
 - HMAC parameters contain only MECH. IV, PAD and MACLEN are not supported for HMAC mechanisms.
 - HASH parameters contain only MECH. IV, PAD, MACLEN, Salt and output-length parameters are not supported for HASH mechanisms.

@@ -26,14 +26,14 @@ These parameters are used with the DES3-ECB mechanism:
 - **#MECH**: Specifies the DES3-ECB mechanism in PARAM. A declared KEY must be a DES3 key; its DES3 mode does not have to match PARAM.
 - **#IV**: Not used. A supplied IV is rejected.
 - **#PAD**: Padding scheme to ensure input data is a multiple of the 8-byte block size. Parameters supplies PKCS-7 when omitted.
-    - NONE: No padding. Input must be a multiple of 8 bytes; non-aligned input is rejected.
+    - NONE: No padding. Input must be a non-zero multiple of 8 bytes; empty and non-aligned input is rejected.
     - PKCS-7: Default padding scheme. Adds padding even when input is already block-aligned.
     - ANSI-X923: Adds zero bytes followed by the padding length.
     - ISO-7816 and ISO-9797-M2: Add 0x80 followed by zero bytes, including an additional block for aligned input.
     - ISO-9797-M1: Adds zero bytes only when needed. Decrypt retains these bytes because the original length cannot be recovered from zero padding.
-    - ISO-9797-M3: Adds zero bytes and an 8-byte field containing the original bit length.
+    - ISO-9797-M3: Zero-pads the data to a positive number of complete blocks, then prepends an 8-byte block containing the original bit length in the ISO-defined representation.
     - TLS-CBC: Adds bytes containing the padding length minus one.
-- **Empty Input**: Encrypt accepts an empty string. NONE and ISO-9797-M1 produce empty ciphertext; the other listed paddings produce at least one block. Decrypt requires non-empty ciphertext whose length is a multiple of 8 bytes.
+- **Empty Input**: Encrypt rejects an empty string with NONE. ISO-9797-M1 and the other listed padding schemes produce at least one ciphertext block. Decrypt requires non-empty ciphertext whose length is a multiple of 8 bytes.
 
 ---
 ## Example Usage

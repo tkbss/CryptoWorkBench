@@ -29,13 +29,13 @@ These parameters are used with the AES-CBC mechanism:
 - **#IV**: Initialization vector used for encryption and decryption. In case of AES-CBC, it should be 16 bytes (128 bits) long.
 - **#PAD**: Padding scheme to ensure input data is a multiple of the block size.
     - NONE: No padding if input must is a multiple of block size.
-    - PKCS7: Default padding scheme for AES-CBC. Any other padding scheme defined in CRYPTO-SCRIPT can be used.
+    - PKCS-7: Default padding scheme for AES-CBC. Any other padding scheme defined in CRYPTO-SCRIPT can be used.
     
 ---
 ## Example Usage  
 ### AES-CBC Encryption and Decryption
 KEY k0         = GenerateKey(AES-CBC, 256)  
-PARAM p0       = Parameters(#MECH=AES-CBC, #IV:0x(00112233445566778899AABBCCDDEEFF), #PAD:PKCS7)  
+PARAM p0       = Parameters(#MECH:AES-CBC, #IV:0x(00112233445566778899AABBCCDDEEFF), #PAD:PKCS-7)
 VAR cleartext  = "This is a secret message."  
 VAR ciphertext = Encrypt(p0, k0, cleartext)  
 VAR decrypted  = Decrypt(p0, k0, ciphertext) 

@@ -196,6 +196,28 @@ public class NonePaddingTests
                 "ISO-9797-M1 or ISO-9797-M2"));
     }
 
+    [Test]
+    public void LowercaseNone_IsRejectedByThePublicScriptPath()
+    {
+        const string script =
+            "PARAM p=Parameters(#MECH:AES-CBC," +
+            "#IV:0x(000102030405060708090A0B0C0D0E0F),#PAD:none)";
+        var parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : none"));
+    }
+
     private static void AssertCipherContract(
         string mechanism, string operation, int length, bool succeeds)
     {

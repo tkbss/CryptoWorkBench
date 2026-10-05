@@ -110,6 +110,10 @@ public class AesCbcMechanismMetadataTests
                 Does.Contain("ISO-10126").And.Not.Contain("grammar cannot express"));
             Assert.That(decryption.Single(parameter => parameter.Name == "#PAD").ValueConstraint,
                 Does.Contain("ISO-10126").And.Not.Contain("grammar cannot express"));
+            Assert.That(encryption.Single(parameter => parameter.Name == "data").ValueConstraint,
+                Does.Contain("#PAD:NONE").And.Contain("non-zero multiple of 16 bytes"));
+            Assert.That(decryption.Single(parameter => parameter.Name == "data").ValueConstraint,
+                Does.Contain("#PAD:NONE").And.Contain("non-zero multiple of 16 bytes"));
         });
     }
 

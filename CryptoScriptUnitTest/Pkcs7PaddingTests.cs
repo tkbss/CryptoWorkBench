@@ -163,6 +163,39 @@ public class Pkcs7PaddingTests
         bouncyCastle.Should().Throw<InvalidCipherTextException>();
     }
 
+    [Test]
+    public void Des3Ecb_DecryptRejectsInconsistentPaddingBytes()
+    {
+        byte[] invalidPaddedPlaintext = Convert.FromHexString("0102030505050405");
+        byte[] ciphertext = TransformNoPadding(
+            "DES3-ECB", invalidPaddedPlaintext, encrypt: true);
+
+        Action act = () => DecryptWithCryptoScript("DES3-ECB", ciphertext);
+
+        act.Should().Throw<SemanticErrorException>();
+    }
+
+    [Test]
+    public void NonCanonicalPkcs7_IsRejectedByThePublicScriptPath()
+    {
+        const string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:0x({AesIvHex}),#PAD:PKCS7)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : PKCS7"));
+    }
+
     [TestCase("", "0x(538A86FCAFFB9A6A)")]
     [TestCase("00112233445566", "0x(47DEE12C68B103CC)")]
     [TestCase("0011223344556677", "0x(41762C1BE589D302)")]
