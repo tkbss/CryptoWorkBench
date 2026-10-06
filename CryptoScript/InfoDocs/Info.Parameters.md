@@ -56,7 +56,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - WRAP-AES-TR31
         - WRAP-DES3-TR31
 - IV: Initialization vector for symmetric encryption.
-- PAD: Padding scheme to be used in symmetric encryption.
+- PAD: Selects the padding method for mechanisms that use configurable padding, including supported encryption and MAC operations.
     - PAD VALUES:
         - ANSI-X923
         - ISO-10126

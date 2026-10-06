@@ -67,6 +67,30 @@ public class AnsiX923PaddingTests
         cleartext.Should().Equal(plaintext);
     }
 
+    [Test]
+    public void Des3Ecb_EncryptUsesExactZeroFilledLayout()
+    {
+        byte[] ciphertext = EncryptWithCryptoScript(
+            "DES3-ECB", Convert.FromHexString("010203"));
+
+        byte[] paddedPlaintext = TransformNoPadding(
+            "DES3-ECB", ciphertext, encrypt: false);
+
+        paddedPlaintext.Should().Equal(Convert.FromHexString("0102030000000005"));
+    }
+
+    [Test]
+    public void Des3Ecb_DecryptRejectsNonZeroFillerByte()
+    {
+        byte[] invalidPaddedPlaintext = Convert.FromHexString("010203A500000005");
+        byte[] ciphertext = TransformNoPadding(
+            "DES3-ECB", invalidPaddedPlaintext, encrypt: true);
+
+        Action act = () => DecryptWithCryptoScript("DES3-ECB", ciphertext);
+
+        act.Should().Throw<SemanticErrorException>();
+    }
+
     [TestCase("AES-CBC", "0102030405060708090A0B0C0D0E0F", "0102030405060708090A0B0C0D0E0F01")]
     [TestCase("AES-CBC", "", "00000000000000000000000000000010")]
     [TestCase("AES-CBC", "010203", "0102030000000000000000000000000D")]
@@ -155,6 +179,27 @@ public class AnsiX923PaddingTests
         act.Should().Throw<SemanticErrorException>();
     }
 
+    [Test]
+    public void NonCanonicalAnsiX923_IsRejectedByThePublicScriptPath()
+    {
+        const string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:0x({AesIvHex}),#PAD:ANSIX923)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : ANSIX923"));
+    }
+
     [TestCase("", "0x(A69BD201F4D1FA9F)")]
     [TestCase("00112233445566", "0x(47DEE12C68B103CC)")]
     [TestCase("0011223344556677", "0x(ED02660DDD234F19)")]
@@ -188,6 +233,15 @@ public class AnsiX923PaddingTests
             "VAR clear=Decrypt(p,k,c)";
         CryptoScriptProgram result = Execute(script);
         return (GetBytes(result.Statements[2]), GetBytes(result.Statements[3]));
+    }
+
+    private static byte[] EncryptWithCryptoScript(string mechanism, byte[] plaintext)
+    {
+        string script =
+            $"KEY k=GenerateKey({mechanism},0x({GetKeyHex(mechanism)})) " +
+            $"PARAM p=Parameters(#MECH:{mechanism}{GetIvParameter(mechanism)},#PAD:ANSI-X923) " +
+            $"VAR c=Encrypt(p,k,{ToScriptValue(plaintext)})";
+        return GetBytes(Execute(script).Statements[2]);
     }
 
     private static byte[] DecryptWithCryptoScript(string mechanism, byte[] ciphertext)

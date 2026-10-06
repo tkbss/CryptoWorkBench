@@ -218,8 +218,7 @@ public class InfoDocumentCatalogTests
             .OfType<string>()
             .ToHashSet(StringComparer.Ordinal);
 
-        InfoDocumentCatalogEntry[] pendingPaddingDocuments = PaddingRegistry.Entries
-            .Where(padding => padding.CanonicalName is not ("NONE" or "PKCS-7"))
+        InfoDocumentCatalogEntry[] paddingDocuments = PaddingRegistry.Entries
             .Select(padding =>
             {
                 InfoDocumentId documentId = InfoDocumentId.CreatePadding(padding.CanonicalName);
@@ -234,29 +233,15 @@ public class InfoDocumentCatalogTests
         Assert.Multiple(() =>
         {
             PaddingRegistry.Entries.Should().HaveCount(9);
-            pendingPaddingDocuments.Should().HaveCount(7);
-            pendingPaddingDocuments.Select(entry => entry.DocumentId.Padding)
-                .Should().NotContain(new[] { "NONE", "PKCS-7" });
+            paddingDocuments.Should().HaveSameCount(PaddingRegistry.Entries);
+            paddingDocuments.Select(entry => entry.DocumentId.Padding)
+                .Should().Equal(PaddingRegistry.Entries.Select(padding => padding.CanonicalName));
             InfoDocumentCatalog.Entries
                 .Where(entry => entry.DocumentId.Kind == InfoDocumentKind.Padding)
                 .Should().HaveCount(9);
         });
 
-        // Padding detail pages leave this set as they are delivered.
-        foreach (InfoDocumentCatalogEntry pending in pendingPaddingDocuments)
-        {
-            sourceFileNames.Any(fileName => fileName.Equals(
-                    pending.MarkdownFileName,
-                    StringComparison.OrdinalIgnoreCase))
-                .Should().BeFalse($"{pending.MarkdownFileName} is not delivered yet");
-        }
-
-        HashSet<InfoDocumentId> pendingDocumentIds = pendingPaddingDocuments
-            .Select(entry => entry.DocumentId)
-            .ToHashSet();
-
-        foreach (InfoDocumentCatalogEntry entry in InfoDocumentCatalog.Entries
-            .Where(entry => !pendingDocumentIds.Contains(entry.DocumentId)))
+        foreach (InfoDocumentCatalogEntry entry in InfoDocumentCatalog.Entries)
         {
             sourceFileNames.Should().Contain(
                 entry.MarkdownFileName,

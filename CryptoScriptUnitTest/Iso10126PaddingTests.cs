@@ -56,6 +56,33 @@ public class Iso10126PaddingTests
         cleartext.Should().Equal(plaintext);
     }
 
+    [Test]
+    public void Des3Ecb_EncryptUsesExpectedIso10126Layout()
+    {
+        byte[] plaintext = Convert.FromHexString("010203");
+
+        (byte[] ciphertext, byte[] cleartext) = EncryptAndDecrypt("DES3-ECB", plaintext);
+        byte[] paddedPlaintext = TransformNoPadding("DES3-ECB", ciphertext, encrypt: false);
+
+        cleartext.Should().Equal(plaintext);
+        paddedPlaintext.Should().HaveCount(8);
+        paddedPlaintext[..plaintext.Length].Should().Equal(plaintext);
+        paddedPlaintext[plaintext.Length..^1].Should().HaveCount(4);
+        paddedPlaintext[^1].Should().Be(5);
+    }
+
+    [Test]
+    public void Des3Ecb_DecryptAcceptsArbitraryFillerBytes()
+    {
+        byte[] paddedPlaintext = Convert.FromHexString("010203A5FF007C05");
+        byte[] ciphertext = TransformNoPadding(
+            "DES3-ECB", paddedPlaintext, encrypt: true);
+
+        byte[] cleartext = DecryptWithCryptoScript("DES3-ECB", ciphertext);
+
+        cleartext.Should().Equal(Convert.FromHexString("010203"));
+    }
+
     private static readonly object[] ValidManualPaddingCases =
     {
         new object[] { "AES-CBC", 16, 1, "none" },
@@ -127,6 +154,27 @@ public class Iso10126PaddingTests
         Action act = () => DecryptWithCryptoScript(mechanism, ciphertext);
 
         act.Should().Throw<SemanticErrorException>();
+    }
+
+    [Test]
+    public void NonCanonicalIso10126_IsRejectedByThePublicScriptPath()
+    {
+        string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:0x({AesIvHex}),#PAD:ISO10126)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : ISO10126"));
     }
 
     [SetUp]

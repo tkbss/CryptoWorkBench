@@ -1,11 +1,25 @@
 using CryptoScript.CryptoAlgorithm;
+using CryptoScript.ErrorListner;
+using CryptoScript.Variables;
 using FluentAssertions;
 using System.Security.Cryptography;
 
 namespace CryptoScriptUnitTest;
 
+[NonParallelizable]
 public class Iso9797M3PaddingTests
 {
+    private const string AesKey = "0x(2B7E151628AED2A6ABF7158809CF4F3C)";
+    private const string AesIv = "0x(000102030405060708090A0B0C0D0E0F)";
+
+    [SetUp]
+    public void Setup()
+    {
+        VariableDictionary.Instance().Clear();
+        SyntaxErrorListner.SyntaxErrorOccured = false;
+        LexerErrorListener.LexerErrorOccured = false;
+    }
+
     // Fixed byte layouts derived directly from ISO/IEC 9797-1:2011, 6.3.4.
     // No production or test helper generates the expected values.
     [TestCase(8, "", "00000000000000000000000000000000")]
@@ -74,5 +88,50 @@ public class Iso9797M3PaddingTests
         Action act = () => subject.Unpad(Convert.FromHexString(legacyHex));
 
         act.Should().Throw<CryptographicException>();
+    }
+
+    [Test]
+    public void NonCanonicalIso9797M3_IsRejectedByThePublicScriptPath()
+    {
+        string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:ISO9797M3)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : ISO9797M3"));
+    }
+
+    [TestCase("010200")]
+    [TestCase("01020000")]
+    public void AesCbc_RoundtripPreservesTrailingZeroBytes(string plaintextHex)
+    {
+        var result = Execute(
+            $"KEY k=GenerateKey(AES-CBC,{AesKey}) " +
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:ISO-9797-M3) " +
+            $"VAR c=Encrypt(p,k,0x({plaintextHex})) VAR clear=Decrypt(p,k,c)");
+
+        result.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+            .Should().BeEquivalentTo(
+                $"0x({plaintextHex})",
+                options => options.IgnoringCase());
+    }
+
+    private static CryptoScript.Model.CryptoScriptProgram Execute(string input)
+    {
+        var parser = ParserBuilder.StringBuild(input);
+        var context = parser.program();
+        SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+        LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        return new CryptoScriptRunner().Execute(context);
     }
 }

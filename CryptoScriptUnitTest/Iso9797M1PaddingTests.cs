@@ -125,6 +125,44 @@ public class Iso9797M1PaddingTests
         decryptNone.Should().Throw<SemanticErrorException>();
     }
 
+    [Test]
+    public void NonCanonicalIso9797M1_IsRejectedByThePublicScriptPath()
+    {
+        string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:ISO9797M1)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : ISO9797M1"));
+    }
+
+    [Test]
+    public void AesCbc_TrailingZeroInputRetainsTheFullM1PaddedBlockOnDecrypt()
+    {
+        var result = Execute(
+            AesDeclarations("ISO-9797-M1") +
+            "VAR c=Encrypt(p,k,0x(010200)) VAR clear=Decrypt(p,k,c)");
+
+        result.Statements[2].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+            .Should().BeEquivalentTo(
+                "0x(2A44191729C23D6F078E5A56E6114B36)",
+                options => options.IgnoringCase());
+        result.Statements[3].Should().BeOfType<StringVariableDeclaration>().Subject.Value
+            .Should().BeEquivalentTo(
+                "0x(01020000000000000000000000000000)",
+                options => options.IgnoringCase());
+    }
+
     private static string AesDeclarations(string padding) =>
         $"KEY k=GenerateKey(AES-CBC,{AesKey}) " +
         $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:{padding}) ";

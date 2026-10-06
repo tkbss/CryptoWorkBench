@@ -79,6 +79,23 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
+        public void DES3_RETAIL_RejectsIso7816Identifier()
+        {
+            Action act = () => Execute("PARAM p=Parameters(#MECH:DES3-RETAIL,#PAD:ISO-7816)");
+            act.Should().Throw<SemanticErrorException>()
+                .Where(e => e.SemanticError!.Message.Contains("ISO-9797-M1 or ISO-9797-M2"));
+        }
+
+        [Test]
+        public void DES3_RETAIL_RejectsIso9797M3Padding()
+        {
+            Action act = () => Execute("PARAM p=Parameters(#MECH:DES3-RETAIL,#PAD:ISO-9797-M3)");
+            act.Should().Throw<SemanticErrorException>()
+                .Where(e => e.SemanticError!.Message ==
+                    "DES3-RETAIL supports only ISO-9797-M1 or ISO-9797-M2 padding.");
+        }
+
+        [Test]
         public void DES3_RETAIL_RejectsCustomIv()
         {
             Action act = () => Execute("PARAM p=Parameters(#MECH:DES3-RETAIL,#PAD:ISO-9797-M2,#IV:0x(0000000000000000))");

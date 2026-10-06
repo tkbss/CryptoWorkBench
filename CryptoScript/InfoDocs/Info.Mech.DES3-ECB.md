@@ -29,6 +29,7 @@ These parameters are used with the DES3-ECB mechanism:
     - NONE: No padding. Input must be a non-zero multiple of 8 bytes; empty and non-aligned input is rejected.
     - PKCS-7: Default padding scheme. Adds padding even when input is already block-aligned.
     - ANSI-X923: Adds zero bytes followed by the padding length.
+    - ISO-10126: Adds random filler bytes followed by the padding length.
     - ISO-7816 and ISO-9797-M2: Add 0x80 followed by zero bytes, including an additional block for aligned input.
     - ISO-9797-M1: Adds zero bytes only when needed. Decrypt retains these bytes because the original length cannot be recovered from zero padding.
     - ISO-9797-M3: Zero-pads the data to a positive number of complete blocks, then prepends an 8-byte block containing the original bit length in the ISO-defined representation.

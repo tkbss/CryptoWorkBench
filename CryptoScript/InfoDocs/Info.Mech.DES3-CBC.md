@@ -30,13 +30,14 @@ These parameters are used with the DES3-CBC mechanism:
     - NONE: No padding. Input must be a non-zero multiple of 8 bytes; empty and non-aligned input is rejected.
     - PKCS-7: Default padding scheme. Adds padding even when input is already block-aligned.
     - ANSI-X923: Adds zero bytes followed by the padding length.
+    - ISO-10126: Adds random filler bytes followed by the padding length.
     - ISO-7816 and ISO-9797-M2: Add 0x80 followed by zero bytes, including an additional block for aligned input.
     - ISO-9797-M1: Adds zero bytes only when needed. Decrypt retains these bytes because the original length cannot be recovered from zero padding.
     - ISO-9797-M3: Zero-pads the data to a positive number of complete blocks, then prepends an 8-byte block containing the original bit length in the ISO-defined representation.
     - TLS-CBC: Adds bytes containing the padding length minus one.
 - **Empty Input**: Encrypt rejects an empty string with NONE. ISO-9797-M1 and the other listed padding schemes produce at least one ciphertext block. Decrypt requires non-empty ciphertext whose length is a multiple of 8 bytes.
 - **#MACLEN**: Output length for Mac, from 4 through 8 bytes; default 8. Use a quoted decimal value such as #MACLEN:"4". In Parameters, write #MACLEN immediately after the comma without a space. The result contains the leftmost bytes of the last ciphertext block. Encrypt and Decrypt do not use this parameter.
-- **CBC-MAC**: Use Mac with #MECH:DES3-CBC. DES3-CBC-MAC is not a separate mechanism name. The listed paddings also apply to Mac. Empty input is rejected with NONE because no block is produced; ISO-9797-M1 and the other supported padding schemes that produce a block accept empty input.
+- **CBC-MAC**: Use Mac with #MECH:DES3-CBC. DES3-CBC-MAC is not a separate mechanism name. The listed paddings except ISO-10126 also apply to Mac; ISO-10126 is supported only by Encrypt and Decrypt and is explicitly rejected by CBC-MAC. Empty input is rejected with NONE because no block is produced; ISO-9797-M1 and the other supported padding schemes that produce a block accept empty input.
 
 ---
 ## Example Usage

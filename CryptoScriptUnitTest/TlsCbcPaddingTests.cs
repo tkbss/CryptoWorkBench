@@ -159,6 +159,67 @@ public class TlsCbcPaddingTests
             .Should().Equal(Convert.FromHexString(plaintextHex));
     }
 
+    [Test]
+    public void NonCanonicalTlsCbc_IsRejectedByThePublicScriptPath()
+    {
+        const string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:0x({AesIv}),#PAD:TLSCBC)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : TLSCBC"));
+    }
+
+    [Test]
+    public void AesCbc_DecryptAcceptsExtendedTlsPaddingFromThePublicScriptPath()
+    {
+        const string plaintextHex = "00112233445566778899AABBCCDDEEFF";
+        string paddedPlaintextHex = plaintextHex + string.Concat(
+            Enumerable.Repeat("1F", 32));
+        string script =
+            $"KEY k=GenerateKey(AES-CBC,0x({AesKey})) " +
+            $"PARAM noPadding=Parameters(#MECH:AES-CBC,#IV:0x({AesIv}),#PAD:NONE) " +
+            $"PARAM tlsPadding=Parameters(#MECH:AES-CBC,#IV:0x({AesIv}),#PAD:TLS-CBC) " +
+            $"VAR c=Encrypt(noPadding,k,0x({paddedPlaintextHex})) " +
+            "VAR clear=Decrypt(tlsPadding,k,c)";
+
+        var result = Execute(script);
+
+        var clear = result.Statements[4]
+            .Should().BeOfType<StringVariableDeclaration>().Subject;
+        FormatConversions.ToByteArray(clear.Value, clear.ValueFormat)
+            .Should().Equal(Convert.FromHexString(plaintextHex));
+    }
+
+    [Test]
+    public void AesCbc_DecryptRejectsInconsistentTlsPaddingFromThePublicScriptPath()
+    {
+        const string invalidPaddedPlaintextHex =
+            "00112233445566778899AABBCC010202";
+        string script =
+            $"KEY k=GenerateKey(AES-CBC,0x({AesKey})) " +
+            $"PARAM noPadding=Parameters(#MECH:AES-CBC,#IV:0x({AesIv}),#PAD:NONE) " +
+            $"PARAM tlsPadding=Parameters(#MECH:AES-CBC,#IV:0x({AesIv}),#PAD:TLS-CBC) " +
+            $"VAR c=Encrypt(noPadding,k,0x({invalidPaddedPlaintextHex})) " +
+            "VAR clear=Decrypt(tlsPadding,k,c)";
+
+        Action act = () => Execute(script);
+
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message ==
+                "Invalid TLS-CBC padding bytes.");
+    }
+
     [TestCase("", "589DE8BC07A41E80")]
     [TestCase("0011223344556677", "A46543703A87B92F")]
     [TestCase("001122", "6A56DCE87D638129")]

@@ -144,6 +144,75 @@ public class Iso7816PaddingTests
         act.Should().Throw<CryptographicException>();
     }
 
+    [Test]
+    public void Unpad_UsesLastMarkerBeforeTrailingZeros()
+    {
+        byte[] input = Convert.FromHexString("0102800080000000");
+
+        byte[] output = new Iso7816Padding(8).Unpad(input);
+
+        output.Should().Equal(Convert.FromHexString("01028000"));
+    }
+
+    [Test]
+    public void NonCanonicalIso7816_IsRejectedByThePublicScriptPath()
+    {
+        string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:ISO7816)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : ISO7816"));
+    }
+
+    [Test]
+    public void NonCanonicalIso9797M2_IsRejectedByThePublicScriptPath()
+    {
+        string script =
+            $"PARAM p=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:ISO9797M2)";
+        CryptoScriptParser parser = ParserBuilder.StringBuild(script);
+        var context = parser.program();
+
+        Assert.Multiple(() =>
+        {
+            parser.NumberOfSyntaxErrors.Should().Be(0);
+            SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
+            LexerErrorListener.LexerErrorOccured.Should().BeFalse();
+        });
+
+        Action act = () => new CryptoScriptRunner().Execute(context);
+        act.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains(
+                "Unknown parameter value : ISO9797M2"));
+    }
+
+    [Test]
+    public void PublicDecrypt_RejectsNonZeroByteAfterIso7816Marker()
+    {
+        const string invalidPaddedPlaintext =
+            "0x(000102030405060708090A0B0C800001)";
+        string script =
+            $"KEY k=GenerateKey(AES-CBC,{AesKey}) " +
+            $"PARAM raw=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:NONE) " +
+            $"PARAM iso=Parameters(#MECH:AES-CBC,#IV:{AesIv},#PAD:ISO-7816) " +
+            $"VAR c=Encrypt(raw,k,{invalidPaddedPlaintext}) " +
+            "VAR clear=Decrypt(iso,k,c)";
+
+        Action act = () => Execute(script);
+
+        act.Should().Throw<SemanticErrorException>();
+    }
+
     [TestCase("AES-CBC", "ISO-7816", "", "4C08220C79D9191022DC6674874CEAF8")]
     [TestCase("AES-CBC", "ISO-9797-M2", "", "4C08220C79D9191022DC6674874CEAF8")]
     [TestCase("AES-CBC", "ISO-7816", "00112233445566778899AABBCCDDEEFF", "B577ED00E35432951E2F6E82CBE271774027DF59B97195C5CAAA741030E55011")]

@@ -105,6 +105,39 @@ namespace CryptoScriptUnitTest
                 Path.Combine(AppContext.BaseDirectory, "InfoDocs", filename))));
         }
 
+        [Test]
+        public void Des3RetailDocumentation_DescribesBothPaddingEmptyInputContracts()
+        {
+            string[] lines = File.ReadAllLines(Path.Combine(
+                AppContext.BaseDirectory, "InfoDocs", "Info.Mech.DES3-RETAIL.md"));
+            string m1 = lines.Single(line => line.Contains("- ISO-9797-M1:"));
+            string m2 = lines.Single(line => line.Contains("- ISO-9797-M2:"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(m1, Does.Contain("Empty input is accepted"));
+                Assert.That(m1, Does.Contain("8-byte zero block"));
+                Assert.That(m1, Does.Contain("Retail MAC"));
+                Assert.That(m2, Does.Contain("Empty input is accepted"));
+                Assert.That(m2, Does.Contain("0x80"));
+                Assert.That(m2, Does.Contain("seven zero bytes"));
+            });
+        }
+
+        [Test]
+        public void ParameterDocumentation_DescribesPaddingForSupportedEncryptionAndMacOperations()
+        {
+            string pad = File.ReadAllLines(Path.Combine(
+                    AppContext.BaseDirectory, "InfoDocs", "Info.Parameters.md"))
+                .Single(line => line.StartsWith("- PAD:"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(pad, Does.Contain("mechanisms that use configurable padding"));
+                Assert.That(pad, Does.Contain("encryption and MAC operations"));
+            });
+        }
+
         private static byte[] Bytes(string name)
         {
             var value = (StringVariableDeclaration)VariableDictionary.Instance().Get(name);

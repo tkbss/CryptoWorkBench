@@ -25,8 +25,8 @@ These parameters are used with the DES3-RETAIL mechanism:
 - **#MECH**: Specifies the DES3-RETAIL mechanism in PARAM. A declared KEY must be a DES3 key; its DES3 mode does not have to match PARAM.
 - **#IV**: Not used as an external parameter. A supplied IV is rejected; the internal chaining value always starts at zero.
 - **#PAD**: Parameters supplies ISO-9797-M2 when omitted. Only these two paddings are supported:
-    - ISO-9797-M1: Adds zero bytes only when needed to reach a multiple of 8 bytes. Aligned input receives no additional block. Empty input is rejected.
-    - ISO-9797-M2: Adds 0x80 followed by zero bytes. Aligned input receives an additional block. Empty input is accepted.
+    - ISO-9797-M1: Adds zero bytes only when needed to reach a multiple of 8 bytes. Aligned input receives no additional block. Empty input is accepted and becomes one 8-byte zero block before the Retail MAC calculation.
+    - ISO-9797-M2: Adds 0x80 followed by zero bytes. Aligned input receives an additional block. Empty input is accepted and becomes 0x80 followed by seven zero bytes.
     - NONE: Not supported and rejected, even for block-aligned input.
 - **#MACLEN**: Output length from 4 through 8 bytes; default 8. Use a quoted decimal value such as #MACLEN:"4". In Parameters, write #MACLEN immediately after the comma without a space. The result contains the leftmost bytes of the full 8-byte MAC.
 

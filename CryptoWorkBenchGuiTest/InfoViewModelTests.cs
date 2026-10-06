@@ -12,8 +12,15 @@ public class InfoViewModelTests
     private const string AesCbc = "# MECHANISM AES-CBC\nDocumentation";
     private const string Functions = "# Functions";
     private const string Parameters = "# Parameters";
+    private const string AnsiX923Padding = "# PADDING ANSI-X923\nDocumentation";
+    private const string Iso10126Padding = "# PADDING ISO-10126\nDocumentation";
+    private const string Iso7816Padding = "# PADDING ISO-7816\nDocumentation";
+    private const string Iso9797M1Padding = "# PADDING ISO-9797-M1\nDocumentation";
+    private const string Iso9797M2Padding = "# PADDING ISO-9797-M2\nDocumentation";
+    private const string Iso9797M3Padding = "# PADDING ISO-9797-M3\nDocumentation";
     private const string NonePadding = "# PADDING NONE\nDocumentation";
     private const string Pkcs7Padding = "# PADDING PKCS-7\nDocumentation";
+    private const string TlsCbcPadding = "# PADDING TLS-CBC\nDocumentation";
     private const string Encrypt = "# Encrypt";
     private const string EncryptAesCbc = "# Encrypt with AES-CBC";
     private const string AesCbcIv = "# AES-CBC parameter IV";
@@ -21,8 +28,15 @@ public class InfoViewModelTests
     private static readonly InfoDocumentId MechanismsId = InfoDocumentId.CreateMechanismsOverview();
     private static readonly InfoDocumentId FunctionsId = InfoDocumentId.CreateFunctionsOverview();
     private static readonly InfoDocumentId ParametersId = InfoDocumentId.CreateParametersOverview();
+    private static readonly InfoDocumentId AnsiX923PaddingId = InfoDocumentId.CreatePadding("ANSI-X923");
+    private static readonly InfoDocumentId Iso10126PaddingId = InfoDocumentId.CreatePadding("ISO-10126");
+    private static readonly InfoDocumentId Iso7816PaddingId = InfoDocumentId.CreatePadding("ISO-7816");
+    private static readonly InfoDocumentId Iso9797M1PaddingId = InfoDocumentId.CreatePadding("ISO-9797-M1");
+    private static readonly InfoDocumentId Iso9797M2PaddingId = InfoDocumentId.CreatePadding("ISO-9797-M2");
+    private static readonly InfoDocumentId Iso9797M3PaddingId = InfoDocumentId.CreatePadding("ISO-9797-M3");
     private static readonly InfoDocumentId NonePaddingId = InfoDocumentId.CreatePadding("NONE");
     private static readonly InfoDocumentId Pkcs7PaddingId = InfoDocumentId.CreatePadding("PKCS-7");
+    private static readonly InfoDocumentId TlsCbcPaddingId = InfoDocumentId.CreatePadding("TLS-CBC");
     private static readonly InfoDocumentId AesCbcId = InfoDocumentId.CreateMechanism("AES-CBC");
     private static readonly InfoDocumentId EncryptId = InfoDocumentId.CreateFunction("Encrypt");
     private static readonly InfoDocumentId EncryptAesCbcId = InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC");
@@ -33,8 +47,15 @@ public class InfoViewModelTests
         yield return LinkCase(MechanismsId, Mechanisms);
         yield return LinkCase(FunctionsId, Functions);
         yield return LinkCase(ParametersId, Parameters);
+        yield return LinkCase(AnsiX923PaddingId, AnsiX923Padding);
+        yield return LinkCase(Iso10126PaddingId, Iso10126Padding);
+        yield return LinkCase(Iso7816PaddingId, Iso7816Padding);
+        yield return LinkCase(Iso9797M1PaddingId, Iso9797M1Padding);
+        yield return LinkCase(Iso9797M2PaddingId, Iso9797M2Padding);
+        yield return LinkCase(Iso9797M3PaddingId, Iso9797M3Padding);
         yield return LinkCase(NonePaddingId, NonePadding);
         yield return LinkCase(Pkcs7PaddingId, Pkcs7Padding);
+        yield return LinkCase(TlsCbcPaddingId, TlsCbcPadding);
         yield return LinkCase(AesCbcId, AesCbc);
         yield return LinkCase(EncryptId, Encrypt);
         yield return LinkCase(EncryptAesCbcId, EncryptAesCbc);
@@ -348,8 +369,15 @@ public class InfoViewModelTests
             [MechanismsId] = Mechanisms,
             [FunctionsId] = Functions,
             [ParametersId] = Parameters,
+            [AnsiX923PaddingId] = AnsiX923Padding,
+            [Iso10126PaddingId] = Iso10126Padding,
+            [Iso7816PaddingId] = Iso7816Padding,
+            [Iso9797M1PaddingId] = Iso9797M1Padding,
+            [Iso9797M2PaddingId] = Iso9797M2Padding,
+            [Iso9797M3PaddingId] = Iso9797M3Padding,
             [NonePaddingId] = NonePadding,
             [Pkcs7PaddingId] = Pkcs7Padding,
+            [TlsCbcPaddingId] = TlsCbcPadding,
             [AesCbcId] = AesCbc,
             [EncryptId] = Encrypt,
             [EncryptAesCbcId] = EncryptAesCbc,
