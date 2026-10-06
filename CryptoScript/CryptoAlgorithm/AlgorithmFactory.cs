@@ -48,7 +48,7 @@
         }
 
         private static bool IsAesMechanism(string mechanism) =>
-            mechanism is "AES-CBC" or "AES-CCM" or "AES-CMAC" or "AES-CTR" or
+            mechanism is "AES-CBC" or "AES-CBC-MAC" or "AES-CCM" or "AES-CMAC" or "AES-CTR" or
                 "AES-ECB" or "AES-GCM" or "AES-GMAC";
 
         private static bool IsHmacMechanism(string mechanism) =>

@@ -119,11 +119,16 @@ M3 instead uses `length block || zero-padded data`. Its boundary comes from the 
 `ISO-9797-M3` is selectable and effective for:
 
 - AES-CBC encryption and decryption
+- [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) calculation
 - DES3-CBC encryption and decryption
 - DES3-ECB encryption and decryption
 - DES3-CBC-MAC through `Mac` with `#MECH:DES3-CBC`
 
 For DES3-CBC-MAC, the complete 8-byte-block M3 value—length block followed by the M1-padded data area—is processed with the zero IV. Empty, partial, and aligned messages are supported. A MAC operation does not unpad data, and the default of the DES3-CBC parameter set remains `PKCS-7`, not M3.
+
+For AES-CBC-MAC, the complete M3 value is prepared with 16-byte blocks before MAC calculation. The first block contains the original bit length as an unsigned, right-aligned big-endian value: its upper eight bytes are zero and its lower eight bytes contain the UInt64 bit length. The original data follows and is extended according to M1 with zero bytes to a positive number of complete blocks. Empty input therefore becomes a 16-byte zero length block followed by a 16-byte zero data block, for 32 zero bytes in total.
+
+M3 binds the original message length into the prepared input, but AES-CBC-MAC with M3 does not become CMAC and does not acquire the general security guarantees of AES-CMAC. See the [AES-CBC-MAC mechanism page](cryptoscript-info://mechanism/AES-CBC-MAC) for the security boundary.
 
 DES3-RETAIL explicitly rejects M3. It accepts only `ISO-9797-M1` and `ISO-9797-M2` and defaults to M2.
 

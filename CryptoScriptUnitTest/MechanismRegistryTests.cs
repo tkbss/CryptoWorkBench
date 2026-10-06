@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlyFortySevenProductiveMechanisms()
+    public void ContainsExactlyFortyEightProductiveMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(47));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(48));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -156,6 +156,8 @@ public class MechanismRegistryTests
     }
 
     [TestCase("AES-CBC", CryptoScriptFunction.Mac)]
+    [TestCase("AES-CBC-MAC", CryptoScriptFunction.Encrypt)]
+    [TestCase("AES-CBC-MAC", CryptoScriptFunction.Decrypt)]
     [TestCase("AES-CMAC", CryptoScriptFunction.Encrypt)]
     [TestCase("AES-CMAC", CryptoScriptFunction.Decrypt)]
     [TestCase("DES3-ECB", CryptoScriptFunction.Mac)]
@@ -220,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(47));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(48));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {

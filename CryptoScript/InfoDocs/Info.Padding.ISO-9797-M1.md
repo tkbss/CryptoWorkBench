@@ -98,12 +98,15 @@ M2 begins its padding with `80` and follows it with `00` bytes. It always adds a
 `ISO-9797-M1` is selectable and effective for:
 
 - AES-CBC encryption and decryption
+- [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) calculation
 - DES3-CBC encryption and decryption
 - DES3-ECB encryption and decryption
 - DES3-CBC-MAC through `Mac` with `DES3-CBC`
 - DES3-RETAIL MAC calculation
 
 DES3-RETAIL accepts only `ISO-9797-M1` and `ISO-9797-M2`; its default is M2. Its M1 path uses the same 8-byte M1 padding logic, including one zero block for empty input. DES3-CBC-MAC likewise applies M1 before MAC calculation; no unpadding concept is needed because a MAC operation does not return plaintext.
+
+AES-CBC-MAC applies the same M1 rule with 16-byte blocks before MAC calculation. Empty input becomes one complete zero block, aligned non-empty input receives no additional block, and partial input is extended with zero bytes to the next block boundary. A MAC operation performs no unpadding. M1 does not make classic CBC-MAC equivalent to CMAC or generally secure for variable-length messages; see the [AES-CBC-MAC mechanism page](cryptoscript-info://mechanism/AES-CBC-MAC).
 
 M1 is not effective external padding for AES-ECB, AES-CMAC, DES3-CMAC, AES-CTR, AES-GCM, AES-CCM, or AES-GMAC. Depending on the mechanism, `#PAD` is overridden or ignored and the mechanism uses no external padding or its own internal final-block processing. `ISO-9797-M1` is not the default for any CryptoScript mechanism.
 

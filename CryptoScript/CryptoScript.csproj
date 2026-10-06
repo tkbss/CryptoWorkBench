@@ -33,6 +33,9 @@
     <None Update="InfoDocs\Info.Mech.AES-CBC.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.AES-CBC-MAC.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.AES-ECB.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

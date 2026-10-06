@@ -26,6 +26,7 @@ The CryptoScript paths where `NONE` is selectable require non-empty, block-align
 | Mechanism or operation | Required input length |
 |------------------------|-----------------------|
 | AES-CBC | A non-zero multiple of 16 bytes |
+| [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) | A non-zero multiple of 16 bytes |
 | DES3-CBC | A non-zero multiple of 8 bytes |
 | DES3-ECB | A non-zero multiple of 8 bytes |
 | DES3-CBC-MAC through `Mac` with `DES3-CBC` | A non-zero multiple of 8 bytes |
@@ -34,10 +35,12 @@ These are requirements of the respective block-cipher operations. `NONE` does no
 
 ## Supported Mechanisms
 
-- **Selectable `NONE`**: AES-CBC, DES3-CBC, DES3-ECB, and DES3-CBC-MAC through `Mac` with `DES3-CBC`.
+- **Selectable `NONE`**: AES-CBC, [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC), DES3-CBC, DES3-ECB, and DES3-CBC-MAC through `Mac` with `DES3-CBC`.
 - **Fixed or internal no-padding behavior**: AES-ECB always uses no external padding. AES-CMAC and DES3-CMAC handle final blocks internally rather than through selectable external padding.
 - **Padding-free modes**: AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not use this external block-padding operation.
 - **Not supported**: DES3-RETAIL accepts only ISO-9797-M1 or ISO-9797-M2 and rejects `NONE`.
+
+With AES-CBC-MAC, `NONE` adds no bytes and the MAC is calculated over exactly the supplied complete 16-byte blocks. The message must contain at least one block. Selecting `NONE` does not make classic CBC-MAC generally secure for variable-length messages; see the [AES-CBC-MAC mechanism page](cryptoscript-info://mechanism/AES-CBC-MAC) for the security boundary.
 
 ## Example Usage
 

@@ -35,6 +35,7 @@ public class InfoDocumentationProviderTests
     [TestCase("keymap", "Info.Keymap.md")]
     [TestCase("paddings", "Info.Paddings.md")]
     [TestCase("AES-CBC", "Info.Mech.AES-CBC.md")]
+    [TestCase("AES-CBC-MAC", "Info.Mech.AES-CBC-MAC.md")]
     [TestCase("AES-GCM", "Info.Mech.AES-GCM.md")]
     [TestCase("DES3-ECB", "Info.Mech.DES3-ECB.md")]
     public void TryGetDocumentation_KnownName_ReturnsExistingDocument(

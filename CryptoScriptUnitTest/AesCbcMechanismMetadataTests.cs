@@ -52,7 +52,7 @@ public class AesCbcMechanismMetadataTests
     }
 
     [Test]
-    public void MetadataExistsOnlyForTheFourExistingAesCbcFunctions()
+    public void AesCbcMetadataCoversItsFourPublicFunctions()
     {
         Assert.That(MechanismRegistry.TryGet("AES-CBC", out MechanismRegistryEntry? aesCbc), Is.True);
         Assert.That(aesCbc!.FunctionMetadata.Keys, Is.EquivalentTo(new[]
@@ -62,12 +62,47 @@ public class AesCbcMechanismMetadataTests
             CryptoScriptFunction.Encrypt,
             CryptoScriptFunction.Decrypt
         }));
+    }
 
-        foreach (MechanismRegistryEntry other in MechanismRegistry.Entries.Where(
-                     entry => entry.CanonicalName != "AES-CBC"))
+    [Test]
+    public void AesCbcMacMetadataCapturesItsMacOnlyParameterContract()
+    {
+        Assert.That(MechanismRegistry.TryGet("AES-CBC-MAC", out MechanismRegistryEntry? entry), Is.True);
+        Assert.That(entry!.FunctionMetadata.Keys, Is.EquivalentTo(new[]
         {
-            Assert.That(other.FunctionMetadata, Is.Empty, other.CanonicalName);
-        }
+            CryptoScriptFunction.Parameters,
+            CryptoScriptFunction.GenerateKey,
+            CryptoScriptFunction.Mac
+        }));
+
+        MechanismParameterMetadata[] parameterCreation =
+            entry.FunctionMetadata[CryptoScriptFunction.Parameters].Parameters.ToArray();
+        MechanismParameterMetadata[] mac =
+            entry.FunctionMetadata[CryptoScriptFunction.Mac].Parameters.ToArray();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(entry.SupportedFunctions, Is.EquivalentTo(new[]
+            {
+                CryptoScriptFunction.Parameters,
+                CryptoScriptFunction.GenerateKey,
+                CryptoScriptFunction.Mac
+            }));
+            Assert.That(parameterCreation.Select(parameter => parameter.Name),
+                Is.EqualTo(new[] { "mechanism", "#PAD", "#MACLEN" }));
+            Assert.That(parameterCreation.Single(parameter => parameter.Name == "#PAD").DefaultValue,
+                Is.EqualTo("PKCS-7"));
+            Assert.That(parameterCreation.Single(parameter => parameter.Name == "#MACLEN").DefaultValue,
+                Is.EqualTo("16"));
+            Assert.That(parameterCreation.Select(parameter => parameter.Name), Does.Not.Contain("#IV"));
+            Assert.That(mac.Where(parameter => parameter.Kind == MechanismParameterKind.NamedParameter)
+                    .Select(parameter => parameter.Name),
+                Is.EqualTo(new[] { "#MECH", "#PAD", "#MACLEN" }));
+            Assert.That(mac.Single(parameter => parameter.Name == "#MACLEN").ValueConstraint,
+                Does.Contain("8 through 16"));
+            Assert.That(entry.FunctionMetadata[CryptoScriptFunction.Mac].AdditionalNamedParameterHandling,
+                Is.EqualTo(AdditionalNamedParameterHandling.None));
+        });
     }
 
     [Test]

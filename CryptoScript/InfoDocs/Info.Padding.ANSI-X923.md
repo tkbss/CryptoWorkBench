@@ -42,11 +42,14 @@ Invalid cases include `N = 0`, `N` greater than the block size, and a non-zero b
 `ANSI-X923` is selectable and effective for:
 
 - AES-CBC encryption and decryption
+- [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) calculation
 - DES3-CBC encryption and decryption
 - DES3-ECB encryption and decryption
 - DES3-CBC-MAC through `Mac` with DES3-CBC
 
-It is not the default padding for these mechanisms. AES-CBC, DES3-CBC, and DES3-ECB default to `PKCS-7`. AES-ECB always uses `NONE`; AES-CMAC and DES3-CMAC do not use external ANSI-X923 padding; and DES3-RETAIL explicitly does not support it. AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not apply effective external ANSI-X923 padding.
+It is not the default padding for these mechanisms. AES-CBC, AES-CBC-MAC, DES3-CBC, and DES3-ECB default to `PKCS-7`. For AES-CBC-MAC, ANSI-X923 is materialized with the 16-byte AES block size before MAC calculation. An aligned message receives a complete block containing fifteen `0x00` bytes followed by `0x10`; partial input receives zero-valued filler followed by the padding length. This padding choice does not make classic CBC-MAC generally secure for variable-length messages; see the [AES-CBC-MAC mechanism page](cryptoscript-info://mechanism/AES-CBC-MAC).
+
+AES-ECB always uses `NONE`; AES-CMAC and DES3-CMAC do not use external ANSI-X923 padding; and DES3-RETAIL explicitly does not support it. AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not apply effective external ANSI-X923 padding.
 
 ## Example Usage
 

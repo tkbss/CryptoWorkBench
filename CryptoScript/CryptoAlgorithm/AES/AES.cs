@@ -60,6 +60,9 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 case "aes-cbc":
                     param = AESDefaultParameters.GenerateDefaultCBCParameters(mechanism);
                     break;
+                case "aes-cbc-mac":
+                    param = AESDefaultParameters.GenerateDefaultCBCMACParameters(mechanism);
+                    break;
                 case "aes-ecb":
                     param = AESDefaultParameters.GenerateDefaultECBParameters(mechanism);
                     break;
@@ -95,6 +98,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
             SetDefaultParameterValues(param);
             if (param.Mechanism.Equals("AES-CBC", StringComparison.OrdinalIgnoreCase))
                 AES_CBC.ValidateAndDecodeIv(param.GetParameter("IV"));
+            if (param.Mechanism.Equals("AES-CBC-MAC", StringComparison.OrdinalIgnoreCase))
+                AES_CBC_MAC.ValidateParameters(param);
             param.ValueFormat = FormatConversions.ParseString(param.Value);
             return param;
         }
@@ -102,6 +107,14 @@ namespace CryptoScript.CryptoAlgorithm.AES
         private void SetDefaultParameterValues(ParameterVariableDeclaration param)
         {
             param.Mechanism = ExtractMechanismen(param.Mechanism);
+            if (param.Mechanism.Equals("AES-CBC-MAC", StringComparison.OrdinalIgnoreCase))
+            {
+                if (param.GetParameter("PAD") == string.Empty)
+                    param.SetParameter("PAD", "PKCS-7");
+                if (param.GetParameter("MACLEN") == string.Empty)
+                    param.SetParameter("MACLEN", "16");
+                return;
+            }
             if (param.Mechanism.ToLower().Contains("cbc"))
             {
                 if (param.GetParameter("IV") == string.Empty)
@@ -257,6 +270,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
                     return new AES_CTR();
                 case "aes-cbc":
                     return new AES_CBC();
+                case "aes-cbc-mac":
+                    return new AES_CBC_MAC();
                 case "aes-ecb":
                     return new AES_ECB();
                 case "aes-cmac":

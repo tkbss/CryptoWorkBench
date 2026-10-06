@@ -119,6 +119,37 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
+        public void AesCbcMacInfo_ResolvesDeployedDocumentationAndExampleExecutes()
+        {
+            const string fileName = "Info.Mech.AES-CBC-MAC.md";
+            string? displayed = null;
+            void Capture(string text) => displayed = text;
+            OutputOperations.InfoEvent += Capture;
+            try { Execute("Info(AES-CBC-MAC)"); }
+            finally { OutputOperations.InfoEvent -= Capture; }
+
+            string sourcePath = Path.GetFullPath(Path.Combine(
+                AppContext.BaseDirectory, "..", "..", "..", "..", "CryptoScript", "InfoDocs", fileName));
+            string deployedPath = Path.Combine(AppContext.BaseDirectory, "InfoDocs", fileName);
+            string document = File.ReadAllText(deployedPath);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(displayed, Is.EqualTo(document));
+                Assert.That(document, Does.StartWith("# MECHANISM AES-CBC-MAC"));
+                Assert.That(File.ReadAllBytes(deployedPath), Is.EqualTo(File.ReadAllBytes(sourcePath)));
+            });
+            MechanismDocumentationContract.AssertRequiredSections(document);
+
+            IReadOnlyList<string> examples =
+                MechanismDocumentationContract.ExtractExecutableExamples(document);
+            Assert.That(examples, Has.Count.EqualTo(1));
+            Execute(examples[0]);
+            Assert.That(Bytes("mac"), Is.EqualTo(Convert.FromHexString(
+                "3FF1CAA1681FAC09120ECA307586E1A7")));
+        }
+
+        [Test]
         public void Ecb_OverridesPaddingAndRejectsUnalignedInput()
         {
             Execute("KEY k=GenerateKey(AES-ECB,128) " +

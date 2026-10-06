@@ -21,7 +21,7 @@ namespace CryptoScript.CryptoAlgorithm
         }
         public bool IsMACAlgorithm(string mechanism)
         {
-            List<string> macModes = new List<string>() {"AES-GMAC","AES-CMAC" };
+            List<string> macModes = new List<string>() {"AES-GMAC","AES-CMAC","AES-CBC-MAC" };
             return macModes.Contains(mechanism);
             
         }
@@ -117,6 +117,30 @@ namespace CryptoScript.CryptoAlgorithm
             }
             return output;
         }
+
+        protected byte[] PadToCompleteBlocks(
+            ParameterVariableDeclaration parameter,
+            byte[] input,
+            string fn,
+            int blocksize = 16)
+        {
+            byte[] output = Pad(parameter, out PaddingMode padding, input, fn, blocksize);
+            if (padding == PaddingMode.None)
+                return output;
+
+            if (padding is not (PaddingMode.PKCS7 or PaddingMode.ANSIX923))
+                throw new ArgumentException("Padding cannot be materialized deterministically for block processing.");
+
+            int paddingLength = blocksize - output.Length % blocksize;
+            byte[] padded = new byte[checked(output.Length + paddingLength)];
+            Buffer.BlockCopy(output, 0, padded, 0, output.Length);
+            if (padding == PaddingMode.PKCS7)
+                Array.Fill(padded, (byte)paddingLength, output.Length, paddingLength);
+            else
+                padded[^1] = (byte)paddingLength;
+            return padded;
+        }
+
         public byte[] SetPadding(ParameterVariableDeclaration parameter, out PaddingMode padding, byte[] input,string fn,int blocksize=16)
         {
             byte[] output = input;

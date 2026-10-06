@@ -11,7 +11,7 @@ public class KeyTypeMigrationTests
 {
     private static readonly string[] AesMechanisms =
     {
-        "AES-ECB", "AES-CBC", "AES-CTR", "AES-CMAC", "AES-GCM", "AES-GMAC", "AES-CCM"
+        "AES-ECB", "AES-CBC", "AES-CBC-MAC", "AES-CTR", "AES-CMAC", "AES-GCM", "AES-GMAC", "AES-CCM"
     };
 
     private static readonly string[] TdeaMechanisms =

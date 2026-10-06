@@ -33,7 +33,7 @@ fragment NORMAL_STRING_FRAG : '"' (ESC | ~["\\])* '"';
 fragment HEX_STRING_FRAG    : '0x(' [0-9a-fA-F]+ ')';
 fragment ESC                : '\\' [btnrf"'\\];
 
-MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC | M_AES_CCM
+MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CBC_MAC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_AES_GMAC | M_AES_CCM
               | M_HMAC_SHA1 | M_HMAC_SHA224 | M_HMAC_SHA256 | M_HMAC_SHA384 | M_HMAC_SHA512
               | M_HMAC_SHA512_224 | M_HMAC_SHA512_256
               | M_HMAC_SHA3_224 | M_HMAC_SHA3_256 | M_HMAC_SHA3_384 | M_HMAC_SHA3_512
@@ -53,6 +53,7 @@ MECHANISM     : M_AES_ECB | M_AES_CBC | M_AES_CTR | M_AES_CMAC | M_AES_GCM | M_A
 
 M_AES_ECB           : 'AES-ECB';
 M_AES_CBC           : 'AES-CBC';
+M_AES_CBC_MAC       : 'AES-CBC-MAC';
 M_AES_CTR           : 'AES-CTR';
 M_AES_CMAC          : 'AES-CMAC';
 M_AES_GCM           : 'AES-GCM';

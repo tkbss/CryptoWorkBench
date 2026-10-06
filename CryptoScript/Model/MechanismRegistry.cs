@@ -284,6 +284,54 @@ public static class MechanismRegistry
             AdditionalNamedParameterHandling.IgnoreStored)
     };
 
+    private static readonly MechanismParameterMetadata[] AesCbcMacConsumedParameters =
+    {
+        NamedParameter("#MECH", true, MechanismParameterDataType.Mechanism,
+            "Selects AES-CBC-MAC for parameter creation and algorithm dispatch.",
+            "Exactly AES-CBC-MAC."),
+        NamedParameter("#PAD", true, MechanismParameterDataType.Padding,
+            "Padding applied before CBC-MAC calculation.",
+            "NONE, PKCS-7, ANSI-X923, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, or TLS-CBC."),
+        NamedParameter("#MACLEN", true, MechanismParameterDataType.Integer,
+            "Number of leftmost MAC bytes returned.", "String integer from 8 through 16 bytes.")
+    };
+
+    private static readonly MechanismFunctionMetadata[] AesCbcMacFunctionMetadata =
+    {
+        new(CryptoScriptFunction.Parameters, new MechanismParameterMetadata[]
+        {
+            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+                "Selects the parameter generator.", "AES-CBC-MAC or #MECH:AES-CBC-MAC."),
+            NamedParameter("#PAD", false, MechanismParameterDataType.Padding,
+                "Padding applied before CBC-MAC calculation.",
+                "NONE, PKCS-7, ANSI-X923, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, or TLS-CBC.",
+                MechanismParameterDefaultKind.Literal, "PKCS-7"),
+            NamedParameter("#MACLEN", false, MechanismParameterDataType.Integer,
+                "Number of leftmost MAC bytes returned.", "String integer from 8 through 16 bytes.",
+                MechanismParameterDefaultKind.Literal, "16")
+        }),
+        new(CryptoScriptFunction.GenerateKey, new[]
+        {
+            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+                "Selects AES key generation or import.", "Exactly AES-CBC-MAC."),
+            Argument("keySizeOrValue", true,
+                new[] { MechanismParameterDataType.Integer, MechanismParameterDataType.HexString },
+                "Generates a key of the requested size or imports the supplied key bytes.",
+                "Integer 128, 192, or 256; or a hexadecimal value of exactly 16, 24, or 32 bytes.")
+        }),
+        new(CryptoScriptFunction.Mac, new[]
+        {
+            Argument("parameters", true, new[] { MechanismParameterDataType.ParameterSet },
+                "AES-CBC-MAC parameter variable or serialized parameter value.",
+                "Must contain processed #MECH, #PAD, and #MACLEN values."),
+            Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
+                "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
+            Argument("data", true, new[] { MechanismParameterDataType.Data },
+                "Message variable or literal.",
+                "With #PAD:NONE, length must be a non-zero multiple of 16 bytes.")
+        }.Concat(AesCbcMacConsumedParameters))
+    };
+
     private static readonly CryptoScriptFunction[] CipherFunctions =
     {
         CryptoScriptFunction.Parameters,
@@ -337,6 +385,7 @@ public static class MechanismRegistry
         Array.AsReadOnly(new MechanismRegistryEntry[]
         {
             new("AES-CBC", "Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.AES-CBC.md", CipherFunctions, AesCbcFunctionMetadata),
+            new("AES-CBC-MAC", "AES Cipher Block Chaining Message Authentication Code with selectable deterministic padding and left truncation.", "Info.Mech.AES-CBC-MAC.md", MacFunctions, AesCbcMacFunctionMetadata),
             new("AES-CCM", "Symmetric Advanced Encryption Standard in Counter with CBC-MAC mode.", "Info.Mech.AES-CCM.md", CipherFunctions),
             new("AES-CMAC", "Symmetric Advanced Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.AES-CMAC.md", MacFunctions),
             new("AES-CTR", "Symmetric Advanced Encryption Standard in Counter mode.", "Info.Mech.AES-CTR.md", CipherFunctions),

@@ -154,6 +154,7 @@ For comparison, with `N` total bytes ANSI-X923 uses `N - 1` zero bytes followed 
 `TLS-CBC` is selectable and effective for:
 
 - AES-CBC encryption and decryption
+- [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) calculation
 - DES3-CBC encryption and decryption
 - DES3-ECB encryption and decryption
 - DES3-CBC-MAC through `Mac` with `#MECH:DES3-CBC`
@@ -161,6 +162,12 @@ For comparison, with `N` total bytes ANSI-X923 uses `N - 1` zero bytes followed 
 DES3-ECB merely reuses the byte format; it is not a normative TLS use of ECB. `TLS-CBC` is not effective external padding for AES-ECB, AES-CMAC, DES3-CMAC, AES-CTR, AES-GCM, AES-CCM, or AES-GMAC. Depending on the mechanism, `PAD` is overridden with `NONE`, retained but not applied, or CMAC performs its own internal final-block processing.
 
 `TLS-CBC` is not the default for any CryptoScript mechanism.
+
+### AES-CBC-MAC
+
+CryptoScript can apply the same TLS-CBC padding-byte representation before AES-CBC-MAC calculation. This path uses the 16-byte AES block size, a fixed internal zero IV, and minimal TLS-CBC padding. Empty and aligned input receive sixteen `0x0F` bytes; partial input is extended to the next block boundary.
+
+This is only data preparation for [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC). It is not a TLS MAC, a TLS record MAC, TLS record processing, or a TLS CBC cipher suite. CryptoScript does not add TLS record context, and a MAC operation performs no unpadding.
 
 ### DES3-CBC-MAC
 

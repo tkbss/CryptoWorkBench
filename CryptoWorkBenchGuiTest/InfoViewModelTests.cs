@@ -8,8 +8,9 @@ namespace CryptoWorkBenchGuiTest;
 
 public class InfoViewModelTests
 {
-    private const string Mechanisms = "# Mechnisms\n\n- AES-CBC : documented\n- RSA-PSS : undocumented";
+    private const string Mechanisms = "# Mechnisms\n\n- AES-CBC : documented\n- AES-CBC-MAC : documented\n- RSA-PSS : undocumented";
     private const string AesCbc = "# MECHANISM AES-CBC\nDocumentation";
+    private const string AesCbcMac = "# MECHANISM AES-CBC-MAC\nDocumentation";
     private const string Functions = "# Functions";
     private const string Parameters = "# Parameters";
     private const string AnsiX923Padding = "# PADDING ANSI-X923\nDocumentation";
@@ -38,6 +39,7 @@ public class InfoViewModelTests
     private static readonly InfoDocumentId Pkcs7PaddingId = InfoDocumentId.CreatePadding("PKCS-7");
     private static readonly InfoDocumentId TlsCbcPaddingId = InfoDocumentId.CreatePadding("TLS-CBC");
     private static readonly InfoDocumentId AesCbcId = InfoDocumentId.CreateMechanism("AES-CBC");
+    private static readonly InfoDocumentId AesCbcMacId = InfoDocumentId.CreateMechanism("AES-CBC-MAC");
     private static readonly InfoDocumentId EncryptId = InfoDocumentId.CreateFunction("Encrypt");
     private static readonly InfoDocumentId EncryptAesCbcId = InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC");
     private static readonly InfoDocumentId AesCbcIvId = InfoDocumentId.CreateMechanismParameter("AES-CBC", "IV");
@@ -57,6 +59,7 @@ public class InfoViewModelTests
         yield return LinkCase(Pkcs7PaddingId, Pkcs7Padding);
         yield return LinkCase(TlsCbcPaddingId, TlsCbcPadding);
         yield return LinkCase(AesCbcId, AesCbc);
+        yield return LinkCase(AesCbcMacId, AesCbcMac);
         yield return LinkCase(EncryptId, Encrypt);
         yield return LinkCase(EncryptAesCbcId, EncryptAesCbc);
         yield return LinkCase(AesCbcIvId, AesCbcIv);
@@ -120,6 +123,7 @@ public class InfoViewModelTests
 
         sut.InfoText.Should().Be(linkedOverview);
         sut.InfoText.Should().Contain("[AES-CBC](cryptoscript-info://mechanism/AES-CBC)");
+        sut.InfoText.Should().Contain("[AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC)");
         sut.InfoText.Should().Contain("- RSA-PSS : undocumented");
         sut.CanNavigateBack.Should().BeFalse();
         history.AddedInfo.Should().Equal(Mechanisms);
@@ -379,6 +383,7 @@ public class InfoViewModelTests
             [Pkcs7PaddingId] = Pkcs7Padding,
             [TlsCbcPaddingId] = TlsCbcPadding,
             [AesCbcId] = AesCbc,
+            [AesCbcMacId] = AesCbcMac,
             [EncryptId] = Encrypt,
             [EncryptAesCbcId] = EncryptAesCbc,
             [AesCbcIvId] = AesCbcIv
@@ -400,7 +405,7 @@ public class InfoViewModelTests
         public InfoDocumentId? FailedDocument { get; set; }
         public Exception? LoadException { get; set; }
 
-        public bool HasDocumentation(string name) => name == "AES-CBC";
+        public bool HasDocumentation(string name) => name is "AES-CBC" or "AES-CBC-MAC";
 
         public bool TryGetDocumentation(string name, out string documentation)
         {
@@ -408,6 +413,7 @@ public class InfoViewModelTests
             {
                 "mechanisms" => Mechanisms,
                 "AES-CBC" => AesCbc,
+                "AES-CBC-MAC" => AesCbcMac,
                 _ => string.Empty
             };
             return documentation.Length > 0;

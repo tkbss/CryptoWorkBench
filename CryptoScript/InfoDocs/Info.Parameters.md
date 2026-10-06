@@ -7,6 +7,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - MECH: Mechanism parameter specifying the cryptographic algorithm used. Information about each mechanism can be obtained through Info(mechanism).
     - MECHANISM VALUES:
         - AES-CBC
+        - AES-CBC-MAC
         - AES-CTR
         - AES-GCM
         - AES-ECB
@@ -55,7 +56,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - KDF-EP2-PAN-SURROGATE-TRX
         - WRAP-AES-TR31
         - WRAP-DES3-TR31
-- IV: Initialization vector for symmetric encryption.
+- IV: Initialization vector for symmetric encryption. [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) does not support `#IV`; its all-zero CBC-MAC initialization value is fixed internally.
 - PAD: Selects the padding method for mechanisms that use configurable padding, including supported encryption and MAC operations.
     - PAD VALUES:
         - ANSI-X923
@@ -67,7 +68,8 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - NONE
         - PKCS-7
         - TLS-CBC
-- MACLEN: Output length in bytes for DES3-RETAIL; valid values are 4 through 8 (default 8).
+    - AES-CBC-MAC supports every listed padding except ISO-10126 and defaults to PKCS-7.
+- MACLEN: Output length in bytes. For DES3-RETAIL, valid values are 4 through 8 (default 8). For [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC), valid values are 8 through 16 (default 16), and truncation retains the leftmost bytes.
 - HMAC parameters contain only MECH. IV, PAD and MACLEN are not supported for HMAC mechanisms.
 - HASH parameters contain only MECH. IV, PAD, MACLEN, Salt and output-length parameters are not supported for HASH mechanisms.
 - Generic HKDF parameter contracts:

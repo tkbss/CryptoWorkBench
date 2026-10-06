@@ -44,11 +44,14 @@ Invalid cases include `N = 0`, `N` greater than the block size, and inconsistent
 `PKCS-7` is selectable and effective for:
 
 - AES-CBC encryption and decryption
+- [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) calculation
 - DES3-CBC encryption and decryption
 - DES3-ECB encryption and decryption
 - DES3-CBC-MAC through `Mac` with DES3-CBC
 
-It is the default padding for AES-CBC, DES3-CBC, and DES3-ECB. AES-ECB always uses `NONE`; AES-CMAC and DES3-CMAC do not use external PKCS-7 padding; and DES3-RETAIL explicitly does not support it. AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not apply effective external PKCS-7 padding.
+It is the default padding for AES-CBC, AES-CBC-MAC, DES3-CBC, and DES3-ECB. For AES-CBC-MAC, padding is materialized with the 16-byte AES block size before the CBC-MAC calculation: empty and aligned messages receive a complete block of sixteen `0x10` bytes, while partial messages are extended to the next block. Padding does not make classic CBC-MAC generally secure for variable-length messages; see the [AES-CBC-MAC mechanism page](cryptoscript-info://mechanism/AES-CBC-MAC).
+
+AES-ECB always uses `NONE`; AES-CMAC and DES3-CMAC do not use external PKCS-7 padding; and DES3-RETAIL explicitly does not support it. AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not apply effective external PKCS-7 padding.
 
 ## Example Usage
 

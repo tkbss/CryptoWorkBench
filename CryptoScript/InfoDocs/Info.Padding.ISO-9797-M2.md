@@ -100,12 +100,15 @@ M2 has no length block. M3 additionally prepends a complete block containing the
 `ISO-9797-M2` is selectable and effective for:
 
 - AES-CBC encryption and decryption
+- [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) calculation
 - DES3-CBC encryption and decryption
 - DES3-ECB encryption and decryption
 - DES3-CBC-MAC through `Mac` with `#MECH:DES3-CBC`
 - DES3-RETAIL MAC calculation
 
 DES3-RETAIL accepts M1 and M2 only, and defaults to M2. DES3-CBC-MAC applies M2 before MAC calculation: partial input receives `80` and zero bytes, aligned input receives an additional full block, and empty input becomes one full M2 block. A MAC operation does not unpad data. The default of the underlying DES3-CBC parameter set remains `PKCS-7`, not M2.
+
+AES-CBC-MAC materializes M2 with 16-byte blocks before MAC calculation. It appends `0x80` followed by zero bytes; aligned and empty input receive a complete 16-byte M2 block. The resulting bytes are identical to CryptoScript's `ISO-7816` padding, but the identifiers retain their distinct normative contexts. M2 does not make classic CBC-MAC equivalent to CMAC or generally secure for variable-length messages; see the [AES-CBC-MAC mechanism page](cryptoscript-info://mechanism/AES-CBC-MAC).
 
 M2 is not effective external padding for AES-ECB, AES-CMAC, DES3-CMAC, AES-CTR, AES-GCM, AES-CCM, or AES-GMAC. Depending on the mechanism, `#PAD` is overridden with `NONE` or the stored value is ignored; CMAC uses its own internal final-block processing.
 

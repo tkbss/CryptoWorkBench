@@ -23,7 +23,7 @@ public class MechanismListTests
 
     private static readonly string[] Expected =
     {
-        "AES-ECB", "AES-CBC", "AES-CTR", "AES-CMAC", "AES-GCM", "AES-CCM", "AES-GMAC",
+        "AES-ECB", "AES-CBC", "AES-CBC-MAC", "AES-CTR", "AES-CMAC", "AES-GCM", "AES-CCM", "AES-GMAC",
         "HMAC-SHA1", "HMAC-SHA224", "HMAC-SHA256", "HMAC-SHA384", "HMAC-SHA512",
         "HMAC-SHA512-224", "HMAC-SHA512-256",
         "HMAC-SHA3-224", "HMAC-SHA3-256", "HMAC-SHA3-384", "HMAC-SHA3-512",
@@ -39,7 +39,7 @@ public class MechanismListTests
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(47));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(48));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
     }
 
@@ -115,5 +115,18 @@ public class MechanismListTests
         Assert.That(error!.Message, Is.EqualTo("Unknown mechanism " + name));
         Assert.That(mechanism.Value, Is.EqualTo("AES-CBC"));
         Assert.That(FormatConversions.ParseString(name), Is.EqualTo(string.Empty));
+    }
+
+    [TestCase("aes-cbc-mac")]
+    [TestCase("AES-CBCMAC")]
+    [TestCase("AES_CBC_MAC")]
+    public void LexerRejectsNonCanonicalAesCbcMacSpellings(string name)
+    {
+        LexerErrorListener.LexerErrorOccured = false;
+        var parser = ParserBuilder.StringBuild($"PARAM p=#MECH:{name}");
+
+        parser.program();
+
+        Assert.That(parser.NumberOfSyntaxErrors > 0 || LexerErrorListener.LexerErrorOccured, Is.True);
     }
 }

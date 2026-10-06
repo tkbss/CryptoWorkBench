@@ -24,6 +24,9 @@ public class InfoDocumentUriTests
         yield return DocumentCase(
             InfoDocumentId.CreateMechanism("AES-CBC"),
             "cryptoscript-info://mechanism/AES-CBC");
+        yield return DocumentCase(
+            InfoDocumentId.CreateMechanism("AES-CBC-MAC"),
+            "cryptoscript-info://mechanism/AES-CBC-MAC");
         foreach (PaddingDefinition padding in PaddingRegistry.Entries)
         {
             yield return DocumentCase(

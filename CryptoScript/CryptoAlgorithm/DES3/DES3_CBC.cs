@@ -52,13 +52,13 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             byte[] keyBytes = GetValidatedKey(key);
             byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
 
-            byte[] input = Pad(parameter, out PaddingMode padding, dataBytes, "Mac", BlockSizeBytes);
-            byte[] encrypted = Transform(keyBytes, new byte[BlockSizeBytes], input, padding, encrypt: true);
-            if (encrypted.Length == 0)
+            byte[] input = PadToCompleteBlocks(parameter, dataBytes, "Mac", BlockSizeBytes);
+            if (input.Length == 0)
                 throw new ArgumentException("DES3-CBC-MAC requires padding that produces at least one 8-byte block.");
 
             int macLength = GetMacLength(parameter);
-            byte[] mac = encrypted[(encrypted.Length - BlockSizeBytes)..][..macLength];
+            byte[] mac = CbcMacPrimitive.Compute(
+                TripleDES.Create, keyBytes, input, BlockSizeBytes, macLength);
             return CreateResult(mac);
         }
 
@@ -75,8 +75,8 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             if (macLength < 1 || macLength > BlockSizeBytes)
                 throw new ArgumentOutOfRangeException(nameof(macLength));
 
-            byte[] encrypted = Transform(key, new byte[BlockSizeBytes], data, PaddingMode.None, encrypt: true);
-            return encrypted[(encrypted.Length - BlockSizeBytes)..][..macLength];
+            return CbcMacPrimitive.Compute(
+                TripleDES.Create, key, data, BlockSizeBytes, macLength);
         }
 
         private static byte[] Transform(

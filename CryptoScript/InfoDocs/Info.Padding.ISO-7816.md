@@ -75,11 +75,14 @@ The public identifiers remain separate because they refer to different normative
 `ISO-7816` is selectable and effective for:
 
 - AES-CBC encryption and decryption
+- [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) calculation
 - DES3-CBC encryption and decryption
 - DES3-ECB encryption and decryption
 - DES3-CBC-MAC through `Mac` with DES3-CBC
 
 It is not the default padding for these mechanisms. AES-CBC, DES3-CBC, and DES3-ECB default to `PKCS-7`.
+
+For AES-CBC-MAC, ISO-7816 is materialized with the 16-byte AES block size before MAC calculation: `0x80` is followed by enough `0x00` bytes to reach the next block boundary. This padding choice does not make classic CBC-MAC generally secure for variable-length messages; see the [AES-CBC-MAC mechanism page](cryptoscript-info://mechanism/AES-CBC-MAC).
 
 AES-ECB always uses `NONE`; AES-CMAC and DES3-CMAC use their internal CMAC padding; and AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not apply effective external ISO-7816 padding. DES3-RETAIL rejects the `ISO-7816` identifier and accepts only `ISO-9797-M1` or `ISO-9797-M2`; byte identity does not make `ISO-7816` an alias there.
 

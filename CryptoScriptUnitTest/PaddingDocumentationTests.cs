@@ -646,6 +646,67 @@ public class PaddingDocumentationTests
             PaddingRegistry.Entries.Select(padding => padding.CanonicalName));
     }
 
+    [Test]
+    public void AesCbcMacPaddingDocumentation_MatchesTheSupportedPaddingMatrix()
+    {
+        const string mechanismLink =
+            "[AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC)";
+        var fileNames = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["ANSI-X923"] = AnsiX923FileName,
+            ["ISO-10126"] = Iso10126FileName,
+            ["ISO-7816"] = Iso7816FileName,
+            ["ISO-9797-M1"] = Iso9797M1FileName,
+            ["ISO-9797-M2"] = Iso9797M2FileName,
+            ["ISO-9797-M3"] = Iso9797M3FileName,
+            ["NONE"] = NoneFileName,
+            ["PKCS-7"] = Pkcs7FileName,
+            ["TLS-CBC"] = TlsCbcFileName
+        };
+        string[] supported =
+        {
+            "NONE", "PKCS-7", "ANSI-X923", "ISO-7816",
+            "ISO-9797-M1", "ISO-9797-M2", "ISO-9797-M3", "TLS-CBC"
+        };
+
+        fileNames.Keys.Should().BeEquivalentTo(
+            PaddingRegistry.Entries.Select(padding => padding.CanonicalName));
+        foreach (string padding in supported)
+        {
+            string document = File.ReadAllText(Path.Combine(
+                AppContext.BaseDirectory, "InfoDocs", fileNames[padding]));
+            document.Should().Contain(mechanismLink, padding);
+        }
+
+        string unsupported = File.ReadAllText(Path.Combine(
+            AppContext.BaseDirectory, "InfoDocs", fileNames["ISO-10126"]));
+        unsupported.Should().Contain(mechanismLink);
+        unsupported.Should().Contain("explicitly rejects ISO-10126");
+        unsupported.Should().Contain("rejected deterministically before random padding is generated");
+        unsupported.Should().Contain("CryptoScript contract");
+    }
+
+    [Test]
+    public void ParametersDocument_StatesTheAesCbcMacParameterContract()
+    {
+        const string mechanismLink =
+            "[AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC)";
+        string document = File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Parameters.md"));
+        string[] lines = document.Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n')
+            .Split('\n');
+
+        lines.Count(line => line.Trim().Equals("- AES-CBC-MAC", StringComparison.Ordinal))
+            .Should().Be(1);
+        document.Should().Contain(mechanismLink);
+        document.Should().Contain("does not support `#IV`");
+        document.Should().Contain("supports every listed padding except ISO-10126");
+        document.Should().Contain("defaults to PKCS-7");
+        document.Should().Contain("valid values are 8 through 16 (default 16)");
+        document.Should().Contain("truncation retains the leftmost bytes");
+    }
+
     private static CryptoScriptProgram Execute(string script)
     {
         var context = ParserBuilder.StringBuild(script).program();

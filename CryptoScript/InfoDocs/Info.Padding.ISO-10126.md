@@ -57,7 +57,9 @@ When `N = 1`, there is no filler byte before the length byte. Values such as `N 
 
 It is not the default padding for these mechanisms; AES-CBC, DES3-CBC, and DES3-ECB default to `PKCS-7`.
 
-DES3-CBC-MAC explicitly rejects ISO-10126, and DES3-RETAIL does not support it. AES-ECB always uses `NONE`; AES-CMAC and DES3-CMAC do not use external ISO-10126 padding; and AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not apply effective external ISO-10126 padding.
+DES3-CBC-MAC explicitly rejects ISO-10126, and DES3-RETAIL does not support it. [AES-CBC-MAC](cryptoscript-info://mechanism/AES-CBC-MAC) also explicitly rejects ISO-10126. CryptoScript makes this mechanism-specific design choice because random filler could give the same key, message, and parameters different prepared inputs and therefore different CBC-MAC values. `#MECH:AES-CBC-MAC` with `#PAD:ISO-10126` is rejected deterministically before random padding is generated. This is a CryptoScript contract; it is not a claim that ISO 10126-2 generally prohibits use with every CBC-MAC construction.
+
+AES-ECB always uses `NONE`; AES-CMAC and DES3-CMAC do not use external ISO-10126 padding; and AES-CTR, AES-GCM, AES-CCM, and AES-GMAC do not apply effective external ISO-10126 padding.
 
 ## Example Usage
 

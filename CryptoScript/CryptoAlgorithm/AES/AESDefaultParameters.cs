@@ -34,6 +34,15 @@ namespace CryptoScript.CryptoAlgorithm
             param.SetParameter("PAD", "PKCS-7"); 
             return param;
         }
+        public static ParameterVariableDeclaration GenerateDefaultCBCMACParameters(string mechanism)
+        {
+            var param = new ParameterVariableDeclaration();
+            param.Mechanism = mechanism;
+            param.SetParameter("MECH", mechanism);
+            param.SetParameter("PAD", "PKCS-7");
+            param.SetParameter("MACLEN", "16");
+            return param;
+        }
         public static ParameterVariableDeclaration GenerateDefaultECBParameters(string mechanism)
         {
             var param = new ParameterVariableDeclaration();

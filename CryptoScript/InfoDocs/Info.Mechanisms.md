@@ -6,6 +6,7 @@ List of all cryptograhic algorithms implemented in CRYPTO-SCRIPT.
 Every mechanism is specifying a certain cryptographic algorithm. Detailed information about each mechanism can be obtained through Info(mechanism).
 
 - AES-CBC : Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.
+- AES-CBC-MAC : AES Cipher Block Chaining Message Authentication Code with selectable deterministic padding and left truncation.
 - AES-CTR : Symmetric Advanced Encryption Standard in Counter mode.
 - AES-GCM : Symmetric Advanced Encryption Standard in Galois/Counter mode.
 - AES-ECB : Symmetric Advanced Encryption Standard in Electronic Codebook mode.
