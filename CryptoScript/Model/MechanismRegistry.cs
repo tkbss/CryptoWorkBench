@@ -46,6 +46,16 @@ public enum MechanismParameterKind
     NamedParameter
 }
 
+public enum MechanismParameterDirection
+{
+    // The operation consumes the parameter. IsRequired describes an input precondition.
+    Input,
+    // The operation produces or overwrites the parameter; it is not an input precondition.
+    Output,
+    // The operation consumes the parameter and may change it. IsRequired describes an input precondition.
+    InOut
+}
+
 public enum MechanismParameterDataType
 {
     Mechanism,
@@ -85,6 +95,7 @@ public sealed record MechanismParameterMetadata
     public MechanismParameterMetadata(
         string name,
         MechanismParameterKind kind,
+        MechanismParameterDirection direction,
         bool isRequired,
         IEnumerable<MechanismParameterDataType> resultingDataTypes,
         string description,
@@ -94,6 +105,27 @@ public sealed record MechanismParameterMetadata
         string? combinationConstraint = null,
         IEnumerable<MechanismParameterInputForm>? acceptedInputForms = null)
     {
+        if (!Enum.IsDefined(direction))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(direction), direction, "The parameter direction is not defined.");
+        }
+
+        if (direction == MechanismParameterDirection.Output && isRequired)
+        {
+            throw new ArgumentException(
+                "An output parameter cannot be a required input.",
+                nameof(isRequired));
+        }
+
+        if (direction == MechanismParameterDirection.Output &&
+            defaultKind != MechanismParameterDefaultKind.None)
+        {
+            throw new ArgumentException(
+                "An output parameter cannot have an input default.",
+                nameof(defaultKind));
+        }
+
         if (defaultKind == MechanismParameterDefaultKind.None && defaultValue is not null)
         {
             throw new ArgumentException(
@@ -117,8 +149,16 @@ public sealed record MechanismParameterMetadata
                 "Accepted input forms must contain only defined values.");
         }
 
+        if (direction == MechanismParameterDirection.Output && copiedInputForms.Length != 0)
+        {
+            throw new ArgumentException(
+                "An output parameter cannot have accepted input forms.",
+                nameof(acceptedInputForms));
+        }
+
         Name = name;
         Kind = kind;
+        Direction = direction;
         IsRequired = isRequired;
         ResultingDataTypes = resultingDataTypes.ToFrozenSet();
         AcceptedInputForms = copiedInputForms.ToFrozenSet();
@@ -131,6 +171,7 @@ public sealed record MechanismParameterMetadata
 
     public string Name { get; }
     public MechanismParameterKind Kind { get; }
+    public MechanismParameterDirection Direction { get; }
     public bool IsRequired { get; }
     public IReadOnlySet<MechanismParameterDataType> ResultingDataTypes { get; }
     public IReadOnlySet<MechanismParameterInputForm> AcceptedInputForms { get; }
@@ -194,16 +235,18 @@ public static class MechanismRegistry
     private static MechanismParameterMetadata Argument(
         string name,
         bool required,
+        MechanismParameterDirection direction,
         MechanismParameterDataType[] types,
         string description,
         string constraint,
         string? combination = null) =>
-        new(name, MechanismParameterKind.PositionalArgument, required, types,
+        new(name, MechanismParameterKind.PositionalArgument, direction, required, types,
             description, constraint, combinationConstraint: combination);
 
     private static MechanismParameterMetadata NamedParameter(
         string name,
         bool required,
+        MechanismParameterDirection direction,
         MechanismParameterDataType type,
         string description,
         string constraint,
@@ -211,7 +254,7 @@ public static class MechanismRegistry
         string? defaultValue = null,
         string? combination = null,
         MechanismParameterInputForm[]? inputForms = null) =>
-        new(name, MechanismParameterKind.NamedParameter, required, new[] { type },
+        new(name, MechanismParameterKind.NamedParameter, direction, required, new[] { type },
             description, constraint, defaultKind, defaultValue, combination, inputForms);
 
     private static readonly MechanismParameterInputForm[] AesCbcIvInputForms =
@@ -223,14 +266,14 @@ public static class MechanismRegistry
 
     private static readonly MechanismParameterMetadata[] AesCbcConsumedParameters =
     {
-        NamedParameter("#MECH", true, MechanismParameterDataType.Mechanism,
+        NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
             "Selects AES-CBC for parameter creation and algorithm dispatch.",
             "Exactly AES-CBC.", combination: "Use either AES-CBC or #MECH:AES-CBC as the first Parameters argument."),
-        NamedParameter("#IV", true, MechanismParameterDataType.BinaryData,
+        NamedParameter("#IV", true, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
             "Initialization vector consumed by AES-CBC encryption and decryption.",
             "Hexadecimal or Base64 literal, or variable resolving to either; must decode to exactly 16 bytes.",
             inputForms: AesCbcIvInputForms),
-        NamedParameter("#PAD", true, MechanismParameterDataType.Padding,
+        NamedParameter("#PAD", true, MechanismParameterDirection.Input, MechanismParameterDataType.Padding,
             "Padding mode consumed by AES-CBC encryption and decryption.",
             "PKCS-7, ISO-10126, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, ANSI-X923, TLS-CBC, or NONE.")
     };
@@ -239,15 +282,15 @@ public static class MechanismRegistry
     {
         new(CryptoScriptFunction.Parameters, new MechanismParameterMetadata[]
         {
-            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+            Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
                 "Selects the parameter generator.", "AES-CBC or #MECH:AES-CBC.",
                 "This is the first argument; the named form is an alternative, not an additional mechanism."),
-            NamedParameter("#IV", false, MechanismParameterDataType.BinaryData,
+            NamedParameter("#IV", false, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
                 "Initialization vector.",
                 "Hexadecimal or Base64 literal, or variable resolving to either; must decode to exactly 16 bytes.",
                 MechanismParameterDefaultKind.Generated, "A random 16-byte value",
                 inputForms: AesCbcIvInputForms),
-            NamedParameter("#PAD", false, MechanismParameterDataType.Padding,
+            NamedParameter("#PAD", false, MechanismParameterDirection.Input, MechanismParameterDataType.Padding,
                 "Padding mode.",
                 "PKCS-7, ISO-10126, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, ANSI-X923, TLS-CBC, or NONE.",
                 MechanismParameterDefaultKind.Literal,
@@ -255,30 +298,30 @@ public static class MechanismRegistry
         }, AdditionalNamedParameterHandling.StoreGloballyKnown),
         new(CryptoScriptFunction.GenerateKey, new[]
         {
-            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+            Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
                 "Selects AES key generation or import.", "Exactly AES-CBC."),
-            Argument("keySizeOrValue", true,
+            Argument("keySizeOrValue", true, MechanismParameterDirection.Input,
                 new[] { MechanismParameterDataType.Integer, MechanismParameterDataType.HexString },
                 "Generates a key of the requested size or imports the supplied key bytes.",
                 "Integer 128, 192, or 256; or a hexadecimal value of exactly 16, 24, or 32 bytes.")
         }),
         new(CryptoScriptFunction.Encrypt, new[]
         {
-            Argument("parameters", true, new[] { MechanismParameterDataType.ParameterSet },
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
                 "AES-CBC parameter variable or serialized parameter value.", "Must contain processed #MECH, #IV, and #PAD values."),
-            Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
+            Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
                 "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
-            Argument("data", true, new[] { MechanismParameterDataType.Data },
+            Argument("data", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Data },
                 "Plaintext variable or literal.", "With #PAD:NONE, length must be a non-zero multiple of 16 bytes."),
         }.Concat(AesCbcConsumedParameters),
             AdditionalNamedParameterHandling.IgnoreStored),
         new(CryptoScriptFunction.Decrypt, new[]
         {
-            Argument("parameters", true, new[] { MechanismParameterDataType.ParameterSet },
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
                 "AES-CBC parameter variable or serialized parameter value.", "Must contain processed #MECH, #IV, and #PAD values."),
-            Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
+            Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
                 "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
-            Argument("data", true, new[] { MechanismParameterDataType.Data },
+            Argument("data", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Data },
                 "Ciphertext variable or literal.", "With #PAD:NONE, length must be a non-zero multiple of 16 bytes; otherwise length must be a multiple of 16 bytes."),
         }.Concat(AesCbcConsumedParameters),
             AdditionalNamedParameterHandling.IgnoreStored)
@@ -286,13 +329,13 @@ public static class MechanismRegistry
 
     private static readonly MechanismParameterMetadata[] AesCbcMacConsumedParameters =
     {
-        NamedParameter("#MECH", true, MechanismParameterDataType.Mechanism,
+        NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
             "Selects AES-CBC-MAC for parameter creation and algorithm dispatch.",
             "Exactly AES-CBC-MAC."),
-        NamedParameter("#PAD", true, MechanismParameterDataType.Padding,
+        NamedParameter("#PAD", true, MechanismParameterDirection.Input, MechanismParameterDataType.Padding,
             "Padding applied before CBC-MAC calculation.",
             "NONE, PKCS-7, ANSI-X923, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, or TLS-CBC."),
-        NamedParameter("#MACLEN", true, MechanismParameterDataType.Integer,
+        NamedParameter("#MACLEN", true, MechanismParameterDirection.Input, MechanismParameterDataType.Integer,
             "Number of leftmost MAC bytes returned.", "String integer from 8 through 16 bytes.")
     };
 
@@ -300,33 +343,33 @@ public static class MechanismRegistry
     {
         new(CryptoScriptFunction.Parameters, new MechanismParameterMetadata[]
         {
-            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+            Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
                 "Selects the parameter generator.", "AES-CBC-MAC or #MECH:AES-CBC-MAC."),
-            NamedParameter("#PAD", false, MechanismParameterDataType.Padding,
+            NamedParameter("#PAD", false, MechanismParameterDirection.Input, MechanismParameterDataType.Padding,
                 "Padding applied before CBC-MAC calculation.",
                 "NONE, PKCS-7, ANSI-X923, ISO-7816, ISO-9797-M1, ISO-9797-M2, ISO-9797-M3, or TLS-CBC.",
                 MechanismParameterDefaultKind.Literal, "PKCS-7"),
-            NamedParameter("#MACLEN", false, MechanismParameterDataType.Integer,
+            NamedParameter("#MACLEN", false, MechanismParameterDirection.Input, MechanismParameterDataType.Integer,
                 "Number of leftmost MAC bytes returned.", "String integer from 8 through 16 bytes.",
                 MechanismParameterDefaultKind.Literal, "16")
         }),
         new(CryptoScriptFunction.GenerateKey, new[]
         {
-            Argument("mechanism", true, new[] { MechanismParameterDataType.Mechanism },
+            Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
                 "Selects AES key generation or import.", "Exactly AES-CBC-MAC."),
-            Argument("keySizeOrValue", true,
+            Argument("keySizeOrValue", true, MechanismParameterDirection.Input,
                 new[] { MechanismParameterDataType.Integer, MechanismParameterDataType.HexString },
                 "Generates a key of the requested size or imports the supplied key bytes.",
                 "Integer 128, 192, or 256; or a hexadecimal value of exactly 16, 24, or 32 bytes.")
         }),
         new(CryptoScriptFunction.Mac, new[]
         {
-            Argument("parameters", true, new[] { MechanismParameterDataType.ParameterSet },
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
                 "AES-CBC-MAC parameter variable or serialized parameter value.",
                 "Must contain processed #MECH, #PAD, and #MACLEN values."),
-            Argument("key", true, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
+            Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
                 "AES key variable or raw key value.", "16, 24, or 32 bytes when processed."),
-            Argument("data", true, new[] { MechanismParameterDataType.Data },
+            Argument("data", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Data },
                 "Message variable or literal.",
                 "With #PAD:NONE, length must be a non-zero multiple of 16 bytes.")
         }.Concat(AesCbcMacConsumedParameters))

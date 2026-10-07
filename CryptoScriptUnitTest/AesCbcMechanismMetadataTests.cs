@@ -105,6 +105,21 @@ public class AesCbcMechanismMetadataTests
         });
     }
 
+    [TestCase("AES-CBC")]
+    [TestCase("AES-CBC-MAC")]
+    public void ExistingCompleteMetadataIsExplicitlyInput(string mechanism)
+    {
+        Assert.That(MechanismRegistry.TryGet(mechanism, out MechanismRegistryEntry? entry), Is.True);
+
+        MechanismParameterMetadata[] parameters = entry!.FunctionMetadata.Values
+            .SelectMany(metadata => metadata.Parameters)
+            .ToArray();
+
+        Assert.That(parameters, Is.Not.Empty);
+        Assert.That(parameters.Select(parameter => parameter.Direction),
+            Is.All.EqualTo(MechanismParameterDirection.Input));
+    }
+
     [Test]
     public void MetadataCapturesRequiredArgumentsDefaultsRangesAndCombinations()
     {
