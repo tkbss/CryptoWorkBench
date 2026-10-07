@@ -11,6 +11,18 @@ namespace CryptoScript.Model
     
     public class CryptoOperations
     {
+        public VariableDeclaration GenerateParameters(OperationInvocation invocation) => GenerateParameters(invocation.Values);
+        public VariableDeclaration GenerateKey(OperationInvocation invocation) => GenerateKey(invocation.Values);
+        public VariableDeclaration Mac(OperationInvocation invocation) => Mac(invocation.Values);
+        public VariableDeclaration Hash(OperationInvocation invocation) => Hash(invocation.Values);
+        public VariableDeclaration Derive(OperationInvocation invocation) => Derive(invocation.Values);
+        public VariableDeclaration Encrypt(OperationInvocation invocation) => Encrypt(invocation.Values);
+        public VariableDeclaration Decrypt(OperationInvocation invocation) => Decrypt(invocation.Values);
+        public VariableDeclaration BlockHeader(OperationInvocation invocation) => BlockHeader(invocation.Values);
+        public VariableDeclaration Wrap(OperationInvocation invocation) => Wrap(invocation.Values);
+        public VariableDeclaration Unwrap(OperationInvocation invocation) => Unwrap(invocation.Values);
+        public VariableDeclaration Sign(OperationInvocation invocation) => Sign(invocation.Values);
+
         //the requirement for generate parameters is that there will be an undefined number of parameters
         //the first parameter is the mechanism
         public VariableDeclaration GenerateParameters(params string[] args)

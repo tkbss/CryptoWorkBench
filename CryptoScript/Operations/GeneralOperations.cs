@@ -1,5 +1,6 @@
 ﻿using CryptoScript.Variables;
 using System;
+using CryptoScript.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ namespace CryptoScript.Operations
 {
     public class GeneralOperations
     {
+        public static VariableDeclaration Compare(OperationInvocation invocation) => Compare(invocation.Values);
+
         public static VariableDeclaration Compare(params string[] args) 
         {
             if (args.Length != 2)

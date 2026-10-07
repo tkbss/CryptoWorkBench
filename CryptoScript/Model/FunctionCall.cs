@@ -17,6 +17,7 @@ namespace CryptoScript.Model
         public List<Argument> Arguments { get; set; }        
         
         public VariableDeclaration? ReturnVariable { get; set; }
+        public OperationInvocation? Invocation { get; private set; }
 
         public FunctionCall()
         {
@@ -24,41 +25,28 @@ namespace CryptoScript.Model
             Name = string.Empty;
             Arguments = new List<Argument>();            
             ReturnVariable = null;
+            Invocation = null;
         }
         public void Call() 
         {
-            string[]argArray =new string[Arguments.Count];
-            int i = 0;
-            foreach(var arg in Arguments) 
-            {
-                if(arg is ArgumentMechanism mech) 
-                {
-                    argArray[i++] = mech.Mechanism.Value;
-                }
-                if((arg is ArgumentExpression expr)) 
-                {
-                    //var expr = arg as ArgumentExpression;
-                    argArray[i++] = expr.Expr.Value();
-                }
-                if(arg is ArgumentVariable variable) 
-                {
-                    
-                    argArray[i++] = variable.Id.Value;
-                }
-                if (arg is ArgumentParameter param)
-                {
-                    string functionParam=param.Type+":"+param.Value;
-                    argArray[i++] = functionParam;
-                }
-                if(arg is ArgumentInfo info) 
-                {
-                    argArray[i++] = info.InfoType;
-                }
-
-            }
-            var function = OperationFactory.CreateOperation(Name);
-            ReturnVariable = function(argArray);           
-            
+            Invocation = new OperationInvocation(Arguments.Select(ResolveArgument));
+            var function = OperationFactory.CreateInvocationOperation(Name);
+            ReturnVariable = function(Invocation);
         }
+
+        private static ResolvedCallArgument ResolveArgument(Argument argument) => argument switch
+        {
+            ArgumentMechanism mechanism => new ResolvedCallArgument(
+                mechanism.Mechanism!.Value, ResolvedCallArgumentKind.Mechanism),
+            ArgumentExpression expression => new ResolvedCallArgument(
+                expression.Expr!.Value(), ResolvedCallArgumentKind.Expression),
+            ArgumentVariable variable => new ResolvedCallArgument(
+                variable.Id!.Value, ResolvedCallArgumentKind.Variable, variable.Id),
+            ArgumentParameter parameter => new ResolvedCallArgument(
+                parameter.Type + ":" + parameter.Value, ResolvedCallArgumentKind.Parameter),
+            ArgumentInfo info => new ResolvedCallArgument(
+                info.InfoType, ResolvedCallArgumentKind.Info),
+            _ => new ResolvedCallArgument(null, ResolvedCallArgumentKind.Empty)
+        };
     }
 }

@@ -21,6 +21,9 @@ namespace CryptoScript.Model
                 throw new ArgumentNullException(nameof(infoDocumentationProvider));
         }
 
+        public VariableDeclaration Print(OperationInvocation invocation) => Print(invocation.Values);
+        public VariableDeclaration Info(OperationInvocation invocation) => Info(invocation.Values);
+
         public VariableDeclaration Print(string[] args)
         {
             string output = "out: " + args[0];

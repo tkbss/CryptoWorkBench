@@ -83,6 +83,61 @@ public class FunctionCallEvaluatorTests
     }
 
     [Test]
+    public void InvocationPreservesExactSourceVariableInstancesByPosition()
+    {
+        var first = new StringVariableDeclaration { Id = "first", Value = "0x(AB)" };
+        var second = new StringVariableDeclaration { Id = "second", Value = "0x(AB)" };
+        VariableDictionary.Instance().Add(first);
+        VariableDictionary.Instance().Add(second);
+
+        var result = Evaluate(Call("Compare",
+            new VariableArgumentNode("first"), new VariableArgumentNode("second")));
+
+        Assert.That(result.Invocation, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Invocation!.Values, Is.EqualTo(new[] { "0x(AB)", "0x(AB)" }));
+            Assert.That(result.Invocation.Arguments[0].SourceVariable, Is.SameAs(first));
+            Assert.That(result.Invocation.Arguments[1].SourceVariable, Is.SameAs(second));
+            Assert.That(result.Invocation.Arguments.Select(argument => argument.Kind),
+                Is.All.EqualTo(ResolvedCallArgumentKind.Variable));
+        });
+    }
+
+    [Test]
+    public void LiteralInvocationArgumentsHaveNoSourceVariable()
+    {
+        var result = Evaluate(Call("Compare",
+            new LiteralArgumentNode("0x(AB)"), new LiteralArgumentNode("0x(AB)")));
+
+        Assert.That(result.Invocation!.Values, Is.EqualTo(new[] { "0x(AB)", "0x(AB)" }));
+        Assert.That(result.Invocation.Arguments.Select(argument => argument.SourceVariable), Is.All.Null);
+        Assert.That(result.Invocation.Arguments.Select(argument => argument.Kind),
+            Is.All.EqualTo(ResolvedCallArgumentKind.Expression));
+    }
+
+    [Test]
+    public void NamedParametersKeepTheirLegacySerializedValues()
+    {
+        var result = Evaluate(Call("Parameters",
+            new MechanismArgumentNode("AES-CBC"),
+            new ParameterArgumentNode("#IV", "0x(00112233445566778899AABBCCDDEEFF)"),
+            new ParameterArgumentNode("#PAD", "NONE")));
+
+        Assert.That(result.Invocation!.Values, Is.EqualTo(new[]
+        {
+            "AES-CBC", "#IV:0x(00112233445566778899AABBCCDDEEFF)", "#PAD:NONE"
+        }));
+        Assert.That(result.Invocation.Arguments.Select(argument => argument.Kind), Is.EqualTo(new[]
+        {
+            ResolvedCallArgumentKind.Mechanism,
+            ResolvedCallArgumentKind.Parameter,
+            ResolvedCallArgumentKind.Parameter
+        }));
+        Assert.That(result.Invocation.Arguments.Select(argument => argument.SourceVariable), Is.All.Null);
+    }
+
+    [Test]
     public void ReturnsParameterDelegateResultUnchanged()
     {
         var expected = new ArgumentParameter();
@@ -116,6 +171,10 @@ public class FunctionCallEvaluatorTests
         // Unquoted nested text currently becomes an empty string literal; preserve that behavior.
         Assert.That(result.Arguments.Cast<ArgumentExpression>().Select(a => a.Expr!.Value()),
             Is.All.EqualTo("\"\""));
+        Assert.That(result.Invocation!.Values, Is.All.EqualTo("\"\""));
+        Assert.That(result.Invocation.Arguments.Select(argument => argument.SourceVariable), Is.All.Null);
+        Assert.That(result.Invocation.Arguments.Select(argument => argument.Kind),
+            Is.All.EqualTo(ResolvedCallArgumentKind.Expression));
         Assert.That(result.ReturnVariable!.Value, Is.EqualTo("Values are equal"));
         Assert.That(errors, Is.Empty);
     }
