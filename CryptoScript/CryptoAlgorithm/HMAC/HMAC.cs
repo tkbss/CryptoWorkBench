@@ -63,11 +63,15 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
         }
 
         public override StringVariableDeclaration Mac(string[] parameters)
+            => Mac(AlgorithmCallArguments.FromValues(parameters));
+
+        public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
         {
-            ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+            ParameterVariableDeclaration parameter =
+                AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
             NormalizeAndValidateMechanism(parameter.Mechanism);
-            KeyVariableDeclaration key = ResolveKey(parameters[1]);
-            StringVariableDeclaration data = ResolveData(parameters[2]);
+            KeyVariableDeclaration key = ResolveKey(parameters.Arguments[1].Value!);
+            StringVariableDeclaration data = ResolveData(parameters.Arguments[2].Value!);
 
             return CreateMode(parameter.Mechanism).ModeMac(parameter, key, data);
         }
@@ -98,20 +102,6 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
                 throw new ArgumentException($"Unsupported HMAC mechanism: {mechanism}.");
 
             return mechanism;
-        }
-
-        private static ParameterVariableDeclaration ResolveParameter(string value)
-        {
-            if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
-                return declared;
-            if (FormatConversions.ParseString(value) == FormatConversions.PAR)
-            {
-                var parameter = new ParameterVariableDeclaration();
-                parameter.SetInstance(value);
-                return parameter;
-            }
-
-            throw new ArgumentException("wrong parameter argument");
         }
 
         private static KeyVariableDeclaration ResolveKey(string value)

@@ -161,27 +161,10 @@ namespace CryptoScript.CryptoAlgorithm.AES
         ParameterVariableDeclaration? parameter = null;
         KeyVariableDeclaration? key = null;
         StringVariableDeclaration? data = null;
-        private void ParseArguments(string[] arguments)
+        private void ParseArguments(AlgorithmCallArguments arguments)
         {
-            var p = arguments[0];
-            if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
-            {
-                parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
-            }
-            else
-            {
-                //json deserialization
-                if (FormatConversions.ParseString(p) == FormatConversions.PAR)
-                {
-                    parameter = new ParameterVariableDeclaration();
-                    parameter.SetInstance(p);
-                }
-                else
-                {
-                    throw new ArgumentException("wrong parameter argument");
-                }
-            }
-            p = arguments[1];
+            parameter = AlgorithmArgumentResolver.ResolveParameter(arguments.Arguments[0]);
+            string p = arguments.Arguments[1].Value!;
             if (VariableDictionary.Instance().Get(p) as KeyVariableDeclaration != null)
             {
                 key = VariableDictionary.Instance().Get(p) as KeyVariableDeclaration;
@@ -203,7 +186,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
                     throw new ArgumentException("wrong key argument");
                 }
             }
-            p = arguments[2];
+            p = arguments.Arguments[2].Value!;
             if (VariableDictionary.Instance().Get(p) as StringVariableDeclaration != null)
             {
                 data = VariableDictionary.Instance().Get(p) as StringVariableDeclaration;
@@ -225,6 +208,9 @@ namespace CryptoScript.CryptoAlgorithm.AES
 
         }
         public override StringVariableDeclaration Mac(string[] parameters)
+            => Mac(AlgorithmCallArguments.FromValues(parameters));
+
+        public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
         {
 
             ParseArguments(parameters);
@@ -243,6 +229,9 @@ namespace CryptoScript.CryptoAlgorithm.AES
             }
         }
         public override StringVariableDeclaration Encrypt(string[] parameters)
+            => Encrypt(AlgorithmCallArguments.FromValues(parameters));
+
+        public override StringVariableDeclaration Encrypt(AlgorithmCallArguments parameters)
         {
 
             ParseArguments(parameters);
@@ -288,6 +277,9 @@ namespace CryptoScript.CryptoAlgorithm.AES
         }
 
         public override StringVariableDeclaration Decrypt(string[] parameters)
+            => Decrypt(AlgorithmCallArguments.FromValues(parameters));
+
+        public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;

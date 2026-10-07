@@ -13,14 +13,49 @@ namespace CryptoScript.Model
     {
         public VariableDeclaration GenerateParameters(OperationInvocation invocation) => GenerateParameters(invocation.Values);
         public VariableDeclaration GenerateKey(OperationInvocation invocation) => GenerateKey(invocation.Values);
-        public VariableDeclaration Mac(OperationInvocation invocation) => Mac(invocation.Values);
+        public VariableDeclaration Mac(OperationInvocation invocation)
+        {
+            AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
+            if (arguments.Arguments.Count != 3)
+                throw new ArgumentException("wrong number of arguments");
+            var (algorithm, resolvedArguments) = DetermineAlgorithm(arguments);
+            return algorithm.Mac(resolvedArguments);
+        }
         public VariableDeclaration Hash(OperationInvocation invocation) => Hash(invocation.Values);
         public VariableDeclaration Derive(OperationInvocation invocation) => Derive(invocation.Values);
-        public VariableDeclaration Encrypt(OperationInvocation invocation) => Encrypt(invocation.Values);
-        public VariableDeclaration Decrypt(OperationInvocation invocation) => Decrypt(invocation.Values);
+        public VariableDeclaration Encrypt(OperationInvocation invocation)
+        {
+            AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
+            if (arguments.Arguments.Count != 3)
+                throw new ArgumentException("wrong number of arguments");
+            var (algorithm, resolvedArguments) = DetermineAlgorithm(arguments);
+            return algorithm.Encrypt(resolvedArguments);
+        }
+        public VariableDeclaration Decrypt(OperationInvocation invocation)
+        {
+            AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
+            if (arguments.Arguments.Count != 3)
+                throw new ArgumentException("wrong number of arguments");
+            var (algorithm, resolvedArguments) = DetermineAlgorithm(arguments);
+            return algorithm.Decrypt(resolvedArguments);
+        }
         public VariableDeclaration BlockHeader(OperationInvocation invocation) => BlockHeader(invocation.Values);
-        public VariableDeclaration Wrap(OperationInvocation invocation) => Wrap(invocation.Values);
-        public VariableDeclaration Unwrap(OperationInvocation invocation) => Unwrap(invocation.Values);
+        public VariableDeclaration Wrap(OperationInvocation invocation)
+        {
+            AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
+            if (arguments.Arguments.Count != 3)
+                throw new ArgumentException("wrong number of arguments");
+            var (algorithm, resolvedArguments) = DetermineAlgorithm(arguments);
+            return algorithm.Wrap(resolvedArguments);
+        }
+        public VariableDeclaration Unwrap(OperationInvocation invocation)
+        {
+            AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
+            if (arguments.Arguments.Count != 3)
+                throw new ArgumentException("wrong number of arguments");
+            var (algorithm, resolvedArguments) = DetermineAlgorithm(arguments);
+            return algorithm.Unwrap(resolvedArguments);
+        }
         public VariableDeclaration Sign(OperationInvocation invocation) => Sign(invocation.Values);
 
         //the requirement for generate parameters is that there will be an undefined number of parameters
@@ -186,6 +221,35 @@ namespace CryptoScript.Model
             }            
             var algo=AlgorithmFactory.Create(parameter.Mechanism);
             return algo;
+        }
+
+        private static AlgorithmCallArguments ToAlgorithmArguments(OperationInvocation invocation) =>
+            new(invocation.Arguments.Select(argument =>
+                new AlgorithmCallArgument(argument.Value, argument.SourceVariable)));
+
+        private static (CryptoAlgorithm.CryptoAlgorithm Algorithm, AlgorithmCallArguments Arguments)
+            DetermineAlgorithm(AlgorithmCallArguments arguments)
+        {
+            for (int index = 0; index < arguments.Arguments.Count; index++)
+            {
+                AlgorithmCallArgument argument = arguments.Arguments[index];
+                if (argument.SourceVariable is ParameterVariableDeclaration sourceParameter)
+                {
+                    return (AlgorithmFactory.Create(sourceParameter.Mechanism), arguments);
+                }
+
+                if (argument.Value is not null &&
+                    FormatConversions.ParseString(argument.Value) == FormatConversions.PAR)
+                {
+                    ParameterVariableDeclaration temporary =
+                        AlgorithmArgumentResolver.ResolveParameter(argument);
+                    AlgorithmCallArguments resolved =
+                        arguments.WithSourceVariable(index, temporary);
+                    return (AlgorithmFactory.Create(temporary.Mechanism), resolved);
+                }
+            }
+
+            throw new ArgumentException("Missing argument of type PARAM");
         }
     }
 }

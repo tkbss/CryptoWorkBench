@@ -28,14 +28,20 @@ namespace CryptoScript.CryptoAlgorithm
         { 
             return new StringVariableDeclaration(); 
         }
+        public virtual StringVariableDeclaration Encrypt(AlgorithmCallArguments parameters) =>
+            Encrypt(parameters.Values);
         public virtual StringVariableDeclaration Decrypt(string[] parameters)
         {
             return new StringVariableDeclaration();
         }
+        public virtual StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters) =>
+            Decrypt(parameters.Values);
         public virtual StringVariableDeclaration Mac(string[] parameters)
         {
             return new StringVariableDeclaration();
         }
+        public virtual StringVariableDeclaration Mac(AlgorithmCallArguments parameters) =>
+            Mac(parameters.Values);
         public virtual StringVariableDeclaration Hash(string[] parameters)
         {
             return new StringVariableDeclaration();
@@ -48,9 +54,13 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new StringVariableDeclaration();
         }
+        public virtual StringVariableDeclaration Wrap(AlgorithmCallArguments parameters) =>
+            Wrap(parameters.Values);
         public virtual VariableDeclaration Unwrap(string[] parameters)
         {
             return new KeyVariableDeclaration();
         }
+        public virtual VariableDeclaration Unwrap(AlgorithmCallArguments parameters) =>
+            Unwrap(parameters.Values);
     }
 }

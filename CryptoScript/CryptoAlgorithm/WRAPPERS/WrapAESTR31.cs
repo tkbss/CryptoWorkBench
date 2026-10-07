@@ -25,11 +25,14 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         /// parameters[2]: the name of the string variable containing the TR-31 block
         /// </param>
         /// <returns>The unwrapped key in a KeyVariableDeclaration</returns>
-        public override KeyVariableDeclaration Unwrap(string[] parameters)
+        public override KeyVariableDeclaration Unwrap(string[] parameters) =>
+            Unwrap(AlgorithmCallArguments.FromValues(parameters));
+
+        public override KeyVariableDeclaration Unwrap(AlgorithmCallArguments parameters)
         {
             // 1) Set up ParameterVariableDeclaration from parameters[0], as in Wrap
-            ParameterVariableDeclaration p = new ParameterVariableDeclaration();
-            p.SetInstance(parameters[0]);
+            ParameterVariableDeclaration p =
+                AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
 
             // 2) Retrieve the keyProtectionKey and the TR-31 block from the variable dictionary
             var variables = VariableDictionary.Instance().GetVariables();
@@ -40,12 +43,12 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             foreach (var variable in variables)
             {
                 // The name is in variable.Value
-                if (variable.Value == parameters[1])
+                if (variable.Value == parameters.Arguments[1].Value)
                 {
                     // Found the key-protection key used for wrapping
                     keyProtectionKey = (KeyVariableDeclaration)variable;
                 }
-                else if (variable.Value == parameters[2])
+                else if (variable.Value == parameters.Arguments[2].Value)
                 {
                     // Found the string that contains the TR-31 block
                     wrappedBlockVar = (StringVariableDeclaration)variable;
@@ -53,9 +56,9 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             }
 
             if (keyProtectionKey == null)
-                throw new Exception("Protection key variable not found: " + parameters[1]);
+                throw new Exception("Protection key variable not found: " + parameters.Arguments[1].Value);
             if (wrappedBlockVar == null)
-                throw new Exception("TR-31 block variable not found: " + parameters[2]);
+                throw new Exception("TR-31 block variable not found: " + parameters.Arguments[2].Value);
             
             byte[]? blockHeaderBytes =null;
             byte[]? encryptedKeyData = null;
@@ -201,10 +204,13 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 return (FormatConversions.ByteArrayToHexString(keyBytes),l*8);
             }                
         }
-        public override StringVariableDeclaration Wrap(string[] parameters)
+        public override StringVariableDeclaration Wrap(string[] parameters) =>
+            Wrap(AlgorithmCallArguments.FromValues(parameters));
+
+        public override StringVariableDeclaration Wrap(AlgorithmCallArguments parameters)
         {
-            ParameterVariableDeclaration p = new ParameterVariableDeclaration();
-            p.SetInstance(parameters[0]);
+            ParameterVariableDeclaration p =
+                AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
             RequireVersionD(FormatConversions.ToString(p.GetParameter("#BLKH")));
             string rnd = p.GetParameter("#RND");
             var variables=VariableDictionary.Instance().GetVariables();
@@ -212,11 +218,11 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             KeyVariableDeclaration? keyToWrap = null;
             foreach (var variable in variables)
             {
-                if (variable.Value == parameters[1])
+                if (variable.Value == parameters.Arguments[1].Value)
                 {
                     keyProtectionKey = (KeyVariableDeclaration)variable;
                 }
-                if (variable.Value == parameters[2])
+                if (variable.Value == parameters.Arguments[2].Value)
                 {
                     keyToWrap = (KeyVariableDeclaration)variable;
                 }

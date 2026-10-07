@@ -9,14 +9,17 @@ public class WrapDES3TR31 : CryptoAlgorithm
 {
     private const string MechanismName = "WRAP-DES3-TR31";
 
-    public override StringVariableDeclaration Wrap(string[] parameters)
+    public override StringVariableDeclaration Wrap(string[] parameters) =>
+        Wrap(AlgorithmCallArguments.FromValues(parameters));
+
+    public override StringVariableDeclaration Wrap(AlgorithmCallArguments parameters)
     {
-        var p = new ParameterVariableDeclaration();
-        p.SetInstance(parameters[0]);
+        ParameterVariableDeclaration p =
+            AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
         char version = RequireSupportedVersion(header);
-        byte[] kbpk = GetKey(parameters[1]);
-        byte[] key = GetKey(parameters[2]);
+        byte[] kbpk = GetKey(parameters.Arguments[1].Value!);
+        byte[] key = GetKey(parameters.Arguments[2].Value!);
         DES3.DES3.ValidateKeyLength(key);
         string random = p.GetParameter("#RND");
         byte[] data = Tr31ConfidentialData.Create(key, 8, 24 - key.Length,
@@ -31,9 +34,13 @@ public class WrapDES3TR31 : CryptoAlgorithm
         };
     }
 
-    public override KeyVariableDeclaration Unwrap(string[] parameters)
+    public override KeyVariableDeclaration Unwrap(string[] parameters) =>
+        Unwrap(AlgorithmCallArguments.FromValues(parameters));
+
+    public override KeyVariableDeclaration Unwrap(AlgorithmCallArguments parameters)
     {
-        string input = parameters[2];
+        _ = AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
+        string input = parameters.Arguments[2].Value!;
         string wire;
         char version;
         if (FormatConversions.ParseString(input) == FormatConversions.TR31)
@@ -53,7 +60,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
 
         var block = TR31Block.FromString(wire);
         string header = Encoding.ASCII.GetString(block.HeaderDataToMac!);
-        byte[] kbpk = GetKey(parameters[1]);
+        byte[] kbpk = GetKey(parameters.Arguments[1].Value!);
         byte[] key = version == 'B'
             ? Tr31VersionBUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk)
             : Tr31TdeaVariantUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk);
