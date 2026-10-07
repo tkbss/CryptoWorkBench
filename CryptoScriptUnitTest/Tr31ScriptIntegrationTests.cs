@@ -127,6 +127,25 @@ public class Tr31ScriptIntegrationTests
         CheckKey(key);
     }
 
+    [Test]
+    public void Tr31UnwrapStillReturnsKeyAndVarDeclarationRejectsIt()
+    {
+        var v = Tr31ReferenceVectors.All[0];
+        Run(Keys(v.Kbpk, v.Key) +
+            $"PARAM p=#MECH:WRAP-DES3-TR31 #BLKH:\"{v.Header}\" " +
+            $"#RND:0x({v.ObfuscationPadding}{v.CipherBlockPadding}) " +
+            "VAR b=Wrap(p,k,t) KEY r=Unwrap(p,k,b)");
+
+        var recovered = VariableDictionary.Instance().Get("r");
+        Assert.That(recovered, Is.TypeOf<KeyVariableDeclaration>());
+        CheckKey(v.Key);
+
+        var error = Assert.Throws<SemanticErrorException>(() => Run("VAR invalid=Unwrap(p,k,b)"));
+        Assert.That(error!.SemanticError.Message,
+            Is.EqualTo("Declaration type mismatch. Expected type : KEY"));
+        Assert.That(VariableDictionary.Instance().Contains("invalid"), Is.False);
+    }
+
     [TestCase('A', 16, 16)]
     [TestCase('A', 16, 24)]
     [TestCase('A', 24, 16)]

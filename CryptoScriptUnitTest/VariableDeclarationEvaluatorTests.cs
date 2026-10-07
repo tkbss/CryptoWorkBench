@@ -1,4 +1,5 @@
 using CryptoScript.ErrorListner;
+using CryptoScript.CryptoAlgorithm;
 using CryptoScript.Model;
 using CryptoScript.Model.Ast;
 using CryptoScript.Variables;
@@ -104,6 +105,38 @@ public class VariableDeclarationEvaluatorTests
         Assert.That(result, Is.SameAs(returned));
         Assert.That(returned.Id, Is.EqualTo("result"));
         Assert.That(VariableDictionary.Instance().Get("result"), Is.SameAs(returned));
+    }
+
+    [Test]
+    public void GeneralUnwrapContractCanReturnVarAndExistingTypeCheckAcceptsIt()
+    {
+        CryptoAlgorithm algorithm = new VarReturningUnwrapAlgorithm();
+        VariableDeclaration returned = algorithm.Unwrap([]);
+
+        var result = Evaluate(Node("VAR") with { Initializer = Call() }, _ =>
+            new FunctionCall { ReturnVariable = returned });
+
+        Assert.That(returned, Is.TypeOf<StringVariableDeclaration>());
+        Assert.That(returned.Type, Is.TypeOf<CryptoTypeVar>());
+        Assert.That(result, Is.SameAs(returned));
+        Assert.That(VariableDictionary.Instance().Get("result"), Is.SameAs(returned));
+        Assert.That(errors, Is.Empty);
+    }
+
+    [Test]
+    public void GeneralUnwrapVarResultIsRejectedByKeyDeclarationTypeCheck()
+    {
+        CryptoAlgorithm algorithm = new VarReturningUnwrapAlgorithm();
+        VariableDeclaration returned = algorithm.Unwrap([]);
+
+        var error = Assert.Throws<SemanticErrorException>(() => Evaluate(
+            Node("KEY") with { Initializer = Call() }, _ =>
+                new FunctionCall { ReturnVariable = returned }));
+
+        Assert.That(error!.SemanticError!.Message,
+            Is.EqualTo("Declaration type mismatch. Expected type : VAR"));
+        Assert.That(errors.Single(), Is.SameAs(error.SemanticError));
+        Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
     }
 
     [TestCase(false)]
@@ -215,5 +248,11 @@ public class VariableDeclarationEvaluatorTests
         Assert.That(errors[0], Is.SameAs(existing));
         Assert.That(errors[1], Is.SameAs(error!.SemanticError));
         Assert.That(errors[1].Type, Is.EqualTo(expectedType));
+    }
+
+    private sealed class VarReturningUnwrapAlgorithm : CryptoAlgorithm
+    {
+        public override VariableDeclaration Unwrap(string[] parameters) =>
+            new StringVariableDeclaration { Value = "0x(1234)" };
     }
 }

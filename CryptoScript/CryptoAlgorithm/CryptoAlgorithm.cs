@@ -48,7 +48,7 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new StringVariableDeclaration();
         }
-        public virtual KeyVariableDeclaration Unwrap(string[] parameters)
+        public virtual VariableDeclaration Unwrap(string[] parameters)
         {
             return new KeyVariableDeclaration();
         }
