@@ -103,9 +103,10 @@ namespace CryptoScript.Variables
         }
         public string GetParameter(string type)
         {
-            string tu = type.ToUpper();
-            string? t = ParameterTypeList.Instance.ParameterTypes.Find(item => item.Contains(tu));
-            if (ParameterTypeValue.ContainsKey(t))
+            string normalizedType = type.StartsWith('#') ? type : "#" + type;
+            string? t = ParameterTypeList.Instance.ParameterTypes.Find(
+                item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase));
+            if (t != null && ParameterTypeValue.ContainsKey(t))
             {
                 return ParameterTypeValue[t];
             }

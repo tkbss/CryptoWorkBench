@@ -95,4 +95,63 @@ public class ParameterVariableDeclarationTests
             Assert.That(parameter.GetParameters().Keys, Is.EquivalentTo(new[] { "#MECH", "#IV" }));
         });
     }
+
+    [TestCase("IV")]
+    [TestCase("#IV")]
+    [TestCase("iv")]
+    [TestCase("#iV")]
+    public void GetParameterMatchesCompleteNameWithOptionalHashAndOrdinalIgnoreCase(string name)
+    {
+        var parameter = new ParameterVariableDeclaration();
+        parameter.SetParameter("IV", "0x(01)");
+
+        Assert.That(parameter.GetParameter(name), Is.EqualTo("0x(01)"));
+    }
+
+    [Test]
+    public void GetParameterDistinguishesMacLengthFromOutputLength()
+    {
+        var parameter = new ParameterVariableDeclaration();
+        parameter.SetParameter("MACLEN", "8");
+        parameter.SetParameter("OUTLEN", "256");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(parameter.GetParameter("MACLEN"), Is.EqualTo("8"));
+            Assert.That(parameter.GetParameter("#OUTLEN"), Is.EqualTo("256"));
+        });
+    }
+
+    [TestCase("LEN")]
+    [TestCase("")]
+    [TestCase("UNKNOWN")]
+    [TestCase("#UNKNOWN")]
+    public void GetParameterReturnsEmptyForPartialEmptyOrUnknownName(string name)
+    {
+        var parameter = new ParameterVariableDeclaration();
+        parameter.SetParameter("MACLEN", "8");
+        parameter.SetParameter("OUTLEN", "256");
+
+        Assert.That(parameter.GetParameter(name), Is.Empty);
+    }
+
+    [Test]
+    public void GetParameterPreservesAllExistingCompleteParameterNames()
+    {
+        var parameter = new ParameterVariableDeclaration();
+        string[] names = ParameterTypeList.Instance.ParameterTypes.ToArray();
+
+        foreach (string name in names)
+            parameter.SetParameter(name, name + "-value");
+
+        Assert.Multiple(() =>
+        {
+            foreach (string name in names)
+            {
+                Assert.That(parameter.GetParameter(name), Is.EqualTo(name + "-value"), name);
+                Assert.That(parameter.GetParameter(name[1..].ToLowerInvariant()),
+                    Is.EqualTo(name + "-value"), name);
+            }
+        });
+    }
 }
