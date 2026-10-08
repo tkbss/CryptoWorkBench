@@ -57,7 +57,22 @@
     <None Update="InfoDocs\Info.Mech.WRAP-AES-TR31.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.WRAP-AES-PINBLOCK-4.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.WRAP-DES3-TR31.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.WRAP-DES3-PINBLOCK-0.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.WRAP-DES3-PINBLOCK-1.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.WRAP-DES3-PINBLOCK-2.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.WRAP-DES3-PINBLOCK-3.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="InfoDocs\Info.Mech.DES3-CBC.md">

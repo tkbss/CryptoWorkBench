@@ -424,6 +424,127 @@ public static class MechanismRegistry
         CryptoScriptFunction.BlockHeader
     };
 
+    private static MechanismFunctionMetadata PinBlockFunction(
+        string mechanism,
+        CryptoScriptFunction function,
+        bool mutatesParameters,
+        params MechanismParameterMetadata[] namedParameters)
+    {
+        if (function is not (CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap))
+            throw new ArgumentOutOfRangeException(nameof(function));
+
+        string dataName = function == CryptoScriptFunction.Wrap ? "pin" : "pinBlock";
+        MechanismParameterDataType dataType = function == CryptoScriptFunction.Wrap
+            ? MechanismParameterDataType.Data
+            : MechanismParameterDataType.BinaryData;
+        string dataDescription = function == CryptoScriptFunction.Wrap
+            ? "Clear PIN consumed when constructing the PIN block."
+            : "Encrypted PIN block consumed when recovering the clear PIN.";
+
+        var parameters = new List<MechanismParameterMetadata>
+        {
+            Argument("parameters", true,
+                mutatesParameters ? MechanismParameterDirection.InOut : MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet },
+                "PIN-block parameter variable.",
+                "Must contain the named parameters required by the selected ISO 9564 format."),
+            Argument("key", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key, MechanismParameterDataType.HexString },
+                "PIN encryption key.",
+                mechanism.StartsWith("WRAP-AES-", StringComparison.Ordinal)
+                    ? "AES key suitable for ISO 9564 format 4."
+                    : "TDEA key suitable for the selected ISO 9564 format."),
+            Argument(dataName, true, MechanismParameterDirection.Input, new[] { dataType },
+                dataDescription,
+                function == CryptoScriptFunction.Wrap
+                    ? "A PIN value accepted by the future ISO 9564 implementation."
+                    : "A PIN-block value accepted by the future ISO 9564 implementation."),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input,
+                MechanismParameterDataType.Mechanism,
+                "Selects the ISO 9564 PIN-block mechanism.",
+                $"Exactly {mechanism}.")
+        };
+        parameters.AddRange(namedParameters);
+        return new MechanismFunctionMetadata(
+            function, parameters, AdditionalNamedParameterHandling.None);
+    }
+
+    private static MechanismParameterMetadata PanParameter() =>
+        NamedParameter("#PAN", true, MechanismParameterDirection.Input,
+            MechanismParameterDataType.HexString,
+            "Complete primary account number used by the PIN-block format.",
+            "Complete decimal PAN encoded as a hexadecimal string.");
+
+    private static MechanismParameterMetadata VariablePinField(
+        string name,
+        MechanismParameterDirection direction,
+        string description,
+        string constraint,
+        bool securelyGeneratedWhenAbsent = false) =>
+        NamedParameter(name, false, direction, MechanismParameterDataType.HexString,
+            description, constraint,
+            securelyGeneratedWhenAbsent
+                ? MechanismParameterDefaultKind.Generated
+                : MechanismParameterDefaultKind.None,
+            securelyGeneratedWhenAbsent ? "Cryptographically secure random value" : null);
+
+    private static readonly MechanismFunctionMetadata[] PinBlockFormat0FunctionMetadata =
+    {
+        PinBlockFunction("WRAP-DES3-PINBLOCK-0", CryptoScriptFunction.Wrap, false,
+            PanParameter()),
+        PinBlockFunction("WRAP-DES3-PINBLOCK-0", CryptoScriptFunction.Unwrap, false,
+            PanParameter())
+    };
+
+    private static readonly MechanismFunctionMetadata[] PinBlockFormat1FunctionMetadata =
+    {
+        PinBlockFunction("WRAP-DES3-PINBLOCK-1", CryptoScriptFunction.Wrap, true,
+            VariablePinField("#TRANSACTION", MechanismParameterDirection.InOut,
+                "Transaction field optionally supplied for wrapping and later stored with the used value.",
+                "Exactly 14 minus PIN length hexadecimal nibbles.",
+                securelyGeneratedWhenAbsent: true)),
+        PinBlockFunction("WRAP-DES3-PINBLOCK-1", CryptoScriptFunction.Unwrap, true,
+            VariablePinField("#TRANSACTION", MechanismParameterDirection.Output,
+                "Transaction field extracted during unwrapping.",
+                "Exactly 14 minus PIN length hexadecimal nibbles."))
+    };
+
+    private static readonly MechanismFunctionMetadata[] PinBlockFormat2FunctionMetadata =
+    {
+        PinBlockFunction("WRAP-DES3-PINBLOCK-2", CryptoScriptFunction.Wrap, false),
+        PinBlockFunction("WRAP-DES3-PINBLOCK-2", CryptoScriptFunction.Unwrap, false)
+    };
+
+    private static readonly MechanismFunctionMetadata[] PinBlockFormat3FunctionMetadata =
+    {
+        PinBlockFunction("WRAP-DES3-PINBLOCK-3", CryptoScriptFunction.Wrap, true,
+            PanParameter(),
+            VariablePinField("#FILL", MechanismParameterDirection.InOut,
+                "Fill field optionally supplied for wrapping and later stored with the used value.",
+                "Exactly 14 minus PIN length nibbles, each A through F.",
+                securelyGeneratedWhenAbsent: true)),
+        PinBlockFunction("WRAP-DES3-PINBLOCK-3", CryptoScriptFunction.Unwrap, true,
+            PanParameter(),
+            VariablePinField("#FILL", MechanismParameterDirection.Output,
+                "Fill field extracted during unwrapping.",
+                "Exactly 14 minus PIN length nibbles, each A through F."))
+    };
+
+    private static readonly MechanismFunctionMetadata[] PinBlockFormat4FunctionMetadata =
+    {
+        PinBlockFunction("WRAP-AES-PINBLOCK-4", CryptoScriptFunction.Wrap, true,
+            PanParameter(),
+            VariablePinField("#RANDOM", MechanismParameterDirection.InOut,
+                "Random field optionally supplied for wrapping and later stored with the used value.",
+                "Exactly 16 hexadecimal nibbles.",
+                securelyGeneratedWhenAbsent: true)),
+        PinBlockFunction("WRAP-AES-PINBLOCK-4", CryptoScriptFunction.Unwrap, true,
+            PanParameter(),
+            VariablePinField("#RANDOM", MechanismParameterDirection.Output,
+                "Random field extracted during unwrapping.",
+                "Exactly 16 hexadecimal nibbles."))
+    };
+
     private static readonly ReadOnlyCollection<MechanismRegistryEntry> RegistryEntries =
         Array.AsReadOnly(new MechanismRegistryEntry[]
         {
@@ -475,7 +596,12 @@ public static class MechanismRegistry
             new("KDF-SP800-108-COUNTER", "NIST SP 800-108 Rev. 1 Update 1 Counter Mode KDF using a supported HMAC PRF or AES-CMAC.", "Info.Mech.KDF-SP800-108-COUNTER.md", DerivationFunctions),
             // BlockHeader is supported only through CryptoOperations' internal
             // BLOCKHEADER-WRAP-AES-TR31 dispatch and its populated one-argument overload.
+            new("WRAP-AES-PINBLOCK-4", "ISO 9564 format 4 PIN-block wrapping with AES; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-AES-PINBLOCK-4.md", WrapFunctions, PinBlockFormat4FunctionMetadata),
             new("WRAP-AES-TR31", "TR-31 Version D key wrapping with AES Key Derivation Binding.", "Info.Mech.WRAP-AES-TR31.md", AesTr31WrapFunctions),
+            new("WRAP-DES3-PINBLOCK-0", "ISO 9564 format 0 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-0.md", WrapFunctions, PinBlockFormat0FunctionMetadata),
+            new("WRAP-DES3-PINBLOCK-1", "ISO 9564 format 1 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-1.md", WrapFunctions, PinBlockFormat1FunctionMetadata),
+            new("WRAP-DES3-PINBLOCK-2", "ISO 9564 format 2 PIN-block wrapping with TDEA for EMV offline PIN verification; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-2.md", WrapFunctions, PinBlockFormat2FunctionMetadata),
+            new("WRAP-DES3-PINBLOCK-3", "ISO 9564 format 3 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-3.md", WrapFunctions, PinBlockFormat3FunctionMetadata),
             new("WRAP-DES3-TR31", "TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.", "Info.Mech.WRAP-DES3-TR31.md", WrapFunctions)
         });
 

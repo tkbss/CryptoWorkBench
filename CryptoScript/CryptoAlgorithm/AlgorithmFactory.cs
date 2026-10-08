@@ -14,6 +14,15 @@
                 return new WRAPPERS.Tr31BlockHeader();
             if (canonicalMechanism == "WRAP-AES-TR31")
                 return new WRAPPERS.WrapAESTR31();
+            if (canonicalMechanism == "WRAP-AES-PINBLOCK-4")
+                return new PINBLOCK.PinBlockAlgorithm(
+                    canonicalMechanism, PINBLOCK.PinBlockCipherFamily.Aes);
+            if (canonicalMechanism is "WRAP-DES3-PINBLOCK-0" or "WRAP-DES3-PINBLOCK-1" or
+                "WRAP-DES3-PINBLOCK-2" or "WRAP-DES3-PINBLOCK-3")
+            {
+                return new PINBLOCK.PinBlockAlgorithm(
+                    canonicalMechanism, PINBLOCK.PinBlockCipherFamily.Des3);
+            }
             if (canonicalMechanism == "DUKPT-AES-INITIAL-KEY")
                 return new KDF.DUKPT_AES_INITIAL_KEY();
             if (canonicalMechanism == "DUKPT-AES-WORKING-KEY")
