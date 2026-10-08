@@ -39,6 +39,14 @@ namespace CryptoScript.Model
                     fc.Call();
                     return fc;
                 }
+                catch (FunctionContractException e)
+                {
+                    throw CreateFunctionContractError(e, semanticErrors);
+                }
+                catch (SemanticErrorException e) when (IsFunctionContractError(e))
+                {
+                    throw;
+                }
                 catch (Exception e)
                 {
                     SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
@@ -55,6 +63,14 @@ namespace CryptoScript.Model
                 fc.Arguments.AddRange(argValues.OfType<Argument>());
                 fc.Call();
                 return fc;
+            }
+            catch (FunctionContractException e)
+            {
+                throw CreateFunctionContractError(e, semanticErrors);
+            }
+            catch (SemanticErrorException e) when (IsFunctionContractError(e))
+            {
+                throw;
             }
             catch(Exception e)
             {
@@ -134,5 +150,24 @@ namespace CryptoScript.Model
             }
             return new Argument();
         }
+
+        private static SemanticErrorException CreateFunctionContractError(
+            FunctionContractException exception,
+            List<SemanticError> semanticErrors)
+        {
+            var error = new SemanticError
+            {
+                Type = "FunctionContract",
+                FunctionName = exception.Function.ToString(),
+                ErrorCode = exception.Error,
+                Identifier = exception.ParameterName ?? string.Empty,
+                Message = exception.Message
+            };
+            semanticErrors.Add(error);
+            return new SemanticErrorException { SemanticError = error };
+        }
+
+        private static bool IsFunctionContractError(SemanticErrorException exception) =>
+            exception.SemanticError is { Type: "FunctionContract", ErrorCode: not null };
     }
 }

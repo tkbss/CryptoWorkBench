@@ -1,6 +1,7 @@
 using CryptoScript.CryptoAlgorithm;
 using CryptoScript.CryptoAlgorithm.DES3;
 using CryptoScript.ErrorListner;
+using CryptoScript.Model;
 using CryptoScript.Variables;
 using FluentAssertions;
 using System.Security.Cryptography;
@@ -138,8 +139,10 @@ namespace CryptoScriptUnitTest
             const string declarations = $"KEY k=GenerateKey(DES3-RETAIL,0x({Key16})) PARAM p=Parameters(DES3-RETAIL) ";
             Action encrypt = () => Execute(declarations + "VAR result=Encrypt(p,k,0x(0011223344556677))");
             Action decrypt = () => Execute(declarations + "VAR result=Decrypt(p,k,0x(0011223344556677))");
-            encrypt.Should().Throw<SemanticErrorException>().Where(e => e.SemanticError!.Message.Contains("only be used in MAC"));
-            decrypt.Should().Throw<SemanticErrorException>().Where(e => e.SemanticError!.Message.Contains("only be used in MAC"));
+            encrypt.Should().Throw<SemanticErrorException>()
+                .Where(e => e.SemanticError!.ErrorCode == FunctionContractError.UnsupportedFunction);
+            decrypt.Should().Throw<SemanticErrorException>()
+                .Where(e => e.SemanticError!.ErrorCode == FunctionContractError.UnsupportedFunction);
         }
 
         [Test]

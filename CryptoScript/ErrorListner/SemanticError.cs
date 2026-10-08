@@ -17,6 +17,7 @@ namespace CryptoScript.ErrorListner
         public string FunctionName { get; set; } = string.Empty;
         public string FunctionCall { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;   
+        public FunctionContractError? ErrorCode { get; set; }
         
 
     }
