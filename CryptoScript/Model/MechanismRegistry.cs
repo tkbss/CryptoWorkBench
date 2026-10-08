@@ -598,10 +598,10 @@ public static class MechanismRegistry
             // BLOCKHEADER-WRAP-AES-TR31 dispatch and its populated one-argument overload.
             new("WRAP-AES-PINBLOCK-4", "ISO 9564 format 4 PIN-block wrapping with AES; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-AES-PINBLOCK-4.md", WrapFunctions, PinBlockFormat4FunctionMetadata),
             new("WRAP-AES-TR31", "TR-31 Version D key wrapping with AES Key Derivation Binding.", "Info.Mech.WRAP-AES-TR31.md", AesTr31WrapFunctions),
-            new("WRAP-DES3-PINBLOCK-0", "ISO 9564 format 0 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-0.md", WrapFunctions, PinBlockFormat0FunctionMetadata),
-            new("WRAP-DES3-PINBLOCK-1", "ISO 9564 format 1 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-1.md", WrapFunctions, PinBlockFormat1FunctionMetadata),
-            new("WRAP-DES3-PINBLOCK-2", "ISO 9564 format 2 PIN-block wrapping with TDEA for EMV offline PIN verification; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-2.md", WrapFunctions, PinBlockFormat2FunctionMetadata),
-            new("WRAP-DES3-PINBLOCK-3", "ISO 9564 format 3 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-DES3-PINBLOCK-3.md", WrapFunctions, PinBlockFormat3FunctionMetadata),
+            new("WRAP-DES3-PINBLOCK-0", "ISO 9564 format 0 PIN-block wrapping and unwrapping with TDEA.", "Info.Mech.WRAP-DES3-PINBLOCK-0.md", WrapFunctions, PinBlockFormat0FunctionMetadata),
+            new("WRAP-DES3-PINBLOCK-1", "ISO 9564 format 1 PIN-block wrapping and unwrapping with TDEA.", "Info.Mech.WRAP-DES3-PINBLOCK-1.md", WrapFunctions, PinBlockFormat1FunctionMetadata),
+            new("WRAP-DES3-PINBLOCK-2", "ISO 9564 format 2 PIN-block wrapping and unwrapping with TDEA for EMV offline PIN verification.", "Info.Mech.WRAP-DES3-PINBLOCK-2.md", WrapFunctions, PinBlockFormat2FunctionMetadata),
+            new("WRAP-DES3-PINBLOCK-3", "ISO 9564 format 3 PIN-block wrapping and unwrapping with TDEA.", "Info.Mech.WRAP-DES3-PINBLOCK-3.md", WrapFunctions, PinBlockFormat3FunctionMetadata),
             new("WRAP-DES3-TR31", "TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.", "Info.Mech.WRAP-DES3-TR31.md", WrapFunctions)
         });
 

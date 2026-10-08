@@ -49,6 +49,12 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             return transform.TransformFinalBlock(input, 0, input.Length);
         }
 
+        internal static byte[] EncryptNoPadding(byte[] key, byte[] plaintext) =>
+            Transform(key, plaintext, PaddingMode.None, encrypt: true);
+
+        internal static byte[] DecryptNoPadding(byte[] key, byte[] ciphertext) =>
+            Transform(key, ciphertext, PaddingMode.None, encrypt: false);
+
         private static byte[] GetValidatedKey(KeyVariableDeclaration key)
         {
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);

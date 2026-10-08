@@ -245,9 +245,9 @@ public class PinBlockArchitectureTests
     }
 
     [Test]
-    public void OperationsFailExplicitlyWithoutPerformingPinBlockCryptography()
+    public void Format4OperationsFailExplicitlyWithoutPerformingPinBlockCryptography()
     {
-        foreach (string mechanism in Mechanisms)
+        foreach (string mechanism in new[] { "WRAP-AES-PINBLOCK-4" })
         {
             ParameterVariableDeclaration parameters = mechanism.EndsWith("-0", StringComparison.Ordinal) ||
                                                       mechanism.EndsWith("-3", StringComparison.Ordinal) ||
@@ -276,9 +276,9 @@ public class PinBlockArchitectureTests
     }
 
     [Test]
-    public void LegacyStringArrayOverloadsReachTheMechanismSpecificStub()
+    public void Format4LegacyStringArrayOverloadsReachTheMechanismSpecificStub()
     {
-        foreach (string mechanism in Mechanisms)
+        foreach (string mechanism in new[] { "WRAP-AES-PINBLOCK-4" })
         {
             ParameterVariableDeclaration parameters = mechanism.EndsWith("-0", StringComparison.Ordinal) ||
                                                       mechanism.EndsWith("-3", StringComparison.Ordinal) ||
@@ -310,11 +310,7 @@ public class PinBlockArchitectureTests
     [Test]
     public void ScriptsReachThePinBlockStubThroughThePublicExecutionPath()
     {
-        string[] mechanisms =
-        {
-            "WRAP-DES3-PINBLOCK-0",
-            "WRAP-AES-PINBLOCK-4"
-        };
+        string[] mechanisms = { "WRAP-AES-PINBLOCK-4" };
         foreach (string mechanism in mechanisms)
         {
             foreach (string function in new[] { "Wrap", "Unwrap" })
@@ -351,10 +347,10 @@ public class PinBlockArchitectureTests
     }
 
     [Test]
-    public void RuntimeDispatchFailsExplicitlyAfterContractValidation()
+    public void Format4RuntimeDispatchFailsExplicitlyAfterContractValidation()
     {
         var operations = new CryptoOperations();
-        foreach (string mechanism in Mechanisms)
+        foreach (string mechanism in new[] { "WRAP-AES-PINBLOCK-4" })
         {
             ParameterVariableDeclaration parameters = mechanism.EndsWith("-0", StringComparison.Ordinal) ||
                                                       mechanism.EndsWith("-3", StringComparison.Ordinal) ||

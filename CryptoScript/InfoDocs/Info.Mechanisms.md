@@ -53,10 +53,10 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-EP2-PAN-SURROGATE-TRX : ep2 8.14 direct Expand using raw DOL as info and returning all 32 bytes.
 - WRAP-AES-PINBLOCK-4 : ISO 9564 format 4 PIN-block wrapping with AES; cryptographic processing is not yet implemented.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
-- WRAP-DES3-PINBLOCK-0 : ISO 9564 format 0 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.
-- WRAP-DES3-PINBLOCK-1 : ISO 9564 format 1 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.
-- WRAP-DES3-PINBLOCK-2 : ISO 9564 format 2 PIN-block wrapping with TDEA for EMV offline PIN verification; cryptographic processing is not yet implemented.
-- WRAP-DES3-PINBLOCK-3 : ISO 9564 format 3 PIN-block wrapping with TDEA; cryptographic processing is not yet implemented.
+- WRAP-DES3-PINBLOCK-0 : ISO 9564 format 0 PIN-block wrapping and unwrapping with TDEA.
+- WRAP-DES3-PINBLOCK-1 : ISO 9564 format 1 PIN-block wrapping and unwrapping with TDEA.
+- WRAP-DES3-PINBLOCK-2 : ISO 9564 format 2 PIN-block wrapping and unwrapping with TDEA for EMV offline PIN verification.
+- WRAP-DES3-PINBLOCK-3 : ISO 9564 format 3 PIN-block wrapping and unwrapping with TDEA.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
 
 ## ep2 KDF Comparison
