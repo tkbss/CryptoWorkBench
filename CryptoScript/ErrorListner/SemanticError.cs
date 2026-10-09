@@ -9,6 +9,9 @@ namespace CryptoScript.ErrorListner
 {
     public class SemanticError
     {   
+        public SemanticDiagnosticSeverity Severity { get; set; } = SemanticDiagnosticSeverity.Error;
+        public SemanticDiagnosticCode DiagnosticCode { get; set; } = SemanticDiagnosticCode.Unclassified;
+        public DiagnosticLocation? Location { get; set; }
         
        
         public string Message { get; set; }=string.Empty;
