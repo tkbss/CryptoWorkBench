@@ -110,17 +110,34 @@ public class DeriveHkdfIntegrationTests
     }
 
     [Test]
-    public void DeriveRejectsAmbiguousKeyValues()
+    public void DeriveUsesReferencedKeyWhenKeyValuesAreIdentical()
     {
         RegisterIkm("first", Ikm, FormatConversions.HEX);
         RegisterIkm("second", Ikm, FormatConversions.HEX);
 
-        Action action = () => Execute(
+        CryptoScriptProgram result = Execute(
             "PARAM hkdf=Parameters(KDF-HKDF,#HASH:HASH-SHA256,#OUTLEN:256) " +
             "KEY okm=Derive(hkdf,second,\"\")");
 
-        action.Should().Throw<SemanticErrorException>()
-            .Where(exception => exception.SemanticError!.Message.Contains("Ambiguous KEY argument"));
+        var okm = (KeyVariableDeclaration)result.Statements[1];
+        FormatConversions.HexStringToByteArray(okm.Value).Should().HaveCount(32);
+        VariableDictionary.Instance().Get("second").Should().NotBeSameAs(
+            VariableDictionary.Instance().Get("first"));
+    }
+
+    [Test]
+    public void DeriveUsesSelectedKeyWhenKeyValuesDiffer()
+    {
+        RegisterIkm("first", Ikm, FormatConversions.HEX);
+        RegisterIkm("second", new string('0', Ikm.Length), FormatConversions.HEX);
+
+        CryptoScriptProgram result = Execute(
+            "PARAM hkdf=Parameters(KDF-HKDF,#HASH:HASH-SHA256,#OUTLEN:256) " +
+            "KEY firstOkm=Derive(hkdf,first,\"\") " +
+            "KEY secondOkm=Derive(hkdf,second,\"\")");
+
+        ((KeyVariableDeclaration)result.Statements[1]).Value.Should().NotBe(
+            ((KeyVariableDeclaration)result.Statements[2]).Value);
     }
 
     [Test]

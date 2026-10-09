@@ -365,7 +365,8 @@ public class MechanismRegistryTests
             functions,
             algorithm,
             nameof(Algorithm.Derive),
-            CryptoScriptFunction.Derive);
+            CryptoScriptFunction.Derive,
+            typeof(AlgorithmCallArguments));
         AddAlgorithmFunction(
             functions,
             algorithm,
@@ -400,9 +401,12 @@ public class MechanismRegistryTests
         ISet<CryptoScriptFunction> functions,
         Algorithm algorithm,
         string methodName,
-        CryptoScriptFunction function)
+        CryptoScriptFunction function,
+        Type? structuredArgumentType = null)
     {
-        if (HasConcreteAlgorithmOverride(algorithm, methodName, typeof(string[])))
+        if (HasConcreteAlgorithmOverride(algorithm, methodName, typeof(string[])) ||
+            (structuredArgumentType is not null &&
+             HasConcreteAlgorithmOverride(algorithm, methodName, structuredArgumentType)))
             functions.Add(function);
     }
 

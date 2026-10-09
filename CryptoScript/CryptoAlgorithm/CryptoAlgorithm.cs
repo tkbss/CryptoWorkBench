@@ -46,7 +46,9 @@ namespace CryptoScript.CryptoAlgorithm
         {
             return new StringVariableDeclaration();
         }
-        public virtual KeyVariableDeclaration Derive(string[] parameters)
+        public virtual KeyVariableDeclaration Derive(string[] parameters) =>
+            Derive(LegacyDeriveArgumentAdapter.Create(parameters));
+        public virtual KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
         {
             throw new NotSupportedException("The selected mechanism does not support key derivation.");
         }

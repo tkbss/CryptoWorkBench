@@ -60,9 +60,10 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         return result;
     }
 
-    public override KeyVariableDeclaration Derive(string[] parameters)
+    public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
-        ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+        ParameterVariableDeclaration parameter =
+            AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("Derive requires KDF-SP800-108-COUNTER parameters.");
 
@@ -74,9 +75,9 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         int prfOutputLength = GetPrfOutputLengthBits(prf);
         ulong iterations = ValidateIterationCount(outputLength, prfOutputLength, counterLength);
 
-        byte[] key = ResolveKeyBytes(ResolveKey(parameters[1]));
+        byte[] key = ResolveKeyBytes(KdfArgumentResolver.ResolveKey(parameters, 1));
         ValidatePrfKey(prf, key);
-        byte[] context = ResolveBinaryValue(parameters[2], "Context");
+        byte[] context = ResolveBinaryValue(parameters.Arguments[2].Value!, "Context");
         byte[] label = parameter.GetParameters().ContainsKey("#LABEL")
             ? ResolveBinaryValue(parameter.GetParameter("LABEL"), "#LABEL")
             : Array.Empty<byte>();
@@ -185,31 +186,6 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
             throw new ArgumentException("KDF-SP800-108-COUNTER KIN must not be empty.");
         if (prf.Equals("AES-CMAC", StringComparison.OrdinalIgnoreCase) && key.Length is not (16 or 24 or 32))
             throw new ArgumentException("AES-CMAC KIN must be 128, 192 or 256 bits.");
-    }
-
-    private static ParameterVariableDeclaration ResolveParameter(string value)
-    {
-        if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
-            return declared;
-        if (FormatConversions.ParseString(value) == FormatConversions.PAR)
-        {
-            var parameter = new ParameterVariableDeclaration();
-            parameter.SetInstance(value);
-            return parameter;
-        }
-        throw new ArgumentException("wrong parameter argument");
-    }
-
-    private static KeyVariableDeclaration ResolveKey(string value)
-    {
-        KeyVariableDeclaration[] matches = VariableDictionary.Instance().GetVariables()
-            .OfType<KeyVariableDeclaration>().Where(key => key.Value == value).ToArray();
-        return matches.Length switch
-        {
-            1 => matches[0],
-            0 => throw new ArgumentException("wrong key argument"),
-            _ => throw new ArgumentException("Ambiguous KEY argument: multiple KEY variables have the same value.")
-        };
     }
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)

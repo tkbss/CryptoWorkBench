@@ -20,6 +20,13 @@ public sealed class AlgorithmCallArguments
     private readonly ReadOnlyCollection<AlgorithmCallArgument> arguments;
 
     public AlgorithmCallArguments(IEnumerable<AlgorithmCallArgument> arguments)
+        : this(arguments, isLegacyDeriveCall: false)
+    {
+    }
+
+    internal AlgorithmCallArguments(
+        IEnumerable<AlgorithmCallArgument> arguments,
+        bool isLegacyDeriveCall)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         AlgorithmCallArgument[] copiedArguments = arguments.ToArray();
@@ -27,9 +34,12 @@ public sealed class AlgorithmCallArguments
             throw new ArgumentException("Algorithm arguments must not contain null entries.", nameof(arguments));
 
         this.arguments = Array.AsReadOnly(copiedArguments);
+        IsLegacyDeriveCall = isLegacyDeriveCall;
     }
 
     public IReadOnlyList<AlgorithmCallArgument> Arguments => arguments;
+
+    internal bool IsLegacyDeriveCall { get; }
 
     public string[] Values => arguments.Select(argument => argument.Value!).ToArray();
 
@@ -47,6 +57,6 @@ public sealed class AlgorithmCallArguments
 
         AlgorithmCallArgument[] updated = arguments.ToArray();
         updated[index] = new AlgorithmCallArgument(updated[index].Value, sourceVariable);
-        return new AlgorithmCallArguments(updated);
+        return new AlgorithmCallArguments(updated, IsLegacyDeriveCall);
     }
 }

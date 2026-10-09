@@ -176,6 +176,45 @@ public class DukptAesWorkingKeyTests
         result.DerivationMechanism.Should().Be(Mechanism);
     }
 
+    [Test]
+    public void DeriveUsesMetadataFromTheReferencedKeyWhenKeyValuesAreIdentical()
+    {
+        string value = $"0x({InitialKey128})";
+        VariableDictionary.Instance().Add(new KeyVariableDeclaration
+        {
+            Id = "wrongType",
+            Value = value,
+            KeyValue = value,
+            ValueFormat = FormatConversions.HEX,
+            KeySize = "128",
+            KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
+            DerivationMechanism = "test-wrong-type",
+            Type = new CryptoTypeKey()
+        });
+        VariableDictionary.Instance().Add(new KeyVariableDeclaration
+        {
+            Id = "selected",
+            Value = value,
+            KeyValue = value,
+            ValueFormat = FormatConversions.HEX,
+            KeySize = "128",
+            KeyType = KeyType.Secret(KeyAlgorithm.Aes),
+            DerivationMechanism = "test-selected",
+            Type = new CryptoTypeKey()
+        });
+
+        CryptoScriptProgram result = Execute(
+            $"PARAM p=Parameters({Mechanism},#USAGE:PIN,#KEYTYPE:AES-128) " +
+            $"KEY wk=Derive(p,selected,0x({Ksn1}))");
+
+        ((KeyVariableDeclaration)result.Statements[1]).Value.Should().BeEquivalentTo(
+            "0x(AF8CB133A78F8DC2D1359F18527593FB)", options => options.IgnoringCase());
+
+        Action wrongSelection = () => Execute($"KEY rejected=Derive(p,wrongType,0x({Ksn1}))");
+        wrongSelection.Should().Throw<SemanticErrorException>()
+            .Where(exception => exception.SemanticError!.Message.Contains("AES Initial Key"));
+    }
+
     [TestCase("1234567890123456000000")]
     [TestCase("12345678901234560000000000")]
     public void RejectsKsnThatIsNotExactlyTwelveBytes(string ksn)

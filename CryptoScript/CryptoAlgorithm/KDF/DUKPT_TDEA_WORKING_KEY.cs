@@ -53,9 +53,10 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
         return result;
     }
 
-    public override KeyVariableDeclaration Derive(string[] parameters)
+    public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
-        ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+        ParameterVariableDeclaration parameter =
+            AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Derive requires {MechanismName} parameters.");
         if (parameter.GetParameters().Keys.Any(name => name is not ("#MECH" or "#USAGE")))
@@ -63,14 +64,14 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
 
         string usageName = RequireUsage(parameter.GetParameter("USAGE"));
         WorkingKeyUsage usage = Usages[usageName];
-        KeyVariableDeclaration initialKey = ResolveKey(parameters[1]);
+        KeyVariableDeclaration initialKey = KdfArgumentResolver.ResolveKey(parameters, 1);
         byte[] initialKeyBytes = ResolveKeyBytes(initialKey);
         if (initialKey.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
             throw new ArgumentException($"{MechanismName} requires a TDEA Initial Key.");
         if (initialKeyBytes.Length != 16)
             throw new ArgumentException($"{MechanismName} Initial Key must be exactly 128 bits (16 bytes).");
 
-        byte[] ksn = ResolveDataBytes(parameters[2]);
+        byte[] ksn = ResolveDataBytes(parameters.Arguments[2].Value!);
         if (ksn.Length != 10)
             throw new ArgumentException($"{MechanismName} KSN must be exactly 80 bits (10 bytes).");
         int transactionCounter = ((ksn[7] & 0x1F) << 16) | (ksn[8] << 8) | ksn[9];
@@ -170,31 +171,6 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
         if (string.IsNullOrWhiteSpace(usage) || !Usages.ContainsKey(usage))
             throw new ArgumentException($"{MechanismName} requires #USAGE with a supported value.");
         return usage.ToUpperInvariant();
-    }
-
-    private static ParameterVariableDeclaration ResolveParameter(string value)
-    {
-        if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
-            return declared;
-        if (FormatConversions.ParseString(value) == FormatConversions.PAR)
-        {
-            var parameter = new ParameterVariableDeclaration();
-            parameter.SetInstance(value);
-            return parameter;
-        }
-        throw new ArgumentException("wrong parameter argument");
-    }
-
-    private static KeyVariableDeclaration ResolveKey(string value)
-    {
-        KeyVariableDeclaration[] matches = VariableDictionary.Instance().GetVariables()
-            .OfType<KeyVariableDeclaration>().Where(key => key.Value == value).ToArray();
-        return matches.Length switch
-        {
-            1 => matches[0],
-            0 => throw new ArgumentException("wrong key argument"),
-            _ => throw new ArgumentException("Ambiguous KEY argument: multiple KEY variables have the same value.")
-        };
     }
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)

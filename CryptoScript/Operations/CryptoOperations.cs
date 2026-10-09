@@ -38,7 +38,14 @@ namespace CryptoScript.Model
             return algorithm.Mac(resolvedArguments);
         }
         public VariableDeclaration Hash(OperationInvocation invocation) => Hash(invocation.Values);
-        public VariableDeclaration Derive(OperationInvocation invocation) => Derive(invocation.Values);
+        public VariableDeclaration Derive(OperationInvocation invocation)
+        {
+            AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
+            if (arguments.Arguments.Count != 3)
+                throw new ArgumentException("wrong number of arguments");
+            var (algorithm, resolvedArguments, _) = DetermineAlgorithm(arguments);
+            return algorithm.Derive(resolvedArguments);
+        }
         public VariableDeclaration Encrypt(OperationInvocation invocation)
         {
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);

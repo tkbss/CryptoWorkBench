@@ -63,17 +63,18 @@ public sealed class KDF_EP2_SESSION : CryptoAlgorithm
         return result;
     }
 
-    public override KeyVariableDeclaration Derive(string[] parameters)
+    public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
-        ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+        ParameterVariableDeclaration parameter =
+            AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Derive requires {MechanismName} parameters.");
 
-        byte[] sessionKey = ResolveKeyBytes(ResolveKey(parameters[1]));
+        byte[] sessionKey = ResolveKeyBytes(KdfArgumentResolver.ResolveKey(parameters, 1));
         if (sessionKey.Length != 16)
             throw new ArgumentException($"{MechanismName} session key must be exactly 16 bytes.");
 
-        StringVariableDeclaration data = ResolveData(parameters[2]);
+        StringVariableDeclaration data = ResolveData(parameters.Arguments[2].Value!);
         byte[] suppliedInfo = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
         if (suppliedInfo.Length != 0)
             throw new ArgumentException($"{MechanismName} defines info through #VARIANT; the data argument must be empty.");
@@ -98,33 +99,6 @@ public sealed class KDF_EP2_SESSION : CryptoAlgorithm
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
             DerivationMechanism = MechanismName,
             Type = new CryptoTypeKey()
-        };
-    }
-
-    private static ParameterVariableDeclaration ResolveParameter(string value)
-    {
-        if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
-            return declared;
-        if (FormatConversions.ParseString(value) == FormatConversions.PAR)
-        {
-            var parameter = new ParameterVariableDeclaration();
-            parameter.SetInstance(value);
-            return parameter;
-        }
-        throw new ArgumentException("wrong parameter argument");
-    }
-
-    private static KeyVariableDeclaration ResolveKey(string value)
-    {
-        KeyVariableDeclaration[] matches = VariableDictionary.Instance().GetVariables()
-            .OfType<KeyVariableDeclaration>()
-            .Where(key => key.Value == value)
-            .ToArray();
-        return matches.Length switch
-        {
-            1 => matches[0],
-            0 => throw new ArgumentException("wrong key argument"),
-            _ => throw new ArgumentException("Ambiguous KEY argument: multiple KEY variables have the same value.")
         };
     }
 

@@ -26,20 +26,21 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
         };
     }
 
-    public override KeyVariableDeclaration Derive(string[] parameters)
+    public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
-        ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+        ParameterVariableDeclaration parameter =
+            AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Derive requires {MechanismName} parameters.");
         if (parameter.GetParameters().Keys.Any(name => !name.Equals("#MECH", StringComparison.OrdinalIgnoreCase)))
             throw new ArgumentException($"{MechanismName} does not support additional parameters.");
 
-        KeyVariableDeclaration bdk = ResolveKey(parameters[1]);
+        KeyVariableDeclaration bdk = KdfArgumentResolver.ResolveKey(parameters, 1);
         byte[] bdkBytes = ResolveKeyBytes(bdk);
         if (bdkBytes.Length is not (16 or 24 or 32))
             throw new ArgumentException($"{MechanismName} BDK must be 128, 192 or 256 bits.");
 
-        byte[] initialKeyId = ResolveDataBytes(parameters[2]);
+        byte[] initialKeyId = ResolveDataBytes(parameters.Arguments[2].Value!);
         if (initialKeyId.Length != 8)
             throw new ArgumentException($"{MechanismName} IKID must be exactly 64 bits (8 bytes).");
 
@@ -78,31 +79,6 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
             0x8001, algorithm, keyLengthBits, initialKeyId, 0, initialKey: true);
         data[1] = counter;
         return data;
-    }
-
-    private static ParameterVariableDeclaration ResolveParameter(string value)
-    {
-        if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
-            return declared;
-        if (FormatConversions.ParseString(value) == FormatConversions.PAR)
-        {
-            var parameter = new ParameterVariableDeclaration();
-            parameter.SetInstance(value);
-            return parameter;
-        }
-        throw new ArgumentException("wrong parameter argument");
-    }
-
-    private static KeyVariableDeclaration ResolveKey(string value)
-    {
-        KeyVariableDeclaration[] matches = VariableDictionary.Instance().GetVariables()
-            .OfType<KeyVariableDeclaration>().Where(key => key.Value == value).ToArray();
-        return matches.Length switch
-        {
-            1 => matches[0],
-            0 => throw new ArgumentException("wrong key argument"),
-            _ => throw new ArgumentException("Ambiguous KEY argument: multiple KEY variables have the same value.")
-        };
     }
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)

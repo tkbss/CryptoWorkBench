@@ -63,9 +63,10 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
         return result;
     }
 
-    public override KeyVariableDeclaration Derive(string[] parameters)
+    public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
-        ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+        ParameterVariableDeclaration parameter =
+            AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Derive requires {MechanismName} parameters.");
         if (parameter.GetParameters().Keys.Any(name =>
@@ -76,7 +77,7 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
         string keyTypeName = RequireKeyType(parameter.GetParameter("KEYTYPE"));
         WorkingKeyType workingKeyType = WorkingKeyTypes[keyTypeName];
 
-        KeyVariableDeclaration initialKey = ResolveKey(parameters[1]);
+        KeyVariableDeclaration initialKey = KdfArgumentResolver.ResolveKey(parameters, 1);
         byte[] initialKeyBytes = ResolveKeyBytes(initialKey);
         if (initialKey.KeyType.Algorithm != KeyAlgorithm.Aes)
             throw new ArgumentException($"{MechanismName} requires an AES Initial Key.");
@@ -87,7 +88,7 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
             throw new ArgumentException(
                 $"{MechanismName} {keyTypeName} is stronger than the {initialKeyBits}-bit AES Initial Key.");
 
-        byte[] ksn = ResolveDataBytes(parameters[2]);
+        byte[] ksn = ResolveDataBytes(parameters.Arguments[2].Value!);
         if (ksn.Length != 12)
             throw new ArgumentException($"{MechanismName} KSN must be exactly 96 bits (12 bytes).");
         byte[] initialKeyId = ksn[..8];
@@ -165,31 +166,6 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
         if (string.IsNullOrWhiteSpace(keyType) || !WorkingKeyTypes.ContainsKey(keyType))
             throw new ArgumentException($"{MechanismName} requires #KEYTYPE with a supported value.");
         return keyType.ToUpperInvariant();
-    }
-
-    private static ParameterVariableDeclaration ResolveParameter(string value)
-    {
-        if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
-            return declared;
-        if (FormatConversions.ParseString(value) == FormatConversions.PAR)
-        {
-            var parameter = new ParameterVariableDeclaration();
-            parameter.SetInstance(value);
-            return parameter;
-        }
-        throw new ArgumentException("wrong parameter argument");
-    }
-
-    private static KeyVariableDeclaration ResolveKey(string value)
-    {
-        KeyVariableDeclaration[] matches = VariableDictionary.Instance().GetVariables()
-            .OfType<KeyVariableDeclaration>().Where(key => key.Value == value).ToArray();
-        return matches.Length switch
-        {
-            1 => matches[0],
-            0 => throw new ArgumentException("wrong key argument"),
-            _ => throw new ArgumentException("Ambiguous KEY argument: multiple KEY variables have the same value.")
-        };
     }
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
