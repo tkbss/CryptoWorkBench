@@ -51,7 +51,7 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-EP2-PAN-RECEIPT-TRX : ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-RECEIPT-TRM : ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-SURROGATE-TRX : ep2 8.14 direct Expand using raw DOL as info and returning all 32 bytes.
-- WRAP-AES-PINBLOCK-4 : ISO 9564 format 4 PIN-block wrapping with AES; cryptographic processing is not yet implemented.
+- WRAP-AES-PINBLOCK-4 : ISO 9564 format 4 PIN-block wrapping and unwrapping with AES.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-PINBLOCK-0 : ISO 9564 format 0 PIN-block wrapping and unwrapping with TDEA.
 - WRAP-DES3-PINBLOCK-1 : ISO 9564 format 1 PIN-block wrapping and unwrapping with TDEA.

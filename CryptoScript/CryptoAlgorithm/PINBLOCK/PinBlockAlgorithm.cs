@@ -1,3 +1,4 @@
+using CryptoScript.CryptoAlgorithm.AES;
 using CryptoScript.CryptoAlgorithm.DES3;
 using CryptoScript.Model;
 using CryptoScript.Variables;
@@ -15,11 +16,14 @@ public enum PinBlockCipherFamily
 public sealed class PinBlockAlgorithm : CryptoAlgorithm
 {
     private const int ArgumentCount = 3;
-    private const int PinBlockLength = 8;
+    private const int Des3PinBlockLength = 8;
+    private const int AesPinBlockLength = 16;
+    private const int Format4RandomByteCount = 8;
     private readonly Func<int, int> randomInt32;
+    private readonly Func<int, byte[]> randomBytes;
 
     public PinBlockAlgorithm(string mechanismName, PinBlockCipherFamily cipherFamily)
-        : this(mechanismName, cipherFamily, RandomNumberGenerator.GetInt32)
+        : this(mechanismName, cipherFamily, RandomNumberGenerator.GetInt32, RandomNumberGenerator.GetBytes)
     {
     }
 
@@ -27,12 +31,23 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
         string mechanismName,
         PinBlockCipherFamily cipherFamily,
         Func<int, int> randomInt32)
+        : this(mechanismName, cipherFamily, randomInt32, RandomNumberGenerator.GetBytes)
+    {
+    }
+
+    internal PinBlockAlgorithm(
+        string mechanismName,
+        PinBlockCipherFamily cipherFamily,
+        Func<int, int> randomInt32,
+        Func<int, byte[]> randomBytes)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(mechanismName);
         ArgumentNullException.ThrowIfNull(randomInt32);
+        ArgumentNullException.ThrowIfNull(randomBytes);
         MechanismName = mechanismName;
         CipherFamily = cipherFamily;
         this.randomInt32 = randomInt32;
+        this.randomBytes = randomBytes;
     }
 
     public string MechanismName { get; }
@@ -62,6 +77,9 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
         PinBlockArguments resolved = ResolveArguments(arguments, legacyCall, requiresParameterIdentity: MutatesParameters);
         string pin = GetPin(resolved.Data);
 
+        if (IsFormat4)
+            return WrapFormat4(resolved, pin);
+
         string? outputName = null;
         string? outputValue = null;
         byte[] clearBlock = Format switch
@@ -83,7 +101,10 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
     {
         EnsureImplemented(CryptoScriptFunction.Unwrap);
         PinBlockArguments resolved = ResolveArguments(arguments, legacyCall, requiresParameterIdentity: MutatesParameters);
-        byte[] ciphertext = GetPinBlock(resolved.Data);
+        if (IsFormat4)
+            return UnwrapFormat4(resolved);
+
+        byte[] ciphertext = GetPinBlock(resolved.Data, Des3PinBlockLength);
         byte[] clearBlock = DES3_ECB.DecryptNoPadding(resolved.Key, ciphertext);
 
         DecodedPinBlockFields decoded = Format switch
@@ -132,11 +153,20 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
             throw new ArgumentException("This PIN-block operation requires a referencable PARAM variable.");
 
         KeyVariableDeclaration key = ResolveKey(arguments.Arguments[1], legacyCall);
-        if (key.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
-            throw new ArgumentException("DES3 PIN-block mechanisms require a DES3 key.");
         byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
-        Des3Algorithm.ValidateKeyLength(keyBytes);
-        Des3Algorithm.ValidateUsableKey(keyBytes);
+        if (CipherFamily == PinBlockCipherFamily.Aes)
+        {
+            if (key.KeyType.Algorithm is not (KeyAlgorithm.Aes or KeyAlgorithm.Unknown))
+                throw new ArgumentException("AES PIN-block mechanisms require an AES key.");
+            AES_ECB.ValidateKeyLength(keyBytes);
+        }
+        else
+        {
+            if (key.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
+                throw new ArgumentException("DES3 PIN-block mechanisms require a DES3 key.");
+            Des3Algorithm.ValidateKeyLength(keyBytes);
+            Des3Algorithm.ValidateUsableKey(keyBytes);
+        }
 
         StringVariableDeclaration data = ResolveData(arguments.Arguments[2], legacyCall);
         return new PinBlockArguments(parameters, keyBytes, data);
@@ -244,6 +274,43 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
         return PinBlockFieldCodec.EncodeFormat3(pin, GetHexNibbles(parameters, "PAN"), outputValue);
     }
 
+    private StringVariableDeclaration WrapFormat4(PinBlockArguments arguments, string pin)
+    {
+        string pan = GetHexNibbles(arguments.Parameters, "PAN");
+        string randomField = (GetOptionalHexNibbles(arguments.Parameters, "RANDOM") ?? GenerateRandomField())
+            .ToUpperInvariant();
+        byte[] pinField = PinBlockFormat4FieldCodec.EncodePinField(pin, randomField);
+        byte[] panField = PinBlockFormat4FieldCodec.EncodePanField(pan);
+        byte[] firstAesResult = AES_ECB.EncryptNoPadding(arguments.Key, pinField);
+        byte[] xorResult = Xor(firstAesResult, panField);
+        byte[] ciphertext = AES_ECB.EncryptNoPadding(arguments.Key, xorResult);
+        StringVariableDeclaration result = CreateBinaryResult(ciphertext);
+        ApplyOutputParameter(arguments.Parameters, "RANDOM", randomField);
+        return result;
+    }
+
+    private StringVariableDeclaration UnwrapFormat4(PinBlockArguments arguments)
+    {
+        byte[] ciphertext = GetPinBlock(arguments.Data, AesPinBlockLength);
+        string pan = GetHexNibbles(arguments.Parameters, "PAN");
+        byte[] panField = PinBlockFormat4FieldCodec.EncodePanField(pan);
+        byte[] xorResult = AES_ECB.DecryptNoPadding(arguments.Key, ciphertext);
+        byte[] firstAesResult = Xor(xorResult, panField);
+        byte[] pinField = AES_ECB.DecryptNoPadding(arguments.Key, firstAesResult);
+        DecodedPinBlockFormat4Fields decoded = PinBlockFormat4FieldCodec.DecodePinField(pinField);
+        StringVariableDeclaration result = CreatePinResult(decoded.Pin);
+        ApplyOutputParameter(arguments.Parameters, "RANDOM", decoded.RandomField);
+        return result;
+    }
+
+    private string GenerateRandomField()
+    {
+        byte[] generated = randomBytes(Format4RandomByteCount);
+        if (generated is null || generated.Length != Format4RandomByteCount)
+            throw new InvalidOperationException("The random byte source returned an invalid value.");
+        return Convert.ToHexString(generated);
+    }
+
     private string GenerateNibbles(int count, int exclusiveUpperBound, int offset)
     {
         char[] result = new char[count];
@@ -269,13 +336,23 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
         return pin;
     }
 
-    private static byte[] GetPinBlock(StringVariableDeclaration data)
+    private static byte[] GetPinBlock(StringVariableDeclaration data, int expectedLength)
     {
         if (data.ValueFormat != FormatConversions.HEX && data.ValueFormat != FormatConversions.B64)
             throw new ArgumentException("Encrypted PIN-block input must be hexadecimal or Base64 binary data.");
         byte[] result = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
-        if (result.Length != PinBlockLength)
-            throw new ArgumentException("Encrypted PIN block must contain exactly 8 bytes.");
+        if (result.Length != expectedLength)
+            throw new ArgumentException($"Encrypted PIN block must contain exactly {expectedLength} bytes.");
+        return result;
+    }
+
+    private static byte[] Xor(byte[] left, byte[] right)
+    {
+        if (left.Length != right.Length)
+            throw new ArgumentException("PIN-block fields must have identical lengths.");
+        byte[] result = new byte[left.Length];
+        for (int index = 0; index < result.Length; index++)
+            result[index] = (byte)(left[index] ^ right[index]);
         return result;
     }
 
@@ -331,11 +408,13 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
     };
 
     private int Format => MechanismName[^1] - '0';
-    private bool MutatesParameters => Format is 1 or 3;
+    private bool IsFormat4 => CipherFamily == PinBlockCipherFamily.Aes && Format == 4;
+    private bool MutatesParameters => Format is 1 or 3 || IsFormat4;
 
     private void EnsureImplemented(CryptoScriptFunction function)
     {
-        if (CipherFamily != PinBlockCipherFamily.Des3 || Format is < 0 or > 3)
+        bool implemented = CipherFamily == PinBlockCipherFamily.Des3 && Format is >= 0 and <= 3 || IsFormat4;
+        if (!implemented)
             throw NotImplemented(function);
     }
 

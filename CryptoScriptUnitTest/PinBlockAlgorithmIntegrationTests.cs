@@ -476,22 +476,6 @@ public class PinBlockAlgorithmIntegrationTests
         });
     }
 
-    [Test]
-    public void Format4_RemainsNotImplemented()
-    {
-        PinBlockAlgorithm algorithm = Algorithm("WRAP-AES-PINBLOCK-4");
-        ParameterVariableDeclaration parameters = Parameters(
-            "WRAP-AES-PINBLOCK-4", "p", ("PAN", Pan));
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(() => algorithm.Wrap(Arguments(parameters, Key(Key16), Var("0x(1234)"))),
-                Throws.TypeOf<NotImplementedException>());
-            Assert.That(() => algorithm.Unwrap(Arguments(parameters, Key(Key16), Var("0x(0000000000000000)"))),
-                Throws.TypeOf<NotImplementedException>());
-        });
-    }
-
     private static void AssertInvalidNamedInputIsAtomic(
         string mechanism,
         params (string Name, string Value)[] namedParameters)

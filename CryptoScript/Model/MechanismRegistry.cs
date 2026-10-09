@@ -457,8 +457,8 @@ public static class MechanismRegistry
             Argument(dataName, true, MechanismParameterDirection.Input, new[] { dataType },
                 dataDescription,
                 function == CryptoScriptFunction.Wrap
-                    ? "A PIN value accepted by the future ISO 9564 implementation."
-                    : "A PIN-block value accepted by the future ISO 9564 implementation."),
+                    ? "A hexadecimal PIN containing 4 to 12 decimal nibbles."
+                    : "An encrypted PIN block with the length required by the selected ISO 9564 format."),
             NamedParameter("#MECH", true, MechanismParameterDirection.Input,
                 MechanismParameterDataType.Mechanism,
                 "Selects the ISO 9564 PIN-block mechanism.",
@@ -596,7 +596,7 @@ public static class MechanismRegistry
             new("KDF-SP800-108-COUNTER", "NIST SP 800-108 Rev. 1 Update 1 Counter Mode KDF using a supported HMAC PRF or AES-CMAC.", "Info.Mech.KDF-SP800-108-COUNTER.md", DerivationFunctions),
             // BlockHeader is supported only through CryptoOperations' internal
             // BLOCKHEADER-WRAP-AES-TR31 dispatch and its populated one-argument overload.
-            new("WRAP-AES-PINBLOCK-4", "ISO 9564 format 4 PIN-block wrapping with AES; cryptographic processing is not yet implemented.", "Info.Mech.WRAP-AES-PINBLOCK-4.md", WrapFunctions, PinBlockFormat4FunctionMetadata),
+            new("WRAP-AES-PINBLOCK-4", "ISO 9564 format 4 PIN-block wrapping and unwrapping with AES.", "Info.Mech.WRAP-AES-PINBLOCK-4.md", WrapFunctions, PinBlockFormat4FunctionMetadata),
             new("WRAP-AES-TR31", "TR-31 Version D key wrapping with AES Key Derivation Binding.", "Info.Mech.WRAP-AES-TR31.md", AesTr31WrapFunctions),
             new("WRAP-DES3-PINBLOCK-0", "ISO 9564 format 0 PIN-block wrapping and unwrapping with TDEA.", "Info.Mech.WRAP-DES3-PINBLOCK-0.md", WrapFunctions, PinBlockFormat0FunctionMetadata),
             new("WRAP-DES3-PINBLOCK-1", "ISO 9564 format 1 PIN-block wrapping and unwrapping with TDEA.", "Info.Mech.WRAP-DES3-PINBLOCK-1.md", WrapFunctions, PinBlockFormat1FunctionMetadata),
