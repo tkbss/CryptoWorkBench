@@ -24,6 +24,7 @@ namespace CryptoScript.Model
     public class ArgumentExpression : Argument
     { 
         public Expression? Expr { get; set; }
+        public ResolvedCallArgumentKind Kind { get; set; } = ResolvedCallArgumentKind.Expression;
         public ArgumentExpression() 
         {
             Expr = null;

@@ -1,18 +1,27 @@
 using System.Collections.ObjectModel;
+using CryptoScript.Model;
 using CryptoScript.Variables;
 
 namespace CryptoScript.CryptoAlgorithm;
 
 public sealed record AlgorithmCallArgument
 {
-    public AlgorithmCallArgument(string? value, VariableDeclaration? sourceVariable = null)
+    public AlgorithmCallArgument(
+        string? value,
+        VariableDeclaration? sourceVariable = null,
+        ResolvedCallArgumentKind kind = ResolvedCallArgumentKind.Expression)
     {
+        if (!Enum.IsDefined(kind))
+            throw new ArgumentOutOfRangeException(nameof(kind), kind, "The argument kind is not defined.");
+
         Value = value;
         SourceVariable = sourceVariable;
+        Kind = kind;
     }
 
     public string? Value { get; }
     public VariableDeclaration? SourceVariable { get; }
+    public ResolvedCallArgumentKind Kind { get; }
 }
 
 public sealed class AlgorithmCallArguments
@@ -56,7 +65,8 @@ public sealed class AlgorithmCallArguments
             throw new ArgumentOutOfRangeException(nameof(index));
 
         AlgorithmCallArgument[] updated = arguments.ToArray();
-        updated[index] = new AlgorithmCallArgument(updated[index].Value, sourceVariable);
+        updated[index] = new AlgorithmCallArgument(
+            updated[index].Value, sourceVariable, updated[index].Kind);
         return new AlgorithmCallArguments(updated, IsLegacyDeriveCall);
     }
 }

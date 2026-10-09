@@ -113,7 +113,20 @@ public class FunctionCallEvaluatorTests
         Assert.That(result.Invocation!.Values, Is.EqualTo(new[] { "0x(AB)", "0x(AB)" }));
         Assert.That(result.Invocation.Arguments.Select(argument => argument.SourceVariable), Is.All.Null);
         Assert.That(result.Invocation.Arguments.Select(argument => argument.Kind),
-            Is.All.EqualTo(ResolvedCallArgumentKind.Expression));
+            Is.All.EqualTo(ResolvedCallArgumentKind.HexLiteral));
+    }
+
+    [Test]
+    public void LiteralInvocationKindsDistinguishHexFromOtherLiterals()
+    {
+        var result = Evaluate(Call("Compare",
+            new LiteralArgumentNode("0x(AB)"), new LiteralArgumentNode("\"AB\"")));
+
+        Assert.That(result.Invocation!.Arguments.Select(argument => argument.Kind), Is.EqualTo(new[]
+        {
+            ResolvedCallArgumentKind.HexLiteral,
+            ResolvedCallArgumentKind.OtherLiteral
+        }));
     }
 
     [Test]
@@ -174,7 +187,7 @@ public class FunctionCallEvaluatorTests
         Assert.That(result.Invocation!.Values, Is.All.EqualTo("\"\""));
         Assert.That(result.Invocation.Arguments.Select(argument => argument.SourceVariable), Is.All.Null);
         Assert.That(result.Invocation.Arguments.Select(argument => argument.Kind),
-            Is.All.EqualTo(ResolvedCallArgumentKind.Expression));
+            Is.All.EqualTo(ResolvedCallArgumentKind.NestedFunctionCall));
         Assert.That(result.ReturnVariable!.Value, Is.EqualTo("Values are equal"));
         Assert.That(errors, Is.Empty);
     }

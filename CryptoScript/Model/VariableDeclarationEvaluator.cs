@@ -60,6 +60,7 @@ namespace CryptoScript.Model
                             declarParam[i].TypeName ?? throw new NullReferenceException(),
                             declarParam[i].RawValue ?? throw new NullReferenceException());
                         Parameter.SetParameter(param);
+                        Parameter.RecordExplicitParameter(param.Type);
                     }
                     catch
                     {

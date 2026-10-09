@@ -9,7 +9,7 @@ public class AlgorithmFactoryTests
     [Test]
     public void EveryProductiveMechanismResolvesToAConcreteAlgorithm()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(53));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(54));
 
         foreach (string mechanism in MechanismList.Instance.Mechanisms)
         {

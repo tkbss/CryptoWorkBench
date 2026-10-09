@@ -117,7 +117,11 @@ namespace CryptoScript.Model
                 if (fc != null && fc.ReturnVariable != null)
                 {
                     var expr = Expression.Create(fc.ReturnVariable.Value);
-                    ArgumentExpression argExpr = new ArgumentExpression() { Expr = expr };
+                    ArgumentExpression argExpr = new ArgumentExpression()
+                    {
+                        Expr = expr,
+                        Kind = ResolvedCallArgumentKind.NestedFunctionCall
+                    };
                     return argExpr;
                 }
 
@@ -139,7 +143,13 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.LiteralArgumentNode literal)
             {
-                ArgumentExpression argExpr = new ArgumentExpression() { Expr = Expression.Create(literal.RawText) };
+                ArgumentExpression argExpr = new ArgumentExpression()
+                {
+                    Expr = Expression.Create(literal.RawText),
+                    Kind = FormatConversions.ParseString(literal.RawText) == FormatConversions.HEX
+                        ? ResolvedCallArgumentKind.HexLiteral
+                        : ResolvedCallArgumentKind.OtherLiteral
+                };
                 return argExpr;
             }
             if (argument is Ast.ParameterArgumentNode parameter)
@@ -215,6 +225,9 @@ namespace CryptoScript.Model
                 rawValues = rawValues.Concat(invocation.Arguments
                     .Where(argument =>
                         argument.Kind is ResolvedCallArgumentKind.Expression or
+                            ResolvedCallArgumentKind.HexLiteral or
+                            ResolvedCallArgumentKind.OtherLiteral or
+                            ResolvedCallArgumentKind.NestedFunctionCall or
                             ResolvedCallArgumentKind.Variable ||
                         argument.Kind == ResolvedCallArgumentKind.Parameter &&
                         IsSensitiveNamedParameter(argument.Value))

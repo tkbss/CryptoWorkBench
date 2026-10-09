@@ -14,6 +14,19 @@ namespace CryptoScript.Variables
     
     public class ParameterVariableDeclaration : VariableDeclaration
     {
+        private readonly List<string> explicitParameterNames = new();
+
+        internal IReadOnlyList<string> ExplicitParameterNames => explicitParameterNames;
+
+        internal void RecordExplicitParameter(string type)
+        {
+            string normalizedType = type.StartsWith('#') ? type : "#" + type;
+            string canonicalType = ParameterTypeList.Instance.ParameterTypes.Find(
+                item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase))
+                ?? normalizedType;
+            explicitParameterNames.Add(canonicalType);
+        }
+
         public void SetInstance(string parameters)
         {            
             
@@ -30,6 +43,7 @@ namespace CryptoScript.Variables
                     var key = "#" + kv[0];    // Add '#' back to the key                    
                     var value = kv[1];
                     SetParameter(key, value);
+                    RecordExplicitParameter(key);
 
                 }
             }

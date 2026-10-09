@@ -7,6 +7,9 @@ public enum ResolvedCallArgumentKind
 {
     Mechanism,
     Expression,
+    HexLiteral,
+    OtherLiteral,
+    NestedFunctionCall,
     Variable,
     Parameter,
     Info,

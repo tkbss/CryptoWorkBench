@@ -50,6 +50,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - DUKPT-AES-WORKING-KEY
         - DUKPT-TDEA-INITIAL-KEY
         - DUKPT-TDEA-WORKING-KEY
+        - KDF-EMV-AC-SESSION
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
         - KDF-EP2-PAN-RECEIPT-TRM
@@ -99,6 +100,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - DUKPT-TDEA-INITIAL-KEY parameters contain only MECH. OUTLEN, KEYTYPE, PRF and COUNTER are not supported; the mechanism requires a 16-byte double-length TDEA BDK and a complete 80-bit KSN.
 - DUKPT-TDEA-WORKING-KEY requires USAGE in addition to MECH. USAGE accepts PIN, MAC-REQUEST, MAC-RESPONSE, MAC-BOTH, DATA-REQUEST, DATA-RESPONSE and DATA-BOTH. KEYTYPE, OUTLEN and COUNTER are not supported; the mechanism always returns a 16-byte double-length TDEA Working Key.
 - USAGE: For DUKPT-TDEA-WORKING-KEY, selects the Annex C Working-Key variant and restricted KeyUsagePolicy. Request/response denotes DUKPT derivation direction, not a Generate/Verify or Encrypt/Decrypt permission split.
+- KDF-EMV-AC-SESSION parameters contain only MECH. Derive requires an AES-128/192/256 or TDEA-128 master KEY and an exactly two-byte ATC supplied directly as a hexadecimal literal or through a referenced VAR containing hexadecimal binary data; nested function results are rejected. No additional named parameters are supported. Duplicate MECH declarations and a stored MECH value that contradicts KDF-EMV-AC-SESSION are rejected.
 - ep2 KDF parameter contracts:
 
 | Mechanism | HASH | SALT | OUTLEN | VARIANT |

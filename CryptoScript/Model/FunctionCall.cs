@@ -39,7 +39,7 @@ namespace CryptoScript.Model
             ArgumentMechanism mechanism => new ResolvedCallArgument(
                 mechanism.Mechanism!.Value, ResolvedCallArgumentKind.Mechanism),
             ArgumentExpression expression => new ResolvedCallArgument(
-                expression.Expr!.Value(), ResolvedCallArgumentKind.Expression),
+                expression.Expr!.Value(), expression.Kind),
             ArgumentVariable variable => new ResolvedCallArgument(
                 variable.Id!.Value, ResolvedCallArgumentKind.Variable, variable.Id),
             ArgumentParameter parameter => new ResolvedCallArgument(

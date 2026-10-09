@@ -32,6 +32,9 @@ public static class MechanismParameterContractValidator
                 function);
         }
 
+        if (mechanism.StrictMechanismParameterContract)
+            ValidateMechanismParameter(mechanism, parameters);
+
         if (!mechanism.FunctionMetadata.TryGetValue(
                 function, out MechanismFunctionMetadata? metadata))
         {
@@ -99,6 +102,27 @@ public static class MechanismParameterContractValidator
     private static bool Contains(IEnumerable<string> names, string expected) =>
         names.Any(name => NamesEqual(name, expected));
 
+    private static void ValidateMechanismParameter(
+        MechanismRegistryEntry mechanism,
+        ParameterVariableDeclaration parameters)
+    {
+        string storedMechanism = parameters.GetParameter("#MECH");
+        if (!NormalizeMechanismValue(storedMechanism).Equals(
+                mechanism.CanonicalName, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                $"Mechanism {mechanism.CanonicalName} requires a consistent #MECH:{mechanism.CanonicalName} parameter.");
+        }
+
+        int occurrences = parameters.ExplicitParameterNames.Count(name =>
+            NamesEqual(name, "#MECH"));
+        if (occurrences > 1)
+        {
+            throw new ArgumentException(
+                $"Mechanism {mechanism.CanonicalName} does not allow duplicate #MECH parameters.");
+        }
+    }
+
     private static bool IsGloballyKnown(string name) =>
         ParameterRegistry.Entries.Any(parameter => NamesEqual(parameter.Name, name));
 
@@ -107,4 +131,9 @@ public static class MechanismParameterContractValidator
 
     private static string Normalize(string name) =>
         name.StartsWith('#') ? name : "#" + name;
+
+    private static string NormalizeMechanismValue(string value) =>
+        value.StartsWith("#MECH:", StringComparison.OrdinalIgnoreCase)
+            ? value["#MECH:".Length..]
+            : value;
 }

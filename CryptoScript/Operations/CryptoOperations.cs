@@ -19,8 +19,12 @@ namespace CryptoScript.Model
 
             string mechanism = NormalizeMechanismSelector(values[0]);
             var suppliedParameters = new ParameterVariableDeclaration { Mechanism = mechanism };
+            suppliedParameters.RecordExplicitParameter("#MECH");
             foreach (string parameter in values.Skip(1))
+            {
                 suppliedParameters.SetParameter(parameter);
+                suppliedParameters.RecordExplicitParameter(parameter.Split(':', 2)[0]);
+            }
 
             MechanismParameterContractValidator.Validate(
                 mechanism, CryptoScriptFunction.Parameters, suppliedParameters);
@@ -256,7 +260,7 @@ namespace CryptoScript.Model
 
         private static AlgorithmCallArguments ToAlgorithmArguments(OperationInvocation invocation) =>
             new(invocation.Arguments.Select(argument =>
-                new AlgorithmCallArgument(argument.Value, argument.SourceVariable)));
+                new AlgorithmCallArgument(argument.Value, argument.SourceVariable, argument.Kind)));
 
         private static (CryptoAlgorithm.CryptoAlgorithm Algorithm, AlgorithmCallArguments Arguments,
                 ParameterVariableDeclaration Parameters)

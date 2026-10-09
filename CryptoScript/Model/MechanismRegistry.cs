@@ -36,6 +36,7 @@ public sealed record MechanismRegistryEntry
     public string DocumentationFileName { get; }
     public IReadOnlySet<CryptoScriptFunction> SupportedFunctions { get; }
     public IReadOnlyDictionary<CryptoScriptFunction, MechanismFunctionMetadata> FunctionMetadata { get; }
+    internal bool StrictMechanismParameterContract { get; init; }
 
     public bool Supports(CryptoScriptFunction function) => SupportedFunctions.Contains(function);
 }
@@ -405,6 +406,45 @@ public static class MechanismRegistry
         CryptoScriptFunction.Derive
     };
 
+    private static readonly MechanismFunctionMetadata[] EmvAcSessionFunctionMetadata =
+    {
+        new(CryptoScriptFunction.Parameters, new[]
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism },
+                "Selects EMV Application Cryptogram session-key derivation.",
+                "KDF-EMV-AC-SESSION or #MECH:KDF-EMV-AC-SESSION.")
+        }),
+        new(CryptoScriptFunction.Derive, new MechanismParameterMetadata[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet },
+                "KDF-EMV-AC-SESSION parameter variable.",
+                "Must contain only #MECH:KDF-EMV-AC-SESSION."),
+            Argument("masterKey", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key },
+                "AES or double-length TDEA Application Cryptogram Master Key.",
+                "AES key of 16, 24 or 32 bytes, or TDEA key of exactly 16 bytes."),
+            new MechanismParameterMetadata(
+                "atc",
+                MechanismParameterKind.PositionalArgument,
+                MechanismParameterDirection.Input,
+                true,
+                new[] { MechanismParameterDataType.BinaryData },
+                "Two-byte EMV Application Transaction Counter.",
+                "Exactly two bytes supplied as a hexadecimal literal or a VAR containing hexadecimal binary data.",
+                acceptedInputForms: new[]
+                {
+                    MechanismParameterInputForm.HexLiteral,
+                    MechanismParameterInputForm.VariableReference
+                }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input,
+                MechanismParameterDataType.Mechanism,
+                "Selects EMV Application Cryptogram session-key derivation.",
+                "Exactly KDF-EMV-AC-SESSION.")
+        })
+    };
+
     private static readonly CryptoScriptFunction[] HashFunctions =
     {
         CryptoScriptFunction.Parameters,
@@ -588,6 +628,10 @@ public static class MechanismRegistry
             new("HMAC-SHA512", "Keyed-Hash Message Authentication Code using SHA-512.", "Info.Mech.HMAC-SHA512.md", MacFunctions),
             new("HMAC-SHA512-224", "Keyed-Hash Message Authentication Code using SHA-512/224.", "Info.Mech.HMAC-SHA512-224.md", MacFunctions),
             new("HMAC-SHA512-256", "Keyed-Hash Message Authentication Code using SHA-512/256.", "Info.Mech.HMAC-SHA512-256.md", MacFunctions),
+            new("KDF-EMV-AC-SESSION", "EMV Common Session Key Derivation for ATC-based Application Cryptogram and ARPC processing.", "Info.Mech.KDF-EMV-AC-SESSION.md", DerivationFunctions, EmvAcSessionFunctionMetadata)
+            {
+                StrictMechanismParameterContract = true
+            },
             new("KDF-EP2-PAN-RECEIPT-TRM", "ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.", "Info.Mech.KDF-EP2-PAN-RECEIPT-TRM.md", DerivationFunctions),
             new("KDF-EP2-PAN-RECEIPT-TRX", "ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.", "Info.Mech.KDF-EP2-PAN-RECEIPT-TRX.md", DerivationFunctions),
             new("KDF-EP2-PAN-SURROGATE-TRX", "ep2 8.14 direct Expand using raw DOL as info and returning all 32 bytes.", "Info.Mech.KDF-EP2-PAN-SURROGATE-TRX.md", DerivationFunctions),
