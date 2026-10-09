@@ -95,9 +95,13 @@ public class PinBlockAlgorithmIntegrationTests
         });
     }
 
-    [TestCase("WRAP-DES3-PINBLOCK-0", "0x(12345678)")]
+    [TestCase("WRAP-DES3-PINBLOCK-0", "0x(1234567890)")]
+    [TestCase("WRAP-DES3-PINBLOCK-0", "0x(12345678901)")]
+    [TestCase("WRAP-DES3-PINBLOCK-0", "0x(0012345678)")]
     [TestCase("WRAP-DES3-PINBLOCK-0", "0x(1234567890123456789)")]
-    [TestCase("WRAP-DES3-PINBLOCK-3", "0x(12345678)")]
+    [TestCase("WRAP-DES3-PINBLOCK-3", "0x(1234567890)")]
+    [TestCase("WRAP-DES3-PINBLOCK-3", "0x(12345678901)")]
+    [TestCase("WRAP-DES3-PINBLOCK-3", "0x(0012345678)")]
     [TestCase("WRAP-DES3-PINBLOCK-3", "0x(1234567890123456789)")]
     public void PanBoundaryLengths_RoundTrip(string mechanism, string pan)
     {
@@ -345,10 +349,10 @@ public class PinBlockAlgorithmIntegrationTests
     [Test]
     public void InvalidPanTransactionAndFill_DoNotMutateParameters()
     {
-        AssertInvalidNamedInputIsAtomic("WRAP-DES3-PINBLOCK-0", ("PAN", "0x(1234567)"));
+        AssertInvalidNamedInputIsAtomic("WRAP-DES3-PINBLOCK-0", ("PAN", "0x(123456789)"));
         AssertInvalidNamedInputIsAtomic("WRAP-DES3-PINBLOCK-1", ("TRANSACTION", "0x(012345678G)"));
         AssertInvalidNamedInputIsAtomic("WRAP-DES3-PINBLOCK-3",
-            ("PAN", "0x(1234567)"), ("FILL", "0x(ABCDEFABCD)"));
+            ("PAN", "0x(123456789)"), ("FILL", "0x(ABCDEFABCD)"));
         AssertInvalidNamedInputIsAtomic("WRAP-DES3-PINBLOCK-3",
             ("PAN", Pan), ("FILL", "0x(ABCDEFABC9)"));
     }

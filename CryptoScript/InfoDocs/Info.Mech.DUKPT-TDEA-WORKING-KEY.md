@@ -71,7 +71,7 @@ Request and response identify the TDEA DUKPT derivation direction and select dif
 
 `MAC-BOTH` uses exactly the `MAC-REQUEST` DUKPT variant. `DATA-BOTH` uses exactly the `DATA-REQUEST` DUKPT variant.
 
-The policy is stored as typed metadata on the result. CryptoScript does not currently enforce this `KeyUsagePolicy` generally across all cryptographic operations.
+The policy is stored as typed metadata on the result. CryptoScript enforces the relevant policy flags for general AES/DES3 encryption, decryption and MAC operations and for ISO 9564 PIN-block operations. In particular, `PinEncrypt` permits PIN-block processing but does not grant generic data-encryption or MAC use.
 
 ## PIN, MAC and Data-Key Derivation
 

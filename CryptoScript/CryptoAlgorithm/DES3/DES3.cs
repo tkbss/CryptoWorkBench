@@ -151,6 +151,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Encrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
+            key!.Usage.EnsureAllows(KeyUsage.Encrypt);
             RejectRetailEncryption("Encrypt");
             return CreateMode(parameter!.Mechanism).ModeEncryption(parameter, key!, data!);
         }
@@ -161,6 +162,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
+            key!.Usage.EnsureAllows(KeyUsage.Decrypt);
             RejectRetailEncryption("Decrypt");
             return CreateMode(parameter!.Mechanism).ModeDecryption(parameter, key!, data!);
         }
@@ -178,6 +180,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
+            key!.Usage.EnsureAllows(KeyUsage.MacGenerate);
             if (!parameter!.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase))
@@ -193,7 +196,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         private void ParseArguments(AlgorithmCallArguments arguments)
         {
             parameter = AlgorithmArgumentResolver.ResolveParameter(arguments.Arguments[0]);
-            key = ResolveKey(arguments.Arguments[1].Value!);
+            key = AlgorithmArgumentResolver.ResolveKey(arguments.Arguments[1]);
             data = ResolveData(arguments.Arguments[2].Value!);
 
             if (!parameter.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
@@ -203,17 +206,6 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC, DES3-ECB, DES3-RETAIL or DES3-CMAC.");
             if (key.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
                 throw new ArgumentException($"{parameter.Mechanism} requires a DES3 key.");
-        }
-
-        private static KeyVariableDeclaration ResolveKey(string value)
-        {
-            if (VariableDictionary.Instance().Get(value) is KeyVariableDeclaration declared)
-                return declared;
-            if (FormatConversions.ParseString(value) == FormatConversions.HEX)
-                return new KeyVariableDeclaration { Value = value, ValueFormat = FormatConversions.HEX };
-            if (FormatConversions.ParseString(value) == FormatConversions.JSO)
-                return KeyVariableDeclaration.Deserialize(value);
-            throw new ArgumentException("wrong key argument");
         }
 
         private static StringVariableDeclaration ResolveData(string value)

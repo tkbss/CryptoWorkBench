@@ -47,12 +47,14 @@ namespace CryptoScript.Model
                 {
                     throw;
                 }
+                catch (SemanticErrorException e) when (
+                    IsRegisteredSensitiveFunctionError(e, semanticErrors))
+                {
+                    throw;
+                }
                 catch (Exception e)
                 {
-                    SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
-                    se.Message = e.Message;
-                    semanticErrors.Add(se);
-                    throw new SemanticErrorException() { SemanticError=se};
+                    throw CreateFunctionCallError(e, call, fc, semanticErrors);
                 }
 
             }
@@ -72,12 +74,14 @@ namespace CryptoScript.Model
             {
                 throw;
             }
+            catch (SemanticErrorException e) when (
+                IsRegisteredSensitiveFunctionError(e, semanticErrors))
+            {
+                throw;
+            }
             catch(Exception e)
             {
-                SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
-                se.Message = e.Message;
-                semanticErrors.Add(se);
-                throw new SemanticErrorException() { SemanticError=se};
+                throw CreateFunctionCallError(e, call, fc, semanticErrors);
             }
 
 
@@ -169,5 +173,80 @@ namespace CryptoScript.Model
 
         private static bool IsFunctionContractError(SemanticErrorException exception) =>
             exception.SemanticError is { Type: "FunctionContract", ErrorCode: not null };
+
+        private static SemanticErrorException CreateFunctionCallError(
+            Exception exception,
+            Ast.FunctionCallExpressionNode call,
+            FunctionCall functionCall,
+            List<SemanticError> semanticErrors)
+        {
+            bool sensitive = IsCryptographicFunction(call.Name);
+            var error = new SemanticError
+            {
+                Type = "FunctionCall",
+                FunctionName = call.Name,
+                FunctionCall = sensitive ? $"{call.Name}(<redacted>)" : functionCall.CallText ?? string.Empty,
+                Message = sensitive
+                    ? RedactSensitiveValues(exception.Message, call, functionCall.Invocation)
+                    : exception.Message
+            };
+            semanticErrors.Add(error);
+            return new SemanticErrorException { SemanticError = error };
+        }
+
+        private static bool IsRegisteredSensitiveFunctionError(
+            SemanticErrorException exception,
+            List<SemanticError> semanticErrors) =>
+            exception.SemanticError is not null &&
+            semanticErrors.Contains(exception.SemanticError) &&
+            IsCryptographicFunction(exception.SemanticError.FunctionName);
+
+        private static bool IsCryptographicFunction(string functionName) =>
+            Enum.TryParse(functionName, ignoreCase: true, out CryptoScriptFunction _);
+
+        private static string RedactSensitiveValues(
+            string message,
+            Ast.FunctionCallExpressionNode call,
+            OperationInvocation? invocation)
+        {
+            IEnumerable<string> rawValues = call.Arguments.SelectMany(GetPotentiallySensitiveText);
+            if (invocation is not null)
+            {
+                rawValues = rawValues.Concat(invocation.Arguments
+                    .Where(argument =>
+                        argument.Kind is ResolvedCallArgumentKind.Expression or
+                            ResolvedCallArgumentKind.Variable ||
+                        argument.Kind == ResolvedCallArgumentKind.Parameter &&
+                        IsSensitiveNamedParameter(argument.Value))
+                    .Select(argument => argument.Value)
+                    .Where(value => !string.IsNullOrEmpty(value))
+                    .Select(value => value!));
+            }
+
+            foreach (string value in rawValues.Distinct(StringComparer.Ordinal))
+                message = message.Replace(value, "<redacted>", StringComparison.Ordinal);
+            return message;
+        }
+
+        private static IEnumerable<string> GetPotentiallySensitiveText(
+            Ast.FunctionCallArgumentNode argument) => argument switch
+        {
+            Ast.LiteralArgumentNode literal => new[] { literal.RawText },
+            Ast.ParameterArgumentNode parameter when IsSensitiveNamedParameter(parameter.TypeName) =>
+                new[] { parameter.RawValue },
+            Ast.NestedCallArgumentNode nested => new[] { nested.Call.CallText },
+            _ => Array.Empty<string>()
+        };
+
+        private static bool IsSensitiveNamedParameter(string? parameter)
+        {
+            if (string.IsNullOrEmpty(parameter))
+                return false;
+            string name = parameter.Split(':', 2)[0].TrimStart('#');
+            return name.Equals("PAN", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("TRANSACTION", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("FILL", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("RANDOM", StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

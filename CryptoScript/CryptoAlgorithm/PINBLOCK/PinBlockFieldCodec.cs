@@ -20,7 +20,7 @@ internal static class PinBlockFieldCodec
     private const int NibbleCount = BlockLength * 2;
     private const int MinimumPinLength = 4;
     private const int MaximumPinLength = 12;
-    private const int MinimumPanLength = 8;
+    private const int MinimumPanLength = 10;
     private const int MaximumPanLength = 19;
 
     internal static byte[] EncodeFormat0(string pin, string pan)
@@ -192,11 +192,11 @@ internal static class PinBlockFieldCodec
             throw new ArgumentException("PIN must contain between 4 and 12 decimal digits.", nameof(pin));
     }
 
-    private static void ValidatePan(string pan)
+    internal static void ValidatePan(string pan)
     {
         ArgumentNullException.ThrowIfNull(pan);
         if (pan.Length is < MinimumPanLength or > MaximumPanLength || !ContainsOnlyDecimalDigits(pan))
-            throw new ArgumentException("PAN must contain between 8 and 19 decimal digits.", nameof(pan));
+            throw new ArgumentException("PAN must contain between 10 and 19 decimal digits.", nameof(pan));
     }
 
     private static bool ContainsOnlyDecimalDigits(ReadOnlySpan<char> value)

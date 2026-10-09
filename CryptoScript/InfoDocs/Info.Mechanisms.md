@@ -5,6 +5,8 @@ List of all cryptograhic algorithms implemented in CRYPTO-SCRIPT.
 ---
 Every mechanism is specifying a certain cryptographic algorithm. Detailed information about each mechanism can be obtained through Info(mechanism).
 
+> **PIN-block security boundary:** CryptoScript processes cleartext PINs and key material in ordinary process memory and is not an SCD or HSM. PIN-block mechanisms are provided only for development, analysis, interoperability testing, and education, not as a replacement for standards-compliant production processing of real cardholder PINs. Production use requires appropriate secure infrastructure and compliance with applicable requirements; no PCI compliance or certification is implied.
+
 - AES-CBC : Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.
 - AES-CBC-MAC : AES Cipher Block Chaining Message Authentication Code with selectable deterministic padding and left truncation.
 - AES-CTR : Symmetric Advanced Encryption Standard in Counter mode.

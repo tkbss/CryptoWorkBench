@@ -164,29 +164,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         private void ParseArguments(AlgorithmCallArguments arguments)
         {
             parameter = AlgorithmArgumentResolver.ResolveParameter(arguments.Arguments[0]);
-            string p = arguments.Arguments[1].Value!;
-            if (VariableDictionary.Instance().Get(p) as KeyVariableDeclaration != null)
-            {
-                key = VariableDictionary.Instance().Get(p) as KeyVariableDeclaration;
-            }
-            else
-            {
-                if (FormatConversions.ParseString(p) == FormatConversions.HEX)
-                {
-                    key = new KeyVariableDeclaration();
-                    key.Value = p;
-                    key.ValueFormat = FormatConversions.ParseString(p);
-                }
-                else if (FormatConversions.ParseString(p) == FormatConversions.JSO)
-                {
-                    key = KeyVariableDeclaration.Deserialize(p);
-                }
-                else
-                {
-                    throw new ArgumentException("wrong key argument");
-                }
-            }
-            p = arguments.Arguments[2].Value!;
+            key = AlgorithmArgumentResolver.ResolveKey(arguments.Arguments[1]);
+            string p = arguments.Arguments[2].Value!;
             if (VariableDictionary.Instance().Get(p) as StringVariableDeclaration != null)
             {
                 data = VariableDictionary.Instance().Get(p) as StringVariableDeclaration;
@@ -214,6 +193,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
 
             ParseArguments(parameters);
+            key!.Usage.EnsureAllows(KeyUsage.MacGenerate);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if (mode.IsMACAlgorithm(parameter.Mechanism))
             {
@@ -235,6 +215,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
 
             ParseArguments(parameters);
+            key!.Usage.EnsureAllows(KeyUsage.Encrypt);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if(mode.IsMACAlgorithm(parameter.Mechanism))
             {
@@ -282,6 +263,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
         public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
+            key!.Usage.EnsureAllows(KeyUsage.Decrypt);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if(mode.IsMACAlgorithm(parameter.Mechanism))
             {

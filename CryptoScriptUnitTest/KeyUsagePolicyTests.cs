@@ -28,6 +28,21 @@ public class KeyUsagePolicyTests
     }
 
     [Test]
+    public void UsageChecksRespectRestrictedAndUnspecifiedSemantics()
+    {
+        KeyUsagePolicy.Unspecified.Allows(KeyUsage.PinEncrypt).Should().BeTrue();
+        KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt).Allows(KeyUsage.PinEncrypt).Should().BeTrue();
+        KeyUsagePolicy.Restricted(KeyUsage.Encrypt).Allows(KeyUsage.PinEncrypt).Should().BeFalse();
+
+        Action allowed = () => KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt)
+            .EnsureAllows(KeyUsage.PinEncrypt);
+        Action rejected = () => KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt)
+            .EnsureAllows(KeyUsage.Encrypt);
+        allowed.Should().NotThrow();
+        rejected.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
     public void UnspecifiedPolicyRejectsAllowedUsages()
     {
         Action action = () => _ = new KeyUsagePolicy(KeyUsageMode.Unspecified, KeyUsage.Encrypt);

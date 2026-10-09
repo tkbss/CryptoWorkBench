@@ -6,8 +6,15 @@ ISO 9564 format 3 PIN-block wrapping and unwrapping with TDEA.
 
 The key must contain 16 or 24 bytes of usable TDEA key material. DES3-ECB processes exactly one block without padding or an IV.
 
-`#PAN` is required and contains the complete 8-to-19-digit decimal PAN, including its check digit, encoded as a hexadecimal value. The check digit is excluded when constructing the format 3 PAN field.
+`#PAN` is required and contains the complete 10-to-19-digit decimal PAN, including its check digit, encoded as a hexadecimal value. The check digit is excluded when constructing the format 3 PAN field.
 
-`#FILL` is optional for Wrap and must contain exactly `14 - PIN length` nibbles in the range `A` through `F`. When omitted, independent, uniformly distributed fill nibbles are generated with a cryptographically secure random-number generator. After successful Wrap, the value actually used is stored in the original PARAM variable.
+`#FILL` is optional for Wrap and must contain exactly `14 - PIN length` nibbles in the range `A` through `F`. When omitted, fresh, independent, uniformly distributed fill nibbles are generated with a cryptographically secure random-number generator. After successful Wrap, the value actually used is stored in the original PARAM variable. An explicit value is accepted only to support reproducible development, analysis, and tests; the caller is responsible for suitable freshness and entropy, and reuse impairs the intended diversification.
 
 Unwrap validates the format identifier, PIN length, decimal PIN digits, and fill range, then stores the extracted fill field in the original PARAM variable. An existing `#FILL` value is overwritten only after successful processing. A wrong PAN can sometimes produce structurally plausible clear data and is therefore not guaranteed to be detected.
+Structural validation is not authentication and provides no authenticity guarantee for a PIN block.
+
+## Security and lifecycle
+
+CryptoScript processes cleartext PINs and key material in ordinary process memory. It is neither a secure cryptographic device (SCD) nor a hardware security module (HSM). These PIN-block functions are exclusively for development, analysis, interoperability testing, and education; they are not a substitute for standards-compliant production PIN processing. Processing real cardholder PINs in production requires appropriate secure infrastructure and compliance with all applicable requirements. No PCI compliance or certification is implied.
+
+TDEA/DES3 is a legacy algorithm. This mechanism is retained for analysis and interoperability with existing systems. New systems should evaluate a current, approved AES-based solution, including format 4 where it is suitable after assessment of the complete payment infrastructure; format 4 is not automatically suitable for every existing environment.

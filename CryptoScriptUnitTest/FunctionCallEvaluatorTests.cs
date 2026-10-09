@@ -279,6 +279,68 @@ public class FunctionCallEvaluatorTests
         Assert.That(other[0].FunctionName, Is.EqualTo("OtherUnknown"));
     }
 
+    [Test]
+    public void CryptographicFunctionErrorsRedactPinPanAndKeyLiterals()
+    {
+        const string pin = "0x(01234)";
+        const string pan = "0x(1234567890123456)";
+        const string key = "0x(000102030405060708090A0B0C0D0E0F)";
+        var call = new FunctionCallExpressionNode(
+            "Wrap",
+            $"Wrap({pan},{key},{pin})",
+            new FunctionCallArgumentNode[]
+            {
+                new LiteralArgumentNode(pan),
+                new LiteralArgumentNode(key),
+                new LiteralArgumentNode(pin)
+            });
+
+        SemanticErrorException error = Assert.Throws<SemanticErrorException>(() => Evaluate(call))!;
+
+        Assert.That(errors, Has.Count.EqualTo(1));
+        Assert.That(errors[0], Is.SameAs(error.SemanticError));
+        Assert.Multiple(() =>
+        {
+            Assert.That(errors[0].FunctionCall, Is.EqualTo("Wrap(<redacted>)"));
+            Assert.That(errors[0].Message, Does.Not.Contain(pin));
+            Assert.That(errors[0].Message, Does.Not.Contain(pan));
+            Assert.That(errors[0].Message, Does.Not.Contain(key));
+            Assert.That(errors[0].Identifier, Is.Empty);
+            Assert.That(errors[0].Value, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void NestedCryptographicFailureIsRedactedAndRegisteredOnlyOnce()
+    {
+        const string pin = "0x(9876)";
+        const string key = "0x(00112233445566778899AABBCCDDEEFF)";
+        var inner = new FunctionCallExpressionNode(
+            "Wrap",
+            $"Wrap({key},{pin})",
+            new FunctionCallArgumentNode[]
+            {
+                new LiteralArgumentNode(key),
+                new LiteralArgumentNode(pin)
+            });
+        var outer = new FunctionCallExpressionNode(
+            "Print",
+            $"Print({inner.CallText})",
+            new FunctionCallArgumentNode[] { new NestedCallArgumentNode(inner) });
+
+        SemanticErrorException error = Assert.Throws<SemanticErrorException>(() => Evaluate(outer))!;
+
+        Assert.That(errors, Has.Count.EqualTo(1));
+        Assert.That(errors[0], Is.SameAs(error.SemanticError));
+        Assert.Multiple(() =>
+        {
+            Assert.That(errors[0].FunctionName, Is.EqualTo("Wrap"));
+            Assert.That(errors[0].FunctionCall, Is.EqualTo("Wrap(<redacted>)"));
+            Assert.That(errors[0].FunctionCall, Does.Not.Contain(pin));
+            Assert.That(errors[0].FunctionCall, Does.Not.Contain(key));
+        });
+    }
+
     [TestCase("function")]
     [TestCase("argument")]
     [TestCase("declaration")]

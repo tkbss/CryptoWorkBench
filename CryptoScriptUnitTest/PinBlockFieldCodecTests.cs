@@ -87,12 +87,13 @@ public class PinBlockFieldCodecTests
         });
     }
 
-    [TestCase("12345678")]
+    [TestCase("1234567890")]
+    [TestCase("12345678901")]
     [TestCase("123456789012")]
     [TestCase("1234567890123")]
     [TestCase("1234567890123456")]
     [TestCase("1234567890123456789")]
-    public void PanLengthsFromEightThroughNineteen_RoundTripFormats0And3(string pan)
+    public void PanLengthsFromTenThroughNineteen_RoundTripFormats0And3(string pan)
     {
         byte[] format0 = PinBlockFieldCodec.EncodeFormat0(Pin, pan);
         byte[] format3 = PinBlockFieldCodec.EncodeFormat3(Pin, pan, FillField);
@@ -107,8 +108,17 @@ public class PinBlockFieldCodecTests
     [Test]
     public void ShortPanComponent_IsLeftPaddedWithZeros()
     {
-        const string shortPan = "12345678";
+        const string shortPan = "1234567890";
         byte[] encoded = PinBlockFieldCodec.EncodeFormat0(Pin, shortPan);
+        byte[] pinField = Convert.FromHexString("041234FFFFFFFFFF");
+
+        Assert.That(Xor(encoded, pinField), Is.EqualTo(Convert.FromHexString("0000000123456789")));
+    }
+
+    [Test]
+    public void TenDigitPanPreservesLeadingZerosInSelectedAccountDigits()
+    {
+        byte[] encoded = PinBlockFieldCodec.EncodeFormat0(Pin, "0012345678");
         byte[] pinField = Convert.FromHexString("041234FFFFFFFFFF");
 
         Assert.That(Xor(encoded, pinField), Is.EqualTo(Convert.FromHexString("0000000001234567")));
@@ -158,7 +168,8 @@ public class PinBlockFieldCodecTests
         Assert.That(error.Message, Does.Not.Contain(invalidPin));
     }
 
-    [TestCase("1234567")]
+    [TestCase("12345678")]
+    [TestCase("123456789")]
     [TestCase("12345678901234567890")]
     [TestCase("1234567A90123456")]
     public void Formats0And3_RejectInvalidPanWithoutDisclosingIt(string pan)

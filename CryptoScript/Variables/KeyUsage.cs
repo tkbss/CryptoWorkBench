@@ -58,4 +58,13 @@ public sealed record KeyUsagePolicy
 
     public static KeyUsagePolicy Restricted(KeyUsage allowedUsages) =>
         new(KeyUsageMode.Restricted, allowedUsages);
+
+    public bool Allows(KeyUsage usage) =>
+        Mode == KeyUsageMode.Unspecified || (AllowedUsages & usage) == usage;
+
+    public void EnsureAllows(KeyUsage usage)
+    {
+        if (!Allows(usage))
+            throw new ArgumentException($"Key usage policy does not allow {usage}.");
+    }
 }
