@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CryptoScript.ErrorListner;
 
 namespace CryptoScript.Model
 {
@@ -18,6 +19,7 @@ namespace CryptoScript.Model
         
         public VariableDeclaration? ReturnVariable { get; set; }
         public OperationInvocation? Invocation { get; private set; }
+        public DiagnosticLocation? Location { get; internal set; }
 
         public FunctionCall()
         {
@@ -27,9 +29,17 @@ namespace CryptoScript.Model
             ReturnVariable = null;
             Invocation = null;
         }
-        public void Call() 
+        public void Call() => Call(null);
+
+        internal void Call(SemanticDiagnosticExecution? execution)
         {
             Invocation = new OperationInvocation(Arguments.Select(ResolveArgument));
+            if (Location is not null)
+                Location = Location with
+                {
+                    Mechanism = Arguments.OfType<ArgumentMechanism>().FirstOrDefault()?.Mechanism?.Value
+                };
+            execution?.BeforeOperation(this);
             var function = OperationFactory.CreateInvocationOperation(Name);
             ReturnVariable = function(Invocation);
         }
