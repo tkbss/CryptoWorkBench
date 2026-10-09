@@ -29,6 +29,7 @@ namespace CryptoScript.Variables
 
         public void SetInstance(string parameters)
         {            
+            MechanismParameterContractValidator.ValidateSerializedOptionAParameters(parameters);
             
             // Split by '#' and remove empty entries
             var parts = parameters.Split('#', StringSplitOptions.RemoveEmptyEntries);  
@@ -48,6 +49,7 @@ namespace CryptoScript.Variables
                 }
             }
 
+            MechanismParameterContractValidator.ValidatePsnSupport(Mechanism, this);
          }
         string _mechanism = string.Empty;
         public string Mechanism 

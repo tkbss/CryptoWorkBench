@@ -65,11 +65,23 @@ namespace CryptoScript.Model
                     catch
                     {
                         SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
-                        se.Message = "Error in  parameter declaration : " + declarParam[i].RawText;
+                        se.Message = declarParam[i].TypeName == "#PSN"
+                            ? "Error in parameter declaration: #PSN:<redacted>"
+                            : "Error in  parameter declaration : " + declarParam[i].RawText;
                         semanticErrors.Add(se);
                         throw new SemanticErrorException() { SemanticError = se };
                     }
 
+                }
+                try
+                {
+                    MechanismParameterContractValidator.ValidatePsnSupport(Parameter.Mechanism, Parameter);
+                }
+                catch (FunctionContractException exception)
+                {
+                    var error = new SemanticError { Type = "Declaration", Identifier = TypeName, Message = exception.Message };
+                    semanticErrors.Add(error);
+                    throw new SemanticErrorException { SemanticError = error };
                 }
                 Parameter.Id = Id;
                 Parameter.Type = CryptoType.Parse(TypeName);

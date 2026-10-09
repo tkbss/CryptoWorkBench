@@ -34,14 +34,14 @@ public class MechanismListTests
         "WRAP-AES-PINBLOCK-4",
         "WRAP-DES3-PINBLOCK-0", "WRAP-DES3-PINBLOCK-1", "WRAP-DES3-PINBLOCK-2", "WRAP-DES3-PINBLOCK-3",
         "WRAP-AES-TR31", "WRAP-DES3-TR31", "KDF-HKDF",
-        "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-SP800-108-COUNTER", "DUKPT-AES-INITIAL-KEY", "DUKPT-AES-WORKING-KEY", "DUKPT-TDEA-INITIAL-KEY", "DUKPT-TDEA-WORKING-KEY", "KDF-EMV-AC-SESSION", "KDF-EP2-SESSION",
+        "HKDF-EXTRACT", "HKDF-EXPAND", "KDF-SP800-108-COUNTER", "DUKPT-AES-INITIAL-KEY", "DUKPT-AES-WORKING-KEY", "DUKPT-TDEA-INITIAL-KEY", "DUKPT-TDEA-WORKING-KEY", "KDF-EMV-AC-SESSION", "KDF-EMV-MASTER-A", "KDF-EP2-SESSION",
         "KDF-EP2-PAN-SURROGATE-TRX", "KDF-EP2-PAN-RECEIPT-TRX", "KDF-EP2-PAN-RECEIPT-TRM"
     };
 
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(54));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(55));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
     }
 

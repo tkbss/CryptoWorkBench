@@ -43,6 +43,8 @@
                 return new KDF.KDF_SP800_108_COUNTER();
             if (canonicalMechanism == "KDF-EMV-AC-SESSION")
                 return new KDF.KDF_EMV_AC_SESSION();
+            if (canonicalMechanism == "KDF-EMV-MASTER-A")
+                return new KDF.KDF_EMV_MASTER_A();
             if (canonicalMechanism == "KDF-EP2-SESSION")
                 return new KDF.KDF_EP2_SESSION();
             if (canonicalMechanism == "KDF-EP2-PAN-SURROGATE-TRX")

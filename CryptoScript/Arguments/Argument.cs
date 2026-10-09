@@ -55,6 +55,14 @@ namespace CryptoScript.Model
         }
         private void SetValue(string value)
         {
+            if (Type.Equals("#PSN", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!value.StartsWith('"') || !value.EndsWith('"') || value.Length != 4 ||
+                    value[1] is < '0' or > '9' || value[2] is < '0' or > '9')
+                    throw new ArgumentException("PSN must be a normal string literal containing exactly two ASCII decimal digits.");
+                Value = value;
+                return;
+            }
             if (Type.Equals("#VARIANT", StringComparison.OrdinalIgnoreCase) ||
                 Type.Equals("#USAGE", StringComparison.OrdinalIgnoreCase) ||
                 Type.Equals("#KEYTYPE", StringComparison.OrdinalIgnoreCase))

@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlyFiftyFourRegisteredMechanisms()
+    public void ContainsExactlyFiftyFiveRegisteredMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(54));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(55));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -222,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(54));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(55));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {

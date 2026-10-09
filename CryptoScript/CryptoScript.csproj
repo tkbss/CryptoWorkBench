@@ -180,6 +180,9 @@
     <None Update="InfoDocs\Info.Mech.KDF-EMV-AC-SESSION.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.KDF-EMV-MASTER-A.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.KDF-EP2-SESSION.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

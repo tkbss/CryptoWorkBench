@@ -257,6 +257,7 @@ namespace CryptoScript.Model
                 return false;
             string name = parameter.Split(':', 2)[0].TrimStart('#');
             return name.Equals("PAN", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("PSN", StringComparison.OrdinalIgnoreCase) ||
                    name.Equals("TRANSACTION", StringComparison.OrdinalIgnoreCase) ||
                    name.Equals("FILL", StringComparison.OrdinalIgnoreCase) ||
                    name.Equals("RANDOM", StringComparison.OrdinalIgnoreCase);

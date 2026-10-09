@@ -24,6 +24,8 @@ public static class MechanismParameterContractValidator
         ArgumentNullException.ThrowIfNull(mechanism);
         ArgumentNullException.ThrowIfNull(parameters);
 
+        ValidatePsnSupport(mechanism.CanonicalName, parameters, function);
+
         if (!mechanism.Supports(function))
         {
             throw new FunctionContractException(
@@ -34,6 +36,20 @@ public static class MechanismParameterContractValidator
 
         if (mechanism.StrictMechanismParameterContract)
             ValidateMechanismParameter(mechanism, parameters);
+
+        if (mechanism.CanonicalName == "KDF-EMV-MASTER-A")
+        {
+            if (parameters.ExplicitParameterNames.GroupBy(Normalize, StringComparer.OrdinalIgnoreCase)
+                .Any(group => group.Count() > 1))
+                throw new ArgumentException("KDF-EMV-MASTER-A does not allow duplicate parameters.");
+            if (parameters.GetParameters().ContainsKey("#PSN"))
+            {
+                string psn = parameters.GetParameter("#PSN");
+                if (psn.Length != 4 || psn[0] != '"' || psn[3] != '"' ||
+                    psn[1] is < '0' or > '9' || psn[2] is < '0' or > '9')
+                    throw new ArgumentException("PSN must be a normal string literal containing exactly two ASCII decimal digits.");
+            }
+        }
 
         if (!mechanism.FunctionMetadata.TryGetValue(
                 function, out MechanismFunctionMetadata? metadata))
@@ -101,6 +117,50 @@ public static class MechanismParameterContractValidator
 
     private static bool Contains(IEnumerable<string> names, string expected) =>
         names.Any(name => NamesEqual(name, expected));
+
+    // Run before legacy SetInstance can discard malformed segments. Other mechanisms
+    // retain the existing parser behavior; this is not a second general PARAM parser.
+    internal static void ValidateSerializedOptionAParameters(string serialized, bool selectedOptionA = false)
+    {
+        string[] segments = serialized.Split('#');
+        // Outside an explicitly selected Option A call, preserve other mechanisms'
+        // legacy last-write-wins selection, even for conflicting MECH declarations.
+        string? storedMechanism = segments.Select(segment => segment.Split(':', 2))
+            .Where(pair => pair.Length == 2 && pair[0] == "MECH")
+            .Select(pair => pair[1]).LastOrDefault();
+        bool optionA = selectedOptionA ||
+            string.Equals(storedMechanism, "KDF-EMV-MASTER-A", StringComparison.OrdinalIgnoreCase);
+        if (!optionA)
+            return;
+
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (string segment in segments.Skip(serialized.StartsWith('#') ? 1 : 0))
+        {
+            string[] pair = segment.Split(':', 2);
+            if (pair.Length != 2 || pair[1].Length == 0)
+                throw new ArgumentException("KDF-EMV-MASTER-A contains a malformed serialized parameter.");
+            if (!NamesEqual(pair[0], "#MECH") && !NamesEqual(pair[0], "#PSN"))
+                throw new ArgumentException("KDF-EMV-MASTER-A allows only MECH and PSN parameters.");
+            if (!names.Add(Normalize(pair[0])))
+                throw new ArgumentException("KDF-EMV-MASTER-A does not allow duplicate parameters.");
+            if (NamesEqual(pair[0], "#MECH") &&
+                !pair[1].Equals("KDF-EMV-MASTER-A", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("KDF-EMV-MASTER-A requires a consistent MECH parameter.");
+        }
+    }
+
+    internal static void ValidatePsnSupport(string mechanism, ParameterVariableDeclaration parameters,
+        CryptoScriptFunction function = CryptoScriptFunction.Parameters)
+    {
+        if (!parameters.GetParameters().Keys.Any(name => NamesEqual(name, "#PSN")))
+            return;
+        string canonical = NormalizeMechanismValue(mechanism);
+        if (!MechanismRegistry.TryGet(canonical, out MechanismRegistryEntry? entry) ||
+            !entry!.FunctionMetadata.Values.Any(metadata => metadata.Parameters.Any(parameter =>
+                parameter.Kind == MechanismParameterKind.NamedParameter && NamesEqual(parameter.Name, "#PSN"))))
+            throw new FunctionContractException(FunctionContractError.ForbiddenAdditionalParameter,
+                entry?.CanonicalName ?? "selected mechanism", function, "#PSN");
+    }
 
     private static void ValidateMechanismParameter(
         MechanismRegistryEntry mechanism,

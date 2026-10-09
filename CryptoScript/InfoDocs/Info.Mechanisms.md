@@ -50,6 +50,7 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - DUKPT-TDEA-INITIAL-KEY : Legacy ANSI X9.24 double-length TDEA DUKPT Initial Key derivation from a 16-byte BDK and complete 80-bit KSN.
 - DUKPT-TDEA-WORKING-KEY : ANSI X9.24-3 Annex C stateless host derivation of a double-length TDEA Working Key from a TDEA Initial Key and complete 80-bit KSN.
 - KDF-EMV-AC-SESSION : EMV Common Session Key Derivation for ATC-based Application Cryptogram and ARPC processing.
+- KDF-EMV-MASTER-A : EMV ICC Master Key Derivation Option A using a TDEA Issuer Master Key, PAN and PSN.
 - KDF-EP2-SESSION : ep2 8.11 Extract-and-Expand derivation of a selected Session Key Variant.
 - KDF-EP2-PAN-RECEIPT-TRX : ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-RECEIPT-TRM : ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.

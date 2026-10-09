@@ -53,6 +53,8 @@ public static class ParameterRegistry
                 "Complete decimal primary account number used by PIN-block formats."),
             new("#PRF",
                 "Pseudorandom function selection used by mechanisms that support a configurable PRF."),
+            new("#PSN",
+                "Two ASCII decimal digits supplied as a normal string literal for EMV Option A PAN Sequence Number."),
             new("#RANDOM",
                 "Random field used by PIN-block formats that require random hexadecimal nibbles."),
             new("#RND",
