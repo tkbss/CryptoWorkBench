@@ -2,11 +2,42 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:CryptoWorkBenchAvalonia.Models"
 			 xmlns:prism="http://prismlibrary.com/"
 			 prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CryptoWorkBenchAvalonia.Views.StatusView">
 	<Border   Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="5">
-		<TextBlock  Text="{Binding StatusString}" TextAlignment="Center" FontSize="12" Margin="2" TextWrapping="Wrap" />
+        <StackPanel>
+            <TextBlock Text="{Binding StatusString}" TextAlignment="Center" FontSize="12" Margin="2" TextWrapping="Wrap" />
+            <ScrollViewer MaxHeight="200" IsVisible="{Binding HasDiagnostics}"
+                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Diagnostics}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="models:DiagnosticDisplayItem">
+                            <Border Margin="4" Padding="6" BorderThickness="3,0,0,0"
+                                    Classes.warning="{Binding IsWarning}" Classes.error="{Binding IsError}">
+                                <Border.Styles>
+                                    <Style Selector="Border.warning">
+                                        <Setter Property="BorderBrush" Value="#8A6500" />
+                                        <Setter Property="Background" Value="#FFF4CC" />
+                                    </Style>
+                                    <Style Selector="Border.error">
+                                        <Setter Property="BorderBrush" Value="#A32121" />
+                                        <Setter Property="Background" Value="#FFE1E1" />
+                                    </Style>
+                                </Border.Styles>
+                                <StackPanel>
+                                    <TextBlock IsVisible="{Binding HasScriptBookLine}" Foreground="Black">
+                                        <Run Text="Scriptbook line: " /><Run Text="{Binding ScriptBookLine}" />
+                                    </TextBlock>
+                                    <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="Black" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
 	</Border>
 </UserControl>

@@ -169,13 +169,20 @@ public class SidebarViewModel : ViewModelBase
             }
             catch (SemanticErrorException ex)
             {
-                _cseVm.Status.StatusString = "Semantic error loading script book: " + ex.SemanticError.Message;
+                _cseVm.Status.AppendDiagnostics(System.Array.Empty<SemanticError>(), ex.SemanticError);
+                _cseVm.Status.StatusString = "Script book loading aborted (semantic error).";
                 return;
             }
-            _cseVm.Status.StatusString = "Script book loaded and all lines successfull parsed";
+            SetScriptBookCompletionStatus();
         }
         
     } 
+
+    private void SetScriptBookCompletionStatus()
+    {
+        if (_cseVm.LastScriptBookSucceeded)
+            _cseVm.Status.StatusString = "Script book loaded and all lines successfull parsed";
+    }
 
   public int FlyoutWidth { get => _flyoutWidth; set => SetProperty(ref _flyoutWidth, value); }
 }
