@@ -37,11 +37,11 @@ public static class MechanismParameterContractValidator
         if (mechanism.StrictMechanismParameterContract)
             ValidateMechanismParameter(mechanism, parameters);
 
-        if (mechanism.CanonicalName == "KDF-EMV-MASTER-A")
+        if (IsEmvMasterMechanism(mechanism.CanonicalName))
         {
             if (parameters.ExplicitParameterNames.GroupBy(Normalize, StringComparer.OrdinalIgnoreCase)
                 .Any(group => group.Count() > 1))
-                throw new ArgumentException("KDF-EMV-MASTER-A does not allow duplicate parameters.");
+                throw new ArgumentException($"{mechanism.CanonicalName} does not allow duplicate parameters.");
             if (parameters.GetParameters().ContainsKey("#PSN"))
             {
                 string psn = parameters.GetParameter("#PSN");
@@ -120,34 +120,37 @@ public static class MechanismParameterContractValidator
 
     // Run before legacy SetInstance can discard malformed segments. Other mechanisms
     // retain the existing parser behavior; this is not a second general PARAM parser.
-    internal static void ValidateSerializedOptionAParameters(string serialized, bool selectedOptionA = false)
+    internal static void ValidateSerializedEmvMasterParameters(string serialized, string? selectedMechanism = null)
     {
         string[] segments = serialized.Split('#');
-        // Outside an explicitly selected Option A call, preserve other mechanisms'
+        // Outside an explicitly selected EMV master call, preserve other mechanisms'
         // legacy last-write-wins selection, even for conflicting MECH declarations.
         string? storedMechanism = segments.Select(segment => segment.Split(':', 2))
             .Where(pair => pair.Length == 2 && pair[0] == "MECH")
             .Select(pair => pair[1]).LastOrDefault();
-        bool optionA = selectedOptionA ||
-            string.Equals(storedMechanism, "KDF-EMV-MASTER-A", StringComparison.OrdinalIgnoreCase);
-        if (!optionA)
+        string? masterMechanism = selectedMechanism ?? storedMechanism;
+        if (masterMechanism is null || !IsEmvMasterMechanism(masterMechanism.ToUpperInvariant()))
             return;
+        masterMechanism = masterMechanism.ToUpperInvariant();
 
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (string segment in segments.Skip(serialized.StartsWith('#') ? 1 : 0))
         {
             string[] pair = segment.Split(':', 2);
             if (pair.Length != 2 || pair[1].Length == 0)
-                throw new ArgumentException("KDF-EMV-MASTER-A contains a malformed serialized parameter.");
+                throw new ArgumentException($"{masterMechanism} contains a malformed serialized parameter.");
             if (!NamesEqual(pair[0], "#MECH") && !NamesEqual(pair[0], "#PSN"))
-                throw new ArgumentException("KDF-EMV-MASTER-A allows only MECH and PSN parameters.");
+                throw new ArgumentException($"{masterMechanism} allows only MECH and PSN parameters.");
             if (!names.Add(Normalize(pair[0])))
-                throw new ArgumentException("KDF-EMV-MASTER-A does not allow duplicate parameters.");
+                throw new ArgumentException($"{masterMechanism} does not allow duplicate parameters.");
             if (NamesEqual(pair[0], "#MECH") &&
-                !pair[1].Equals("KDF-EMV-MASTER-A", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("KDF-EMV-MASTER-A requires a consistent MECH parameter.");
+                !pair[1].Equals(masterMechanism, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"{masterMechanism} requires a consistent MECH parameter.");
         }
     }
+
+    private static bool IsEmvMasterMechanism(string mechanism) =>
+        mechanism is "KDF-EMV-MASTER-A" or "KDF-EMV-MASTER-B";
 
     internal static void ValidatePsnSupport(string mechanism, ParameterVariableDeclaration parameters,
         CryptoScriptFunction function = CryptoScriptFunction.Parameters)

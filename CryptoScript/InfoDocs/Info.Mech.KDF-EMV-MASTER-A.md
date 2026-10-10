@@ -11,7 +11,8 @@ including its check digit, and the PAN Sequence Number (PSN). This does not calc
 The algorithm is corroborated by independent implementations and fixed comparison values.
 Official normative verification against EMV Contact Book 2 v4.4, Annex A1.4.1 remains pending
 and is a release gate. The provisional PAN limit of 1-19 digits is a technical decision,
-not a normative conformity assertion. Option B is not implemented or selected automatically.
+not a normative conformity assertion. Option B is available separately as KDF-EMV-MASTER-B;
+it is never selected automatically by Option A.
 
 ## Input Contract
 

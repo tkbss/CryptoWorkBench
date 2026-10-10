@@ -29,7 +29,7 @@ namespace CryptoScript.Variables
 
         public void SetInstance(string parameters)
         {            
-            MechanismParameterContractValidator.ValidateSerializedOptionAParameters(parameters);
+            MechanismParameterContractValidator.ValidateSerializedEmvMasterParameters(parameters);
             
             // Split by '#' and remove empty entries
             var parts = parameters.Split('#', StringSplitOptions.RemoveEmptyEntries);  

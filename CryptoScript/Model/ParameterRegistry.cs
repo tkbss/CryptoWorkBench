@@ -54,7 +54,7 @@ public static class ParameterRegistry
             new("#PRF",
                 "Pseudorandom function selection used by mechanisms that support a configurable PRF."),
             new("#PSN",
-                "Two ASCII decimal digits supplied as a normal string literal for EMV Option A PAN Sequence Number."),
+                "Two ASCII decimal digits supplied as a normal string literal for EMV ICC Master Key Derivation Options A and B PAN Sequence Number."),
             new("#RANDOM",
                 "Random field used by PIN-block formats that require random hexadecimal nibbles."),
             new("#RND",

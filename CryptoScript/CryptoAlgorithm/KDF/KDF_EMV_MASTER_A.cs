@@ -34,7 +34,7 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
         AlgorithmCallArgument parameterArgument = arguments.Arguments[0];
         if (parameterArgument.SourceVariable is null &&
             FormatConversions.ParseString(parameterArgument.Value) == FormatConversions.PAR)
-            MechanismParameterContractValidator.ValidateSerializedOptionAParameters(parameterArgument.Value, selectedOptionA: true);
+            MechanismParameterContractValidator.ValidateSerializedEmvMasterParameters(parameterArgument.Value, MechanismName);
         ParameterVariableDeclaration parameters = AlgorithmArgumentResolver.ResolveParameter(arguments.Arguments[0]);
         if (Normalize(parameters.Mechanism) != MechanismName)
             throw new ArgumentException("Option A requires KDF-EMV-MASTER-A parameters.");
@@ -72,7 +72,7 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
         }
     }
 
-    private static string ResolvePan(AlgorithmCallArguments arguments)
+    internal static string ResolvePan(AlgorithmCallArguments arguments)
     {
         AlgorithmCallArgument argument = arguments.Arguments[2];
         string? value = null;
@@ -89,7 +89,7 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
         return value[1..^1];
     }
 
-    private static byte[] DecodeKey(KeyVariableDeclaration key)
+    internal static byte[] DecodeKey(KeyVariableDeclaration key)
     {
         string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
         string format = FormatConversions.ParseString(value);

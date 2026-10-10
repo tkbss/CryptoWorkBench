@@ -1,5 +1,3 @@
-using CryptoScript.CryptoAlgorithm.DES3;
-using Org.BouncyCastle.Crypto.Parameters;
 using System.Security.Cryptography;
 using Des3Algorithm = CryptoScript.CryptoAlgorithm.DES3.DES3;
 
@@ -14,11 +12,6 @@ internal static class EmvMasterKeyDerivationOptionA
 
         byte[]? keySnapshot = null;
         byte[]? firstInput = null;
-        byte[]? secondInput = null;
-        byte[]? firstBlock = null;
-        byte[]? secondBlock = null;
-        byte[]? result = null;
-        bool returned = false;
         try
         {
             keySnapshot = (byte[])issuerMasterKey.Clone();
@@ -34,25 +27,12 @@ internal static class EmvMasterKeyDerivationOptionA
             ValidateDigits(psn, 2, 2, nameof(psn));
 
             firstInput = CreateDiversificationBlock(pan, psn);
-            secondInput = CreateComplement(firstInput);
-            firstBlock = DES3_ECB.EncryptNoPadding(keySnapshot, firstInput);
-            secondBlock = DES3_ECB.EncryptNoPadding(keySnapshot, secondInput);
-            result = new byte[16];
-            firstBlock.CopyTo(result, 0);
-            secondBlock.CopyTo(result, 8);
-            DesParameters.SetOddParity(result);
-            returned = true;
-            return result;
+            return EmvTdeaMasterKeyDiversification.Derive(keySnapshot, firstInput);
         }
         finally
         {
             Clear(keySnapshot);
             Clear(firstInput);
-            Clear(secondInput);
-            Clear(firstBlock);
-            Clear(secondBlock);
-            if (!returned)
-                Clear(result);
         }
     }
 
@@ -65,7 +45,8 @@ internal static class EmvMasterKeyDerivationOptionA
                 parameterName);
     }
 
-    private static byte[] CreateDiversificationBlock(string pan, string psn)
+    // Shared data preparation for Option A and the short-PAN branch of Option B.
+    internal static byte[] CreateDiversificationBlock(string pan, string psn)
     {
         byte[] block = new byte[8];
         // Read a virtual PAN || PSN, left-padded or truncated to its rightmost 16 digits.
@@ -81,13 +62,9 @@ internal static class EmvMasterKeyDerivationOptionA
         return block;
     }
 
-    private static byte[] CreateComplement(byte[] input)
-    {
-        byte[] complement = new byte[input.Length];
-        for (int index = 0; index < input.Length; index++)
-            complement[index] = (byte)(input[index] ^ 0xFF);
-        return complement;
-    }
+    // Preserve the existing white-box test entry point without duplicating the end step.
+    private static byte[] CreateComplement(byte[] input) =>
+        EmvTdeaMasterKeyDiversification.CreateComplement(input);
 
     private static void Clear(byte[]? buffer)
     {
