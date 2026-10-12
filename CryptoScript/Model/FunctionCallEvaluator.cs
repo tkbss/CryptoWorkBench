@@ -15,8 +15,40 @@ namespace CryptoScript.Model
 
         public static Statement EvaluateFunctionCall(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter)
+            => EvaluateFunctionCall(call, semanticErrors, evaluateParameter, null, null);
+
+        internal static Statement EvaluateFunctionCall(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
+            SemanticDiagnosticExecution? execution, DiagnosticLocation? parent)
         {
             FunctionCall fc = new FunctionCall();
+            fc.Location = execution?.BeginOperation(parent!, call.Name);
+            int start = semanticErrors.Count;
+            try
+            {
+                return EvaluateFunctionCallCore(call, semanticErrors, evaluateParameter, fc, execution);
+            }
+            catch (SemanticErrorException exception)
+            {
+                if (execution is not null)
+                {
+                    execution.Capture(semanticErrors, start, fc.Location!);
+                    if (exception.SemanticError is not null)
+                        execution.CaptureError(exception.SemanticError, fc.Location!);
+                }
+                throw;
+            }
+            finally
+            {
+                if (execution is not null)
+                    execution.Capture(semanticErrors, start, fc.Location!);
+            }
+        }
+
+        private static Statement EvaluateFunctionCallCore(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
+            FunctionCall fc, SemanticDiagnosticExecution? execution)
+        {
             string functionName = call.Name;
             fc.CallText = call.CallText;
             fc.Name = functionName;
@@ -29,6 +61,7 @@ namespace CryptoScript.Model
                 SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
                 se.Message = "Unknown function: "+functionName;
                 semanticErrors.Add(se);
+                execution?.Report(se, fc.Location!, SemanticDiagnosticCode.UnknownFunction);
                 throw new SemanticErrorException() { SemanticError=se};
             }
             var arguments = call.Arguments;
@@ -36,7 +69,7 @@ namespace CryptoScript.Model
             {
                 try
                 {
-                    fc.Call();
+                    fc.Call(execution);
                     return fc;
                 }
                 catch (FunctionContractException e)
@@ -61,9 +94,10 @@ namespace CryptoScript.Model
 
             try
             {
-                Statement[] argValues = arguments.Select(arg => EvaluateArgument(arg, functionName, semanticErrors, evaluateParameter)).ToArray();
+                Statement[] argValues = arguments.Select(arg => EvaluateArgumentCore(arg, functionName,
+                    semanticErrors, evaluateParameter, execution, fc.Location)).ToArray();
                 fc.Arguments.AddRange(argValues.OfType<Argument>());
-                fc.Call();
+                fc.Call(execution);
                 return fc;
             }
             catch (FunctionContractException e)
@@ -89,6 +123,11 @@ namespace CryptoScript.Model
 
         public static Statement EvaluateArgument(Ast.FunctionCallArgumentNode argument, string functionName,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter)
+            => EvaluateArgumentCore(argument, functionName, semanticErrors, evaluateParameter, null, null);
+
+        private static Statement EvaluateArgumentCore(Ast.FunctionCallArgumentNode argument, string functionName,
+            List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
+            SemanticDiagnosticExecution? execution, DiagnosticLocation? parent)
         {
             if (argument is Ast.MechanismArgumentNode mechanism)
             {
@@ -113,7 +152,8 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.NestedCallArgumentNode nestedCall)
             {
-                var fc = EvaluateFunctionCall(nestedCall.Call, semanticErrors, evaluateParameter) as FunctionCall;
+                var fc = EvaluateFunctionCall(nestedCall.Call, semanticErrors, evaluateParameter,
+                    execution, parent) as FunctionCall;
                 if (fc != null && fc.ReturnVariable != null)
                 {
                     var expr = Expression.Create(fc.ReturnVariable.Value);

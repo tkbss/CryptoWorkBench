@@ -18,19 +18,27 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public KeyMapViewModel(StatusViewModel statusViewModel)
 		{
             OutputOperations.InfoEvent += OnInfoEvent;
+            LoadInfo(statusViewModel, new CryptoScriptRunner());
+        }
+
+        private void LoadInfo(StatusViewModel statusViewModel, CryptoScriptRunner prog)
+        {
             string infoCmd = "Info(keymap)";            
             try
             {
-                var prog = new CryptoScriptRunner();
                 CryptoScriptParser parser = ParserBuilder.StringBuild(infoCmd);
                 CryptoScriptParser.ProgramContext context = parser.program();
                 var res = prog.Execute(context);
+                statusViewModel.AppendDiagnostics(res.Diagnostics);
                 
             }
             catch (Exception e)
             {
+                statusViewModel.AppendDiagnostics(prog.Diagnostics, (e as SemanticErrorException)?.SemanticError);
                 statusViewModel.StatusString="Error in loading KeyMap information";
-                InfoText = "Error in loading KeyMap information: "+e.Message;
+                InfoText = e is SemanticErrorException
+                    ? "Error in loading KeyMap information (semantic error)."
+                    : "Error in loading KeyMap information: " + e.Message;
 
             }
         }

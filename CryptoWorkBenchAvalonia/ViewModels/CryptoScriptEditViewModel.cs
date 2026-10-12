@@ -11,6 +11,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace CryptoWorkBenchAvalonia.ViewModels
@@ -68,9 +69,16 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         }
         public void ParseLine(string line)
         {
+            _statusViewModel.ClearDiagnostics();
+            ExecuteLine(line);
+        }
+
+        // Optional runner is a private transport-test seam, not a script function.
+        private bool ExecuteLine(string line, int? scriptBookLine = null, CryptoScriptRunner? runner = null)
+        {
             _historyService.AddLine(line);
             _printMessage = string.Empty;
-            var prog = new CryptoScriptRunner();
+            var prog = runner ?? new CryptoScriptRunner();
             CryptoScriptParser parser = ParserBuilder.StringBuild(line);
             CryptoScriptParser.ProgramContext context = parser.program();
             _statusViewModel.StatusString =string.Empty;
@@ -80,25 +88,33 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 _statusViewModel.StatusString = e;
                 SyntaxErrorListner.SyntaxErrorOccured = false;
                 _syntaxErrorOccured = true;
-
+                return false;
             }
             else
             {
                 _statusViewModel.StatusString = "Line successfull parsed";
+                bool diagnosticsReported = false;
                 try
                 {
                     var res = prog.Execute(context);
+                    _statusViewModel.AppendDiagnostics(res.Diagnostics, scriptBookLine: scriptBookLine);
+                    diagnosticsReported = true;
                     _variableViewModel.SetupVariables();
                     _syntaxErrorOccured = false;
+                    return !_syntaxErrorOccured;
                 }
                 catch (Exception e) {
-                    if(e is SemanticErrorException se)
-                        _statusViewModel.StatusString = "Semantic Error: "+se.SemanticError!.Message+" in "+se.SemanticError.FunctionCall;
+                    if (!diagnosticsReported)
+                        _statusViewModel.AppendDiagnostics(prog.Diagnostics,
+                            (e as SemanticErrorException)?.SemanticError, scriptBookLine);
+                    if(e is SemanticErrorException)
+                        _statusViewModel.StatusString = "Script execution aborted (semantic error).";
                     else
                     {
                         _statusViewModel.StatusString = "Semantic "+e.Message;
                     }
                     _syntaxErrorOccured = true;
+                    return false;
                 }
             }
         }
@@ -147,20 +163,34 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         }
         public void OpenScriptBook(string filePath)
         {
+            _statusViewModel.ClearDiagnostics();
+            LastScriptBookSucceeded = false;
             // Read all lines from the file
             var lines = File.ReadAllLines(filePath).ToList();
             TextDocument doc = _textEditor!.Document;
-            foreach (var l in lines)
-            {
-                if(l.StartsWith("out:") == false)
-                    ParseLine(l);
-                DocumentLine line = doc.Lines[doc.Lines.Count-1];                
-                doc.Insert(line.EndOffset, l+"\n");
-                if (_syntaxErrorOccured == true)
-                    break;
-            }
+            ExecuteScriptBook(lines, l =>
+                doc.Insert(doc.Lines[doc.Lines.Count - 1].EndOffset, l + "\n"));
             _textEditor.Document= doc;
             _textEditor.IsModified = true;
+        }
+
+        public bool LastScriptBookSucceeded { get; private set; }
+
+        private void ExecuteScriptBook(IEnumerable<string> lines, Action<string> appendLine,
+            Func<CryptoScriptRunner>? runnerFactory = null)
+        {
+            LastScriptBookSucceeded = false;
+            int bookLine = 0;
+            foreach (var line in lines)
+            {
+                ++bookLine;
+                bool succeeded = line.StartsWith("out:", StringComparison.Ordinal) ||
+                    ExecuteLine(line, bookLine, runnerFactory?.Invoke());
+                appendLine(line);
+                if (!succeeded)
+                    return;
+            }
+            LastScriptBookSucceeded = true;
         }
     }
 }
