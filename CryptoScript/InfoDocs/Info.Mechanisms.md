@@ -52,6 +52,7 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-EMV-AC-SESSION : EMV Common Session Key Derivation for ATC-based Application Cryptogram and ARPC processing.
 - KDF-EMV-MASTER-A : EMV ICC Master Key Derivation Option A using a TDEA Issuer Master Key, PAN and PSN.
 - KDF-EMV-MASTER-B : EMV ICC Master Key Derivation Option B using TDEA and SHA-1 decimalization for long PANs.
+- KDF-EMV-MASTER-C : EMV ICC Master Key Derivation Option C using AES, the complete PAN and PSN.
 - KDF-EP2-SESSION : ep2 8.11 Extract-and-Expand derivation of a selected Session Key Variant.
 - KDF-EP2-PAN-RECEIPT-TRX : ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-RECEIPT-TRM : ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.

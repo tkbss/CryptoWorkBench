@@ -11,6 +11,12 @@ public class InfoCompletionProviderTests
     private readonly InfoCompletionProvider _provider = new();
 
     [Test]
+    public void InfoCompletionOffersEmvMasterOptionCFromTheRegistry()
+    {
+        Assert.That(GetItems("Info(KDF-EMV-MASTER-"), Does.Contain("KDF-EMV-MASTER-C"));
+    }
+
+    [Test]
     public void InfoStartOffersListCommands()
     {
         IReadOnlyList<string> items = GetItems("Info(");

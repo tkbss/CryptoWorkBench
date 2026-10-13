@@ -47,6 +47,8 @@
                 return new KDF.KDF_EMV_MASTER_A();
             if (canonicalMechanism == "KDF-EMV-MASTER-B")
                 return new KDF.KDF_EMV_MASTER_B();
+            if (canonicalMechanism == "KDF-EMV-MASTER-C")
+                return new KDF.KDF_EMV_MASTER_C();
             if (canonicalMechanism == "KDF-EP2-SESSION")
                 return new KDF.KDF_EP2_SESSION();
             if (canonicalMechanism == "KDF-EP2-PAN-SURROGATE-TRX")

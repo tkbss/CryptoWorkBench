@@ -499,6 +499,33 @@ public static class MechanismRegistry
         })
     };
 
+    private static readonly MechanismFunctionMetadata[] EmvMasterCFunctionMetadata =
+    {
+        new(CryptoScriptFunction.Parameters, new MechanismParameterMetadata[]
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism }, "Selects EMV ICC Master Key Option C.", "KDF-EMV-MASTER-C."),
+            new("#PSN", MechanismParameterKind.NamedParameter, MechanismParameterDirection.Input, false,
+                new[] { MechanismParameterDataType.Data }, "PAN Sequence Number.", "Exactly two ASCII decimal digits in a normal string literal.",
+                MechanismParameterDefaultKind.Literal, "\"00\"", acceptedInputForms: new[] { MechanismParameterInputForm.StringLiteral })
+        }),
+        new(CryptoScriptFunction.Derive, new MechanismParameterMetadata[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet }, "Option C parameters.", "Only MECH and optional PSN; no duplicates."),
+            Argument("issuerMasterKey", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key }, "Issuer Master KEY.", "Secret AES KEY of exactly 16, 24 or 32 bytes; known size metadata must match."),
+            new("pan", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input, true,
+                new[] { MechanismParameterDataType.Data }, "Complete PAN including check digit.", "1-19 ASCII decimal digits, no normalization; provisional CryptoScript contract.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.StringLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Selects Option C.", "Exactly KDF-EMV-MASTER-C."),
+            new("#PSN", MechanismParameterKind.NamedParameter, MechanismParameterDirection.Input, false,
+                new[] { MechanismParameterDataType.Data }, "PAN Sequence Number.", "Exactly two ASCII decimal digits in a normal string literal.",
+                MechanismParameterDefaultKind.Literal, "\"00\"", acceptedInputForms: new[] { MechanismParameterInputForm.StringLiteral })
+        })
+    };
+
     private static readonly CryptoScriptFunction[] HashFunctions =
     {
         CryptoScriptFunction.Parameters,
@@ -691,6 +718,10 @@ public static class MechanismRegistry
                 StrictMechanismParameterContract = true
             },
             new("KDF-EMV-MASTER-B", "EMV ICC Master Key Derivation Option B using TDEA and SHA-1 decimalization for long PANs.", "Info.Mech.KDF-EMV-MASTER-B.md", DerivationFunctions, EmvMasterBFunctionMetadata)
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("KDF-EMV-MASTER-C", "EMV ICC Master Key Derivation Option C using AES, the complete PAN and PSN.", "Info.Mech.KDF-EMV-MASTER-C.md", DerivationFunctions, EmvMasterCFunctionMetadata)
             {
                 StrictMechanismParameterContract = true
             },

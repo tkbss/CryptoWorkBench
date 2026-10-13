@@ -6,6 +6,13 @@ namespace CryptoScriptUnitTest;
 public class ParameterRegistryTests
 {
     [Test]
+    public void PsnDescriptionIncludesAllThreeEmvMasterOptions()
+    {
+        Assert.That(ParameterRegistry.TryGet("#PSN", out var psn), Is.True);
+        Assert.That(psn!.Description, Does.Contain("Options A, B and C"));
+    }
+
+    [Test]
     public void ContainsExactlyTheParametersDefinedByTheLanguage()
     {
         string[] expectedNames = AntlrLanguageMetadata.GetParameters().ToArray();

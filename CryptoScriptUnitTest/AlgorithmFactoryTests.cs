@@ -9,7 +9,7 @@ public class AlgorithmFactoryTests
     [Test]
     public void EveryProductiveMechanismResolvesToAConcreteAlgorithm()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(56));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(57));
 
         foreach (string mechanism in MechanismList.Instance.Mechanisms)
         {
@@ -47,6 +47,7 @@ public class AlgorithmFactoryTests
     [TestCase("DES3-CBC", typeof(CryptoScript.CryptoAlgorithm.DES3.DES3))]
     [TestCase("HMAC-SHA256", typeof(CryptoScript.CryptoAlgorithm.HMAC.HMAC))]
     [TestCase("HASH-SHA256", typeof(CryptoScript.CryptoAlgorithm.HASH.HASH))]
+    [TestCase("KDF-EMV-MASTER-C", typeof(CryptoScript.CryptoAlgorithm.KDF.KDF_EMV_MASTER_C))]
     [TestCase("WRAP-AES-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.WrapAESTR31))]
     [TestCase("WRAP-DES3-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.WrapDES3TR31))]
     [TestCase("BLOCKHEADER-WRAP-AES-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.Tr31BlockHeader))]

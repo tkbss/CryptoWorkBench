@@ -290,7 +290,8 @@ public class EmvMasterOptionBMechanismTests
     public void AllOtherRegistryMechanismsRejectPsn()
     {
         foreach (var mechanism in MechanismRegistry.Entries.Where(entry =>
-                     entry.CanonicalName != Mechanism && entry.CanonicalName != "KDF-EMV-MASTER-A"))
+                     entry.CanonicalName != Mechanism && entry.CanonicalName != "KDF-EMV-MASTER-A" &&
+                     entry.CanonicalName != "KDF-EMV-MASTER-C"))
         {
             var parameter = new ParameterVariableDeclaration { Mechanism = mechanism.CanonicalName };
             parameter.SetParameter("#PSN", "\"45\"");

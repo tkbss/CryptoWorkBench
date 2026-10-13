@@ -150,7 +150,7 @@ public static class MechanismParameterContractValidator
     }
 
     private static bool IsEmvMasterMechanism(string mechanism) =>
-        mechanism is "KDF-EMV-MASTER-A" or "KDF-EMV-MASTER-B";
+        mechanism is "KDF-EMV-MASTER-A" or "KDF-EMV-MASTER-B" or "KDF-EMV-MASTER-C";
 
     internal static void ValidatePsnSupport(string mechanism, ParameterVariableDeclaration parameters,
         CryptoScriptFunction function = CryptoScriptFunction.Parameters)

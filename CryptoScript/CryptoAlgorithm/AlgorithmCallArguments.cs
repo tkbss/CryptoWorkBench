@@ -22,6 +22,9 @@ public sealed record AlgorithmCallArgument
     public string? Value { get; }
     public VariableDeclaration? SourceVariable { get; }
     public ResolvedCallArgumentKind Kind { get; }
+
+    // Dispatch reconstruction must not turn a value into an original variable reference.
+    internal bool HasReconstructedSourceVariable { get; init; }
 }
 
 public sealed class AlgorithmCallArguments
@@ -66,7 +69,10 @@ public sealed class AlgorithmCallArguments
 
         AlgorithmCallArgument[] updated = arguments.ToArray();
         updated[index] = new AlgorithmCallArgument(
-            updated[index].Value, sourceVariable, updated[index].Kind);
+            updated[index].Value, sourceVariable, updated[index].Kind)
+        {
+            HasReconstructedSourceVariable = true
+        };
         return new AlgorithmCallArguments(updated, IsLegacyDeriveCall);
     }
 }
