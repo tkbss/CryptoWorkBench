@@ -3,7 +3,8 @@ using Des3Algorithm = CryptoScript.CryptoAlgorithm.DES3.DES3;
 
 namespace CryptoScript.CryptoAlgorithm.KDF;
 
-// Option A is independently corroborated; normative verification against EMV v4.4 is pending.
+// EMV Contact Book 2 v4.4 A1.4.1 formula review completed on 13 October 2026
+// for commit 881ec9219ca7f558603e98acb3696b7e5219201e; not EMV product certification.
 internal static class EmvMasterKeyDerivationOptionA
 {
     internal static byte[] Derive(byte[] issuerMasterKey, string pan, string? psn)

@@ -8,9 +8,18 @@ including its check digit, and the PAN Sequence Number (PSN). This does not calc
 
 ## Conformance Status
 
-The algorithm is corroborated by independent implementations and fixed comparison values.
-Official normative verification against EMV Contact Book 2 v4.4, Annex A1.4.1 remains pending
-and is a release gate. The provisional PAN limit of 1-19 digits is a technical decision,
+The normative implementation review and formula comparison against EMV Contact Book 2 v4.4
+were completed on 13 October 2026 for commit `881ec9219ca7f558603e98acb3696b7e5219201e`.
+The review covered A1.3.1 (pages 137-138), A1.4.1 (pages 138-139), and A1.4.2 (page 139).
+This mechanism's construction matches A1.4.1; no security- or interoperability-relevant
+normative deviation was found. This is a normative implementation review, not EMV product certification
+or an official EMVCo approval. Fixed comparison and characterization values are not certification evidence.
+
+The review does not establish complete Application Cryptogram or ARPC processing, including
+the eight-byte AES Application Cryptogram integration, or Secure Messaging.
+Linux/Unix and FIPS runtime verification remain outside the demonstrated scope;
+Windows test results are not cross-platform evidence.
+The provisional PAN limit of 1-19 digits is a technical decision,
 not a normative conformity assertion. Option B is available separately as KDF-EMV-MASTER-B;
 it is never selected automatically by Option A.
 
@@ -84,6 +93,6 @@ cleanup remains a test limitation; no special crypto abstraction was added for t
 
 ## Reference
 
-EMV Contact Book 2, Annex A1.4.1 Option A (v4.4 normative verification pending).
+EMV Contact Book 2 v4.4, Annex A1.4.1 Option A, pages 138-139 (formula review completed 13 October 2026).
 Published comparison values: PyEMV 1.3.0 and PyEMV kd.py (EMV 4.3 reference).
 V3 in the core tests is an independent characterization, not a normative published vector.

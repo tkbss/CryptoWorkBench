@@ -205,7 +205,16 @@ public class EmvMasterOptionAMechanismTests
         string path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Mech.KDF-EMV-MASTER-A.md");
         Assert.That(File.Exists(path), Is.True);
         string document = File.ReadAllText(path);
-        Assert.That(document, Does.Contain("release gate"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(document, Does.Contain("normative implementation review"));
+            Assert.That(document, Does.Contain("13 October 2026"));
+            Assert.That(document, Does.Contain("881ec9219ca7f558603e98acb3696b7e5219201e"));
+            Assert.That(document, Does.Contain("A1.3.1").And.Contain("A1.4.1").And.Contain("A1.4.2"));
+            Assert.That(document, Does.Contain("not EMV product certification"));
+            Assert.That(document, Does.Contain("Secure Messaging").And.Contain("Linux/Unix").And.Contain("FIPS"));
+            Assert.That(document, Does.Not.Contain("verification pending").And.Not.Contain("release gate"));
+        });
         string example = document.Split("```text")[1].Split("```")[0];
         Execute(example);
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("sessionKey"), "68533955B11DEC088A36B4871DEAF9CF", "KDF-EMV-AC-SESSION");

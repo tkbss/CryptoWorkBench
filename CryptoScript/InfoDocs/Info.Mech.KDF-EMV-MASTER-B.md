@@ -6,9 +6,18 @@ Host-side EMV ICC Master Key Derivation Option B for personalization and issuer 
 Derives a card-specific ICC Master Key from an Issuer Master Key (IMK), the complete PAN
 including its check digit, and the PAN Sequence Number (PSN). It does not calculate a cryptogram.
 
-Official normative verification against EMV Contact Book 2 v4.4, Annex A1.4.2 is pending
-and remains a release gate. The algorithm is corroborated by EMV-4.3-related implementations
-and published comparison values. The PAN limit of 1-19 digits is a provisional technical
+The normative implementation review and formula comparison against EMV Contact Book 2 v4.4
+were completed on 13 October 2026 for commit `881ec9219ca7f558603e98acb3696b7e5219201e`.
+The review covered A1.3.1 (pages 137-138), A1.4.1 (pages 138-139), and A1.4.2 (page 139).
+This mechanism's construction matches A1.4.2; no security- or interoperability-relevant
+normative deviation was found. This is a normative implementation review, not EMV product certification
+or an official EMVCo approval. Published comparison and characterization values are not certification evidence.
+
+The review does not establish complete Application Cryptogram or ARPC processing, including
+the eight-byte AES Application Cryptogram integration, or Secure Messaging.
+Linux/Unix and FIPS runtime verification remain outside the demonstrated scope;
+Windows test results are not cross-platform evidence.
+The PAN limit of 1-19 digits is a provisional technical
 contract, not a normative conformity assertion.
 
 ## Input and Parameter Contract
@@ -81,6 +90,6 @@ no additional fault-injection architecture is introduced.
 
 ## References
 
-EMV Contact Book 2, Annex A1.4.2 (official v4.4 verification pending).
+EMV Contact Book 2 v4.4, Annex A1.4.2 Option B, page 139 (formula review completed 13 October 2026).
 V1/V2 are published PyEMV comparison values, not official EMV conformance vectors.
 V3 and the three ATC-0001 session keys are independent characterization values.

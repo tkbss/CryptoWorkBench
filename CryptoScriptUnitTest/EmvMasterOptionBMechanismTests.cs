@@ -14,6 +14,20 @@ public class EmvMasterOptionBMechanismTests
     private const string Imk = "0123456789ABCDEFFEDCBA9876543210";
     private const string Prefix = "KEY IMK=GenerateKey(DES3-ECB,0x(" + Imk + ")) ";
 
+    // Independently calculated on 2026-10-13 with Python hashlib SHA-1 and
+    // cryptography 50.0.2 / OpenSSL 4.0.3 TDEA-ECB (explicit K1||K2||K1), not CryptoScript.
+    // Inputs: Imk above, PANs in the boundary TestCases, PSN 00 (also the omitted-PSN default).
+    // EMV Book 2 v4.4 A1.4.2 preparation followed by E(Y)||E(~Y), then odd parity on bit 0.
+    // PAN 1234567890123456789: packed input 0123456789012345678900;
+    // SHA-1 FBBFA1E09EB192CE450C61C05297AB9CDB65854E; Y 1091924506105297;
+    // raw ciphertext 2E9275306B4FCB2A53A1CB1710DDAEF1 (before parity).
+    private const string Pan1Icc = "F77F048F6D1F3E9D9BE53D6BC7328086";
+    private const string Pan15Icc = "2F4AEF9837CE89AB670710D6CEA7026D";
+    private const string Pan16Icc = "154F349D8585CB7F6B0798E9839B10C1";
+    private const string Pan17Icc = "1C13AE23B54AF7BA49FBE09192C87983";
+    private const string Pan18Icc = "C43446BAC7C71C267A3768EF4F8A5DAB";
+    private const string Pan19Icc = "2F9275316B4FCB2A52A1CB1610DCAEF1";
+
     [SetUp]
     public void SetUp()
     {
@@ -207,7 +221,16 @@ public class EmvMasterOptionBMechanismTests
         string path = Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Mech.KDF-EMV-MASTER-B.md");
         Assert.That(File.Exists(path), Is.True);
         string document = File.ReadAllText(path);
-        Assert.That(document, Does.Contain("release gate"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(document, Does.Contain("normative implementation review"));
+            Assert.That(document, Does.Contain("13 October 2026"));
+            Assert.That(document, Does.Contain("881ec9219ca7f558603e98acb3696b7e5219201e"));
+            Assert.That(document, Does.Contain("A1.3.1").And.Contain("A1.4.1").And.Contain("A1.4.2"));
+            Assert.That(document, Does.Contain("not EMV product certification"));
+            Assert.That(document, Does.Contain("Secure Messaging").And.Contain("Linux/Unix").And.Contain("FIPS"));
+            Assert.That(document, Does.Not.Contain("verification pending").And.Not.Contain("release gate"));
+        });
         string example = document.Split("```text")[1].Split("```")[0];
         Execute(example);
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("sessionKey"), "43A79915202AD2C8504F42A91438B152", "KDF-EMV-AC-SESSION");
@@ -313,19 +336,19 @@ public class EmvMasterOptionBMechanismTests
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("session"), session, "KDF-EMV-AC-SESSION");
     }
 
-    [TestCase("1")]
-    [TestCase("123456789012345")]
-    [TestCase("1234567890123456")]
-    [TestCase("12345678901234567")]
-    [TestCase("123456789012345678")]
-    [TestCase("1234567890123456789")]
-    public void PanBoundariesKeepOptionBMetadataAndShortPanMatchesOptionA(string pan)
+    [TestCase("1", Pan1Icc)]
+    [TestCase("123456789012345", Pan15Icc)]
+    [TestCase("1234567890123456", Pan16Icc)]
+    [TestCase("12345678901234567", Pan17Icc)]
+    [TestCase("123456789012345678", Pan18Icc)]
+    [TestCase("1234567890123456789", Pan19Icc)]
+    public void PanBoundariesMatchIndependentKnownAnswersAndKeepMetadata(string pan, string expectedIcc)
     {
         Execute(Prefix + $"PARAM p=Parameters({Mechanism}) KEY ICC=Derive(p,IMK,\"{pan}\") " +
             $"PARAM a=Parameters(KDF-EMV-MASTER-A) KEY optionA=Derive(a,IMK,\"{pan}\")");
         var icc = (KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC");
         var optionA = (KeyVariableDeclaration)VariableDictionary.Instance().Get("optionA");
-        AssertKey(icc, Convert.ToHexString(FormatConversions.ToByteArray(icc.Value, icc.ValueFormat)), Mechanism);
+        AssertKey(icc, expectedIcc, Mechanism);
         if (pan.Length <= 16) Assert.That(icc.Value, Is.EqualTo(optionA.Value));
         else Assert.That(icc.Value, Is.Not.EqualTo(optionA.Value));
         Assert.That(optionA.DerivationMechanism, Is.EqualTo("KDF-EMV-MASTER-A"));

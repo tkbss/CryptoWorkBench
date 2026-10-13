@@ -49,7 +49,7 @@ public class EmvAcSessionDocumentationTests
     }
 
     [Test]
-    public void PageDocumentsContractSecurityScopeAndNormativeUncertainty()
+    public void PageDocumentsContractSecurityScopeAndCompletedNormativeReview()
     {
         string document = ReadInfoDocument($"Info.Mech.{Mechanism}.md");
         string[] requiredSections =
@@ -80,7 +80,13 @@ public class EmvAcSessionDocumentationTests
             Assert.That(document, Does.Contain("No additional named parameters are supported"));
             Assert.That(document, Does.Contain("nested function result is rejected").IgnoreCase);
             Assert.That(document, Does.Contain("Duplicate `#MECH` declarations are rejected"));
-            Assert.That(document, Does.Contain("final normative confirmation").IgnoreCase);
+            Assert.That(document, Does.Contain("normative implementation review"));
+            Assert.That(document, Does.Contain("13 October 2026"));
+            Assert.That(document, Does.Contain("881ec9219ca7f558603e98acb3696b7e5219201e"));
+            Assert.That(document, Does.Contain("A1.3.1").And.Contain("A1.4.1").And.Contain("A1.4.2"));
+            Assert.That(document, Does.Contain("not EMV product certification"));
+            Assert.That(document, Does.Contain("Secure Messaging").And.Contain("Linux/Unix").And.Contain("FIPS"));
+            Assert.That(document, Does.Not.Contain("confirmation against the official v4.4 publication remains open"));
             Assert.That(document, Does.Contain("does not calculate an Application Cryptogram or ARPC"));
             Assert.That(document, Does.Contain("Errors describe the violated contract and do not include key material"));
         });

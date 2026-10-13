@@ -10,7 +10,11 @@ The mechanism implements the EMV Common Session Key Derivation construction for 
 
 ## Conformance Status
 
-The construction follows EMV Contact Chip v4.4, Book 2, Annex A1.3.1 as specified for this implementation. The fixed known-answer values below originate from EMVCo Book E Cryptography Worked Examples. Their applicability to the Contact Book 2 construction has been technically cross-checked, but final normative confirmation against the official v4.4 publication remains open.
+The normative implementation review and formula comparison against EMV Contact Book 2 v4.4 were completed on 13 October 2026 for commit `881ec9219ca7f558603e98acb3696b7e5219201e`. The review covered A1.3.1 (Common Session Key Derivation, pages 137-138), A1.4.1 (Master Key Option A, pages 138-139), and A1.4.2 (Master Key Option B, page 139). This mechanism's TDEA and AES constructions match A1.3.1; no security- or interoperability-relevant normative deviation was found.
+
+This is a normative implementation review, not EMV product certification or an official EMVCo approval. The fixed reference values are interoperability checks, not certification evidence; their reported Book E provenance was not separately authenticated by the Book 2 review.
+
+The review does not establish complete Application Cryptogram or ARPC processing, including the eight-byte AES Application Cryptogram integration, or Secure Messaging. Linux/Unix and FIPS runtime verification remain outside the demonstrated scope; Windows test results are not cross-platform evidence. Transaction freshness, correct master-key assignment, and the fixed AES key length of a deployed application profile remain the caller's responsibility.
 
 ## Supported Master Keys
 
