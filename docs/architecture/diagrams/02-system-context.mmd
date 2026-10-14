@@ -1,0 +1,24 @@
+%% Diagram: D02-CONTEXT
+%% Implementation baseline: d3099c80af3891ad54444e544f528c9c5ed6b93f
+%% Documentation baseline: 5c4b15d8487348ff904a04e9907caf9e00e868a0
+%% Evidence: ../evidence/02-system-overview-baseline.md, D02-CONTEXT and O05
+flowchart TB
+    subgraph Diagram["CryptoScript Workbench — System Context"]
+        direction TB
+        subgraph Context["C4 Level 1 — User and software system"]
+            direction LR
+            User(["Workbench User<br/>Person [I]"])
+            System["CryptoScript Workbench<br/>Software system [I]<br/>Avalonia desktop application and reusable CryptoScript core"]
+            User -->|"Uses the desktop workbench [F]"| System
+            System -->|"Shows results, variables,<br/>diagnostics and local help [F]"| User
+        end
+        OwnerContext["Project-owner scope [O]<br/>Active client: Avalonia desktop application<br/>Reusable library core: CryptoScript"]
+        Scope["Scope<br/>Local files are runtime resources, not external business systems.<br/>No external software-system integration is established<br/>by the inspected baseline. Future applications are excluded."]
+        Legend["Legend<br/>Solid arrows: implemented user interactions [F]<br/>[I]: architectural model interpretation<br/>[O]: owner decisions or supplied context; not runtime evidence<br/>The actor does not imply authentication or authorization roles."]
+    end
+    classDef person fill:#e8f1fb,stroke:#285780,color:#162b3d
+    classDef system fill:#eaf4ed,stroke:#357348,color:#173b23
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class User person
+    class System system
+    class OwnerContext,Scope,Legend note

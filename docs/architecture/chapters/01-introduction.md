@@ -4,7 +4,7 @@
 
 | Metadata | Value |
 | --- | --- |
-| Status | Completed initial draft; awaiting review |
+| Status | Reviewed |
 | Analysis baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
 | Analysis date | 2026-10-13 |
 | Verification | Static repository inspection; no build or runtime validation |
@@ -19,17 +19,19 @@ Every implementation finding is tied to an analysis baseline and a source refere
 
 ## 1.2 System Purpose
 
-**[F]** The repository contains a CryptoScript language and execution library, a console frontend, an Avalonia GUI library and a desktop entry point. Both the console and the GUI editor build a parser through `ParserBuilder.StringBuild`, obtain a program context and invoke `CryptoScriptRunner.Execute`. The desktop entry point starts the Avalonia application. These statements are supported by [E01 and E02](../evidence/01-introduction-baseline.md#repository-evidence).
+**[F]** The desktop application consists of an Avalonia GUI project and a desktop entry point using the reusable CryptoScript language and execution library. The GUI editor builds a parser through `ParserBuilder.StringBuild`, obtains a program context and invokes `CryptoScriptRunner.Execute`. The desktop entry point starts the Avalonia application. These statements are supported by [E01 and E02](../evidence/01-introduction-baseline.md#repository-evidence).
 
 **[F]** The inspected cryptographic dispatch includes AES and Triple-DES mechanisms, message authentication, hashing, key derivation, TR-31 wrapping and PIN-block mechanisms. These are code-level observations, not a certification or a guarantee that every input or operation succeeds. See [E03](../evidence/01-introduction-baseline.md#repository-evidence).
 
-**[I]** CryptoScript Workbench can therefore be understood as a workbench for expressing and executing cryptographic operations through a shared scripting core and separate console and GUI entry points. This interpretation is derived from the frontend calls and project references in E01 and E02; it does not imply a general command-line interface or a separate execution service.
+**[I]** CryptoScript Workbench can therefore be understood as a desktop workbench for expressing and executing cryptographic operations through a reusable scripting core. This interpretation is derived from the GUI calls and desktop-to-GUI-to-core project references in E01 and E02; the library runs within the desktop application process.
 
 ## 1.3 Scope and Boundaries
 
-The recovery scope is the CryptoWorkBench repository. Chapter 1 establishes the purpose, boundaries, evidence conventions and document organization. Subsequent chapters will analyze the language, runtime, cryptography, diagnostics, interfaces, execution sequences, GUI, tests and architecture assessment using their own recorded evidence.
+The product architecture scope covers the reusable CryptoScript core, the Avalonia desktop application, GUI composition, application services and presentation, language processing, runtime and cryptography, diagnostics and documentation facilities, and relevant automated testing infrastructure. Chapter 1 establishes the purpose, boundaries, evidence conventions and document organization. Subsequent chapters apply this scope using their own recorded evidence.
 
-**[F]** The core, console, GUI and desktop project files inspected for this introduction target `net10.0`. The core declares references to `Antlr4.Runtime.Standard`, `BouncyCastle.Cryptography` and `Newtonsoft.Json`; the GUI and desktop projects declare Avalonia dependencies. These are project declarations at the baseline, not a report of restored or deployed dependency versions. See [E01](../evidence/01-introduction-baseline.md#repository-evidence).
+**[O]** CryptoWorkBenchConsole is a historical development client with no current or planned use. It is excluded from the product architecture, all architecture diagrams and subsequent chapter planning. Its continued repository presence and existing references remain documented as inventory facts. See the [scope decision](../evidence/02-system-overview-baseline.md#project-owner-decisions-and-historical-context) and [complete project inventory](../evidence/02-system-overview-baseline.md#repository-inventory-and-model-scope).
+
+**[F]** The core, GUI and desktop projects in the product architecture target `net10.0`. The core declares references to `Antlr4.Runtime.Standard`, `BouncyCastle.Cryptography` and `Newtonsoft.Json`; the GUI and desktop projects declare Avalonia dependencies. These are project declarations at the baseline, not a report of restored or deployed dependency versions. See [E01](../evidence/01-introduction-baseline.md#repository-evidence).
 
 **[P]** Version 1 focuses on symmetric cryptography, with hashing, authentication, derivation and wrapping as related workbench capabilities. Version 2 is planned to include classical asymmetric cryptography, certificate handling, Cryptographic Message Syntax (CMS) and post-quantum mechanisms. This version split is the project scope supplied for this architecture-recovery task. It describes plans and focus areas, not verified release tags or implemented version 2 functionality.
 
@@ -51,7 +53,7 @@ Recovery proceeds from evidence to explanation. Each analysis records its commit
 
 Markdown is the leading text format. Mermaid is the primary diagram source format. Diagram labels and legends are written in English. Diagrams must explain their abstraction level and edge semantics and cite their evidence; a project reference must not be presented as a runtime message flow.
 
-The initial [project reference diagram](../diagrams/01-project-references.mmd) shows four production projects and three direct `ProjectReference` declarations. **[F]** Every arrow points from the referencing project to the referenced project. It omits test projects and external packages and makes no statement about deployment topology or execution order. Its evidence and legend are recorded in [D01](../evidence/01-introduction-baseline.md#diagram-evidence).
+The [project reference diagram](../diagrams/01-project-references.mmd) shows the three production projects in the product architecture and their two direct `ProjectReference` declarations. **[F]** Every arrow points from the referencing project to the referenced project. It omits projects outside the product architecture, test projects and external packages; it is a scoped view rather than a complete repository inventory and makes no statement about deployment topology or execution order. Its evidence and legend are recorded in [D01](../evidence/01-introduction-baseline.md#diagram-evidence).
 
 **[R]** Subsequent recovery work should preserve this evidence-first approach and add detailed diagrams only after verifying their relationships. This recommendation follows from the need to prevent inferred relationships or roadmap items from being mistaken for implemented behavior.
 
@@ -64,6 +66,7 @@ The initial [project reference diagram](../diagrams/01-project-references.mmd) s
 | CryptoScript | The core project; identifiers retain their source spelling |
 | Analysis baseline | The immutable Git commit used for implementation findings |
 | **[F] Verified implementation fact** | A directly evidenced declaration, relationship or code behavior; static inspection is identified as such |
+| **[O] Project-owner decision** | An owner-supplied scope or architectural decision, distinct from implementation evidence |
 | **[I] Architectural interpretation** | An explicitly identified inference from verified facts |
 | **[Q] Open question** | An unresolved matter requiring further evidence or a decision |
 | **[R] Recommendation** | A proposed investigation or improvement, separate from the current implementation |
@@ -78,10 +81,10 @@ Documentation links use portable relative paths with forward slashes and exact f
 
 ## 1.7 Document Organization
 
-The [documentation entry point](../README.md#table-of-contents) contains the approved 13-chapter structure and navigation to completed content. Chapters 2 and 3 establish the system and project context. Chapters 4 through 8 cover the language, runtime, cryptography, diagnostics and integration. Chapter 9 covers data flows and execution sequences; Chapter 10, GUI Architecture, follows it immediately. Chapters 11 through 13 cover testing, architecture assessment and future evolution.
+The [documentation entry point](../README.md#table-of-contents) contains the approved 13-chapter structure and navigation to available chapters, including drafts. Chapters 2 and 3 establish the system and project context. Chapters 4 through 8 cover the language, runtime, cryptography, diagnostics and integration. Chapter 9 covers data flows and execution sequences; Chapter 10, GUI Architecture, follows it immediately. Chapters 11 through 13 cover testing, architecture assessment and future evolution. All later chapters retain the product architecture scope in Section 1.3; complete repository inventories remain distinct from that model.
 
 Chapter sources are stored in `chapters/`, Mermaid sources in `diagrams/`, and verification records in `evidence/`. The areas `decisions/`, `assets/` and `tools/` are reserved and will be created when corresponding content becomes available. Unanalyzed chapters have table-of-contents entries and reserved filenames, but no placeholder technical content.
 
-The documentation is ready to receive subsequent recovery findings. Chapter 1 remains an initial draft for review, and later findings must distinguish the implemented baseline from assessments and future scope.
+The documentation is ready to receive subsequent recovery findings. Chapter 1 has been reviewed. Later findings must distinguish the implemented baseline from assessments and future scope.
 
 [Return to architecture documentation](../README.md)
