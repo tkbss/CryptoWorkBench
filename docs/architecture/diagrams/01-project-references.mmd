@@ -1,0 +1,16 @@
+%% Title: Production project reference overview
+%% Classification: Verified implementation fact [F]
+%% Baseline: d3099c80af3891ad54444e544f528c9c5ed6b93f
+%% Evidence: ../evidence/01-introduction-baseline.md, E01 and D01
+%% Legend: A solid arrow points from a referencing project to a referenced project.
+%% Scope: Four production projects; test projects and external packages are omitted.
+%% Edges describe build-time references, not runtime messages or execution order.
+flowchart LR
+    Console["CryptoWorkBenchConsole"]
+    Core["CryptoScript"]
+    Gui["CryptoWorkBenchAvalonia"]
+    Desktop["CryptoWorkBenchAvalonia.Desktop"]
+
+    Console -->|Project reference| Core
+    Gui -->|Project reference| Core
+    Desktop -->|Project reference| Gui
