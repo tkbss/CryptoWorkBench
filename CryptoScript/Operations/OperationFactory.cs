@@ -8,9 +8,13 @@ namespace CryptoScript.Model
     public class OperationFactory
     { 
         public static Func<OperationInvocation, VariableDeclaration> CreateInvocationOperation(string operation)
+            => CreateInvocationOperation(operation, null);
+
+        internal static Func<OperationInvocation, VariableDeclaration> CreateInvocationOperation(string operation,
+            Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory)
         {
             operation = operation.ToLower();
-            var op = new CryptoOperations();
+            var op = algorithmFactory is null ? new CryptoOperations() : new CryptoOperations(algorithmFactory);
             switch (operation)
             {
                 case "mac":

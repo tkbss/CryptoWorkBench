@@ -9,13 +9,22 @@ namespace CryptoScript.Model
         private SemanticDiagnosticExecution? activeExecution;
         private SemanticDiagnosticExecution? lastExecution;
         private readonly Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation;
+        private readonly Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory;
 
         public CryptoScriptRunner() { }
 
         // Controlled transport-test seam; never registered as a script function or mechanism.
         internal CryptoScriptRunner(Action<FunctionCall, ISemanticDiagnosticSink> beforeOperation)
+            : this(beforeOperation, null)
+        {
+        }
+
+        // Instance-local algorithm selection for tests of the actual operation dispatch.
+        internal CryptoScriptRunner(Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation,
+            Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory)
         {
             this.beforeOperation = beforeOperation;
+            this.algorithmFactory = algorithmFactory;
         }
 
         public List<SemanticError> SemanticErrors { get; set; } = new();
@@ -33,7 +42,7 @@ namespace CryptoScript.Model
 
         public CryptoScriptProgram Execute(IEnumerable<StatementNode?> statements)
         {
-            var execution = new SemanticDiagnosticExecution(beforeOperation);
+            var execution = new SemanticDiagnosticExecution(beforeOperation, algorithmFactory);
             var parentExecution = activeExecution;
             activeExecution = execution;
             try

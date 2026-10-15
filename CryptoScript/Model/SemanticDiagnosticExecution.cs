@@ -8,11 +8,14 @@ internal sealed class SemanticDiagnosticExecution
     private readonly SemanticDiagnosticSink sink = new();
     private readonly Dictionary<SemanticError, DiagnosticLocation> locations = new(ReferenceEqualityComparer.Instance);
     private readonly Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation;
+    private readonly Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory;
     private int operationId;
 
-    internal SemanticDiagnosticExecution(Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation = null)
+    internal SemanticDiagnosticExecution(Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation = null,
+        Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory = null)
     {
         this.beforeOperation = beforeOperation;
+        this.algorithmFactory = algorithmFactory;
     }
 
     internal Guid ExecutionId { get; } = Guid.NewGuid();
@@ -22,7 +25,13 @@ internal sealed class SemanticDiagnosticExecution
         new(ExecutionId, parent.StatementIndex, ++operationId, parent.OperationId, functionName);
 
     internal void BeforeOperation(FunctionCall call) =>
-        beforeOperation?.Invoke(call, new LocatedSink(this, call.Location!));
+        beforeOperation?.Invoke(call, call.Invocation!.DiagnosticSink!);
+
+    internal ISemanticDiagnosticSink CreateSink(DiagnosticLocation location) =>
+        new LocatedSink(this, location);
+
+    internal Func<OperationInvocation, Variables.VariableDeclaration> CreateOperation(string functionName) =>
+        OperationFactory.CreateInvocationOperation(functionName, algorithmFactory);
 
     internal void Capture(List<SemanticError> errors, int start, DiagnosticLocation location)
     {
@@ -48,10 +57,20 @@ internal sealed class SemanticDiagnosticExecution
         ArgumentNullException.ThrowIfNull(diagnostic);
         if (!locations.TryGetValue(diagnostic, out var firstLocation))
         {
-            firstLocation = location;
+            // A previous execution's assigned Location is not fresh producer metadata.
+            // Reference identity also distinguishes an explicitly replaced, equal-valued record.
+            var supplied = ReferenceEquals(diagnostic.Location, diagnostic.ExecutionAssignedLocation)
+                ? null : diagnostic.Location;
+            // The current operation owns context; fresh metadata only fills missing fields.
+            firstLocation = location with
+            {
+                Mechanism = location.Mechanism ?? supplied?.Mechanism,
+                Identifier = location.Identifier ?? supplied?.Identifier
+            };
             locations.Add(diagnostic, firstLocation);
         }
         diagnostic.Location = firstLocation;
+        diagnostic.ExecutionAssignedLocation = firstLocation;
         if (diagnostic.DiagnosticCode == SemanticDiagnosticCode.Unclassified)
             diagnostic.DiagnosticCode = code ?? diagnostic.Type switch
             {

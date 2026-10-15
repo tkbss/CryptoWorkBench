@@ -10,5 +10,7 @@ public enum SemanticDiagnosticCode
     FunctionContractViolation = 4,
     FunctionExecutionFailed = 5,
     InvalidDeclaration = 6,
-    InvalidParameter = 7
+    InvalidParameter = 7,
+    KeyUsageConflict = 8,
+    KeyTypeConflict = 9
 }

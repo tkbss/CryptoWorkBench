@@ -11,6 +11,16 @@ namespace CryptoScript.Model
     
     public class CryptoOperations
     {
+        private readonly Func<string, CryptoAlgorithm.CryptoAlgorithm> algorithmFactory;
+
+        public CryptoOperations() : this(AlgorithmFactory.Create) { }
+
+        // Instance-local dispatch seam for transport tests; no registry or global mutation.
+        internal CryptoOperations(Func<string, CryptoAlgorithm.CryptoAlgorithm> algorithmFactory)
+        {
+            this.algorithmFactory = algorithmFactory ?? throw new ArgumentNullException(nameof(algorithmFactory));
+        }
+
         public VariableDeclaration GenerateParameters(OperationInvocation invocation)
         {
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration sourceParameter)
@@ -275,9 +285,10 @@ namespace CryptoScript.Model
 
         private static AlgorithmCallArguments ToAlgorithmArguments(OperationInvocation invocation) =>
             new(invocation.Arguments.Select(argument =>
-                new AlgorithmCallArgument(argument.Value, argument.SourceVariable, argument.Kind)));
+                new AlgorithmCallArgument(argument.Value, argument.SourceVariable, argument.Kind)),
+                invocation.DiagnosticSink);
 
-        private static (CryptoAlgorithm.CryptoAlgorithm Algorithm, AlgorithmCallArguments Arguments,
+        private (CryptoAlgorithm.CryptoAlgorithm Algorithm, AlgorithmCallArguments Arguments,
                 ParameterVariableDeclaration Parameters)
             DetermineAlgorithm(AlgorithmCallArguments arguments, CryptoScriptFunction function)
         {
@@ -288,7 +299,7 @@ namespace CryptoScript.Model
                 {
                     MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
                         sourceParameter.Mechanism, sourceParameter, function);
-                    return (AlgorithmFactory.Create(sourceParameter.Mechanism), arguments, sourceParameter);
+                    return (algorithmFactory(sourceParameter.Mechanism), arguments, sourceParameter);
                 }
 
                 if (argument.Value is not null &&
@@ -298,7 +309,7 @@ namespace CryptoScript.Model
                         AlgorithmArgumentResolver.ResolveParameter(argument);
                     AlgorithmCallArguments resolved =
                         arguments.WithSourceVariable(index, temporary);
-                    return (AlgorithmFactory.Create(temporary.Mechanism), resolved, temporary);
+                    return (algorithmFactory(temporary.Mechanism), resolved, temporary);
                 }
             }
 

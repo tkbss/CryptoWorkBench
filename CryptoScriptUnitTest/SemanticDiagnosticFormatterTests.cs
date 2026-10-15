@@ -31,6 +31,8 @@ public class SemanticDiagnosticFormatterTests
     [TestCase(SemanticDiagnosticCode.FunctionExecutionFailed, "FunctionExecutionFailed")]
     [TestCase(SemanticDiagnosticCode.InvalidDeclaration, "InvalidDeclaration")]
     [TestCase(SemanticDiagnosticCode.InvalidParameter, "InvalidParameter")]
+    [TestCase(SemanticDiagnosticCode.KeyUsageConflict, "KeyUsageConflict")]
+    [TestCase(SemanticDiagnosticCode.KeyTypeConflict, "KeyTypeConflict")]
     public void FormatsDiagnosticCode(SemanticDiagnosticCode code, string expected)
     {
         Assert.That(SemanticDiagnosticFormatter.Format(new SemanticError { DiagnosticCode = code, Message = "m" }),

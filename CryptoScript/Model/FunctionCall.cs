@@ -33,14 +33,16 @@ namespace CryptoScript.Model
 
         internal void Call(SemanticDiagnosticExecution? execution)
         {
-            Invocation = new OperationInvocation(Arguments.Select(ResolveArgument));
             if (Location is not null)
                 Location = Location with
                 {
                     Mechanism = Arguments.OfType<ArgumentMechanism>().FirstOrDefault()?.Mechanism?.Value
                 };
+            Invocation = new OperationInvocation(Arguments.Select(ResolveArgument),
+                execution?.CreateSink(Location!));
             execution?.BeforeOperation(this);
-            var function = OperationFactory.CreateInvocationOperation(Name);
+            var function = execution is null ? OperationFactory.CreateInvocationOperation(Name)
+                : execution.CreateOperation(Name);
             ReturnVariable = function(Invocation);
         }
 
