@@ -4,16 +4,17 @@ This is the entry point for the architecture recovery documentation. It describe
 
 | Metadata | Value |
 | --- | --- |
-| Documentation status | Chapter 1 reviewed; Chapter 2 documentation draft awaiting final review |
-| Analysis baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
-| Analysis dates | 2026-10-13 (Chapter 1); 2026-10-14 (Chapter 2) |
+| Documentation status | Chapter 1 reviewed; Chapters 2 and 3 documentation drafts awaiting review |
+| Chapters 1 and 2 baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
+| Chapter 3 baseline | `efa81d6ca282ad7a2b8959d0f406f741c87006b0` |
+| Analysis dates | 2026-10-13 (Chapter 1); 2026-10-14 (Chapter 2); 2026-10-15 (Chapter 3) |
 | Documentation baseline for Chapter 2 | `5c4b15d8487348ff904a04e9907caf9e00e868a0` |
-| Evidence method | Static inspection of files at the baseline commit |
-| Analysis checkout | Dedicated architecture worktree; application sources match the implementation baseline |
+| Evidence method | Static inspection at each recorded baseline; Chapter 3 also verifies master CI run 38710123715 |
+| Analysis checkout | Dedicated architecture worktree at documentation HEAD 19c79fe; implementation checkout remains at the earlier baseline; Chapter 3 incorporates the fetched new baseline through immutable source references |
 | Source formats | Markdown for text; Mermaid for diagrams |
 | Language | English for all documentation and diagram content |
 
-See the [Introduction evidence](evidence/01-introduction-baseline.md) and [System Overview evidence](evidence/02-system-overview-baseline.md) for baselines, sources, owner context and analysis limitations.
+See the [Introduction evidence](evidence/01-introduction-baseline.md), [System Overview evidence](evidence/02-system-overview-baseline.md) and [Project Structure and Dependencies evidence](evidence/03-project-structure-and-dependencies-baseline.md) for baselines, sources, owner context and analysis limitations.
 
 ## Product Architecture Scope
 
@@ -29,7 +30,7 @@ The chapter order and titles follow the approved structure. Navigation links poi
 | --- | --- | --- | --- |
 | 1 | [Introduction](chapters/01-introduction.md) | `chapters/01-introduction.md` | Reviewed |
 | 2 | [System Overview](chapters/02-system-overview.md) | `chapters/02-system-overview.md` | Documentation draft; awaiting final review |
-| 3 | Project Structure and Dependencies | `chapters/03-project-structure-and-dependencies.md` | Not yet analyzed |
+| 3 | [Project Structure and Dependencies](chapters/03-project-structure-and-dependencies.md) | `chapters/03-project-structure-and-dependencies.md` | Documentation draft; awaiting independent review |
 | 4 | Language Architecture | `chapters/04-language-architecture.md` | Not yet analyzed |
 | 5 | Runtime Architecture | `chapters/05-runtime-architecture.md` | Not yet analyzed |
 | 6 | Cryptographic Architecture | `chapters/06-cryptographic-architecture.md` | Not yet analyzed |
@@ -45,10 +46,10 @@ The chapter order and titles follow the approved structure. Navigation links poi
 
 | Area | Purpose | Initial state |
 | --- | --- | --- |
-| `chapters/` | Numbered architecture chapters in Markdown | Chapters 1 and 2 available |
-| `diagrams/` | Mermaid sources, accompanied by evidence and a legend | [Project references](diagrams/01-project-references.mmd), [System Context](diagrams/02-system-context.mmd), [Container Overview](diagrams/02-container-overview.mmd) |
+| `chapters/` | Numbered architecture chapters in Markdown | Chapters 1, 2 and 3 available |
+| `diagrams/` | Mermaid sources, accompanied by evidence and a legend | [Project references](diagrams/01-project-references.mmd), [System Context](diagrams/02-system-context.mmd), [Container Overview](diagrams/02-container-overview.mmd), [Build and Test Dependency Coverage](diagrams/03-build-and-test-dependency-coverage.mmd) |
 | `decisions/` | Architecture decision records with context, status and consequences | Reserved; create when a decision is documented |
-| `evidence/` | Baselines, source references, verification notes and analysis limitations | [Introduction](evidence/01-introduction-baseline.md) and [System Overview](evidence/02-system-overview-baseline.md) evidence available |
+| `evidence/` | Baselines, source references, verification notes and analysis limitations | [Introduction](evidence/01-introduction-baseline.md) and [System Overview](evidence/02-system-overview-baseline.md) and [Project Structure and Dependencies](evidence/03-project-structure-and-dependencies-baseline.md) evidence available |
 | `assets/` | Authored supporting assets that cannot be expressed as Markdown or Mermaid | Reserved; create when content is available |
 | `tools/` | Reproducible documentation generation and validation tools | Reserved; create when tooling is available |
 
