@@ -4,7 +4,7 @@ This is the entry point for the architecture recovery documentation. It describe
 
 | Metadata | Value |
 | --- | --- |
-| Documentation status | Chapter 1 reviewed; Chapters 2 and 3 documentation drafts awaiting review |
+| Documentation status | Chapters 1, 2 and 3: Reviewed |
 | Chapters 1 and 2 baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
 | Chapter 3 baseline | `efa81d6ca282ad7a2b8959d0f406f741c87006b0` |
 | Analysis dates | 2026-10-13 (Chapter 1); 2026-10-14 (Chapter 2); 2026-10-15 (Chapter 3) |
@@ -24,13 +24,13 @@ The binding [scope definition in Chapter 1](chapters/01-introduction.md#13-scope
 
 ## Table of Contents
 
-The chapter order and titles follow the approved structure. Navigation links point to existing chapter files, including drafts; review status is recorded separately. Planned source paths reserve filenames without creating unanalyzed chapter files.
+The chapter order and titles follow the approved structure. Navigation links point to existing chapter files; Chapters 1, 2 and 3 have completed independent review. Planned source paths reserve filenames without creating unanalyzed chapter files.
 
 | Chapter | Title | Source | Status |
 | --- | --- | --- | --- |
 | 1 | [Introduction](chapters/01-introduction.md) | `chapters/01-introduction.md` | Reviewed |
-| 2 | [System Overview](chapters/02-system-overview.md) | `chapters/02-system-overview.md` | Documentation draft; awaiting final review |
-| 3 | [Project Structure and Dependencies](chapters/03-project-structure-and-dependencies.md) | `chapters/03-project-structure-and-dependencies.md` | Documentation draft; awaiting independent review |
+| 2 | [System Overview](chapters/02-system-overview.md) | `chapters/02-system-overview.md` | Reviewed |
+| 3 | [Project Structure and Dependencies](chapters/03-project-structure-and-dependencies.md) | `chapters/03-project-structure-and-dependencies.md` | Reviewed |
 | 4 | Language Architecture | `chapters/04-language-architecture.md` | Not yet analyzed |
 | 5 | Runtime Architecture | `chapters/05-runtime-architecture.md` | Not yet analyzed |
 | 6 | Cryptographic Architecture | `chapters/06-cryptographic-architecture.md` | Not yet analyzed |
@@ -44,16 +44,18 @@ The chapter order and titles follow the approved structure. Navigation links poi
 
 ## Documentation Areas
 
-| Area | Purpose | Initial state |
+| Area | Purpose | Current state |
 | --- | --- | --- |
 | `chapters/` | Numbered architecture chapters in Markdown | Chapters 1, 2 and 3 available |
 | `diagrams/` | Mermaid sources, accompanied by evidence and a legend | [Project references](diagrams/01-project-references.mmd), [System Context](diagrams/02-system-context.mmd), [Container Overview](diagrams/02-container-overview.mmd), [Build and Test Dependency Coverage](diagrams/03-build-and-test-dependency-coverage.mmd) |
 | `decisions/` | Architecture decision records with context, status and consequences | Reserved; create when a decision is documented |
 | `evidence/` | Baselines, source references, verification notes and analysis limitations | [Introduction](evidence/01-introduction-baseline.md) and [System Overview](evidence/02-system-overview-baseline.md) and [Project Structure and Dependencies](evidence/03-project-structure-and-dependencies-baseline.md) evidence available |
 | `assets/` | Authored supporting assets that cannot be expressed as Markdown or Mermaid | Reserved; create when content is available |
-| `tools/` | Reproducible documentation generation and validation tools | Reserved; create when tooling is available |
+| `tools/` | Reproducible documentation generation and validation tools | Available; installation and usage: `tools/README.md` |
 
 Reserved areas do not need empty directories or placeholder files. Git records files; the table preserves the intended organization until content exists.
+
+Generate the cumulative architecture PDF from the repository root with `node docs/architecture/tools/generate.mjs`. Installation, pinned dependencies and validation are documented in `docs/architecture/tools/README.md`. The PDF is written to `docs/architecture/generated/CryptoScript-Workbench-Architecture.pdf`.
 
 ## Evidence Conventions
 

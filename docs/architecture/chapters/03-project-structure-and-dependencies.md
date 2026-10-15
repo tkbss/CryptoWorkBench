@@ -4,7 +4,7 @@
 
 | Metadata | Value |
 | --- | --- |
-| Status | Documentation draft; awaiting independent review |
+| Status | Reviewed |
 | Implementation baseline | `efa81d6ca282ad7a2b8959d0f406f741c87006b0` |
 | Earlier implementation baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` — retained for Chapters 1 and 2 |
 | Documentation starting point | `19c79fe39698c0d833b206abd600495d6eb508ef`, branch `docs/architecture-recovery` |

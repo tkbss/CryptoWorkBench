@@ -1,0 +1,71 @@
+@page {
+  size: A4;
+  margin: 17mm 16mm 19mm;
+  @top-left { content: "CryptoScript Workbench · Architecture"; font: 8pt Document; color: #64748b; }
+  @bottom-left { content: "Architecture Recovery · Reading edition"; font: 8pt Document; color: #64748b; }
+  @bottom-right { content: counter(page); font: 9pt Document; color: #334155; }
+}
+@page cover {
+  @top-left { content: none; }
+  @bottom-left { content: none; }
+}
+@page diagram-landscape { size: A4 landscape; margin: 10mm; }
+* { box-sizing: border-box; }
+body { margin: 0; color: #172638; font: 10pt/1.5 Document, MathSymbols, Symbols, sans-serif; }
+h1,h2,h3,h4 { color: #183c55; line-height: 1.25; break-after: avoid; }
+h1 { margin: 0 0 7mm; font-size: 23pt; }
+h2 { margin: 7mm 0 3mm; font-size: 14pt; }
+h3 { margin: 5mm 0 2mm; font-size: 11pt; }
+p { margin: 0 0 3.2mm; orphans: 3; widows: 3; }
+a { color: #175b80; text-decoration: none; overflow-wrap: anywhere; }
+strong { font-weight: 700; }
+code { font: 8.5pt/1.45 Code, MathSymbols, Symbols, monospace; overflow-wrap: anywhere; }
+pre { background: #f3f5f7; border-left: 2pt solid #94a7b5; padding: 3mm; white-space: pre-wrap; overflow-wrap: anywhere; break-inside: avoid; margin: 4mm 0; }
+pre code { font-size: 8pt; }
+table { border-collapse: collapse; width: 100%; table-layout: fixed; margin: 4mm 0 5mm; font-size: 9pt; line-height: 1.4; }
+thead { display: table-header-group; }
+th { color: #173b50; background: #e9eff3; font-weight: 700; text-align: left; }
+td,th { border: 0.5pt solid #c6d2db; padding: 2.2mm; vertical-align: top; overflow-wrap: anywhere; }
+td,th,td a,th a,td code,th code,.finding-record,.finding-record a,.finding-record code { overflow-wrap: normal; word-break: normal; hyphens: none; }
+tr { break-inside: avoid; }
+td code,th code { font-size: 8pt; }
+table:has(th:first-child:nth-last-child(2)) th:first-child { width: 32%; }
+.evidence table.evidence-ids th:first-child { width: 11%; }
+.evidence table.evidence-ids th:nth-child(2) { width: 41%; }
+ul,ol { padding-left: 6mm; }
+li { margin-bottom: 1.6mm; }
+.document,.appendix-start,.contents { break-before: page; }
+.cover { page: cover; padding-top: 17mm; }
+.cover h1 { font-size: 34pt; margin: 5mm 0; line-height: 1.2; }
+.eyebrow { letter-spacing: 2pt; color: #527084; font-size: 10pt; }
+.subtitle { font-size: 15pt; color: #5a6d7c; margin-bottom: 11mm; }
+dl { margin: 5mm 0 9mm; }
+dt { font-weight: 700; font-size: 9pt; color: #52697a; margin-top: 3mm; }
+dd { margin: 0; font-size: 10pt; }
+.cover h2 { font-size: 12pt; }
+.cover table { font-size: 8pt; }
+.cover-note { font-size: 8.5pt; color: #526373; }
+.contents ol { list-style: none; padding: 0; }
+.contents li { margin: 0; break-inside: avoid; }
+.contents a { display: flex; gap: 3mm; align-items: baseline; padding: 1.1mm 0; }
+.contents a::after { content: target-counter(attr(href), page); margin-left: auto; font-variant-numeric: tabular-nums; }
+.toc-level-1 { margin-top: 2mm !important; font-weight: 700; }
+.toc-level-2 { padding-left: 5mm; font-size: 9pt; }
+.diagram-page { break-before: page; break-after: page; break-inside: avoid; }
+.diagram-page.landscape { page: diagram-landscape; }
+.diagram-page h1,.diagram-page h2 { font-size: 16pt; margin: 0 0 3mm; }
+.source-caption { font-size: 8pt; color: #526373; margin-bottom: 2mm; }
+.diagram-graphic { height: 248mm; width: 178mm; break-inside: avoid; }
+.portrait h1 { font-size: 14pt; margin-bottom: 1mm; }
+.portrait .source-caption { font-size: 7.5pt; margin-bottom: .5mm; }
+.portrait .source-caption code { font-size: 7.5pt; }
+.landscape .diagram-graphic { height: 178mm; width: 277mm; }
+.landscape h1 { font-size: 14pt; margin-bottom: 1mm; }
+.landscape .source-caption { font-size: 7.5pt; margin-bottom: .5mm; }
+.landscape .source-caption code { font-size: 7.5pt; }
+.diagram-graphic svg { display: block; max-width: 100%; }
+.appendix-start { padding-top: 25mm; }
+.finding-record { border-top: 1pt solid #94a7b5; padding-top: 2mm; margin: 5mm 0; break-inside: avoid; font-size: 9pt; }
+.finding-record h3 { margin: 0 0 3mm; font-size: 11pt; }
+.finding-record h4 { margin: 2mm 0 1mm; font-size: 9pt; }
+@media screen { body { background: #e5e7eb; } .pagedjs_pages { display: flex; flex-direction: column; gap: 16px; align-items: center; } .pagedjs_page { background: white; } }

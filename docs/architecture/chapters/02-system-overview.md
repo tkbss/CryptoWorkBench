@@ -4,7 +4,7 @@
 
 | Metadata | Value |
 | --- | --- |
-| Status | Initial documentation draft; awaiting final review |
+| Status | Reviewed |
 | Implementation baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
 | Documentation baseline | `5c4b15d8487348ff904a04e9907caf9e00e868a0` |
 | Documentation date | 2026-10-14 |
