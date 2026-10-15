@@ -1,12 +1,17 @@
 using CryptoScript.Model;
 using CryptoScript.Variables;
 using System.Security.Cryptography;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace CryptoScript.CryptoAlgorithm.DES3
 {
     public class DES3_ECB : EncryptionMode
     {
         private const int BlockSizeBytes = 8;
+        private readonly bool analysisKeys;
+        public DES3_ECB() { }
+        internal DES3_ECB(bool analysisKeys) => this.analysisKeys = analysisKeys;
 
         public override StringVariableDeclaration ModeEncryption(
             ParameterVariableDeclaration parameter,
@@ -19,7 +24,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             ValidateNoPaddingBlockInput(parameter, dataBytes, BlockSizeBytes, "plaintext");
 
             byte[] input = Pad(parameter, out PaddingMode padding, dataBytes, "Encrypt", BlockSizeBytes);
-            return CreateResult(Transform(keyBytes, input, padding, encrypt: true));
+            return CreateResult(Transform(keyBytes, input, padding, encrypt: true, analysisKeys));
         }
 
         public override StringVariableDeclaration ModeDecryption(
@@ -35,12 +40,52 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 throw new ArgumentException("DES3-ECB ciphertext length must be a non-zero multiple of 8 bytes.");
 
             SetPadding(parameter, out PaddingMode padding, input, "Decrypt", BlockSizeBytes);
-            byte[] decrypted = Transform(keyBytes, input, padding, encrypt: false);
+            byte[] decrypted = Transform(keyBytes, input, padding, encrypt: false, analysisKeys);
             return CreateResult(Unpad(parameter, decrypted, "Decrypt", BlockSizeBytes));
         }
 
-        private static byte[] Transform(byte[] key, byte[] input, PaddingMode padding, bool encrypt)
+        private static byte[] Transform(byte[] key, byte[] input, PaddingMode padding, bool encrypt,
+            bool analysisKeys = false)
         {
+            if (analysisKeys && TripleDES.IsWeakKey(key))
+            {
+                string bcPadding = padding switch
+                {
+                    PaddingMode.None or PaddingMode.ANSIX923 => "NoPadding",
+                    PaddingMode.PKCS7 => "PKCS7Padding",
+                    PaddingMode.ISO10126 => "ISO10126Padding",
+                    _ => throw new ArgumentException("Unsupported DES3 padding.")
+                };
+                byte[]? temporary = null;
+                try
+                {
+                    if (encrypt && padding == PaddingMode.ANSIX923)
+                    {
+                        int count = 8 - input.Length % 8;
+                        temporary = new byte[checked(input.Length + count)];
+                        input.CopyTo(temporary, 0);
+                        temporary[^1] = (byte)count;
+                    }
+                    var cipher = CipherUtilities.GetCipher("DESEDE/ECB/" + bcPadding);
+                    cipher.Init(encrypt, new KeyParameter(key));
+                    byte[] output = cipher.DoFinal(temporary ?? input);
+                    if (!encrypt && padding == PaddingMode.ANSIX923)
+                    {
+                        int count = output.Length == 0 ? 0 : output[^1];
+                        if (count < 1 || count > 8 || count > output.Length ||
+                            output.AsSpan(output.Length - count, count - 1).IndexOfAnyExcept((byte)0) >= 0)
+                        {
+                            CryptographicOperations.ZeroMemory(output);
+                            throw new CryptographicException("Invalid ANSI X9.23 padding.");
+                        }
+                        byte[] clear = output[..^count];
+                        CryptographicOperations.ZeroMemory(output);
+                        return clear;
+                    }
+                    return output;
+                }
+                finally { if (temporary is not null) CryptographicOperations.ZeroMemory(temporary); }
+            }
             using TripleDES des3 = TripleDES.Create();
             des3.Mode = CipherMode.ECB;
             des3.Padding = padding;
@@ -55,11 +100,11 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         internal static byte[] DecryptNoPadding(byte[] key, byte[] ciphertext) =>
             Transform(key, ciphertext, PaddingMode.None, encrypt: false);
 
-        private static byte[] GetValidatedKey(KeyVariableDeclaration key)
+        private byte[] GetValidatedKey(KeyVariableDeclaration key)
         {
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
             DES3.ValidateKeyLength(keyBytes);
-            DES3.ValidateUsableKey(keyBytes);
+            if (!analysisKeys) DES3.ValidateUsableKey(keyBytes);
             return keyBytes;
         }
 

@@ -193,7 +193,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
 
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.MacGenerate);
+            KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.MacGenerate,
+                "Mac", parameter!.Mechanism, parameters.DiagnosticSink);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if (mode.IsMACAlgorithm(parameter.Mechanism))
             {
@@ -215,7 +216,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
 
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.Encrypt);
+            KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.Encrypt,
+                "Encrypt", parameter!.Mechanism, parameters.DiagnosticSink);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if(mode.IsMACAlgorithm(parameter.Mechanism))
             {
@@ -263,7 +265,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.Decrypt);
+            KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.Decrypt,
+                "Decrypt", parameter!.Mechanism, parameters.DiagnosticSink);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if(mode.IsMACAlgorithm(parameter.Mechanism))
             {

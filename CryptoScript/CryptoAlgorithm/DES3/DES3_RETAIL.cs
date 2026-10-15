@@ -9,6 +9,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
     public class DES3_RETAIL : EncryptionMode
     {
         private const int BlockSize = 8;
+        private readonly bool analysisKeys;
+        public DES3_RETAIL() { }
+        internal DES3_RETAIL(bool analysisKeys) => this.analysisKeys = analysisKeys;
 
         public override StringVariableDeclaration ModeMac(
             ParameterVariableDeclaration parameter,
@@ -24,10 +27,10 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             {
                 keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
                 DES3.ValidateKeyLength(keyBytes);
-                DES3.ValidateUsableKey(keyBytes);
+                if (!analysisKeys) DES3.ValidateUsableKey(keyBytes);
                 input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
-                result = ComputeMac(keyBytes, input, parameter.GetParameter("PAD"),
-                    int.Parse(parameter.GetParameter("MACLEN")));
+                result = ComputeMacCore(keyBytes, input, parameter.GetParameter("PAD"),
+                    int.Parse(parameter.GetParameter("MACLEN")), analysisKeys);
                 string value = FormatConversions.ByteArrayToHexString(result);
                 return new StringVariableDeclaration
                 {
@@ -47,6 +50,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         // Extracted Retail MAC; generic 16/24-byte keys and M1/M2 stay supported.
         // Bouncy Castle owns additional key-schedule copies, not cleared by this adapter.
         internal static byte[] ComputeMac(byte[] key, byte[] data, string padding, int macLength)
+            => ComputeMacCore(key, data, padding, macLength, analysisKeys: false);
+
+        private static byte[] ComputeMacCore(byte[] key, byte[] data, string padding, int macLength, bool analysisKeys)
         {
             ArgumentNullException.ThrowIfNull(key);
             ArgumentNullException.ThrowIfNull(data);
@@ -66,7 +72,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 keySnapshot = (byte[])key.Clone();
                 dataSnapshot = (byte[])data.Clone();
                 DES3.ValidateKeyLength(keySnapshot);
-                DES3.ValidateUsableKey(keySnapshot);
+                if (!analysisKeys) DES3.ValidateUsableKey(keySnapshot);
                 padded = Pad(dataSnapshot, padding);
                 chainingValue = new byte[BlockSize];
                 var des = new DesEngine();

@@ -33,6 +33,8 @@ public class SemanticDiagnosticFormatterTests
     [TestCase(SemanticDiagnosticCode.InvalidParameter, "InvalidParameter")]
     [TestCase(SemanticDiagnosticCode.KeyUsageConflict, "KeyUsageConflict")]
     [TestCase(SemanticDiagnosticCode.KeyTypeConflict, "KeyTypeConflict")]
+    [TestCase(SemanticDiagnosticCode.DesParityViolation, "DesParityViolation")]
+    [TestCase(SemanticDiagnosticCode.WeakDes3Key, "WeakDes3Key")]
     public void FormatsDiagnosticCode(SemanticDiagnosticCode code, string expected)
     {
         Assert.That(SemanticDiagnosticFormatter.Format(new SemanticError { DiagnosticCode = code, Message = "m" }),

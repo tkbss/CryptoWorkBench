@@ -2,6 +2,7 @@ using CryptoScript.CryptoAlgorithm.DES3;
 using CryptoScript.Model;
 using CryptoScript.Variables;
 using FluentAssertions;
+using CryptoScript.ErrorListner;
 
 namespace CryptoScriptUnitTest;
 
@@ -26,37 +27,36 @@ public class KeyMechanismReaderMigrationTests
 
     [TestCase(KeyAlgorithm.Aes)]
     [TestCase(KeyAlgorithm.Hmac)]
-    public void Des3RejectsKnownNonTdeaSecretKeys(KeyAlgorithm algorithm)
+    public void Des3WarnsForKnownNonTdeaSecretKeys(KeyAlgorithm algorithm)
     {
-        Action action = () => Encrypt(KeyType.Secret(algorithm));
-
-        action.Should().Throw<ArgumentException>().WithMessage("*requires a DES3 key*");
+        var sink = new SemanticDiagnosticSink();
+        Encrypt(new KeyVariableDeclaration { KeyType = KeyType.Secret(algorithm), Value = KeyValue,
+            KeyValue = KeyValue, ValueFormat = FormatConversions.HEX }, sink);
+        Assert.That(sink.GetSnapshot().Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyTypeConflict));
     }
 
     [Test]
-    public void Des3RejectsRsaAndEcKeys()
+    public void Des3WarnsForRsaAndEcMetadataWithTechnicallyValidBytes()
     {
         Action rsa = () => Encrypt(KeyType.Public(KeyAlgorithm.Rsa));
         Action ec = () => Encrypt(KeyType.Private(KeyAlgorithm.Ec));
 
-        rsa.Should().Throw<ArgumentException>().WithMessage("*requires a DES3 key*");
-        ec.Should().Throw<ArgumentException>().WithMessage("*requires a DES3 key*");
+        rsa.Should().NotThrow();
+        ec.Should().NotThrow();
     }
 
     [TestCase("DES3-CBC", false)]
     [TestCase("AES-CBC", true)]
     [TestCase("HMAC-SHA256", true)]
-    public void Des3PreservesLegacyJsonCompatibility(string legacyMechanism, bool rejected)
+    public void Des3PreservesLegacyJsonCompatibility(string legacyMechanism, bool warns)
     {
         string json = $"{{\"Mechanism\":\"{legacyMechanism}\",\"Value\":\"{KeyValue}\",\"KeyValue\":\"{KeyValue}\",\"ValueFormat\":\"HEX_STRING\"}}";
         KeyVariableDeclaration key = KeyVariableDeclaration.Deserialize(json);
 
-        Action action = () => Encrypt(key);
-
-        if (rejected)
-            action.Should().Throw<ArgumentException>().WithMessage("*requires a DES3 key*");
-        else
-            action.Should().NotThrow();
+        var sink = new SemanticDiagnosticSink();
+        Encrypt(key, sink);
+        Assert.That(sink.GetSnapshot().Count, Is.EqualTo(warns ? 1 : 0));
+        if (warns) Assert.That(sink.GetSnapshot()[0].DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyTypeConflict));
     }
 
     private static void Encrypt(KeyType type) =>
@@ -68,7 +68,7 @@ public class KeyMechanismReaderMigrationTests
             ValueFormat = FormatConversions.HEX
         });
 
-    private static void Encrypt(KeyVariableDeclaration key)
+    private static void Encrypt(KeyVariableDeclaration key, ISemanticDiagnosticSink? sink = null)
     {
         key.Id = "k";
         var parameter = new ParameterVariableDeclaration { Id = "p", Mechanism = "DES3-ECB" };
@@ -81,6 +81,11 @@ public class KeyMechanismReaderMigrationTests
         VariableDictionary.Instance().Add(parameter);
         VariableDictionary.Instance().Add(data);
 
-        _ = new DES3().Encrypt(["p", "k", "d"]);
+        _ = new DES3().Encrypt(new CryptoScript.CryptoAlgorithm.AlgorithmCallArguments(new[]
+        {
+            new CryptoScript.CryptoAlgorithm.AlgorithmCallArgument(parameter.Value, parameter, ResolvedCallArgumentKind.Variable),
+            new CryptoScript.CryptoAlgorithm.AlgorithmCallArgument(key.Value, key, ResolvedCallArgumentKind.Variable),
+            new CryptoScript.CryptoAlgorithm.AlgorithmCallArgument(data.Value, kind: ResolvedCallArgumentKind.HexLiteral)
+        }, sink));
     }
 }

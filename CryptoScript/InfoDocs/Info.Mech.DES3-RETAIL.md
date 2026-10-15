@@ -7,7 +7,9 @@ DES3-RETAIL calculates a Retail message authentication code (MAC). It processes 
 ## Key Features
 
 - **Block Cipher**: DES3 operates on fixed-size blocks (64 bits, 8 bytes) and supports keys of 16 or 24 bytes (128 or 192 bits including parity bits).
-- **Key Requirements**: GenerateKey accepts 128 or 192 for a new key, or a hexadecimal key of exactly 16 or 24 bytes. Weak keys detected by the implementation, including keys that degenerate to single DES, are rejected.
+- **Key Requirements**: GenerateKey accepts 128 or 192 for a random, non-degenerate new key, or explicitly supplied hexadecimal key bytes of exactly 16 or 24 bytes. Explicit imports retain their original bytes, including parity errors and weak keys.
+- **Workbench diagnostics**: General Encrypt, Decrypt and Mac operations report conflicting KeyType/KeyUsage metadata as non-blocking warnings. DES parity errors produce DesParityViolation; known weak or semi-weak DES components and effective K1=K2 or K2=K3 degeneration produce WeakDes3Key. Ordinary two-key TDEA (K1=K3) is not alone a single-DES degeneration. At most one warning per quality category is reported for each operation; no key bytes are printed.
+- **Analysis scope**: Technically valid test keys remain usable without changing their bytes or metadata. These warnings do not establish suitability for production payment systems. Key format/length, permitted functions, IV, padding, data length and MAC length requirements remain binding. The import API has no diagnostic sink; quality warnings are emitted on subsequent general DES3 use when a sink is available. PIN-block, TR-31, DUKPT and EMV validation policies are unchanged.
 - **Input Length**: Input not aligned to 8 bytes is padded using ISO-9797-M1 or ISO-9797-M2.
 - **Return Value**: Mac returns a VAR containing 4 through 8 MAC bytes in hexadecimal 0x(...) format. Encrypt and Decrypt are rejected.
 
@@ -22,7 +24,7 @@ The following functions are available for DES3-RETAIL mechanism:
 
 ## Parameters
 These parameters are used with the DES3-RETAIL mechanism:
-- **#MECH**: Specifies the DES3-RETAIL mechanism in PARAM. A declared KEY must be a DES3 key; its DES3 mode does not have to match PARAM.
+- **#MECH**: Specifies the DES3-RETAIL mechanism in PARAM. The operation requires technically valid TDEA key bytes of exactly 16 or 24 bytes; the declared KEY algorithm need not match. A conflicting declared KeyType produces a non-blocking KeyTypeConflict warning, and conflicting KeyUsage produces a non-blocking KeyUsageConflict warning, when a diagnostic sink is available. Neither warning changes the bytes or metadata. Unknown algorithm and Unspecified usage cause no corresponding conflict warning. Technical validation remains mandatory; PARAM selects the mechanism, not the KEY metadata.
 - **#IV**: Not used as an external parameter. A supplied IV is rejected; the internal chaining value always starts at zero.
 - **#PAD**: Parameters supplies ISO-9797-M2 when omitted. Only these two paddings are supported:
     - ISO-9797-M1: Adds zero bytes only when needed to reach a multiple of 8 bytes. Aligned input receives no additional block. Empty input is accepted and becomes one 8-byte zero block before the Retail MAC calculation.

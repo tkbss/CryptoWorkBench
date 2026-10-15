@@ -68,9 +68,11 @@ public class DukptTdeaWorkingKeyDocumentationTests
             Assert.That(document, Does.Contain(
                 "They do not mean that a request key only generates a MAC or encrypts data while a response key only verifies a MAC or decrypts data."));
             Assert.That(document, Does.Contain(
-                "CryptoScript enforces the relevant policy flags for general AES/DES3 encryption, decryption and MAC operations and for ISO 9564 PIN-block operations."));
+                "General AES/DES3 encryption, decryption and MAC operations report conflicting usage as a non-blocking KeyUsageConflict warning"));
             Assert.That(document, Does.Contain(
-                "`PinEncrypt` permits PIN-block processing but does not grant generic data-encryption or MAC use."));
+                "ISO 9564 PIN-block operations continue to enforce the policy strictly."));
+            Assert.That(document, Does.Contain(
+                "The DUKPT #USAGE parameter still selects the actual derivation variant and its validation is unchanged."));
         });
     }
 

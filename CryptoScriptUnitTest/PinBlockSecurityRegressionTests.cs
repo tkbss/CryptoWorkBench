@@ -6,6 +6,7 @@ using CryptoScript.Model;
 using CryptoScript.Variables;
 using AesAlgorithm = CryptoScript.CryptoAlgorithm.AES.AES;
 using Des3Algorithm = CryptoScript.CryptoAlgorithm.DES3.DES3;
+using CryptoScript.ErrorListner;
 
 namespace CryptoScriptUnitTest;
 
@@ -76,13 +77,14 @@ public class PinBlockSecurityRegressionTests
     [TestCase("DES3-ECB", "Encrypt")]
     [TestCase("DES3-ECB", "Decrypt")]
     [TestCase("DES3-CMAC", "Mac")]
-    public void PinEncryptOnlyKeysAreRejectedByGeneralAesAndDes3Operations(
+    public void PinEncryptOnlyKeysWarnInGeneralAesAndDes3OperationsButKeepTheirPolicy(
         string mechanism,
         string function)
     {
         bool aes = mechanism.StartsWith("AES", StringComparison.Ordinal);
         CryptoAlgorithm algorithm = aes ? new AesAlgorithm() : new Des3Algorithm();
         ParameterVariableDeclaration parameters = algorithm.GenerateParameters(mechanism);
+        parameters.SetParameter("PAD", "NONE");
         parameters.Id = "p";
         KeyVariableDeclaration key = Key(
             aes ? AesKey : Des3Key,
@@ -90,7 +92,8 @@ public class PinBlockSecurityRegressionTests
             KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt));
         StringVariableDeclaration data = Var(
             aes ? "0x(00112233445566778899AABBCCDDEEFF)" : "0x(0011223344556677)");
-        AlgorithmCallArguments arguments = Arguments(parameters, key, data);
+        var sink = new SemanticDiagnosticSink();
+        AlgorithmCallArguments arguments = new(Arguments(parameters, key, data).Arguments, sink);
 
         Action operation = function switch
         {
@@ -99,7 +102,9 @@ public class PinBlockSecurityRegressionTests
             _ => () => algorithm.Mac(arguments)
         };
 
-        Assert.That(operation, Throws.ArgumentException.With.Message.Contains("usage policy"));
+        Assert.DoesNotThrow(operation);
+        Assert.That(sink.GetSnapshot().Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyUsageConflict));
+        Assert.That(key.Usage, Is.EqualTo(KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt)));
 
         VariableDictionary.Instance().Add(parameters);
         VariableDictionary.Instance().Add(key);
@@ -110,7 +115,7 @@ public class PinBlockSecurityRegressionTests
             "Decrypt" => () => algorithm.Decrypt(new[] { "p", "k", "data" }),
             _ => () => algorithm.Mac(new[] { "p", "k", "data" })
         };
-        Assert.That(legacyOperation, Throws.ArgumentException.With.Message.Contains("usage policy"));
+        Assert.DoesNotThrow(legacyOperation);
     }
 
     [Test]

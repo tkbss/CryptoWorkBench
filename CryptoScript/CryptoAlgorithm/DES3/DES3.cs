@@ -32,7 +32,6 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             byte[] keyBytes = FormatConversions.ToByteArray(value, FormatConversions.HEX);
             ValidateKeyLength(keyBytes);
-            ValidateUsableKey(keyBytes);
             return CreateKeyVariable(value, mechanism, keyBytes.Length * 8);
         }
 
@@ -137,10 +136,10 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             return mechanism.ToUpperInvariant() switch
             {
-                "DES3-CBC" => new DES3_CBC(),
-                "DES3-ECB" => new DES3_ECB(),
-                "DES3-RETAIL" => new DES3_RETAIL(),
-                "DES3-CMAC" => new DES3_CMAC(),
+                "DES3-CBC" => new DES3_CBC(analysisKeys: true),
+                "DES3-ECB" => new DES3_ECB(analysisKeys: true),
+                "DES3-RETAIL" => new DES3_RETAIL(analysisKeys: true),
+                "DES3-CMAC" => new DES3_CMAC(analysisKeys: true),
                 _ => throw new ArgumentException($"Unsupported DES3 mechanism: {mechanism}.")
             };
         }
@@ -151,8 +150,8 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Encrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.Encrypt);
-            RejectRetailEncryption("Encrypt");
+            DiagnoseKey(parameters, "Encrypt", KeyUsage.Encrypt);
+            RejectMacOnlyEncryption();
             return CreateMode(parameter!.Mechanism).ModeEncryption(parameter, key!, data!);
         }
 
@@ -162,16 +161,17 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.Decrypt);
-            RejectRetailEncryption("Decrypt");
+            DiagnoseKey(parameters, "Decrypt", KeyUsage.Decrypt);
+            RejectMacOnlyEncryption();
             return CreateMode(parameter!.Mechanism).ModeDecryption(parameter, key!, data!);
         }
 
-        private void RejectRetailEncryption(string functionName)
+        private void RejectMacOnlyEncryption()
         {
-            if (!parameter!.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase))
+            if (!parameter!.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase) &&
+                !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
                 return;
-            throw new ArgumentException("Mechanism: DES3-RETAIL can only be used in MAC calculation");
+            throw new ArgumentException($"Mechanism: {parameter.Mechanism} can only be used in MAC calculation");
         }
 
         public override StringVariableDeclaration Mac(string[] parameters)
@@ -180,7 +180,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.MacGenerate);
+            DiagnoseKey(parameters, "Mac", KeyUsage.MacGenerate);
             if (!parameter!.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase))
@@ -204,8 +204,20 @@ namespace CryptoScript.CryptoAlgorithm.DES3
                 !parameter.Mechanism.Equals("DES3-RETAIL", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-CMAC", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("DES3 requires parameters with mechanism DES3-CBC, DES3-ECB, DES3-RETAIL or DES3-CMAC.");
-            if (key.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
-                throw new ArgumentException($"{parameter.Mechanism} requires a DES3 key.");
+        }
+
+        private void DiagnoseKey(AlgorithmCallArguments arguments, string function, KeyUsage usage)
+        {
+            // Length/format remain technical errors, independent of declared metadata.
+            byte[] bytes = FormatConversions.ToByteArray(key!.Value, key.ValueFormat);
+            try
+            {
+                ValidateKeyLength(bytes);
+                KeyMetadataValidator.Validate(key, KeyAlgorithm.Tdea, usage,
+                    function, parameter!.Mechanism, arguments.DiagnosticSink);
+                Des3KeyQuality.Report(bytes, key.Id, function, parameter.Mechanism, arguments.DiagnosticSink);
+            }
+            finally { CryptographicOperations.ZeroMemory(bytes); }
         }
 
         private static StringVariableDeclaration ResolveData(string value)

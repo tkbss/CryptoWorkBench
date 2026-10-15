@@ -9,6 +9,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 {
     public class DES3_CMAC : EncryptionMode
     {
+        private readonly bool analysisKeys;
+        public DES3_CMAC() { }
+        internal DES3_CMAC(bool analysisKeys) => this.analysisKeys = analysisKeys;
         public override StringVariableDeclaration ModeMac(
             ParameterVariableDeclaration parameter,
             KeyVariableDeclaration key,
@@ -16,7 +19,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
             DES3.ValidateKeyLength(keyBytes);
-            DES3.ValidateUsableKey(keyBytes);
+            if (!analysisKeys) DES3.ValidateUsableKey(keyBytes);
 
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
             byte[] result = Compute(keyBytes, input);

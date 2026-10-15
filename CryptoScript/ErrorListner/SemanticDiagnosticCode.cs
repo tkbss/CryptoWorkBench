@@ -12,5 +12,7 @@ public enum SemanticDiagnosticCode
     InvalidDeclaration = 6,
     InvalidParameter = 7,
     KeyUsageConflict = 8,
-    KeyTypeConflict = 9
+    KeyTypeConflict = 9,
+    DesParityViolation = 10,
+    WeakDes3Key = 11
 }

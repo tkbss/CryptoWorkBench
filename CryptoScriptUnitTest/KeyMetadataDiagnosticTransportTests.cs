@@ -222,8 +222,8 @@ public class KeyMetadataDiagnosticTransportTests
             Is.EqualTo(algorithm.Encrypt(args).Value));
         Assert.That(sink.GetSnapshot(), Is.Empty);
         ((KeyVariableDeclaration)key).Usage = KeyUsagePolicy.Restricted(KeyUsage.Decrypt);
-        Assert.Throws<ArgumentException>(() => algorithm.Encrypt(args));
-        Assert.That(sink.GetSnapshot(), Is.Empty);
+        Assert.That(algorithm.Encrypt(args).Value, Is.EqualTo("0x(69C4E0D86A7B0430D8CDB78070B4C55A)").IgnoreCase);
+        Assert.That(sink.GetSnapshot().Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyUsageConflict));
     }
 
     [Test]

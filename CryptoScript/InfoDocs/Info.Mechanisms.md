@@ -69,6 +69,10 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - WRAP-DES3-PINBLOCK-3 : ISO 9564 format 3 PIN-block wrapping and unwrapping with TDEA.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
 
+## Workbench AES/DES3 key diagnostics
+
+General AES/DES3 Encrypt, Decrypt and Mac operations can use technically valid key bytes despite conflicting declared KeyType or KeyUsage metadata. KeyTypeConflict and KeyUsageConflict are non-blocking warnings, in that order. Unknown KeyAlgorithm and Unspecified usage do not conflict. When a diagnostic sink is absent (including legacy string[] calls), these semantic conflicts still do not block execution; no global diagnostics are stored. Technical validation, including AEAD authentication, remains mandatory. Mechanism selection never follows contradictory key metadata automatically. DES3 additionally reports parity and weak-key quality warnings; see its mechanism pages. No warning constitutes a PCI/EP2 conformity assessment or a recommendation for production payment use.
+
 ## ep2 KDF Comparison
 
 | ep2 | Extract | Info | Result |
