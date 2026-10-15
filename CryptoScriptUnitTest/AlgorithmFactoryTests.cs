@@ -9,7 +9,7 @@ public class AlgorithmFactoryTests
     [Test]
     public void EveryProductiveMechanismResolvesToAConcreteAlgorithm()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(57));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(61));
 
         foreach (string mechanism in MechanismList.Instance.Mechanisms)
         {
@@ -48,6 +48,10 @@ public class AlgorithmFactoryTests
     [TestCase("HMAC-SHA256", typeof(CryptoScript.CryptoAlgorithm.HMAC.HMAC))]
     [TestCase("HASH-SHA256", typeof(CryptoScript.CryptoAlgorithm.HASH.HASH))]
     [TestCase("KDF-EMV-MASTER-C", typeof(CryptoScript.CryptoAlgorithm.KDF.KDF_EMV_MASTER_C))]
+    [TestCase("MAC-EMV-AC", typeof(CryptoScript.CryptoAlgorithm.EMV.MAC_EMV_AC))]
+    [TestCase("MAC-EMV-AC-VERIFY", typeof(CryptoScript.CryptoAlgorithm.EMV.MAC_EMV_AC_VERIFY))]
+    [TestCase("MAC-EMV-ARPC-METHOD-1", typeof(CryptoScript.CryptoAlgorithm.EMV.MAC_EMV_ARPC_METHOD_1))]
+    [TestCase("MAC-EMV-ARPC-METHOD-2", typeof(CryptoScript.CryptoAlgorithm.EMV.MAC_EMV_ARPC_METHOD_2))]
     [TestCase("WRAP-AES-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.WrapAESTR31))]
     [TestCase("WRAP-DES3-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.WrapDES3TR31))]
     [TestCase("BLOCKHEADER-WRAP-AES-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.Tr31BlockHeader))]

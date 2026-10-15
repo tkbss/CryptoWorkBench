@@ -6,7 +6,6 @@ Possible Parameters are given in overlay window during typing.
 ---
 
 ## Built-in Functions
-- Sign a message: **VAR s = Sign(parameters, key, data)**
 - Encrypt a message: **VAR e = Encrypt(parameters, key, data)**
 - Decrypt a message: **VAR d = Decrypt(parameters, key, data)**
 - Compute a message authentication code (MAC): **VAR m = Mac(parameters, key, data)**
@@ -20,6 +19,8 @@ Possible Parameters are given in overlay window during typing.
 - Load parameters from file: **PARAM p = Load(PARAM, path)**
 - Load key from file: **KEY k = Load(KEY, path)**
 - Compare two variables of same type: **VAL res = Compare(VAR, VAR)**
+
+Digital signatures are not supported in CryptoScript V1. Asymmetric cryptography is reserved for V2.
 
 
 

@@ -108,7 +108,7 @@ public class ConsoleSemanticDiagnosticTests
     }
 
     [Test]
-    public void MainUsesStderrAndKeepsInputAndPrintOnStdoutBeforeAborting()
+    public void MainRunsSupportedV1ExampleOnStdoutWithoutDiagnostics()
     {
         var previousOut = Console.Out;
         var previousError = Console.Error;
@@ -120,15 +120,14 @@ public class ConsoleSemanticDiagnosticTests
             CryptoScript.Variables.VariableDictionary.Instance().Clear();
             Console.SetOut(output);
             Console.SetError(errors);
-            var thrown = Assert.Throws<TargetInvocationException>(() => ProgramType.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic)!
+            Assert.DoesNotThrow(() => ProgramType.GetMethod("Main", BindingFlags.Static | BindingFlags.NonPublic)!
                 .Invoke(null, new object[] { Array.Empty<string>() }));
-            Assert.That(thrown!.InnerException, Is.InstanceOf<SemanticErrorException>());
             Assert.That(output.ToString(), Does.StartWith("VAR key1=0x(1234)" + output.NewLine));
-            // Existing lowercase sample calls are not FN tokens; preserve their current behaviour.
-            Assert.That(output.ToString(), Does.Contain("print(key1)" + output.NewLine));
-            Assert.That(output.ToString(), Does.Not.Contain("print(res)"));
+            Assert.That(output.ToString(), Does.Contain("Print(key1)" + output.NewLine + "out: 0x(1234)" + output.NewLine));
+            Assert.That(output.ToString(), Does.Contain("VAR res = Compare(key1,key1)" + output.NewLine));
+            Assert.That(output.ToString(), Does.Contain("Print(res)" + output.NewLine + "out: Values are equal" + output.NewLine));
             Assert.That(output.ToString(), Does.Not.Contain("Error ["));
-            Assert.That(errors.ToString(), Does.StartWith("Error ["));
+            Assert.That(errors.ToString(), Is.Empty);
         }
         finally
         {

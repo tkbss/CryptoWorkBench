@@ -10,12 +10,12 @@ internal static class AlgorithmArgumentResolver
         ArgumentNullException.ThrowIfNull(argument);
 
         if (argument.SourceVariable is ParameterVariableDeclaration sourceParameter)
-            return sourceParameter;
+            return ValidateParameterSupport(sourceParameter);
 
         string value = argument.Value ?? throw new ArgumentException("wrong parameter argument");
         if (IsLegacyVariableIdentifier(value) &&
             VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
-            return declared;
+            return ValidateParameterSupport(declared);
         if (FormatConversions.ParseString(value) == FormatConversions.PAR)
         {
             var temporary = new ParameterVariableDeclaration();
@@ -24,6 +24,12 @@ internal static class AlgorithmArgumentResolver
         }
 
         throw new ArgumentException("wrong parameter argument");
+    }
+
+    private static ParameterVariableDeclaration ValidateParameterSupport(ParameterVariableDeclaration parameters)
+    {
+        MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(parameters.Mechanism, parameters);
+        return parameters;
     }
 
     internal static KeyVariableDeclaration ResolveKey(AlgorithmCallArgument argument)

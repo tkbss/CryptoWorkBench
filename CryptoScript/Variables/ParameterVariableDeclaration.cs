@@ -29,6 +29,7 @@ namespace CryptoScript.Variables
 
         public void SetInstance(string parameters)
         {            
+            MechanismParameterContractValidator.ValidateSerializedEmvCryptogramParameters(parameters);
             MechanismParameterContractValidator.ValidateSerializedEmvMasterParameters(parameters);
             
             // Split by '#' and remove empty entries
@@ -50,6 +51,7 @@ namespace CryptoScript.Variables
             }
 
             MechanismParameterContractValidator.ValidatePsnSupport(Mechanism, this);
+            MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(Mechanism, this);
          }
         string _mechanism = string.Empty;
         public string Mechanism 

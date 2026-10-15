@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlyFiftySevenRegisteredMechanisms()
+    public void ContainsExactlySixtyOneRegisteredMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(57));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(61));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -222,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(57));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(61));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {
@@ -361,6 +361,9 @@ public class MechanismRegistryTests
             algorithm,
             nameof(Algorithm.Hash),
             CryptoScriptFunction.Hash);
+        if (algorithm is not SymmetricCryptoAlgorithm)
+            AddAlgorithmFunction(functions, algorithm, nameof(Algorithm.Mac),
+                CryptoScriptFunction.Mac, typeof(AlgorithmCallArguments));
         AddAlgorithmFunction(
             functions,
             algorithm,

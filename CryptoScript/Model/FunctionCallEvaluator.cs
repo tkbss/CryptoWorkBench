@@ -58,7 +58,7 @@ namespace CryptoScript.Model
             }
             catch (Exception)
             {
-                SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
+                SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=$"{functionName}(<redacted>)" };
                 se.Message = "Unknown function: "+functionName;
                 semanticErrors.Add(se);
                 execution?.Report(se, fc.Location!, SemanticDiagnosticCode.UnknownFunction);
@@ -81,7 +81,7 @@ namespace CryptoScript.Model
                     throw;
                 }
                 catch (SemanticErrorException e) when (
-                    IsRegisteredSensitiveFunctionError(e, semanticErrors))
+                    IsRegisteredSafeFunctionError(e, semanticErrors))
                 {
                     throw;
                 }
@@ -109,7 +109,7 @@ namespace CryptoScript.Model
                 throw;
             }
             catch (SemanticErrorException e) when (
-                IsRegisteredSensitiveFunctionError(e, semanticErrors))
+                IsRegisteredSafeFunctionError(e, semanticErrors))
             {
                 throw;
             }
@@ -244,12 +244,16 @@ namespace CryptoScript.Model
             return new SemanticErrorException { SemanticError = error };
         }
 
-        private static bool IsRegisteredSensitiveFunctionError(
+        private static bool IsRegisteredSafeFunctionError(
             SemanticErrorException exception,
             List<SemanticError> semanticErrors) =>
             exception.SemanticError is not null &&
             semanticErrors.Contains(exception.SemanticError) &&
-            IsCryptographicFunction(exception.SemanticError.FunctionName);
+            (IsCryptographicFunction(exception.SemanticError.FunctionName) ||
+             // Unknown functions are rejected before arguments are evaluated. Keep
+             // their already-redacted diagnostic intact through enclosing calls.
+             exception.SemanticError.Type == "FunctionCall" &&
+             exception.SemanticError.Message == "Unknown function: " + exception.SemanticError.FunctionName);
 
         private static bool IsCryptographicFunction(string functionName) =>
             Enum.TryParse(functionName, ignoreCase: true, out CryptoScriptFunction _);

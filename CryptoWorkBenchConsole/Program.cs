@@ -61,9 +61,9 @@ namespace CryptoWorkBenchConsole
         {
             string[] input = new string[4];
             input[0] = "VAR key1=0x(1234)";
-            input[1] = "print(key1)";
-            input[2] = "VAR res = Sign(Encrypt(key1),0x(123))";
-            input[3] = "print(res)";
+            input[1] = "Print(key1)";
+            input[2] = "VAR res = Compare(key1,key1)";
+            input[3] = "Print(res)";
             return input;
         }
     }

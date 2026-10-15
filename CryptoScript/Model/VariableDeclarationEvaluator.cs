@@ -76,6 +76,7 @@ namespace CryptoScript.Model
                 try
                 {
                     MechanismParameterContractValidator.ValidatePsnSupport(Parameter.Mechanism, Parameter);
+                    MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(Parameter.Mechanism, Parameter);
                 }
                 catch (FunctionContractException exception)
                 {

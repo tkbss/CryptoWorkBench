@@ -406,6 +406,90 @@ public static class MechanismRegistry
         CryptoScriptFunction.Derive
     };
 
+    private static MechanismFunctionMetadata[] EmvAcFunctionMetadata(string mechanism, bool verify)
+    {
+        var generation = new List<MechanismParameterMetadata>
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism }, "Selects EMV AC processing.", mechanism + ".")
+        };
+        var mac = new List<MechanismParameterMetadata>
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet }, "Genuine PARAM variable reference.",
+                "Original Variable argument; no reconstructed PARAM or direct MECH selector."),
+            Argument("sessionKey", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key }, "Genuine Secret AES or TDEA KEY reference.",
+                "TDEA exactly 16 bytes; AES 16, 24 or 32 bytes; known size metadata must agree."),
+            new("transactionData", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input, true,
+                new[] { MechanismParameterDataType.BinaryData }, "Already assembled binary transaction data.",
+                "Direct HEX literal or HEX VAR reference; no implicit conversion or nested function result.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + ".")
+        };
+        if (verify)
+        {
+            // Parameter transport establishes the resolved value, not its original AST origin.
+            var expected = NamedParameter("#EXPECTED", true, MechanismParameterDirection.Input,
+                MechanismParameterDataType.BinaryData, "Expected Application Cryptogram.",
+                "HEX value with exactly 16 hex digits (eight bytes); no implicit ASCII or Base64 conversion.");
+            generation.Add(expected);
+            mac.Add(expected);
+        }
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, generation),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Mac, mac)
+        };
+    }
+
+    private static MechanismFunctionMetadata[] EmvArpcFunctionMetadata(string mechanism, bool method2)
+    {
+        var named = new List<MechanismParameterMetadata>
+        {
+            NamedParameter(method2 ? "#CSU" : "#ARC", true, MechanismParameterDirection.Input,
+                MechanismParameterDataType.BinaryData, method2 ? "Binary Card Status Update." : "Binary Authorisation Response Code.",
+                method2 ? "Exactly four bytes as a resolved HEX value." : "Exactly two bytes as a resolved HEX value.")
+        };
+        if (method2)
+        {
+            named.Add(NamedParameter("#ADATA", false, MechanismParameterDirection.Input,
+                MechanismParameterDataType.BinaryData, "Proprietary Authentication Data.",
+                "Resolved HEX value of one to eight bytes; omission means empty data."));
+            named.Add(NamedParameter("#VARIANT", false, MechanismParameterDirection.Input,
+                MechanismParameterDataType.Data, "Selects complete Issuer Authentication Data output.",
+                "Only the explicit normal string IAD; omission returns four-byte ARPC.",
+                inputForms: new[] { MechanismParameterInputForm.StringLiteral }));
+        }
+        var generation = new List<MechanismParameterMetadata>
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism }, "Selects the EMV ARPC method.", mechanism + ".")
+        };
+        generation.AddRange(named);
+        var mac = new List<MechanismParameterMetadata>
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet }, "Genuine PARAM variable reference.", "No reconstruction or direct MECH argument."),
+            Argument("sessionKey", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key }, "Already derived AC Session KEY.",
+                "Genuine Secret TDEA 16-byte or AES 16/24/32-byte KEY reference; known size metadata must match."),
+            new("arqc", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input, true,
+                new[] { MechanismParameterDataType.BinaryData }, "Received ARQC; not automatically verified.",
+                "Exactly eight bytes from a direct HEX literal or HEX VAR reference; no nested function result.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + ".")
+        };
+        mac.AddRange(named);
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, generation),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Mac, mac)
+        };
+    }
+
     private static readonly MechanismFunctionMetadata[] EmvAcSessionFunctionMetadata =
     {
         new(CryptoScriptFunction.Parameters, new[]
@@ -731,6 +815,22 @@ public static class MechanismRegistry
             new("KDF-EP2-SESSION", "ep2 8.11 Extract-and-Expand derivation of a selected Session Key Variant.", "Info.Mech.KDF-EP2-SESSION.md", DerivationFunctions),
             new("KDF-HKDF", "HMAC-based Extract-and-Expand Key Derivation Function specified in RFC 5869.", "Info.Mech.KDF-HKDF.md", DerivationFunctions),
             new("KDF-SP800-108-COUNTER", "NIST SP 800-108 Rev. 1 Update 1 Counter Mode KDF using a supported HMAC PRF or AES-CMAC.", "Info.Mech.KDF-SP800-108-COUNTER.md", DerivationFunctions),
+            new("MAC-EMV-AC", "EMV eight-byte Application Cryptogram using TDEA Algorithm 3 or AES-CMAC.", "Info.Mech.MAC-EMV-AC.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvAcFunctionMetadata("MAC-EMV-AC", false))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("MAC-EMV-AC-VERIFY", "Fail-closed verification of an eight-byte EMV Application Cryptogram.", "Info.Mech.MAC-EMV-AC-VERIFY.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvAcFunctionMetadata("MAC-EMV-AC-VERIFY", true))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("MAC-EMV-ARPC-METHOD-1", "EMV eight-byte ARPC Method 1 using an AC Session Key, ARQC and binary ARC.", "Info.Mech.MAC-EMV-ARPC-METHOD-1.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvArpcFunctionMetadata("MAC-EMV-ARPC-METHOD-1", false))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("MAC-EMV-ARPC-METHOD-2", "EMV four-byte ARPC Method 2 with optional complete Issuer Authentication Data output.", "Info.Mech.MAC-EMV-ARPC-METHOD-2.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvArpcFunctionMetadata("MAC-EMV-ARPC-METHOD-2", true))
+            {
+                StrictMechanismParameterContract = true
+            },
             // BlockHeader is supported only through CryptoOperations' internal
             // BLOCKHEADER-WRAP-AES-TR31 dispatch and its populated one-argument overload.
             new("WRAP-AES-PINBLOCK-4", "ISO 9564 format 4 PIN-block wrapping and unwrapping with AES.", "Info.Mech.WRAP-AES-PINBLOCK-4.md", WrapFunctions, PinBlockFormat4FunctionMetadata),

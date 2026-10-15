@@ -54,6 +54,10 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - KDF-EMV-MASTER-A
         - KDF-EMV-MASTER-B
         - KDF-EMV-MASTER-C
+        - MAC-EMV-AC
+        - MAC-EMV-AC-VERIFY
+        - MAC-EMV-ARPC-METHOD-1
+        - MAC-EMV-ARPC-METHOD-2
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
         - KDF-EP2-PAN-RECEIPT-TRM
@@ -120,4 +124,18 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.
 - BLKH: TR-31 Key Block Header used by Wrap. The header is authenticated, and its declared total length must match the resulting key-block structure.
+- ARC: Required only by [ARPC Method 1](cryptoscript-info://mechanism/MAC-EMV-ARPC-METHOD-1).
+  Exactly two bytes as a resolved HEX value, for example `#ARC:0x(3030)`; no implicit ASCII or integer conversion.
+- CSU: Required only by [ARPC Method 2](cryptoscript-info://mechanism/MAC-EMV-ARPC-METHOD-2).
+  Exactly four binary bytes as a resolved HEX value. No card-state interpretation.
+- ARPC Method 2 uses optional ADATA for one to eight proprietary binary bytes; omit it for zero bytes.
+  Its optional `#VARIANT:"IAD"` returns ARPC || CSU || Proprietary Authentication Data, without Tag 91 or BER-TLV.
+  Without VARIANT it returns the four-byte ARPC. Other variants are rejected; other mechanisms retain their own VARIANT contracts.
+  The two ARPC mechanisms reject duplicate or inconsistent MECH and all unsupported parameters, including PAD, IV and MACLEN.
+  Named binary values are validated by value and length, not by an unavailable original-variable provenance proof.
+- EXPECTED: Required by [MAC-EMV-AC-VERIFY](cryptoscript-info://mechanism/MAC-EMV-AC-VERIFY).
+  Resolved HEX value with exactly 16 hex digits (eight bytes). No implicit ASCII, integer or Base64
+  conversion. The parameter transport does not establish original variable provenance.
+  Missing, malformed, duplicate or contradictory parameters are rejected. MAC-EMV-AC accepts
+  only MECH; MAC-EMV-AC-VERIFY accepts only MECH and EXPECTED. Neither accepts PAD, IV or MACLEN.
 - RND: Optional random bytes used by TR-31 Wrap for key-length obfuscation and cipher-block padding. The required length depends on the wrapped-key algorithm and size; an omitted or wrong-sized value is replaced with generated random filler.

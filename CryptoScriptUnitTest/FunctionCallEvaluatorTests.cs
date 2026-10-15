@@ -202,7 +202,7 @@ public class FunctionCallEvaluatorTests
         Assert.That(errors[0], Is.SameAs(error!.SemanticError));
         Assert.That(errors[0].Type, Is.EqualTo("FunctionCall"));
         Assert.That(errors[0].FunctionName, Is.EqualTo("Unknown"));
-        Assert.That(errors[0].FunctionCall, Is.EqualTo(call.CallText));
+        Assert.That(errors[0].FunctionCall, Is.EqualTo("Unknown(<redacted>)"));
         Assert.That(errors[0].Message, Is.EqualTo("Unknown function: Unknown"));
     }
 
@@ -379,5 +379,149 @@ public class FunctionCallEvaluatorTests
         Assert.That(errors.Select(e => e.Type), Is.EqualTo(entry == "argument"
             ? new[] { "Variable" } : new[] { "Variable", "FunctionCall" }));
         Assert.That(errors[^1], Is.SameAs(error!.SemanticError));
+    }
+}
+
+[NonParallelizable]
+public class SignRemovalTests
+{
+    private const string Sentinel = "A102030405060708091A2B3C4D5E6F70";
+    private VariableDeclaration[] previous = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        previous = VariableDictionary.Instance().GetVariables().ToArray();
+        VariableDictionary.Instance().Clear();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        VariableDictionary.Instance().Clear();
+        foreach (var variable in previous)
+            VariableDictionary.Instance().Add(variable);
+    }
+
+    [TestCase("Sign")]
+    [TestCase("sign")]
+    [TestCase("SIGN")]
+    [Category("SignRemoval")]
+    public void NeitherDispatcherResolvesTheRemovedFunction(string name)
+    {
+        Assert.That(Assert.Throws<ArgumentException>(() => OperationFactory.CreateOperation(name))!.Message,
+            Is.EqualTo("Unknown function"));
+        Assert.That(Assert.Throws<ArgumentException>(() => OperationFactory.CreateInvocationOperation(name))!.Message,
+            Is.EqualTo("Unknown function"));
+    }
+
+    [Test]
+    [Category("SignRemoval")]
+    public void OtherV1FunctionsStillResolveThroughBothDispatchers()
+    {
+        foreach (string name in new[] { "Parameters", "GenerateKey", "Encrypt", "Decrypt", "Mac", "Hash",
+                     "Derive", "Wrap", "Unwrap", "BlockHeader", "Print", "Info", "Compare" })
+        {
+            Assert.That(OperationFactory.CreateOperation(name), Is.Not.Null);
+            Assert.That(OperationFactory.CreateInvocationOperation(name), Is.Not.Null);
+        }
+    }
+
+    [Test]
+    [Category("SignRemoval")]
+    public void PublicLibraryAndSupportedFunctionListsContainNoSignPrototype()
+    {
+        Assert.That(typeof(CryptoOperations).GetMethods().Any(method =>
+            method.Name.Equals("Sign", StringComparison.OrdinalIgnoreCase)), Is.False);
+        Assert.That(OperationList.Operations, Does.Not.Contain("Sign"));
+        Assert.That(Enum.GetNames<CryptoScriptFunction>(), Does.Not.Contain("Sign"));
+        string documentation = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Functions.md"));
+        Assert.That(documentation, Does.Not.Match(@"\bSign\s*\("));
+        Assert.That(documentation, Does.Contain("not supported in CryptoScript V1"));
+    }
+
+    [TestCase("Sign()")]
+    [TestCase("Sign(missing)")]
+    [TestCase("Sign(0x(" + Sentinel + "))")]
+    [TestCase("Sign(\"" + Sentinel + "\")")]
+    [TestCase("Sign(GenerateKey(AES-ECB,128))")]
+    [TestCase("Compare(Sign(0x(" + Sentinel + ")),0x(0001))")]
+    [TestCase("Print(Sign(0x(" + Sentinel + ")))")]
+    [TestCase("Encrypt(Sign(0x(" + Sentinel + ")),missing,0x(0001))")]
+    [Category("SignRemoval")]
+    public void GenericParserAcceptsButRuntimeRejectsSignBeforeAnyArgumentExecution(string call)
+    {
+        var entered = new List<string>();
+        var runner = new CryptoScriptRunner((function, _) => entered.Add(function.Name));
+        Reject(runner, "VAR result=" + call + " VAR after=0x(AABB)");
+        Assert.That(entered, Is.Empty);
+        Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
+    }
+
+    public static IEnumerable<TestCaseData> ParameterCases() =>
+        new[] { "#EXPECTED", "#ARC", "#CSU" }.SelectMany(name =>
+            new[] { false, true }.SelectMany(lower => new[] { false, true }.Select(unknown =>
+                new TestCaseData(name, lower, unknown))));
+
+    [TestCaseSource(nameof(ParameterCases))]
+    [Category("SignRemoval")]
+    public void LiveParamChangesNoLongerReachAnySignSpecificParameterHandling(string name, bool lower, bool unknown)
+    {
+        Execute(new CryptoScriptRunner(), "PARAM p=Parameters(AES-CMAC)");
+        var p = (ParameterVariableDeclaration)VariableDictionary.Instance().Get("p");
+        if (unknown)
+            p.Mechanism = "0x(" + Sentinel + ")";
+        p.GetParameters().Add(lower ? name.ToLowerInvariant() : name, "0x(3030)");
+        string valueBefore = p.Value;
+        var pairsBefore = p.GetParameters().ToArray();
+        Reject(new CryptoScriptRunner(), "VAR result=Sign(p) VAR after=0x(AABB)");
+        Assert.That(VariableDictionary.Instance().Get("p"), Is.SameAs(p));
+        Assert.That(p.Value, Is.EqualTo(valueBefore));
+        Assert.That(p.GetParameters().ToArray(), Is.EqualTo(pairsBefore));
+    }
+
+    [TestCase("C:\\temp\\#ARC")]
+    [TestCase("/tmp/#CSU:sample")]
+    [TestCase("/tmp/#EXPECTED:sample")]
+    [Category("SignRemoval")]
+    public void PathArgumentsAreNotReinterpretedAsParametersByTheRemovedFunction(string path)
+    {
+        Execute(new CryptoScriptRunner(), "PATH f=" + path + "\n");
+        var f = VariableDictionary.Instance().Get("f");
+        Assert.That(f, Is.TypeOf<PathVariableDeclaration>());
+        Reject(new CryptoScriptRunner(), "VAR result=Sign(f) VAR after=0x(AABB)");
+        Assert.That(VariableDictionary.Instance().Get("f"), Is.SameAs(f));
+        Assert.That(f.Value, Is.EqualTo(path));
+    }
+
+    private static void Reject(CryptoScriptRunner runner, string script)
+    {
+        var error = Assert.Throws<SemanticErrorException>(() => Execute(runner, script));
+        var diagnostic = error!.SemanticError!;
+        Assert.That(diagnostic.Type, Is.EqualTo("FunctionCall"));
+        Assert.That(diagnostic.FunctionName, Is.EqualTo("Sign"));
+        Assert.That(diagnostic.DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.UnknownFunction));
+        Assert.That(diagnostic.ErrorCode, Is.Null);
+        Assert.That(diagnostic.Message, Is.EqualTo("Unknown function: Sign"));
+        Assert.That(diagnostic.FunctionCall, Is.EqualTo("Sign(<redacted>)"));
+        Assert.That(diagnostic.Location!.FunctionName, Is.EqualTo("Sign"));
+        Assert.That(runner.Diagnostics, Has.Count.EqualTo(1));
+        Assert.That(runner.Diagnostics[0], Is.SameAs(diagnostic));
+        Assert.That(runner.SemanticErrors.Single(), Is.SameAs(diagnostic));
+        for (Exception? current = error; current is not null; current = current.InnerException)
+            Assert.That(current.Message + current.ToString(), Does.Not.Contain(Sentinel));
+        Assert.That(SemanticDiagnosticFormatter.FormatMany(runner.Diagnostics), Does.Not.Contain(Sentinel));
+        Assert.That(SemanticDiagnosticFormatter.FormatMany(runner.SemanticErrors), Does.Not.Contain(Sentinel));
+        Assert.That(VariableDictionary.Instance().Contains("result"), Is.False);
+        Assert.That(VariableDictionary.Instance().Contains("after"), Is.False);
+    }
+
+    private static void Execute(CryptoScriptRunner runner, string script)
+    {
+        var parser = ParserBuilder.StringBuild(script);
+        var program = parser.program();
+        Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
+        Assert.That(LexerErrorListener.LexerErrorOccured, Is.False);
+        runner.Execute(program);
     }
 }

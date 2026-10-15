@@ -189,6 +189,18 @@
     <None Update="InfoDocs\Info.Mech.KDF-EMV-MASTER-C.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.MAC-EMV-AC.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.MAC-EMV-AC-VERIFY.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.MAC-EMV-ARPC-METHOD-1.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.MAC-EMV-ARPC-METHOD-2.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.KDF-EP2-SESSION.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

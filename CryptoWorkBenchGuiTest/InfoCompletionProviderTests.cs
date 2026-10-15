@@ -1,6 +1,8 @@
 using CryptoScript.Model;
+using CryptoScript.Documentation;
 using CryptoWorkBenchAvalonia.Models;
 using CryptoWorkBenchAvalonia.Services;
+using CryptoWorkBenchAvalonia.ViewModels;
 using AvaloniaEdit.Document;
 using NUnit.Framework;
 
@@ -11,9 +13,106 @@ public class InfoCompletionProviderTests
     private readonly InfoCompletionProvider _provider = new();
 
     [Test]
+    public void RemovedSignPrototypeIsNotOfferedByFunctionListsOrOverlays()
+    {
+        Assert.That(OperationList.Operations, Does.Not.Contain("Sign"));
+        var overlays = new FunctionOverlayDictionaryModel();
+        Assert.That(overlays.functionOverloads.Keys, Does.Not.Contain("Sign"));
+        Assert.That(overlays.GetOverlays("Sign(", 5), Is.Null);
+        Assert.That(overlays.GetOverlays("Encrypt(", 8), Is.Not.Null);
+    }
+
+    [TestCase("VAR result=Sign(0x(A102030405060708091A2B3C4D5E6F70))")]
+    [TestCase("VAR result=Compare(Sign(0x(A102030405060708091A2B3C4D5E6F70)),0x(0001))")]
+    public void RemovedSignDiagnosticsRemainRedactedWhenDisplayedByTheGui(string script)
+    {
+        var variables = CryptoScript.Variables.VariableDictionary.Instance();
+        var previous = variables.GetVariables().ToArray();
+        variables.Clear();
+        try
+        {
+            var runner = new CryptoScriptRunner();
+            var parser = ParserBuilder.StringBuild(script + " VAR after=0x(AABB)");
+            var program = parser.program();
+            Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
+            var error = Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(() => runner.Execute(program));
+            var status = new StatusViewModel();
+            status.AppendDiagnostics(runner.Diagnostics, error!.SemanticError);
+            Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
+            Assert.That(status.Diagnostics[0].Text, Does.Contain("Unknown function: Sign"));
+            Assert.That(status.Diagnostics[0].Text, Does.Not.Contain("A102030405060708091A2B3C4D5E6F70"));
+            Assert.That(variables.Contains("result"), Is.False);
+            Assert.That(variables.Contains("after"), Is.False);
+        }
+        finally
+        {
+            variables.Clear();
+            foreach (var variable in previous)
+                variables.Add(variable);
+        }
+    }
+
+    [Test]
+    public void InfoCompletionOffersBothEmvAcMechanismsFromTheRegistry()
+    {
+        Assert.That(GetItems("Info(MAC-EMV-AC"), Is.SupersetOf(new[] { "MAC-EMV-AC", "MAC-EMV-AC-VERIFY" }));
+    }
+
+    [Test]
+    public void InfoCompletionOffersBothArpcMethodsFromTheRegistry()
+    {
+        Assert.That(GetItems("Info(MAC-EMV-ARPC-"), Is.SupersetOf(new[] { "MAC-EMV-ARPC-METHOD-1", "MAC-EMV-ARPC-METHOD-2" }));
+    }
+
+    [TestCase("MAC-EMV-AC")]
+    [TestCase("MAC-EMV-AC-VERIFY")]
+    [TestCase("MAC-EMV-ARPC-METHOD-1")]
+    [TestCase("MAC-EMV-ARPC-METHOD-2")]
+    public void EmvAcInfoLinkOpensDeployedDocumentAndCanNavigateBack(string mechanism)
+    {
+        var provider = new FileInfoDocumentationProvider();
+        var documentId = InfoDocumentId.CreateMechanism(mechanism);
+        Assert.That(provider.TryGetDocument(documentId, out string document), Is.True);
+        var viewModel = new InfoViewModel(null, provider);
+        viewModel.SetInfoText("Start");
+
+        viewModel.OpenInfoLinkCommand.Execute(InfoDocumentUri.ToCanonicalString(documentId));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.InfoText, Is.EqualTo(document));
+            Assert.That(viewModel.InfoText, Does.StartWith("# MECHANISM " + mechanism));
+            Assert.That(viewModel.IsMechanismDocumentation, Is.True);
+            Assert.That(viewModel.CanNavigateBack, Is.True);
+        });
+        viewModel.NavigateBackCommand.Execute();
+        Assert.That(viewModel.InfoText, Is.EqualTo("Start"));
+        Assert.That(viewModel.CanNavigateBack, Is.False);
+    }
+
+    [Test]
     public void InfoCompletionOffersEmvMasterOptionCFromTheRegistry()
     {
         Assert.That(GetItems("Info(KDF-EMV-MASTER-"), Does.Contain("KDF-EMV-MASTER-C"));
+    }
+
+    [TestCase("MAC-EMV-AC", "MAC-EMV-ARPC-METHOD-1")]
+    [TestCase("MAC-EMV-AC", "MAC-EMV-ARPC-METHOD-2")]
+    [TestCase("MAC-EMV-AC-VERIFY", "MAC-EMV-ARPC-METHOD-1")]
+    [TestCase("MAC-EMV-AC-VERIFY", "MAC-EMV-ARPC-METHOD-2")]
+    public void AcDocumentationArpcLinksNavigateAndReturnToTheirSourcePage(string source, string target)
+    {
+        var provider = new FileInfoDocumentationProvider();
+        Assert.That(provider.TryGetDocument(InfoDocumentId.CreateMechanism(source), out string document), Is.True);
+        var viewModel = new InfoViewModel(null, provider);
+        viewModel.OpenInfoLinkCommand.Execute("cryptoscript-info://mechanism/" + source);
+        string link = "cryptoscript-info://mechanism/" + target;
+        Assert.That(viewModel.InfoText, Does.Contain("](" + link + ")"));
+        viewModel.OpenInfoLinkCommand.Execute(link);
+        Assert.That(provider.TryGetDocument(InfoDocumentId.CreateMechanism(target), out string expected), Is.True);
+        Assert.That(viewModel.InfoText, Is.EqualTo(expected));
+        viewModel.NavigateBackCommand.Execute();
+        Assert.That(viewModel.InfoText, Is.EqualTo(document));
     }
 
     [Test]

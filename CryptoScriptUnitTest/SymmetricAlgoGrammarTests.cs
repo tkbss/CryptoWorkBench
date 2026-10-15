@@ -16,7 +16,7 @@ namespace CryptoScriptUnitTest
             
             input[0] = "KEY key0=0x(1234)";
             input[1] = "KEY key1=0x(1234) Print(key1)";
-            input[2] = "VAR c1 = Sign(Encrypt(key1),0x(123))";
+            input[2] = "VAR c1 = Compare(key1,key1)";
             input[3] = "Print(c1)";
             input[4] = "KEY key2=GenerateKey(AES-CBC,128)";
             input[5] = "PARAM p1=Parameters(AES-CBC)";

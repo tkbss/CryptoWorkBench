@@ -37,6 +37,22 @@ public static class MechanismParameterContractValidator
         if (mechanism.StrictMechanismParameterContract)
             ValidateMechanismParameter(mechanism, parameters);
 
+        ValidateEmvCryptogramParameterSupport(mechanism.CanonicalName, parameters, function);
+
+        if (mechanism.CanonicalName is "MAC-EMV-AC" or "MAC-EMV-AC-VERIFY")
+        {
+            if (parameters.ExplicitParameterNames.GroupBy(Normalize, StringComparer.OrdinalIgnoreCase)
+                .Any(group => group.Count() > 1))
+                throw new ArgumentException("EMV AC does not allow duplicate parameters.");
+            if (parameters.GetParameters().ContainsKey("#EXPECTED"))
+            {
+                string expected = parameters.GetParameter("#EXPECTED");
+                if (expected.Length != 20 || !expected.StartsWith("0x(", StringComparison.Ordinal) ||
+                    expected[^1] != ')' || expected.AsSpan(3, 16).IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0)
+                    throw new ArgumentException("Expected cryptogram must be a HEX value containing exactly eight bytes.");
+            }
+        }
+
         if (IsEmvMasterMechanism(mechanism.CanonicalName))
         {
             if (parameters.ExplicitParameterNames.GroupBy(Normalize, StringComparer.OrdinalIgnoreCase)
@@ -49,6 +65,20 @@ public static class MechanismParameterContractValidator
                     psn[1] is < '0' or > '9' || psn[2] is < '0' or > '9')
                     throw new ArgumentException("PSN must be a normal string literal containing exactly two ASCII decimal digits.");
             }
+        }
+
+        if (mechanism.CanonicalName is "MAC-EMV-ARPC-METHOD-1" or "MAC-EMV-ARPC-METHOD-2")
+        {
+            if (parameters.ExplicitParameterNames.GroupBy(Normalize, StringComparer.OrdinalIgnoreCase)
+                .Any(group => group.Count() > 1))
+                throw new ArgumentException("EMV ARPC does not allow duplicate parameters.");
+            bool method2 = mechanism.CanonicalName == "MAC-EMV-ARPC-METHOD-2";
+            ValidateArpcBinaryParameter(parameters, method2 ? "#CSU" : "#ARC", method2 ? 4 : 2);
+            if (method2 && parameters.GetParameters().ContainsKey("#ADATA"))
+                ValidateArpcBinaryParameter(parameters, "#ADATA", 8, maximumLength: true);
+            if (method2 && parameters.GetParameters().ContainsKey("#VARIANT") &&
+                parameters.GetParameter("#VARIANT") != "\"IAD\"")
+                throw new ArgumentException("EMV ARPC Method 2 supports only the explicit variant string IAD.");
         }
 
         if (!mechanism.FunctionMetadata.TryGetValue(
@@ -118,6 +148,22 @@ public static class MechanismParameterContractValidator
     private static bool Contains(IEnumerable<string> names, string expected) =>
         names.Any(name => NamesEqual(name, expected));
 
+    private static void ValidateArpcBinaryParameter(ParameterVariableDeclaration parameters, string name,
+        int bytes, bool maximumLength = false)
+    {
+        // Missing mandatory parameters are reported by the existing metadata contract below.
+        if (!parameters.GetParameters().ContainsKey(name))
+            return;
+        string value = parameters.GetParameter(name);
+        int digits = value.Length - 4;
+        if (digits <= 0 || digits % 2 != 0 || (maximumLength ? digits > bytes * 2 : digits != bytes * 2) ||
+            !value.StartsWith("0x(", StringComparison.Ordinal) || value[^1] != ')' ||
+            value.AsSpan(3, digits).IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0)
+            throw new ArgumentException(maximumLength
+                ? "EMV ARPC proprietary data must be a HEX value of at most eight bytes; omit it for empty data."
+                : $"EMV ARPC {name} must be a HEX value containing exactly {bytes} bytes.");
+    }
+
     // Run before legacy SetInstance can discard malformed segments. Other mechanisms
     // retain the existing parser behavior; this is not a second general PARAM parser.
     internal static void ValidateSerializedEmvMasterParameters(string serialized, string? selectedMechanism = null)
@@ -151,6 +197,61 @@ public static class MechanismParameterContractValidator
 
     private static bool IsEmvMasterMechanism(string mechanism) =>
         mechanism is "KDF-EMV-MASTER-A" or "KDF-EMV-MASTER-B" or "KDF-EMV-MASTER-C";
+
+    // Only AP6's three new names are restricted here. Historical globally known
+    // parameters and their mechanism-specific/default/legacy behavior stay untouched.
+    // Inspect the same '#' / first ':' boundaries as legacy SetInstance before it
+    // discards valueless segments. Legacy generators use individual argument names
+    // instead: a '#' inside one of their values is not a new argument boundary.
+    internal static void ValidateSerializedEmvCryptogramParameters(string serialized)
+    {
+        string[][] segments = serialized.Split('#', StringSplitOptions.RemoveEmptyEntries)
+            .Select(segment => segment.Split(':', 2)).ToArray();
+        // Preserve legacy MECH selection (exact spelling, last write wins).
+        string? storedMechanism = segments.Where(pair => pair.Length == 2 && pair[0] == "MECH")
+            .Select(pair => pair[1]).LastOrDefault();
+        ValidateEmvCryptogramParameterNames(storedMechanism ?? string.Empty, segments.Select(pair => pair[0]));
+    }
+
+    internal static void ValidateEmvCryptogramParameterNames(string mechanism, IEnumerable<string> names)
+    {
+        string[] restrictedNames = names.Select(name => Normalize(name).ToUpperInvariant())
+            .Where(name => EmvCryptogramParameterOwner(name) is not null).ToArray();
+        if (restrictedNames.Length == 0)
+            return;
+        var supplied = new ParameterVariableDeclaration { Mechanism = mechanism };
+        foreach (string name in restrictedNames)
+            supplied.SetParameter(name, string.Empty);
+        ValidateEmvCryptogramParameterSupport(supplied.Mechanism, supplied);
+    }
+
+    private static string? EmvCryptogramParameterOwner(string normalizedName) => normalizedName switch
+    {
+        "#EXPECTED" => "MAC-EMV-AC-VERIFY",
+        "#ARC" => "MAC-EMV-ARPC-METHOD-1",
+        "#CSU" => "MAC-EMV-ARPC-METHOD-2",
+        _ => null
+    };
+
+    internal static void ValidateEmvCryptogramParameterSupport(string mechanism,
+        ParameterVariableDeclaration parameters,
+        CryptoScriptFunction function = CryptoScriptFunction.Parameters)
+    {
+        string canonical = NormalizeMechanismValue(mechanism);
+        foreach (string name in parameters.GetParameters().Keys)
+        {
+            string normalized = Normalize(name).ToUpperInvariant();
+            string? owner = EmvCryptogramParameterOwner(normalized);
+            if (owner is not null &&
+                (!canonical.Equals(owner, StringComparison.OrdinalIgnoreCase) ||
+                 !NormalizeMechanismValue(parameters.Mechanism).Equals(owner, StringComparison.OrdinalIgnoreCase) ||
+                 !NormalizeMechanismValue(parameters.GetParameter("#MECH"))
+                     .Equals(owner, StringComparison.OrdinalIgnoreCase)))
+                throw new FunctionContractException(FunctionContractError.ForbiddenAdditionalParameter,
+                    MechanismRegistry.TryGet(canonical, out MechanismRegistryEntry? entry)
+                        ? entry!.CanonicalName : "<unknown mechanism>", function, normalized);
+        }
+    }
 
     internal static void ValidatePsnSupport(string mechanism, ParameterVariableDeclaration parameters,
         CryptoScriptFunction function = CryptoScriptFunction.Parameters)

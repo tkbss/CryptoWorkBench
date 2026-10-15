@@ -49,6 +49,14 @@
                 return new KDF.KDF_EMV_MASTER_B();
             if (canonicalMechanism == "KDF-EMV-MASTER-C")
                 return new KDF.KDF_EMV_MASTER_C();
+            if (canonicalMechanism == "MAC-EMV-AC")
+                return new EMV.MAC_EMV_AC();
+            if (canonicalMechanism == "MAC-EMV-AC-VERIFY")
+                return new EMV.MAC_EMV_AC_VERIFY();
+            if (canonicalMechanism == "MAC-EMV-ARPC-METHOD-1")
+                return new EMV.MAC_EMV_ARPC_METHOD_1();
+            if (canonicalMechanism == "MAC-EMV-ARPC-METHOD-2")
+                return new EMV.MAC_EMV_ARPC_METHOD_2();
             if (canonicalMechanism == "KDF-EP2-SESSION")
                 return new KDF.KDF_EP2_SESSION();
             if (canonicalMechanism == "KDF-EP2-PAN-SURROGATE-TRX")

@@ -57,6 +57,10 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-EP2-PAN-RECEIPT-TRX : ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-RECEIPT-TRM : ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-SURROGATE-TRX : ep2 8.14 direct Expand using raw DOL as info and returning all 32 bytes.
+- MAC-EMV-AC : EMV eight-byte Application Cryptogram using TDEA Algorithm 3 or AES-CMAC.
+- MAC-EMV-AC-VERIFY : Fail-closed verification of an eight-byte EMV Application Cryptogram.
+- MAC-EMV-ARPC-METHOD-1 : EMV eight-byte ARPC Method 1 using an AC Session Key, ARQC and binary ARC.
+- MAC-EMV-ARPC-METHOD-2 : EMV four-byte ARPC Method 2 with optional complete Issuer Authentication Data output.
 - WRAP-AES-PINBLOCK-4 : ISO 9564 format 4 PIN-block wrapping and unwrapping with AES.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-PINBLOCK-0 : ISO 9564 format 0 PIN-block wrapping and unwrapping with TDEA.

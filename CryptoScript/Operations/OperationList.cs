@@ -15,7 +15,6 @@ namespace CryptoScript.Model
             "Encrypt",
             "Decrypt",
             "Mac",
-            "Sign",
             "Wrap",
             "Unwrap",
             "Print",

@@ -13,8 +13,6 @@ namespace CryptoScript.Model
             var op = new CryptoOperations();
             switch (operation)
             {
-                case "sign":
-                    return op.Sign;
                 case "mac":
                     return op.Mac;
                 case "hash":
@@ -52,8 +50,6 @@ namespace CryptoScript.Model
             var op = new CryptoOperations();             
             switch (operation)
             {
-                case "sign":                                  
-                    return op.Sign;
                 case "mac":
                     return op.Mac;
                 case "hash":
