@@ -1,6 +1,3 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: .NET
 
 on:
@@ -9,22 +6,106 @@ on:
   pull_request:
     branches: [ "master" ]
 
-jobs:
-  build:
+permissions:
+  contents: read
 
-    runs-on: ubuntu-latest
+jobs:
+  build-test-publish:
+    name: Build, test and publish (${{ matrix.rid }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            rid: win-x64
+          - runner: ubuntu-latest
+            rid: linux-x64
+          - runner: macos-26
+            rid: osx-arm64
+          - runner: macos-26-intel
+            rid: osx-x64
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
-    - uses: actions/checkout@v7
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v6
-      with:
-        dotnet-version: 10.0.401
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Test GUI ViewModels
-      run: dotnet test CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj --verbosity normal
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET SDK from global.json
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      # These three roots cover every production/test project. The GUI test
+      # graph also restores the existing historical Console dependency.
+      - name: Restore desktop and test dependencies
+        run: |
+          dotnet restore CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore CryptoScriptUnitTest/CryptoScriptUnitTest.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet restore CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build CryptoScript
+        run: dotnet build CryptoScript/CryptoScript.csproj --configuration Release --no-restore
+
+      - name: Build Avalonia GUI
+        run: dotnet build CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj --configuration Release --no-restore
+
+      - name: Build Desktop Host
+        id: desktop
+        run: dotnet build CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj --configuration Release --no-restore
+
+      - name: Build both test projects
+        id: test-build
+        run: |
+          dotnet build CryptoScriptUnitTest/CryptoScriptUnitTest.csproj --configuration Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj --configuration Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Test CryptoScript (complete suite)
+        run: >-
+          dotnet test CryptoScriptUnitTest/CryptoScriptUnitTest.csproj
+          --configuration Release --no-build --no-restore --verbosity normal
+          --logger "trx;LogFileName=CryptoScriptUnitTest.trx"
+          --results-directory artifacts/test-results
+
+      - name: Test GUI and historical Console integration (complete suite)
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: >-
+          dotnet test CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj
+          --configuration Release --no-build --no-restore --verbosity normal
+          --logger "trx;LogFileName=CryptoWorkBenchGuiTest.trx"
+          --results-directory artifacts/test-results
+
+      # A test failure still allows publish diagnostics; the job stays failed.
+      # RID-specific publishing deliberately restores its own runtime assets.
+      - name: Publish framework-dependent Desktop Host
+        id: publish
+        if: ${{ !cancelled() && steps.desktop.outcome == 'success' }}
+        run: >-
+          dotnet publish CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj
+          --configuration Release --runtime ${{ matrix.rid }}
+          --self-contained false -p:UseAppHost=true
+          --output artifacts/publish/${{ matrix.rid }}
+
+      - name: Validate desktop publish layout and documentation
+        if: ${{ !cancelled() && steps.publish.outcome == 'success' }}
+        run: >-
+          ./.github/scripts/Validate-DesktopPublish.ps1
+          -RuntimeIdentifier ${{ matrix.rid }}
+          -PublishDirectory artifacts/publish/${{ matrix.rid }}
+
+      - name: Upload test results
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-${{ matrix.rid }}
+          path: artifacts/test-results/*.trx
+          if-no-files-found: error
