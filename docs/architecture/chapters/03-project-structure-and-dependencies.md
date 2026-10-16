@@ -1,6 +1,6 @@
 # 3. Project Structure and Dependencies
 
-[Architecture documentation](../README.md) | [Previous: System Overview](02-system-overview.md) | [Baseline and evidence](../evidence/03-project-structure-and-dependencies-baseline.md)
+[Architecture documentation](../README.md) | [Previous: System Overview](02-system-overview.md) | [Baseline and evidence](../evidence/03-project-structure-and-dependencies-baseline.md) | [Next: Language Architecture](04-language-architecture.md)
 
 | Metadata | Value |
 | --- | --- |
@@ -194,4 +194,4 @@ The remaining observations are: **[I/Q]** overlapping but incomplete Solutions; 
 
 **[R]** Keep the complete repository inventory separate from the scoped product graph, preserve the resolved CI finding's history, and maintain the distinction between configured operations, observed CI success and verified graphical behavior. Decisions on package policy, test ownership and distribution support need explicit follow-up; this chapter introduces no implementation changes or GUI redesign.
 
-[Previous: System Overview](02-system-overview.md) | [Return to architecture documentation](../README.md)
+[Previous: System Overview](02-system-overview.md) | [Next: Language Architecture](04-language-architecture.md) | [Return to architecture documentation](../README.md)
