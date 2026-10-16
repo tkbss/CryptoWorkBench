@@ -100,6 +100,23 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         internal static byte[] DecryptNoPadding(byte[] key, byte[] ciphertext) =>
             Transform(key, ciphertext, PaddingMode.None, encrypt: false);
 
+        // Explicit PIN-block opt-in only. The shared NoPadding primitives above remain strict.
+        internal static byte[] EncryptPinBlockForAnalysis(byte[] key, byte[] plaintext) =>
+            TransformPinBlockForAnalysis(key, plaintext, encrypt: true);
+
+        internal static byte[] DecryptPinBlockForAnalysis(byte[] key, byte[] ciphertext) =>
+            TransformPinBlockForAnalysis(key, ciphertext, encrypt: false);
+
+        private static byte[] TransformPinBlockForAnalysis(byte[] key, byte[] block, bool encrypt)
+        {
+            ArgumentNullException.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(block);
+            DES3.ValidateKeyLength(key);
+            if (block.Length != BlockSizeBytes)
+                throw new ArgumentException("TDEA PIN-block analysis requires exactly one 8-byte block.", nameof(block));
+            return Transform(key, block, PaddingMode.None, encrypt, analysisKeys: true);
+        }
+
         private byte[] GetValidatedKey(KeyVariableDeclaration key)
         {
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);

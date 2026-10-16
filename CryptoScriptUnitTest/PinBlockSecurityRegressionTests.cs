@@ -34,7 +34,7 @@ public class PinBlockSecurityRegressionTests
 
     [TestCase("WRAP-DES3-PINBLOCK-2", KeyAlgorithm.Tdea, Des3Key)]
     [TestCase("WRAP-AES-PINBLOCK-4", KeyAlgorithm.Aes, AesKey)]
-    public void PinBlocksRequirePinEncryptButAcceptPinEncryptAndUnspecified(
+    public void PinBlocksWarnForOtherUsageButAcceptPinEncryptAndUnspecified(
         string mechanism,
         KeyAlgorithm keyAlgorithm,
         string keyValue)
@@ -51,6 +51,11 @@ public class PinBlockSecurityRegressionTests
             parameters, pinKey, Var("0x(01234)")));
         StringVariableDeclaration unrestrictedWrapped = algorithm.Wrap(Arguments(
             parameters, unrestrictedKey, Var("0x(01234)")));
+        var sink = new SemanticDiagnosticSink();
+        StringVariableDeclaration warnedWrapped = algorithm.Wrap(new AlgorithmCallArguments(
+            Arguments(parameters, wrongUsageKey, Var("0x(01234)")).Arguments, sink));
+        var warnedPin = algorithm.Unwrap(new AlgorithmCallArguments(
+            Arguments(parameters, wrongUsageKey, pinWrapped).Arguments, sink));
 
         Assert.Multiple(() =>
         {
@@ -58,10 +63,15 @@ public class PinBlockSecurityRegressionTests
                 parameters, pinKey, pinWrapped))).Value, Is.EqualTo("0x(01234)"));
             Assert.That(((StringVariableDeclaration)algorithm.Unwrap(Arguments(
                 parameters, unrestrictedKey, unrestrictedWrapped))).Value, Is.EqualTo("0x(01234)"));
-            Assert.That(() => algorithm.Wrap(Arguments(
-                parameters, wrongUsageKey, Var("0x(01234)"))), Throws.ArgumentException);
-            Assert.That(() => algorithm.Unwrap(Arguments(
-                parameters, wrongUsageKey, pinWrapped)), Throws.ArgumentException);
+            Assert.That(warnedWrapped.Value, Is.EqualTo(pinWrapped.Value));
+            Assert.That(warnedPin.Value, Is.EqualTo("0x(01234)"));
+            Assert.That(sink.GetSnapshot().Select(d => d.DiagnosticCode), Is.EqualTo(new[]
+            {
+                SemanticDiagnosticCode.KeyUsageConflict, SemanticDiagnosticCode.KeyUsageConflict
+            }));
+            Assert.That(sink.GetSnapshot().Select(d => d.Location!.FunctionName),
+                Is.EqualTo(new[] { "Wrap", "Unwrap" }));
+            Assert.That(wrongUsageKey.Usage, Is.EqualTo(KeyUsagePolicy.Restricted(KeyUsage.Encrypt)));
         });
 
         var legacyPin = Var("0x(01234)");

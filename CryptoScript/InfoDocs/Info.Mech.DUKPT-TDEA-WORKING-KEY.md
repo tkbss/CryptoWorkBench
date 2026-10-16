@@ -71,7 +71,7 @@ Request and response identify the TDEA DUKPT derivation direction and select dif
 
 `MAC-BOTH` uses exactly the `MAC-REQUEST` DUKPT variant. `DATA-BOTH` uses exactly the `DATA-REQUEST` DUKPT variant.
 
-The policy is stored as typed metadata on the result. General AES/DES3 encryption, decryption and MAC operations report conflicting usage as a non-blocking KeyUsageConflict warning in the Workbench; they do not alter the key or its policy. ISO 9564 PIN-block operations continue to enforce the policy strictly. In particular, `PinEncrypt` describes PIN-block use, not generic data-encryption or MAC permission. The DUKPT #USAGE parameter still selects the actual derivation variant and its validation is unchanged.
+The policy is stored as typed metadata on the result. General AES/DES3 encryption, decryption and MAC operations report conflicting usage as a non-blocking KeyUsageConflict warning in the Workbench; they do not alter the key or its policy. ISO 9564 PIN-block operations report conflicting KeyType and KeyUsage as non-blocking warnings; technical PIN-block validation remains mandatory. In particular, `PinEncrypt` describes PIN-block use, not generic data-encryption or MAC permission. The DUKPT #USAGE parameter still selects the actual derivation variant and its validation is unchanged.
 
 ## PIN, MAC and Data-Key Derivation
 

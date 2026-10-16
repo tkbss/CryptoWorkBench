@@ -77,7 +77,7 @@ The supported `#USAGE` values and resulting CryptoScript metadata are:
 
 `PIN` is represented by the dedicated `PinEncrypt` usage. It does not grant the generic `Encrypt` usage and must not be interpreted as permission to encrypt arbitrary application data.
 
-The policy is stored as typed metadata on the result. This page does not imply that every CryptoScript cryptographic operation currently enforces that metadata. General AES/DES3 operations emit non-blocking KeyUsageConflict and KeyTypeConflict warnings for metadata conflicts, without modifying the key or selecting a different algorithm. PIN-block policy checks remain strict. The #USAGE and #KEYTYPE parameters still affect the actual DUKPT derivation and are validated as before; analysis warnings do not make an unsuitable key appropriate for production payment use.
+The policy is stored as typed metadata on the result. This page does not imply that every CryptoScript cryptographic operation currently enforces that metadata. General AES/DES3 operations emit non-blocking KeyUsageConflict and KeyTypeConflict warnings for metadata conflicts, without modifying the key or selecting a different algorithm. PIN-block operations report conflicting KeyType and KeyUsage as non-blocking warnings; technical PIN-block validation remains mandatory. The #USAGE and #KEYTYPE parameters still affect the actual DUKPT derivation and are validated as before; analysis warnings do not make an unsuitable key appropriate for production payment use.
 
 ## Working-Key Types
 

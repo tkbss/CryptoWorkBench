@@ -70,7 +70,7 @@ public class DukptTdeaWorkingKeyDocumentationTests
             Assert.That(document, Does.Contain(
                 "General AES/DES3 encryption, decryption and MAC operations report conflicting usage as a non-blocking KeyUsageConflict warning"));
             Assert.That(document, Does.Contain(
-                "ISO 9564 PIN-block operations continue to enforce the policy strictly."));
+                "ISO 9564 PIN-block operations report conflicting KeyType and KeyUsage as non-blocking warnings; technical PIN-block validation remains mandatory."));
             Assert.That(document, Does.Contain(
                 "The DUKPT #USAGE parameter still selects the actual derivation variant and its validation is unchanged."));
         });

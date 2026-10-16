@@ -93,7 +93,7 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
             _ => throw NotImplemented(CryptoScriptFunction.Wrap)
         };
 
-        byte[] ciphertext = DES3_ECB.EncryptNoPadding(resolved.Key, clearBlock);
+        byte[] ciphertext = DES3_ECB.EncryptPinBlockForAnalysis(resolved.Key, clearBlock);
         StringVariableDeclaration result = CreateBinaryResult(ciphertext);
         ApplyOutputParameter(resolved.Parameters, outputName, outputValue);
         return result;
@@ -114,7 +114,7 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
             PinBlockFieldCodec.ValidatePan(pan);
 
         byte[] ciphertext = GetPinBlock(resolved.Data, Des3PinBlockLength);
-        byte[] clearBlock = DES3_ECB.DecryptNoPadding(resolved.Key, ciphertext);
+        byte[] clearBlock = DES3_ECB.DecryptPinBlockForAnalysis(resolved.Key, ciphertext);
 
         DecodedPinBlockFields decoded;
         try
@@ -172,21 +172,21 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
         MechanismParameterContractValidator.Validate(MechanismName, function, parameters);
 
         KeyVariableDeclaration key = ResolveKey(arguments.Arguments[1], legacyCall);
-        key.Usage.EnsureAllows(KeyUsage.PinEncrypt);
         byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
         if (CipherFamily == PinBlockCipherFamily.Aes)
         {
-            if (key.KeyType.Algorithm is not (KeyAlgorithm.Aes or KeyAlgorithm.Unknown))
-                throw new ArgumentException("AES PIN-block mechanisms require an AES key.");
             AES_ECB.ValidateKeyLength(keyBytes);
         }
         else
         {
-            if (key.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
-                throw new ArgumentException("DES3 PIN-block mechanisms require a DES3 key.");
             Des3Algorithm.ValidateKeyLength(keyBytes);
-            Des3Algorithm.ValidateUsableKey(keyBytes);
         }
+
+        KeyMetadataValidator.Validate(key,
+            CipherFamily == PinBlockCipherFamily.Aes ? KeyAlgorithm.Aes : KeyAlgorithm.Tdea,
+            KeyUsage.PinEncrypt, function.ToString(), MechanismName, arguments.DiagnosticSink);
+        if (CipherFamily == PinBlockCipherFamily.Des3)
+            Des3KeyQuality.Report(keyBytes, key.Id, function.ToString(), MechanismName, arguments.DiagnosticSink);
 
         StringVariableDeclaration data = ResolveData(arguments.Arguments[2], legacyCall);
         return new PinBlockArguments(parameters, keyBytes, data);
