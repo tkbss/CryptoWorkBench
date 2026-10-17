@@ -58,6 +58,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - MAC-EMV-AC-VERIFY
         - MAC-EMV-ARPC-METHOD-1
         - MAC-EMV-ARPC-METHOD-2
+        - EP2-DATA-ENCRYPTION
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
         - KDF-EP2-PAN-RECEIPT-TRM
@@ -139,3 +140,5 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
   Missing, malformed, duplicate or contradictory parameters are rejected. MAC-EMV-AC accepts
   only MECH; MAC-EMV-AC-VERIFY accepts only MECH and EXPECTED. Neither accepts PAD, IV or MACLEN.
 - RND: Optional random bytes used by TR-31 Wrap for key-length obfuscation and cipher-block padding. The required length depends on the wrapped-key algorithm and size; an omitted or wrong-sized value is replaced with generated random filler.
+
+- [EP2-DATA-ENCRYPTION](cryptoscript-info://mechanism/EP2-DATA-ENCRYPTION) requires #NONCE (12 HEX bytes), #OFFSET (one HEX byte: SEND 00–07, RECEIVE 00–01) and #DIRECTION (normal string literal "SEND" or "RECEIVE", relative to the master). No defaults, extra or duplicate parameters; #IV, #COUNTER and #PAD are forbidden. Nonce generation and lifecycle belong to the caller. #OFFSET and #DIRECTION are reserved for this mechanism.

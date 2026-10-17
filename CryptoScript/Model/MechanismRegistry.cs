@@ -418,6 +418,46 @@ public static class MechanismRegistry
         CryptoScriptFunction.Derive
     };
 
+    private static MechanismFunctionMetadata[] Ep2EncryptionFunctionMetadata()
+    {
+        var consumed = new[]
+        {
+            NamedParameter("#NONCE", true, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
+                "Caller-supplied nonce; no automatic generation or session management.", "Exactly 12 HEX bytes.",
+                inputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#OFFSET", true, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
+                "EP2 Table 10 field offset.", "Exactly one HEX byte: SEND 00–07; RECEIVE 00–01; other values are RFU.",
+                inputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#DIRECTION", true, MechanismParameterDirection.Input, MechanismParameterDataType.Data,
+                "Message direction relative to the master, independent of Encrypt or Decrypt.",
+                "Normal string literal SEND (from master) or RECEIVE (to master).",
+                inputForms: new[] { MechanismParameterInputForm.StringLiteral, MechanismParameterInputForm.VariableReference })
+        };
+        var arguments = new[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
+                "Genuine PARAM reference at position 0.", "No reconstructed objects or nested results."),
+            Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                "Genuine KEY reference at position 1.", "Exactly 16 bytes with consistent known size; AES and Encrypt/Decrypt usage conflicts warn."),
+            new MechanismParameterMetadata("data", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input,
+                true, new[] { MechanismParameterDataType.BinaryData }, "Byte-exact plaintext or ciphertext.",
+                "Direct HEX literal or genuine HEX VAR; at most 2^24 blocks, no padding or nested results.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly EP2-DATA-ENCRYPTION; no additional or duplicate parameters.")
+        };
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[]
+            {
+                Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
+                    "Selects EP2 data encryption.", "EP2-DATA-ENCRYPTION or #MECH:EP2-DATA-ENCRYPTION.")
+            }.Concat(consumed)),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Encrypt, arguments.Concat(consumed)),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Decrypt, arguments.Concat(consumed))
+        };
+    }
+
     private static MechanismFunctionMetadata[] Ep2MacFunctionMetadata(string mechanism) => new[]
     {
         new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[]
@@ -806,6 +846,9 @@ public static class MechanismRegistry
             new("DUKPT-AES-WORKING-KEY", "ANSI X9.24-3-2017 stateless host derivation of a directly usable Working Key from an AES DUKPT Initial Key and complete 96-bit KSN.", "Info.Mech.DUKPT-AES-WORKING-KEY.md", DerivationFunctions),
             new("DUKPT-TDEA-INITIAL-KEY", "Legacy ANSI X9.24 double-length TDEA DUKPT Initial Key derivation from a 16-byte BDK and complete 80-bit KSN.", "Info.Mech.DUKPT-TDEA-INITIAL-KEY.md", DerivationFunctions),
             new("DUKPT-TDEA-WORKING-KEY", "ANSI X9.24-3 Annex C stateless host derivation of a double-length TDEA Working Key from a TDEA Initial Key and complete 80-bit KSN.", "Info.Mech.DUKPT-TDEA-WORKING-KEY.md", DerivationFunctions),
+            new("EP2-DATA-ENCRYPTION", "EP2 AES-128 CTR encryption with a 12-byte nonce, field offset and 24-bit counter.", "Info.Mech.EP2-DATA-ENCRYPTION.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Encrypt, CryptoScriptFunction.Decrypt }, Ep2EncryptionFunctionMetadata())
+            { StrictMechanismParameterContract = true },
             new("EP2-MESSAGE-MAC", "EP2 message MAC: leftmost eight bytes of HMAC-SHA256 over SHA-256 of message bytes.", "Info.Mech.EP2-MESSAGE-MAC.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, Ep2MacFunctionMetadata("EP2-MESSAGE-MAC"))
             {
                 StrictMechanismParameterContract = true

@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlySixtyThreeRegisteredMechanisms()
+    public void ContainsExactlySixtyFourRegisteredMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(63));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(64));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -222,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(63));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(64));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {
@@ -356,6 +356,11 @@ public class MechanismRegistryTests
                 CryptoScriptFunction.Mac);
         }
 
+        if (algorithm is not SymmetricCryptoAlgorithm)
+        {
+            AddAlgorithmFunction(functions, algorithm, nameof(Algorithm.Encrypt), CryptoScriptFunction.Encrypt, typeof(AlgorithmCallArguments));
+            AddAlgorithmFunction(functions, algorithm, nameof(Algorithm.Decrypt), CryptoScriptFunction.Decrypt, typeof(AlgorithmCallArguments));
+        }
         AddAlgorithmFunction(
             functions,
             algorithm,
@@ -410,7 +415,11 @@ public class MechanismRegistryTests
         // EP2 explicitly rejects legacy base-class stubs; an override is not support.
         // Ep2MacTests.DirectUnsupportedAlgorithmOperationsThrow verifies these rejections.
         if (algorithm is CryptoScript.CryptoAlgorithm.EP2.Ep2Mac &&
-            function is CryptoScriptFunction.Hash or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap)
+            function is CryptoScriptFunction.Hash or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap or CryptoScriptFunction.Encrypt or CryptoScriptFunction.Decrypt)
+            return;
+        // Ep2DataEncryptionTests verifies each explicit rejection.
+        if (algorithm is CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption &&
+            function is CryptoScriptFunction.Hash or CryptoScriptFunction.Mac or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap)
             return;
         if (HasConcreteAlgorithmOverride(algorithm, methodName, typeof(string[])) ||
             (structuredArgumentType is not null &&

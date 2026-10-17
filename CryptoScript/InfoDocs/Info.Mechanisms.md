@@ -19,6 +19,7 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - DES3-CBC : Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.
 - DES3-RETAIL : Symmetric Triple Data Encryption Standard in Retail mode.
 - DES3-CMAC : Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.
+- EP2-DATA-ENCRYPTION : EP2 AES-128 CTR encryption with a 12-byte nonce, field offset and 24-bit counter.
 - EP2-MESSAGE-MAC : EP2 message MAC: leftmost eight bytes of HMAC-SHA256 over SHA-256 of message bytes.
 - EP2-TRANSACTION-CERTIFICATE : EP2 transaction certificate: leftmost eight bytes of HMAC-SHA256 over prepared DOL bytes.
 - HMAC-SHA1 : Keyed-Hash Message Authentication Code using SHA-1.

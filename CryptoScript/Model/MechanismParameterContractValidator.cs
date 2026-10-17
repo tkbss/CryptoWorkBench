@@ -125,6 +125,9 @@ public static class MechanismParameterContractValidator
             }
         }
 
+        if (mechanism.CanonicalName == "EP2-DATA-ENCRYPTION")
+            CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption.ValidateValues(parameters);
+
         if (metadata.AdditionalNamedParameterHandling != AdditionalNamedParameterHandling.None)
             return;
 
@@ -227,6 +230,8 @@ public static class MechanismParameterContractValidator
 
     private static string? EmvCryptogramParameterOwner(string normalizedName) => normalizedName switch
     {
+        // These new names are also scoped here so legacy permissive mechanisms cannot consume them.
+        "#OFFSET" or "#DIRECTION" => "EP2-DATA-ENCRYPTION",
         "#EXPECTED" => "MAC-EMV-AC-VERIFY",
         "#ARC" => "MAC-EMV-ARPC-METHOD-1",
         "#CSU" => "MAC-EMV-ARPC-METHOD-2",

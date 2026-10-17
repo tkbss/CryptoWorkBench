@@ -57,6 +57,8 @@
                 return new EMV.MAC_EMV_ARPC_METHOD_1();
             if (canonicalMechanism == "MAC-EMV-ARPC-METHOD-2")
                 return new EMV.MAC_EMV_ARPC_METHOD_2();
+            if (canonicalMechanism == "EP2-DATA-ENCRYPTION")
+                return new EP2.Ep2DataEncryption();
             if (canonicalMechanism is "EP2-MESSAGE-MAC" or "EP2-TRANSACTION-CERTIFICATE")
                 return new EP2.Ep2Mac(canonicalMechanism);
             if (canonicalMechanism == "KDF-EP2-SESSION")
