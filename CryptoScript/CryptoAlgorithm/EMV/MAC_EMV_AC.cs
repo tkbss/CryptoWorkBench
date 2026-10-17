@@ -89,6 +89,8 @@ internal static class EmvAcArgumentContract
     internal static StringVariableDeclaration Execute(string mechanism, AlgorithmCallArguments arguments, bool verify)
     {
         var (parameters, key) = ResolveReferences(mechanism, arguments);
+        KeyMetadataValidator.Validate(key, KeyAlgorithm.Unknown,
+            verify ? KeyUsage.MacVerify : KeyUsage.MacGenerate, "Mac", mechanism, arguments.DiagnosticSink);
         string dataValue = ResolveData(arguments.Arguments[2]);
         byte[]? keyBytes = null;
         byte[]? data = null;
@@ -97,12 +99,15 @@ internal static class EmvAcArgumentContract
         try
         {
             keyBytes = DecodeSessionKey(key);
+            if (key.KeyType.Algorithm == KeyAlgorithm.Tdea)
+                CryptoScript.CryptoAlgorithm.DES3.Des3KeyQuality.Report(keyBytes, key.Id,
+                    "Mac", mechanism, arguments.DiagnosticSink);
             data = DecodeHex(dataValue, "Transaction data");
             string value;
             if (verify)
             {
                 expected = DecodeHex(parameters.GetParameter("#EXPECTED"), "Expected cryptogram");
-                if (!EmvApplicationCryptogram.VerifyAc(key.KeyType.Algorithm, keyBytes, data, expected))
+                if (!EmvApplicationCryptogram.VerifyAcForAnalysis(key.KeyType.Algorithm, keyBytes, data, expected))
                     // The existing evaluator converts runtime failures to SemanticErrorException
                     // and rethrows through the public runner. A diagnostic alone would not abort.
                     throw new ArgumentException("EMV Application Cryptogram verification failed.");
@@ -110,7 +115,7 @@ internal static class EmvAcArgumentContract
             }
             else
             {
-                result = EmvApplicationCryptogram.ComputeAc(key.KeyType.Algorithm, keyBytes, data);
+                result = EmvApplicationCryptogram.ComputeAcForAnalysis(key.KeyType.Algorithm, keyBytes, data);
                 value = FormatConversions.ByteArrayToHexString(result);
             }
             return new StringVariableDeclaration

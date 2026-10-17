@@ -256,10 +256,14 @@ public class EmvMasterOptionCMechanismTests
     [TestCase(KeyAlgorithm.Hmac)]
     [TestCase(KeyAlgorithm.Rsa)]
     [TestCase(KeyAlgorithm.Unknown)]
-    public void RejectsWrongKeyAlgorithmsFromTheReferencedKey(KeyAlgorithm algorithm)
+    public void ConflictingOrUnknownKeyAlgorithmsKeepTheAesDerivation(KeyAlgorithm algorithm)
     {
         AddKey("bad", Imk128, algorithm == KeyAlgorithm.Rsa ? KeyType.Public(algorithm) : KeyType.Secret(algorithm), 128);
-        RejectScript($"PARAM p=Parameters({Mechanism}) KEY ICC=Derive(p,bad,\"1234\")", "Secret AES KEY");
+        var runner = new CryptoScriptRunner();
+        runner.Execute(ParserBuilder.StringBuild($"PARAM p=Parameters({Mechanism},#PSN:\"45\") KEY ICC=Derive(p,bad,\"{Pan}\")").program());
+        AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), Icc128, 128, Mechanism);
+        Assert.That(runner.Diagnostics.Select(d => d.DiagnosticCode), Is.EqualTo(
+            algorithm == KeyAlgorithm.Unknown ? Array.Empty<SemanticDiagnosticCode>() : new[] { SemanticDiagnosticCode.KeyTypeConflict }));
     }
 
     [TestCase(15)]
@@ -282,7 +286,8 @@ public class EmvMasterOptionCMechanismTests
         AddKey("wrongSize", Imk128, KeyType.Secret(KeyAlgorithm.Aes), 192);
         Execute($"KEY ICC=Derive(p,IMK,\"{Pan}\")");
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), Icc128, 128, Mechanism);
-        RejectScript($"KEY rejected=Derive(p,wrongType,\"{Pan}\")", "Secret AES KEY", "rejected");
+        Execute($"KEY warned=Derive(p,wrongType,\"{Pan}\")");
+        AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("warned"), Icc128, 128, Mechanism);
         RejectScript($"KEY rejected=Derive(p,wrongSize,\"{Pan}\")", "size metadata", "rejected");
     }
 

@@ -8,6 +8,7 @@ WRAP-AES-TR31 creates and reads ANSI X9.143-2022 TR-31 Version D key blocks. Ver
 
 - **Version and Binding**: CryptoWorkBench supports Version D with AES Key Derivation Binding. The version in the TR-31 header selects the binding method.
 - **KBPK Requirements**: The AES KBPK must contain 128, 192 or 256 bits and can be generated or imported with an AES mechanism such as AES-CBC.
+- **Transport Algorithm**: The algorithm field at position 7 (zero-based) of the supplied `#BLKH` selects the transported algorithm: `A` for AES or `T` for TDEA. This is separate from the AES KBPK algorithm. The same AES KBPK can protect either kind of key. Neither the transported KEY's declarative KeyType nor its stored HDR attributes select obfuscation. Wrap preserves the supplied header bytes.
 - **AES Key-Length Obfuscation**: An AES key is padded with random key-length-obfuscation bytes to 32 key bytes, followed by random padding to the 16-byte AES block boundary.
 
 | AES key | Key-length obfuscation | Block padding | Total `#RND` | Confidential data / ciphertext |
@@ -26,7 +27,18 @@ WRAP-AES-TR31 creates and reads ANSI X9.143-2022 TR-31 Version D key blocks. Ver
 - **Block Length**: With a 16-character header and no Optional Blocks, the AES key layouts above produce a 144-character key block and require a `D0144...` header. The supported TDEA key layouts produce a structurally correct 112-character Version D block and require `D0112...`. Optional Blocks change the total length.
 - **Authentication**: Version D includes the complete 16-byte AES-CMAC authentication value. Unwrap verifies it before returning the key.
 - **Compatibility**: Unwrap can still read historical CryptoWorkBench AES-128 `D0112` blocks that omitted the required AES key-length obfuscation; those blocks are not ANSI-conformant. New AES-128 wraps use the `D0144` layout. This legacy case is distinct from the correct `D0112` layout for a contained TDEA-128 or TDEA-192 key described above.
-- **Return Value**: Wrap returns a VAR in composite form: `"header"0x(ciphertext)0x(authentication-value)`. Unwrap accepts this form or a quoted complete TR-31 wire block and returns a KEY.
+- **Write Profile and Legacy Reads**: New wraps require header algorithm `A` or `T`; missing, malformed or unsupported algorithms are errors. Earlier opaque non-A/T writes (including H, unknown D/Z and R) are intentionally no longer accepted. Existing authenticated HMAC and unknown/opaque Unwrap compatibility is retained: H is classified as Secret(Hmac); unrecognized algorithms, including R, remain Secret(Unknown). RSA-labelled opaque reads do not implement RSA transport. RSA generation, import and transport belong to Version 2.
+- **Return Value**: Wrap returns a VAR in composite form: `"header"0x(ciphertext)0x(authentication-value)`. Unwrap accepts this form without Optional Blocks, or a quoted complete TR-31 wire block including Optional Blocks, and returns a KEY. The existing composite reader cannot read Optional Blocks; use the complete wire form for those blocks.
+
+### Semantic diagnostics
+
+Expected KeyType metadata: Aes on the KBPK. Expected KeyUsage: `WrapKey for Wrap; UnwrapKey for Unwrap`. The transported KEY's expected algorithm comes from `#BLKH`: Aes for A, Tdea for T. An explicitly different declared algorithm emits a non-blocking `KeyTypeConflict` referring to that transported KEY, provided its bytes are technically valid. Unknown emits no type conflict. Transport introduces no KeyUsage requirement.
+
+KBPK conflicts emit `KeyTypeConflict` then `KeyUsageConflict`; transport warnings follow independently. Reusing one physical KEY in both roles does not duplicate the same AES type warning. These checks do not mutate KEY or PARAM and work without a diagnostic sink. Structured calls preserve original KEY identity; legacy identifiers or unambiguous projected values are accepted, while ambiguous values fail. Unwrap never mutates the input VAR. Header algorithm and usage are authenticated protocol fields. KBEK/KBAK derivation, AES-CMAC/CBC, MAC verification and classification only after authentication remain unchanged.
+
+Actual key bytes must decode completely and contain 16/24/32 bytes for A or 16/24 bytes for T. Known KeySize metadata must match the actual bit count; absent size metadata does not select an algorithm. Bytes are never silently truncated or filled. Technical header/material errors remain blocking even when KeyType conflicts are only warnings.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
 
 ## Functions
 The following functions are available for WRAP-AES-TR31 mechanism:
@@ -41,7 +53,7 @@ These parameters are used with the WRAP-AES-TR31 mechanism:
 - **#MECH**: Set to `WRAP-AES-TR31` in a directly declared PARAM.
 - **#BLKH**: Required by Wrap. Supply the complete authenticated TR-31 header, including Optional Blocks when present. The four-digit declared total length must equal the generated wire-block length; a contradictory header is rejected rather than rewritten.
 - **#RND**: Optional hexadecimal random filler in wire order: key-length obfuscation first, then block padding. For AES-128, AES-192 and AES-256 use exactly 30, 22 and 14 bytes respectively for deterministic output; for TDEA-128 and TDEA-192 use 14 and 6 bytes. If omitted or supplied with another length, CryptoWorkBench generates the complete filler with a cryptographically secure random generator.
-- **Input and Output**: Wrap receives declared KEY variables. Unwrap accepts a composite TR-31 value or a quoted complete wire block. No external IV or configurable padding is used; the calculated authentication value is the AES-CBC IV.
+- **Input and Output**: Wrap receives declared KEY variables. Unwrap accepts a composite TR-31 value without Optional Blocks, or a quoted complete wire block with or without Optional Blocks. No external IV or configurable padding is used; the calculated authentication value is the AES-CBC IV.
 
 ---
 ## Example Usage

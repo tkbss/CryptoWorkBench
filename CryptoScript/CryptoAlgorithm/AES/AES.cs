@@ -10,6 +10,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
 
         public override KeyVariableDeclaration GenerateKey(string mechanism, string Size)
         {
+            mechanism = GenerateKeyContract.RequireMechanism(mechanism, KeyAlgorithm.Aes).CanonicalName;
             if(FormatConversions.ParseString(Size)== FormatConversions.HEX)
             {
                 return CreateExistingKey(Size,mechanism);
@@ -28,7 +29,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 key.Value = keyValue;
                 key.KeyValue = keyValue;
                 key.ValueFormat = FormatConversions.ParseString(keyValue);
-                key.KeySize = Size;
+                key.KeySizeInBits = new KeySize(keySize);
                 key.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
                 key.Type = new CryptoTypeKey();
             }
@@ -39,7 +40,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
             var k = new KeyVariableDeclaration();
             k.Value = key;
             k.ValueFormat = FormatConversions.ParseString(key);
-            var keySize = FormatConversions.ToByteArray(key,FormatConversions.HEX).Length*8;
+            var keySize = GenerateKeyContract.DecodeImport(key).Length * 8;
             if (keySize != 128 && keySize != 192 && keySize != 256)
                 throw new ArgumentException("wrong key size");
             k.KeySize = keySize.ToString();

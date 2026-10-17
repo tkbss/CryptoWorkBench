@@ -100,6 +100,8 @@ public class KDF_HKDF : CryptoAlgorithm
         string canonicalMechanism = isExtract ? ExtractMechanismName : isExpand ? ExpandMechanismName : MechanismName;
 
         KeyVariableDeclaration ikm = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(ikm, isExpand ? KeyAlgorithm.Hmac : KeyAlgorithm.Unknown,
+            KeyUsage.DeriveKey, "Derive", canonicalMechanism, parameters.DiagnosticSink);
         StringVariableDeclaration info = ResolveData(parameters.Arguments[2].Value!);
         string hash = parameter.GetParameter("HASH");
         int hashLength = DigestFactory.Create(hash).GetDigestSize();

@@ -13,6 +13,10 @@ DES3-RETAIL calculates a Retail message authentication code (MAC). It processes 
 - **Input Length**: Input not aligned to 8 bytes is padded using ISO-9797-M1 or ISO-9797-M2.
 - **Return Value**: Mac returns a VAR containing 4 through 8 MAC bytes in hexadecimal 0x(...) format. Encrypt and Decrypt are rejected.
 
+### Key Generation and Import
+
+GenerateKey(DES3-RETAIL, ...) supports random generation and explicit hexadecimal import. The registry fixes the resulting KeyType to Secret(Tdea) for both variants. Valid key lengths: 128 or 192 bits (16 or 24 bytes). Imported bytes are preserved exactly. The mechanism selects the key algorithm and does not restrict the resulting KEY to its original mode or HMAC digest; other compatible mechanisms of the same family may consume it. External weak keys and parity errors retain their original bytes. Random generation keeps the existing non-degenerate TripleDES generator.
+
 ## Functions
 The following functions are available for DES3-RETAIL mechanism:
 

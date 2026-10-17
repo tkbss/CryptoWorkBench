@@ -5,7 +5,7 @@ namespace CryptoScript.Model;
 
 /// <summary>
 /// Evaluates declared metadata only. Does not validate technical executability, mutate
-/// keys, select an algorithm, or assess EP2/PCI conformity. Not wired into algorithms.
+/// keys, select an algorithm, or assess EP2/PCI conformity.
 /// </summary>
 public static class KeyMetadataValidator
 {

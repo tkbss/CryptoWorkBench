@@ -79,6 +79,35 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         internal static byte[] DecryptNoPadding(byte[] key, byte[] iv, byte[] ciphertext) =>
             Transform(key, iv, ciphertext, PaddingMode.None, encrypt: false);
 
+        internal static byte[] EncryptNoPaddingForAnalysis(byte[] key, byte[] iv, byte[] plaintext) =>
+            TransformNoPaddingForAnalysis(key, iv, plaintext, encrypt: true);
+
+        internal static byte[] DecryptNoPaddingForAnalysis(byte[] key, byte[] iv, byte[] ciphertext) =>
+            TransformNoPaddingForAnalysis(key, iv, ciphertext, encrypt: false);
+
+        private static byte[] TransformNoPaddingForAnalysis(byte[] key, byte[] iv, byte[] input, bool encrypt)
+        {
+            ArgumentNullException.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(iv);
+            ArgumentNullException.ThrowIfNull(input);
+            DES3.ValidateKeyLength(key);
+            if (iv.Length != BlockSizeBytes || input.Length % BlockSizeBytes != 0)
+                throw new ArgumentException("DES3-CBC requires an 8-byte IV and complete 8-byte input blocks.");
+            return Transform(key, iv, input, PaddingMode.None, encrypt, analysisKeys: true);
+        }
+
+        internal static byte[] ComputeMacNoPaddingForAnalysis(byte[] key, byte[] data, int macLength)
+        {
+            ArgumentNullException.ThrowIfNull(data);
+            if (data.Length == 0 || data.Length % BlockSizeBytes != 0)
+                throw new ArgumentException("DES3-CBC-MAC input must be a non-zero multiple of 8 bytes.", nameof(data));
+            if (macLength < 1 || macLength > BlockSizeBytes)
+                throw new ArgumentOutOfRangeException(nameof(macLength));
+            byte[] encrypted = EncryptNoPaddingForAnalysis(key, new byte[BlockSizeBytes], data);
+            try { return encrypted.AsSpan(encrypted.Length - BlockSizeBytes, macLength).ToArray(); }
+            finally { CryptographicOperations.ZeroMemory(encrypted); }
+        }
+
         internal static byte[] ComputeMacNoPadding(byte[] key, byte[] data, int macLength)
         {
             if (data.Length == 0 || data.Length % BlockSizeBytes != 0)

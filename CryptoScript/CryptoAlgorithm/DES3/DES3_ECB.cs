@@ -100,6 +100,16 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         internal static byte[] DecryptNoPadding(byte[] key, byte[] ciphertext) =>
             Transform(key, ciphertext, PaddingMode.None, encrypt: false);
 
+        internal static byte[] EncryptNoPaddingForAnalysis(byte[] key, byte[] plaintext)
+        {
+            ArgumentNullException.ThrowIfNull(key);
+            ArgumentNullException.ThrowIfNull(plaintext);
+            DES3.ValidateKeyLength(key);
+            if (plaintext.Length % BlockSizeBytes != 0)
+                throw new ArgumentException("DES3-ECB input must be a multiple of 8 bytes.", nameof(plaintext));
+            return Transform(key, plaintext, PaddingMode.None, encrypt: true, analysisKeys: true);
+        }
+
         // Explicit PIN-block opt-in only. The shared NoPadding primitives above remain strict.
         internal static byte[] EncryptPinBlockForAnalysis(byte[] key, byte[] plaintext) =>
             TransformPinBlockForAnalysis(key, plaintext, encrypt: true);

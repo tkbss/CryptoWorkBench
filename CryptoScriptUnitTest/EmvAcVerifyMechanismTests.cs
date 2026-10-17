@@ -27,7 +27,8 @@ public class EmvAcVerifyMechanismTests
             Assert.That(verified.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(verified.Value, Is.EqualTo("0x(01)"));
             Assert.That(VariableDictionary.Instance().Get("after").Value, Is.EqualTo("0x(AABB)"));
-            Assert.That(runner.Diagnostics, Is.Empty);
+            Assert.That(runner.Diagnostics.Select(d => d.DiagnosticCode), Is.EqualTo(
+                cipher == "DES3-ECB" ? new[] { SemanticDiagnosticCode.DesParityViolation } : Array.Empty<SemanticDiagnosticCode>()));
         });
     }
 
@@ -66,8 +67,10 @@ public class EmvAcVerifyMechanismTests
             Assert.That(dictionary.Contains("last"), Is.False);
             Assert.That(((KeyVariableDeclaration)dictionary.Get("sk")).KeyValue, Is.EqualTo("0x(" + key + ")").IgnoreCase);
             Assert.That(dictionary.Get("data").Value, Is.EqualTo("0x(" + EmvAcFixtures.Data + ")").IgnoreCase);
-            Assert.That(runner.Diagnostics, Has.Count.EqualTo(1));
-            Assert.That(runner.Diagnostics[0], Is.SameAs(error.SemanticError));
+            Assert.That(runner.Diagnostics, Has.Count.EqualTo(cipher == "DES3-ECB" ? 2 : 1));
+            if (cipher == "DES3-ECB")
+                Assert.That(runner.Diagnostics[0].DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.DesParityViolation));
+            Assert.That(runner.Diagnostics[^1], Is.SameAs(error.SemanticError));
         });
     }
 

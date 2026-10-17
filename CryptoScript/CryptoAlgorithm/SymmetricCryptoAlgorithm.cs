@@ -7,7 +7,7 @@ namespace CryptoScript.CryptoAlgorithm
     {
         public override KeyVariableDeclaration GenerateKey(string mechanism,string keySize) 
         {
-            return new KeyVariableDeclaration();
+            return base.GenerateKey(mechanism, keySize);
         }
         public override ParameterVariableDeclaration GenerateParameters(string mechanism)
         {

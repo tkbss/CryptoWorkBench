@@ -25,8 +25,8 @@ it is never selected automatically by Option A.
 
 ## Input Contract
 
-The IMK must be a genuine Secret TDEA KEY reference containing exactly 16 bytes (K1 || K2).
-Existing DES3 weak/degenerate-key checks apply; no additional weak-key or usage policy is added.
+The IMK must be a genuine KEY reference containing exactly 16 bytes (K1 || K2); expected metadata is Secret TDEA.
+DES3 parity and weak/degenerate-key findings are non-blocking warnings; conflicting type or DeriveKey usage also emits a warning.
 The IMK is not adjusted for parity or modified. Key literals and non-KEY variables are rejected.
 
 PAN is the third Derive argument: a direct normal string literal or a referenced normal string
@@ -84,7 +84,7 @@ KeyUsage Unspecified. The result can be passed directly to KDF-EMV-AC-SESSION.
 
 ## Security and Errors
 
-Wrong key types/lengths, contradictory size metadata, malformed inputs, duplicate/extra
+Invalid key lengths, contradictory size metadata, malformed inputs, duplicate/extra
 parameters and forbidden argument origins are rejected. Core errors do not include key,
 PAN or PSN values. Temporary key and ciphertext buffers are zeroized in finally blocks;
 the returned key remains available to the caller. Immutable CryptoScript KEY strings cannot
@@ -96,3 +96,15 @@ cleanup remains a test limitation; no special crypto abstraction was added for t
 EMV Contact Book 2 v4.4, Annex A1.4.1 Option A, pages 138-139 (formula review completed 13 October 2026).
 Published comparison values: PyEMV 1.3.0 and PyEMV kd.py (EMV 4.3 reference).
 V3 in the core tests is an independent characterization, not a normative published vector.
+
+### Semantic diagnostics
+
+Expected KeyType metadata: Tdea. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The selected Option A/B/C determines the algorithm; conflicting KEY declarations never select another option. PAN, PSN, genuine-reference and known-size consistency checks remain binding. DES parity/weakness is diagnosed without blocking technically valid TDEA test keys. The explicitly enabled analysis backend uses the supplied effective key bits.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+### TDEA test and analysis keys
+
+`DesParityViolation` (10) and `WeakDes3Key` (11) are non-blocking Warning diagnostics. Weak or semi-weak DES components and effective K1=K2 or K2=K3 are reported independently of parity; K1=K3 alone is not single-DES degeneration. Each quality category is reported at most once per operation on the original KEY, after any KeyTypeConflict and KeyUsageConflict metadata warnings. No KEY bytes or parity bits are changed. Technically valid calls also work without a diagnostic sink.
+
+This support is for test and analysis and makes no suitability claim for production payment systems. Invalid key lengths, malformed data and protocol errors remain blocking. ARQC verification and TR-31 authentication remain mandatory; failed verification stops execution without a successful result. AES behavior and the approved algorithm selectors remain unchanged.

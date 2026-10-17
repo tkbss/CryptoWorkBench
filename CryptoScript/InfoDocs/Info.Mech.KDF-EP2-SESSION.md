@@ -25,6 +25,13 @@ Session Key and salt are processed by HKDF-Extract-SHA256. HKDF-Expand-SHA256 th
 | PIN | C5B1C5B1C5B1C5B1 | 16 Byte |
 | KEY-ENCRYPTION | 3FE73FE73FE73FE7 | 16 Byte |
 
+### Semantic diagnostics
+
+Expected KeyType metadata: no algorithm restriction on raw input keying material. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The HMAC Extract key is the salt; the IKM is not required to be typed Hmac. No KeyTypeConflict is produced for this input. Hash, salt, variant and output-length contracts are unchanged.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 
 | Functions | Parameters | Input | Output | Key Length |

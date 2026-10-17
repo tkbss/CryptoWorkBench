@@ -26,6 +26,8 @@ internal static class EmvArpcArgumentContract
     internal static StringVariableDeclaration Execute(string mechanism, AlgorithmCallArguments arguments, bool method2)
     {
         var (parameters, key) = EmvAcArgumentContract.ResolveReferences(mechanism, arguments);
+        KeyMetadataValidator.Validate(key, KeyAlgorithm.Unknown, KeyUsage.MacGenerate,
+            "Mac", mechanism, arguments.DiagnosticSink);
         string arqcValue = EmvAcArgumentContract.ResolveData(arguments.Arguments[2], "ARQC");
         byte[]? keyBytes = null;
         byte[]? arqc = null;
@@ -43,16 +45,19 @@ internal static class EmvArpcArgumentContract
             if (method2 && parameters.GetParameters().ContainsKey("#ADATA"))
                 proprietaryData = EmvAcArgumentContract.DecodeHex(parameters.GetParameter("#ADATA"), "Proprietary data");
             keyBytes = EmvAcArgumentContract.DecodeSessionKey(key);
+            if (key.KeyType.Algorithm == KeyAlgorithm.Tdea)
+                CryptoScript.CryptoAlgorithm.DES3.Des3KeyQuality.Report(keyBytes, key.Id,
+                    "Mac", mechanism, arguments.DiagnosticSink);
 
             // The validated core alone implements XOR, ECB, MAC and IAD concatenation.
             if (method2)
             {
-                arpc = EmvApplicationCryptogram.ComputeArpcMethod2(key.KeyType.Algorithm, keyBytes, arqc, control, proprietaryData);
+                arpc = EmvApplicationCryptogram.ComputeArpcMethod2ForAnalysis(key.KeyType.Algorithm, keyBytes, arqc, control, proprietaryData);
                 if (parameters.GetParameter("#VARIANT") == "\"IAD\"")
                     iad = EmvApplicationCryptogram.BuildIssuerAuthenticationData(arpc, control, proprietaryData);
             }
             else
-                arpc = EmvApplicationCryptogram.ComputeArpcMethod1(key.KeyType.Algorithm, keyBytes, arqc, control);
+                arpc = EmvApplicationCryptogram.ComputeArpcMethod1ForAnalysis(key.KeyType.Algorithm, keyBytes, arqc, control);
 
             return new StringVariableDeclaration
             {

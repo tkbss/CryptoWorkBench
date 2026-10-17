@@ -7,10 +7,16 @@ public static class Tr31TdeaKeyVariants
     private const byte AuthenticationVariant = 0x4D;
 
     public static (byte[] Kbek, byte[] Kbak) DeriveKeys(byte[] kbpk)
+        => DeriveKeysCore(kbpk, analysisKeys: false);
+
+    internal static (byte[] Kbek, byte[] Kbak) DeriveKeysForAnalysis(byte[] kbpk)
+        => DeriveKeysCore(kbpk, analysisKeys: true);
+
+    private static (byte[] Kbek, byte[] Kbak) DeriveKeysCore(byte[] kbpk, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(kbpk);
         DES3.DES3.ValidateKeyLength(kbpk);
-        DES3.DES3.ValidateUsableKey(kbpk);
+        if (!analysisKeys) DES3.DES3.ValidateUsableKey(kbpk);
         return (ApplyVariant(kbpk, EncryptionVariant), ApplyVariant(kbpk, AuthenticationVariant));
     }
 

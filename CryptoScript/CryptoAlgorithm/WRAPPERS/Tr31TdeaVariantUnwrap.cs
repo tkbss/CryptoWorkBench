@@ -10,7 +10,7 @@ internal static class Tr31TdeaVariantUnwrap
     private const int BlockSizeBytes = 8;
     private const int AuthenticationValueLength = 4;
 
-    internal static byte[] Unwrap(string header, byte[] ciphertext, byte[] receivedMac, byte[] kbpk)
+    internal static byte[] Unwrap(string header, byte[] ciphertext, byte[] receivedMac, byte[] kbpk, bool analysisKeys = false)
     {
         ArgumentNullException.ThrowIfNull(header);
         ArgumentNullException.ThrowIfNull(ciphertext);
@@ -27,14 +27,29 @@ internal static class Tr31TdeaVariantUnwrap
         if (ciphertext.Length == 0 || ciphertext.Length % BlockSizeBytes != 0)
             throw new ArgumentException("Ciphertext must be a non-zero multiple of 8 bytes.", nameof(ciphertext));
 
-        var (kbek, kbak) = Tr31TdeaKeyVariants.DeriveKeys(kbpk);
-        byte[] dataToAuthenticate = [.. headerBytes, .. ciphertext];
-        byte[] calculatedMac = DES3_CBC.ComputeMacNoPadding(kbak, dataToAuthenticate, AuthenticationValueLength);
-        if (!CryptographicOperations.FixedTimeEquals(calculatedMac, receivedMac))
-            throw new CryptographicException("TR-31 TDEA variant authentication failed.");
+        var (kbek, kbak) = analysisKeys ? Tr31TdeaKeyVariants.DeriveKeysForAnalysis(kbpk)
+            : Tr31TdeaKeyVariants.DeriveKeys(kbpk);
+        byte[]? confidentialData = null;
+        byte[]? calculatedMac = null;
+        try
+        {
+            byte[] dataToAuthenticate = [.. headerBytes, .. ciphertext];
+            calculatedMac = analysisKeys ? DES3_CBC.ComputeMacNoPaddingForAnalysis(kbak, dataToAuthenticate, AuthenticationValueLength)
+                : DES3_CBC.ComputeMacNoPadding(kbak, dataToAuthenticate, AuthenticationValueLength);
+            if (!CryptographicOperations.FixedTimeEquals(calculatedMac, receivedMac))
+                throw new CryptographicException("TR-31 TDEA variant authentication failed.");
 
-        byte[] iv = headerBytes[..BlockSizeBytes];
-        byte[] confidentialData = DES3_CBC.DecryptNoPadding(kbek, iv, ciphertext);
-        return Tr31ConfidentialData.ExtractKey(confidentialData);
+            byte[] iv = headerBytes[..BlockSizeBytes];
+            confidentialData = analysisKeys ? DES3_CBC.DecryptNoPaddingForAnalysis(kbek, iv, ciphertext)
+                : DES3_CBC.DecryptNoPadding(kbek, iv, ciphertext);
+            return Tr31ConfidentialData.ExtractKey(confidentialData);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(kbek);
+            CryptographicOperations.ZeroMemory(kbak);
+            if (confidentialData is not null) CryptographicOperations.ZeroMemory(confidentialData);
+            if (calculatedMac is not null) CryptographicOperations.ZeroMemory(calculatedMac);
+        }
     }
 }

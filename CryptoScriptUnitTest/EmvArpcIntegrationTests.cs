@@ -236,22 +236,35 @@ public class EmvArpcIntegrationTests
     }
 
     [TestCaseSource(nameof(Mechanisms))]
-    public void PrimitiveWeakKeyFailureAbortsWithoutMutatingInputsOrLeakingMaterial(string mechanism)
+    public void WeakKeyAnalysisContinuesWithoutMutatingInputsOrLeakingMaterial(string mechanism)
     {
         Prepare(mechanism);
         var dictionary = VariableDictionary.Instance();
         var key = (KeyVariableDeclaration)dictionary.Get("sk");
         key.KeyType = KeyType.Secret(KeyAlgorithm.Tdea);
-        key.KeyValue = "0x(01010101010101010101010101010101)";
+        var reference = Ap5TReferenceVectors.All.Single(p => p.Name == "both");
+        key.KeyValue = "0x(" + reference.Key + ")";
+        var parameter = (ParameterVariableDeclaration)dictionary.Get("p");
+        dictionary.Get("arqc").Value = "0x(" + Ap5TReferenceVectors.Arqc + ")";
+        if (mechanism == EmvArpcFixtures.Method1)
+            parameter.SetParameter("ARC", "0x(" + Ap5TReferenceVectors.Arc + ")");
+        else
+        {
+            parameter.SetParameter("CSU", "0x(" + Ap5TReferenceVectors.Csu + ")");
+            parameter.SetParameter("ADATA", "0x(" + Ap5TReferenceVectors.Adata + ")");
+        }
         string before = key.Serialize(), parameterBefore = dictionary.Get("p").Value, arqcBefore = dictionary.Get("arqc").Value;
-        var error = Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR result=Mac(p,sk,arqc) VAR after=0x(AABB)"));
-        Assert.That(error!.SemanticError!.Message, Does.Contain("weak").And.Not.Contain("0101010101010101"));
-        Assert.That(error.SemanticError.FunctionCall, Is.EqualTo("Mac(<redacted>)"));
+        var runner = new CryptoScriptRunner();
+        runner.Execute(ParserBuilder.StringBuild("VAR result=Mac(p,sk,arqc) VAR after=0x(AABB)").program());
+        Assert.That(dictionary.Get("result").Value, Is.EqualTo("0x(" + reference.Emv![mechanism == EmvArpcFixtures.Method1 ? 4 : 5] + ")").IgnoreCase);
+        Assert.That(runner.Diagnostics.Select(d => d.DiagnosticCode), Is.EqualTo(new[]
+            { SemanticDiagnosticCode.DesParityViolation, SemanticDiagnosticCode.WeakDes3Key }));
+        Assert.That(runner.Diagnostics.All(d => !d.Message.Contains(reference.Key)), Is.True);
         Assert.That(key.Serialize(), Is.EqualTo(before));
         Assert.That(dictionary.Get("p").Value, Is.EqualTo(parameterBefore));
         Assert.That(dictionary.Get("arqc").Value, Is.EqualTo(arqcBefore));
-        Assert.That(dictionary.Contains("result"), Is.False);
-        Assert.That(dictionary.Contains("after"), Is.False);
+        Assert.That(dictionary.Contains("result"), Is.True);
+        Assert.That(dictionary.Contains("after"), Is.True);
     }
 
     [TestCase("MAC-EMV-AC")]

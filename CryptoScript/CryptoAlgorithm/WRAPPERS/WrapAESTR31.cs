@@ -34,31 +34,13 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             ParameterVariableDeclaration p =
                 AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
 
-            // 2) Retrieve the keyProtectionKey and the TR-31 block from the variable dictionary
-            var variables = VariableDictionary.Instance().GetVariables();
-
-            KeyVariableDeclaration? keyProtectionKey = null;
-            StringVariableDeclaration? wrappedBlockVar = null;
-
-            foreach (var variable in variables)
-            {
-                // The name is in variable.Value
-                if (variable.Value == parameters.Arguments[1].Value)
-                {
-                    // Found the key-protection key used for wrapping
-                    keyProtectionKey = (KeyVariableDeclaration)variable;
-                }
-                else if (variable.Value == parameters.Arguments[2].Value)
-                {
-                    // Found the string that contains the TR-31 block
-                    wrappedBlockVar = (StringVariableDeclaration)variable;
-                }
-            }
-
-            if (keyProtectionKey == null)
-                throw new Exception("Protection key variable not found: " + parameters.Arguments[1].Value);
-            if (wrappedBlockVar == null)
-                throw new Exception("TR-31 block variable not found: " + parameters.Arguments[2].Value);
+            KeyVariableDeclaration keyProtectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
+            KeyMetadataValidator.Validate(keyProtectionKey, KeyAlgorithm.Aes, KeyUsage.UnwrapKey,
+                "Unwrap", "WRAP-AES-TR31", parameters.DiagnosticSink);
+            string wrappedValue = parameters.Arguments[2].SourceVariable is StringVariableDeclaration source
+                ? source.Value : parameters.Arguments[2].Value!;
+            if (VariableDictionary.Instance().Get(wrappedValue) is StringVariableDeclaration declared)
+                wrappedValue = declared.Value;
             
             byte[]? blockHeaderBytes =null;
             byte[]? encryptedKeyData = null;
@@ -67,20 +49,20 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             // 3) Parse the TR-31 block into (header, wrappedKey, mac).
             //    This depends on how your TR31String is implemented.
             //    Example assumes a constructor that can parse a string:
-            if (FormatConversions.ParseString(wrappedBlockVar.Value) == FormatConversions.TR31)
+            if (FormatConversions.ParseString(wrappedValue) == FormatConversions.TR31)
             {
-                TR31String tr31 = TR31String.FromString(wrappedBlockVar.Value);
+                TR31String tr31 = TR31String.FromString(wrappedValue);
                 RequireVersionD(tr31.Block);
                 block = TR31Block.FromString(tr31.Block);
                 blockHeaderBytes = FormatConversions.StringToByteArray(tr31.Block);
                 block.Cryptogram=encryptedKeyData = tr31.Cryptogram;
                 block.Mac=blockMac = tr31.Mac;
             }
-            if(FormatConversions.ParseString(wrappedBlockVar.Value) == FormatConversions.STR) 
+            if (FormatConversions.ParseString(wrappedValue) == FormatConversions.STR)
             {
-                RequireVersionD(FormatConversions.ToString(wrappedBlockVar.Value));
-                wrappedBlockVar.Value = FormatConversions.ToString(wrappedBlockVar.Value);
-                block =TR31Block.FromString(wrappedBlockVar.Value);
+                string wire = FormatConversions.ToString(wrappedValue);
+                RequireVersionD(wire);
+                block =TR31Block.FromString(wire);
                 blockHeaderBytes = block.HeaderDataToMac;
                 encryptedKeyData = block.Cryptogram;
                 blockMac = block.Mac;
@@ -211,33 +193,33 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         {
             ParameterVariableDeclaration p =
                 AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
-            RequireVersionD(FormatConversions.ToString(p.GetParameter("#BLKH")));
+            string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
+            RequireVersionD(header);
+            KeyAlgorithm transportedAlgorithm = ResolveWrapAlgorithm(header);
             string rnd = p.GetParameter("#RND");
-            var variables=VariableDictionary.Instance().GetVariables();
-            KeyVariableDeclaration? keyProtectionKey = null;
-            KeyVariableDeclaration? keyToWrap = null;
-            foreach (var variable in variables)
-            {
-                if (variable.Value == parameters.Arguments[1].Value)
-                {
-                    keyProtectionKey = (KeyVariableDeclaration)variable;
-                }
-                if (variable.Value == parameters.Arguments[2].Value)
-                {
-                    keyToWrap = (KeyVariableDeclaration)variable;
-                }
-            }
+            KeyVariableDeclaration keyProtectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
+            KeyVariableDeclaration keyToWrap = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[2]);
+            KeyMetadataValidator.Validate(keyProtectionKey, KeyAlgorithm.Aes, KeyUsage.WrapKey,
+                "Wrap", "WRAP-AES-TR31", parameters.DiagnosticSink);
+            byte[] transportedBytes = DecodeTransportedKey(keyToWrap, transportedAlgorithm);
+            // The same physical KEY may occupy both roles. An identical AES type
+            // check has already been reported for the KBPK; transport adds no usage.
+            if (!ReferenceEquals(keyProtectionKey, keyToWrap) || transportedAlgorithm != KeyAlgorithm.Aes)
+                KeyMetadataValidator.Validate(keyToWrap, transportedAlgorithm, KeyUsage.None,
+                    "Wrap", "WRAP-AES-TR31", parameters.DiagnosticSink);
             byte[] macKey=DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue), 
                 MACDerivationData(Convert.ToInt32(keyProtectionKey.KeySize)),
                 Convert.ToInt32(keyProtectionKey.KeySize));
             byte[] encryptionKey = DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue),
                 EncryptionDerivationData(Convert.ToInt32(keyProtectionKey.KeySize)),
                 Convert.ToInt32(keyProtectionKey.KeySize));
-            byte[] keyData = ConstructBinaryKeyData(keyToWrap, rnd);
-            byte[] dataToMAC = ConstructDataToMAC(p, keyData);
+            byte[]? random = string.IsNullOrEmpty(rnd) ? null : FormatConversions.HexStringToByteArray(rnd);
+            int targetLength = transportedAlgorithm == KeyAlgorithm.Aes ? 32 : 24;
+            byte[] keyData = Tr31ConfidentialData.Create(transportedBytes, blockSize: 16,
+                obfuscationPaddingLength: targetLength - transportedBytes.Length, random: random).ToArray();
+            byte[] dataToMAC = ConstructDataToMAC(header, keyData);
             byte[] macResult = ComputeMAC(dataToMAC, macKey);
             byte[] wrappedKey = EncryptNoPadding(encryptionKey, macResult, keyData);
-            string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
             ValidateDeclaredBlockLength(header, wrappedKey.Length, macResult.Length);
             TR31String tr31 = new TR31String(header, wrappedKey, macResult);            
             StringVariableDeclaration block = new StringVariableDeclaration() { Value = tr31.ToString(), ValueFormat = FormatConversions.TR31 };
@@ -271,52 +253,72 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             cipher.DoFinal(outputBuffer, outputLength);            
             return outputBuffer;
         }
-        private byte[] ConstructDataToMAC(ParameterVariableDeclaration p, byte[]keyData) 
+        private byte[] ConstructDataToMAC(string header, byte[]keyData)
         { 
-            string blk=p.GetParameter("#BLKH");
-            byte[] byteArray=FormatConversions.StringToByteArray(blk);
+            byte[] byteArray=Encoding.UTF8.GetBytes(header);
             byte[] dataToMAC = new byte[byteArray.Length + keyData.Length];
             Array.Copy(byteArray, 0, dataToMAC, 0, byteArray.Length);
             Array.Copy(keyData, 0, dataToMAC, byteArray.Length, keyData.Length);
             return dataToMAC;
         }
-        private byte[] ConstructBinaryKeyData(KeyVariableDeclaration keyToWrap, string rd)
+        private static byte[] DecodeTransportedKey(KeyVariableDeclaration key, KeyAlgorithm algorithm)
         {
-            byte[]? random = string.IsNullOrEmpty(rd) ? null : FormatConversions.HexStringToByteArray(rd);
-            int keySize = Convert.ToInt32(keyToWrap.KeySize);
-            if (keySize == 128 || keySize == 192 || keySize == 256)
+            string hex = key.KeyValue;
+            if (hex.StartsWith("0x(", StringComparison.Ordinal))
             {
-                byte[] keyBytes = new byte[keySize / 8];
-                Array.Copy(FormatConversions.HexStringToByteArray(keyToWrap.KeyValue), 0, keyBytes, 0, keyBytes.Length);
-                return Tr31ConfidentialData.Create(keyBytes, blockSize: 16,
-                    obfuscationPaddingLength: GetObfuscationPaddingLength(keyToWrap, keyBytes.Length),
-                    random: random).ToArray();
+                if (!hex.EndsWith(')'))
+                    throw new ArgumentException("TR-31 transported KEY requires complete hexadecimal key material.");
+                hex = hex[3..^1];
             }
-
-            // Keep the unsupported-size legacy path unchanged in this extraction.
-            byte[] binaryKeyData = new byte[16];
-            Array.Copy(FormatConversions.HexStringToByteArray(keyToWrap.KeyValue), 0, binaryKeyData, 2, 16);
-            return binaryKeyData;
+            if (hex.Length % 2 != 0 || hex.AsSpan().IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0)
+                throw new ArgumentException("TR-31 transported KEY requires complete hexadecimal key material.");
+            byte[] bytes = Convert.FromHexString(hex);
+            bool valid = algorithm == KeyAlgorithm.Aes ? bytes.Length is 16 or 24 or 32 : bytes.Length is 16 or 24;
+            if (!valid)
+                throw new ArgumentException($"TR-31 header algorithm {algorithm} does not support {bytes.Length} key bytes.");
+            if (key.KeySizeInBits.IsKnown && key.KeySizeInBits.Bits != (ulong)bytes.Length * 8)
+                throw new ArgumentException("TR-31 transported KEY size metadata conflicts with its actual key material.");
+            return bytes;
         }
-        internal static int GetObfuscationPaddingLength(KeyVariableDeclaration key, int keyLength)
+        // Wrap-only structural validation. Unwrap keeps its existing authenticated
+        // legacy reader; neither stored HDR attributes nor declared KeyType select this profile.
+        private static KeyAlgorithm ResolveWrapAlgorithm(string header)
         {
-            char? algorithm = key.KeyType.Algorithm switch
+            if (header.Length < 16 || header.Any(c => c < ' ' || c > '~') ||
+                header.AsSpan(1, 4).IndexOfAnyExcept("0123456789") >= 0 ||
+                header.AsSpan(12, 2).IndexOfAnyExcept("0123456789") >= 0)
+                throw new ArgumentException("TR-31 wrap requires a complete ASCII header with decimal length and optional-block count.");
+            int count = int.Parse(header.AsSpan(12, 2), System.Globalization.CultureInfo.InvariantCulture);
+            int position = 16;
+            for (int i = 0; i < count; i++)
             {
-                KeyAlgorithm.Aes => 'A',
-                KeyAlgorithm.Tdea => 'T',
-                _ => null
-            };
-            if (algorithm == null)
-            {
-                string? header = key.KeyAttributes.FirstOrDefault(block => block.ID == "HDR")?.Data;
-                if (!string.IsNullOrEmpty(header) && header.Length > 7)
-                    algorithm = char.ToUpperInvariant(header[7]);
+                if (position + 4 > header.Length ||
+                    header.AsSpan(position + 2, 2).IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0 ||
+                    !int.TryParse(header.AsSpan(position + 2, 2), System.Globalization.NumberStyles.HexNumber,
+                        System.Globalization.CultureInfo.InvariantCulture, out int length))
+                    throw new ArgumentException("TR-31 optional block has an invalid length.");
+                int prefixLength = 4;
+                if (length == 0)
+                {
+                    // Preserve the reader's existing two-byte extended-length representation.
+                    prefixLength = 10;
+                    if (position + prefixLength > header.Length || header.AsSpan(position + 4, 2).IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0 ||
+                        header.AsSpan(position + 6, 4).IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0 ||
+                        !int.TryParse(header.AsSpan(position + 6, 4), System.Globalization.NumberStyles.HexNumber,
+                            System.Globalization.CultureInfo.InvariantCulture, out length))
+                        throw new ArgumentException("TR-31 optional block has an invalid extended length.");
+                }
+                if (length < prefixLength || length > header.Length - position)
+                    throw new ArgumentException("TR-31 optional block exceeds the supplied header.");
+                position += length;
             }
-            return algorithm switch
+            if (position != header.Length)
+                throw new ArgumentException("TR-31 optional-block count does not match the supplied header.");
+            return header[7] switch
             {
-                'A' => Math.Max(0, 32 - keyLength),
-                'T' => Math.Max(0, 24 - keyLength),
-                _ => 0
+                'A' => KeyAlgorithm.Aes,
+                'T' => KeyAlgorithm.Tdea,
+                _ => throw new NotSupportedException("WRAP-AES-TR31 supports transported header algorithms A and T only.")
             };
         }
         private static KeyType KeyTypeFromHeader(string? header)

@@ -22,10 +22,10 @@ outside the demonstrated scope; Windows tests are not cross-platform evidence.
 
 ## Input and Parameter Contract
 
-Use exactly three Derive arguments: PARAM, a genuine Secret AES KEY reference, and PAN.
+Use exactly three Derive arguments: PARAM, a genuine KEY reference, and PAN. Expected metadata is Secret AES.
 IMK lengths of 16, 24 and 32 bytes produce AES-128, AES-192 and AES-256 ICC Master Keys,
 respectively. Known KeySizeInBits metadata must match the actual key data.
-TDEA, HMAC, RSA and unknown key algorithms are rejected. KEY literals, VAR/PARAM in the
+Conflicting declared key algorithms warn; Unknown emits no type warning. KEY literals, VAR/PARAM in the
 KEY position and value-based structured KEY lookup are not allowed. Identical values in
 different KEY variables do not override the referenced KEY's metadata.
 
@@ -100,3 +100,10 @@ EMV Contact Book 2 v4.4, Annex A1.4.3 Option C, page 140; AES variants in A1.4, 
 EMVCo Specification Bulletin 162, April 2015, pages 1-2 (corrects the earlier 8-byte mask).
 ICC and ATC-0001 session values were independently checked with Python cryptography / OpenSSL,
 without invoking the CryptoScript cores; they are not product-certification evidence.
+
+### Semantic diagnostics
+
+Expected KeyType metadata: Aes. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The selected Option A/B/C determines the algorithm; conflicting KEY declarations never select another option. PAN, PSN, genuine-reference and known-size consistency checks remain binding.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.

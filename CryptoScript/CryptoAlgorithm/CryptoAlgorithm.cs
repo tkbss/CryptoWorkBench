@@ -6,7 +6,7 @@ namespace CryptoScript.CryptoAlgorithm
     {
         public virtual KeyVariableDeclaration GenerateKey(string mechanism, string keySize)
         {
-            return new KeyVariableDeclaration();
+            throw new NotSupportedException($"This algorithm implementation does not support GenerateKey ({mechanism}).");
         }
         public virtual ParameterVariableDeclaration GenerateParameters(string mechanism)
         {

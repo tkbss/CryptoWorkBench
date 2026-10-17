@@ -70,7 +70,10 @@ public sealed class KDF_EP2_SESSION : CryptoAlgorithm
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Derive requires {MechanismName} parameters.");
 
-        byte[] sessionKey = ResolveKeyBytes(KdfArgumentResolver.ResolveKey(parameters, 1));
+        KeyVariableDeclaration sourceKey = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(sourceKey, KeyAlgorithm.Unknown, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
+        byte[] sessionKey = ResolveKeyBytes(sourceKey);
         if (sessionKey.Length != 16)
             throw new ArgumentException($"{MechanismName} session key must be exactly 16 bytes.");
 

@@ -46,8 +46,8 @@ public sealed class KDF_EMV_MASTER_C : CryptoAlgorithm
             throw new ArgumentException("Option C requires KDF-EMV-MASTER-C parameters.");
         MechanismParameterContractValidator.Validate(MechanismName, CryptoScriptFunction.Derive, parameters);
         KeyVariableDeclaration key = KdfArgumentResolver.ResolveKey(arguments, 1);
-        if (key.KeyType != KeyType.Secret(KeyAlgorithm.Aes))
-            throw new ArgumentException("KDF-EMV-MASTER-C requires a Secret AES KEY.");
+        KeyMetadataValidator.Validate(key, KeyAlgorithm.Aes, KeyUsage.DeriveKey,
+            "Derive", MechanismName, arguments.DiagnosticSink);
         string pan = KDF_EMV_MASTER_A.ResolvePan(arguments);
         string? psn = parameters.GetParameters().ContainsKey("#PSN")
             ? parameters.GetParameter("#PSN")[1..^1] : null;

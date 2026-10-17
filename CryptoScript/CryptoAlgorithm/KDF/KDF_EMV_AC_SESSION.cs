@@ -48,16 +48,23 @@ public sealed class KDF_EMV_AC_SESSION : CryptoAlgorithm
         if (algorithm is not (KeyAlgorithm.Aes or KeyAlgorithm.Tdea))
             throw new ArgumentException($"{MechanismName} requires an AES or TDEA master KEY.");
 
+        KeyMetadataValidator.Validate(masterKey, KeyAlgorithm.Unknown, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
         byte[] masterKeyBytes = ResolveMasterKeyBytes(masterKey);
         byte[]? sessionKeyBytes = null;
         try
         {
             ValidateMasterKeyLength(algorithm, masterKeyBytes.Length);
             KeySize keySize = ResolveKeySize(masterKey, masterKeyBytes.Length);
+            if (algorithm == KeyAlgorithm.Tdea)
+                CryptoScript.CryptoAlgorithm.DES3.Des3KeyQuality.Report(masterKeyBytes, masterKey.Id,
+                    "Derive", MechanismName, parameters.DiagnosticSink);
             byte[] atc = ResolveAtc(parameters, 2);
             try
             {
-                sessionKeyBytes = EmvAcSessionKeyDerivation.Derive(algorithm, masterKeyBytes, atc);
+                sessionKeyBytes = algorithm == KeyAlgorithm.Tdea
+                    ? EmvAcSessionKeyDerivation.DeriveForAnalysis(algorithm, masterKeyBytes, atc)
+                    : EmvAcSessionKeyDerivation.Derive(algorithm, masterKeyBytes, atc);
             }
             finally
             {

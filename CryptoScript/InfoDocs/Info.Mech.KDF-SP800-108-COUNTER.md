@@ -14,6 +14,13 @@ This mechanism is a general SP 800-108 Counter Mode KDF. It is not an AES DUKPT 
 - **Binary Label and Context**: Label and context are processed as decoded binary data, without implicit hexadecimal-text conversion.
 - **Return Value**: `Derive` returns a generic `KEY` in hexadecimal `0x(...)` form. `Mechanism` is empty and `DerivationMechanism` is `KDF-SP800-108-COUNTER`.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Aes for #PRF:AES-CMAC, Hmac for HMAC PRFs. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The #PRF parameter selects the actual algorithm. Counter encoding, output limits and AES key-length checks remain binding.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 
 | Function | Arguments | Input | Output |

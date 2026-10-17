@@ -154,10 +154,10 @@ namespace CryptoScript.Model
             { 
                 throw new ArgumentException("wrong number of arguments"); 
             }
-            string mech = args[0];
+            var entry = GenerateKeyContract.RequireMechanism(args[0]);
             string size = args[1];
-            var algo=AlgorithmFactory.Create(mech);
-            var returnValue = algo.GenerateKey(mech, size);            
+            var algo = AlgorithmFactory.Create(entry.CanonicalName);
+            var returnValue = algo.GenerateKey(entry.CanonicalName, size);
             return returnValue;
         }
         //the requirement for mac is that there will be 3 arguments

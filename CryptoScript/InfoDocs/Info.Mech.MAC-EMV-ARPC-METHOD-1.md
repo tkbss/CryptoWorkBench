@@ -78,8 +78,26 @@ prove prior verification, correct data selection, account association or ATC fre
 
 Argument, parameter and length validation precedes cryptography. Owned decoded key, ARQC, ARC
 and output buffers are zeroized in finally blocks, including exceptions. Caller values are not
-modified. Existing TDEA weak-key validation remains in force. Error messages do not echo inputs.
+modified. TDEA key quality is reported as non-blocking warnings. Error messages do not echo inputs.
 Immutable strings and provider-internal copies cannot be reliably erased by these wrappers.
 No CDOL/TLV or APDU processing and no Secure Messaging. Linux/Unix/FIPS runtime verification
 remains outside Windows test evidence. See [Method 2](cryptoscript-info://mechanism/MAC-EMV-ARPC-METHOD-2)
 for CSU, proprietary data and complete Issuer Authentication Data output.
+
+### Algorithm selection contract
+
+KEY.KeyType.Algorithm is the binding algorithm selector: Aes selects AES and Tdea selects TDEA. This is the approved architecture decision, not an outstanding migration. An explicit declaration can select another cryptographic procedure, so this selector is not converted into a KeyTypeConflict warning. Unknown or unsupported algorithms fail; the key length is never used to guess the algorithm. No additional #ALGORITHM parameter is introduced.
+
+GenerateKey(AES-ECB, ...) produces Secret(Aes), and GenerateKey(DES3-ECB, ...) produces Secret(Tdea), for both random keys and hexadecimal imports. The original mode does not restrict later compatible use. Derive, Unwrap, JSON deserialization and legacy imports are additional KEY sources and can still produce Unknown; those inputs remain invalid for EMV algorithm selection until their existing metadata identifies Aes or Tdea. KeyUsage conflicts remain non-blocking warnings. Cryptographic results, length/ATC/data checks and ARQC fail-closed verification are unchanged. This mechanism does not support GenerateKey itself.
+
+### Semantic diagnostics
+
+Expected KeyType metadata: Secret Aes or Tdea, still required to select the algorithm. Expected KeyUsage: `MacGenerate`.
+Usage conflicts emit a non-blocking `KeyUsageConflict` warning; correct or Unspecified usage emits none. This mechanism retains KeyType as a binding algorithm selector, so Unknown remains a selection error and is not silently accepted or reduced to a `KeyTypeConflict` warning. These checks do not mutate KEY or PARAM and work without a diagnostic sink. Only the usage metadata warning applies here. KeyAlgorithm still selects AES/TDEA; Unknown and unsupported types remain blocking under the approved selector contract. Technically valid weak or degenerate TDEA test keys remain executable with quality warnings. AC verification failure remains blocking and stops subsequent script execution. ARPC computation does not itself verify the received ARQC.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+### TDEA test and analysis keys
+
+`DesParityViolation` (10) and `WeakDes3Key` (11) are non-blocking Warning diagnostics. Weak or semi-weak DES components and effective K1=K2 or K2=K3 are reported independently of parity; K1=K3 alone is not single-DES degeneration. Each quality category is reported at most once per operation on the original KEY, after any KeyTypeConflict and KeyUsageConflict metadata warnings. No KEY bytes or parity bits are changed. Technically valid calls also work without a diagnostic sink.
+
+This support is for test and analysis and makes no suitability claim for production payment systems. Invalid key lengths, malformed data and protocol errors remain blocking. ARQC verification and TR-31 authentication remain mandatory; failed verification stops execution without a successful result. AES behavior and the approved algorithm selectors remain unchanged.

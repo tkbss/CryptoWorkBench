@@ -78,9 +78,9 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
         WorkingKeyType workingKeyType = WorkingKeyTypes[keyTypeName];
 
         KeyVariableDeclaration initialKey = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(initialKey, KeyAlgorithm.Aes, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
         byte[] initialKeyBytes = ResolveKeyBytes(initialKey);
-        if (initialKey.KeyType.Algorithm != KeyAlgorithm.Aes)
-            throw new ArgumentException($"{MechanismName} requires an AES Initial Key.");
         if (initialKeyBytes.Length is not (16 or 24 or 32))
             throw new ArgumentException($"{MechanismName} Initial Key must be 128, 192 or 256 bits.");
         int initialKeyBits = initialKeyBytes.Length * 8;

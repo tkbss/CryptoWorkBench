@@ -13,6 +13,10 @@ DES3-ECB is a mode of operation for symmetric key cryptographic block ciphers wi
 - **Independent Blocks**: Identical plaintext blocks produce identical ciphertext blocks under the same key.
 - **Return Value**: Encrypt and Decrypt return a VAR containing hexadecimal bytes in 0x(...) format. Decrypt returns plaintext bytes, including when the original input was text. Mac is not supported.
 
+### Key Generation and Import
+
+GenerateKey(DES3-ECB, ...) supports random generation and explicit hexadecimal import. The registry fixes the resulting KeyType to Secret(Tdea) for both variants. Valid key lengths: 128 or 192 bits (16 or 24 bytes). Imported bytes are preserved exactly. The mechanism selects the key algorithm and does not restrict the resulting KEY to its original mode or HMAC digest; other compatible mechanisms of the same family may consume it. External weak keys and parity errors retain their original bytes. Random generation keeps the existing non-degenerate TripleDES generator.
+
 ## Functions
 The following functions are available for DES3-ECB mechanism:
 

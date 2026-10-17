@@ -15,28 +15,42 @@ namespace CryptoScript.CryptoAlgorithm.EMV;
 internal static class EmvApplicationCryptogram
 {
     internal static byte[] ComputeAc(KeyAlgorithm algorithm, byte[] sessionKey, byte[] transactionData)
+        => ComputeAcCore(algorithm, sessionKey, transactionData, analysisKeys: false);
+
+    internal static byte[] ComputeAcForAnalysis(KeyAlgorithm algorithm, byte[] sessionKey, byte[] transactionData)
+        => ComputeAcCore(algorithm, sessionKey, transactionData, analysisKeys: true);
+
+    private static byte[] ComputeAcCore(KeyAlgorithm algorithm, byte[] sessionKey, byte[] transactionData, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(sessionKey);
         ArgumentNullException.ThrowIfNull(transactionData);
         using var inputs = new InputSnapshots(sessionKey, transactionData);
-        ValidateKey(algorithm, inputs[0]);
+        ValidateKey(algorithm, inputs[0], analysisKeys);
         // Empty data is a technical CMAC/Retail boundary, not a valid empty EMV transaction.
-        return ComputeTruncatedMac(algorithm, inputs[0], inputs[1], 8);
+        return ComputeTruncatedMac(algorithm, inputs[0], inputs[1], 8, analysisKeys);
     }
 
     internal static bool VerifyAc(KeyAlgorithm algorithm, byte[] sessionKey, byte[] transactionData,
         byte[] expectedCryptogram)
+        => VerifyAcCore(algorithm, sessionKey, transactionData, expectedCryptogram, analysisKeys: false);
+
+    internal static bool VerifyAcForAnalysis(KeyAlgorithm algorithm, byte[] sessionKey, byte[] transactionData,
+        byte[] expectedCryptogram)
+        => VerifyAcCore(algorithm, sessionKey, transactionData, expectedCryptogram, analysisKeys: true);
+
+    private static bool VerifyAcCore(KeyAlgorithm algorithm, byte[] sessionKey, byte[] transactionData,
+        byte[] expectedCryptogram, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(sessionKey);
         ArgumentNullException.ThrowIfNull(transactionData);
         ArgumentNullException.ThrowIfNull(expectedCryptogram);
         using var inputs = new InputSnapshots(sessionKey, transactionData, expectedCryptogram);
-        ValidateKey(algorithm, inputs[0]);
+        ValidateKey(algorithm, inputs[0], analysisKeys);
         RequireLength(inputs[2], 8, nameof(expectedCryptogram));
         byte[]? computed = null;
         try
         {
-            computed = ComputeTruncatedMac(algorithm, inputs[0], inputs[1], 8);
+            computed = ComputeTruncatedMac(algorithm, inputs[0], inputs[1], 8, analysisKeys);
             return CryptographicOperations.FixedTimeEquals(computed, inputs[2]);
         }
         finally
@@ -52,12 +66,20 @@ internal static class EmvApplicationCryptogram
     /// </remarks>
     internal static byte[] ComputeArpcMethod1(KeyAlgorithm algorithm, byte[] sessionKey,
         byte[] arqc, byte[] arc)
+        => ComputeArpcMethod1Core(algorithm, sessionKey, arqc, arc, analysisKeys: false);
+
+    internal static byte[] ComputeArpcMethod1ForAnalysis(KeyAlgorithm algorithm, byte[] sessionKey,
+        byte[] arqc, byte[] arc)
+        => ComputeArpcMethod1Core(algorithm, sessionKey, arqc, arc, analysisKeys: true);
+
+    private static byte[] ComputeArpcMethod1Core(KeyAlgorithm algorithm, byte[] sessionKey,
+        byte[] arqc, byte[] arc, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(sessionKey);
         ArgumentNullException.ThrowIfNull(arqc);
         ArgumentNullException.ThrowIfNull(arc);
         using var inputs = new InputSnapshots(sessionKey, arqc, arc);
-        ValidateKey(algorithm, inputs[0]);
+        ValidateKey(algorithm, inputs[0], analysisKeys);
         RequireLength(inputs[1], 8, nameof(arqc));
         RequireLength(inputs[2], 2, nameof(arc));
         byte[]? block = null;
@@ -70,7 +92,8 @@ internal static class EmvApplicationCryptogram
             block[1] ^= inputs[2][1];
             // Remaining six bytes of X and trailing eight AES bytes are zero.
             encrypted = algorithm == KeyAlgorithm.Tdea
-                ? DES3_ECB.EncryptNoPadding(inputs[0], block)
+                ? (analysisKeys ? DES3_ECB.EncryptNoPaddingForAnalysis(inputs[0], block)
+                    : DES3_ECB.EncryptNoPadding(inputs[0], block))
                 : AES_ECB.EncryptNoPadding(inputs[0], block);
             return encrypted.AsSpan(0, 8).ToArray();
         }
@@ -88,12 +111,20 @@ internal static class EmvApplicationCryptogram
     /// </remarks>
     internal static byte[] ComputeArpcMethod2(KeyAlgorithm algorithm, byte[] sessionKey,
         byte[] arqc, byte[] csu, byte[]? proprietaryData)
+        => ComputeArpcMethod2Core(algorithm, sessionKey, arqc, csu, proprietaryData, analysisKeys: false);
+
+    internal static byte[] ComputeArpcMethod2ForAnalysis(KeyAlgorithm algorithm, byte[] sessionKey,
+        byte[] arqc, byte[] csu, byte[]? proprietaryData)
+        => ComputeArpcMethod2Core(algorithm, sessionKey, arqc, csu, proprietaryData, analysisKeys: true);
+
+    private static byte[] ComputeArpcMethod2Core(KeyAlgorithm algorithm, byte[] sessionKey,
+        byte[] arqc, byte[] csu, byte[]? proprietaryData, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(sessionKey);
         ArgumentNullException.ThrowIfNull(arqc);
         ArgumentNullException.ThrowIfNull(csu);
         using var inputs = new InputSnapshots(sessionKey, arqc, csu, proprietaryData ?? []);
-        ValidateKey(algorithm, inputs[0]);
+        ValidateKey(algorithm, inputs[0], analysisKeys);
         RequireLength(inputs[1], 8, nameof(arqc));
         RequireLength(inputs[2], 4, nameof(csu));
         ValidateProprietaryData(inputs[3]);
@@ -101,7 +132,7 @@ internal static class EmvApplicationCryptogram
         try
         {
             message = Concatenate(inputs[1], inputs[2], inputs[3]);
-            return ComputeTruncatedMac(algorithm, inputs[0], message, 4);
+            return ComputeTruncatedMac(algorithm, inputs[0], message, 4, analysisKeys);
         }
         finally
         {
@@ -121,13 +152,14 @@ internal static class EmvApplicationCryptogram
         return Concatenate(inputs[0], inputs[1], inputs[2]);
     }
 
-    private static byte[] ComputeTruncatedMac(KeyAlgorithm algorithm, byte[] key, byte[] data, int length)
+    private static byte[] ComputeTruncatedMac(KeyAlgorithm algorithm, byte[] key, byte[] data, int length, bool analysisKeys)
     {
         byte[]? fullMac = null;
         try
         {
             fullMac = algorithm == KeyAlgorithm.Tdea
-                ? DES3_RETAIL.ComputeMac(key, data, "ISO-9797-M2", 8)
+                ? (analysisKeys ? DES3_RETAIL.ComputeMacForAnalysis(key, data, "ISO-9797-M2", 8)
+                    : DES3_RETAIL.ComputeMac(key, data, "ISO-9797-M2", 8))
                 : AES_CMAC.ComputeMac(key, data);
             return fullMac.AsSpan(0, length).ToArray();
         }
@@ -137,7 +169,7 @@ internal static class EmvApplicationCryptogram
         }
     }
 
-    private static void ValidateKey(KeyAlgorithm algorithm, byte[] key)
+    private static void ValidateKey(KeyAlgorithm algorithm, byte[] key, bool analysisKeys)
     {
         switch (algorithm)
         {
@@ -145,7 +177,7 @@ internal static class EmvApplicationCryptogram
                 if (key.Length != 16)
                     throw new ArgumentException("EMV TDEA session key must contain exactly 16 bytes.", "sessionKey");
                 Des3Algorithm.ValidateKeyLength(key);
-                Des3Algorithm.ValidateUsableKey(key);
+                if (!analysisKeys) Des3Algorithm.ValidateUsableKey(key);
                 break;
             case KeyAlgorithm.Aes:
                 AES_ECB.ValidateKeyLength(key);

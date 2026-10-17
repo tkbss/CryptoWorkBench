@@ -33,7 +33,16 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             };
         }
 
-        // Callers validate the key before invoking this shared primitive.
+        // Explicit analysis boundary; no quality gate on the effective key bits.
+        internal static byte[] ComputeForAnalysis(byte[] keyBytes, byte[] input)
+        {
+            ArgumentNullException.ThrowIfNull(keyBytes);
+            ArgumentNullException.ThrowIfNull(input);
+            DES3.ValidateKeyLength(keyBytes);
+            return Compute(keyBytes, input);
+        }
+
+        // Existing shared primitive: callers validate the key before invoking it.
         internal static byte[] Compute(byte[] keyBytes, byte[] input)
         {
             IMac mac = new CMac(new DesEdeEngine());

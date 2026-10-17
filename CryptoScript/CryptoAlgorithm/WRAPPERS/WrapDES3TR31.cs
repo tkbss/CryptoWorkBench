@@ -1,4 +1,5 @@
 using System.Text;
+using System.Security.Cryptography;
 using CryptoScript.Model;
 using CryptoScript.Variables;
 
@@ -18,20 +19,35 @@ public class WrapDES3TR31 : CryptoAlgorithm
             AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
         char version = RequireSupportedVersion(header);
-        byte[] kbpk = GetKey(parameters.Arguments[1].Value!);
-        byte[] key = GetKey(parameters.Arguments[2].Value!);
-        DES3.DES3.ValidateKeyLength(key);
-        string random = p.GetParameter("#RND");
-        byte[] data = Tr31ConfidentialData.Create(key, 8, 24 - key.Length,
-            string.IsNullOrEmpty(random) ? null : FormatConversions.HexStringToByteArray(random)).ToArray();
-        var wrapped = version == 'B'
-            ? Tr31VersionBWrap.Wrap(header, kbpk, data)
-            : Tr31TdeaVariantWrap.Wrap(header, kbpk, data);
-        return new StringVariableDeclaration
+        KeyVariableDeclaration protectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
+        KeyMetadataValidator.Validate(protectionKey, KeyAlgorithm.Tdea, KeyUsage.WrapKey,
+            "Wrap", MechanismName, parameters.DiagnosticSink);
+        byte[] kbpk = GetKey(protectionKey);
+        byte[]? key = null;
+        byte[]? data = null;
+        try
         {
-            Value = new TR31String(header, wrapped.Ciphertext, wrapped.Mac).ToString(),
-            ValueFormat = FormatConversions.TR31
-        };
+            DES3.Des3KeyQuality.Report(kbpk, protectionKey.Id, "Wrap", MechanismName, parameters.DiagnosticSink);
+            key = GetKey(AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[2]));
+            DES3.DES3.ValidateKeyLength(key);
+            string random = p.GetParameter("#RND");
+            data = Tr31ConfidentialData.Create(key, 8, 24 - key.Length,
+                string.IsNullOrEmpty(random) ? null : FormatConversions.HexStringToByteArray(random)).ToArray();
+            var wrapped = version == 'B'
+                ? Tr31VersionBWrap.Wrap(header, kbpk, data, analysisKeys: true)
+                : Tr31TdeaVariantWrap.Wrap(header, kbpk, data, analysisKeys: true);
+            return new StringVariableDeclaration
+            {
+                Value = new TR31String(header, wrapped.Ciphertext, wrapped.Mac).ToString(),
+                ValueFormat = FormatConversions.TR31
+            };
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(kbpk);
+            if (key is not null) CryptographicOperations.ZeroMemory(key);
+            if (data is not null) CryptographicOperations.ZeroMemory(data);
+        }
     }
 
     public override KeyVariableDeclaration Unwrap(string[] parameters) =>
@@ -40,7 +56,13 @@ public class WrapDES3TR31 : CryptoAlgorithm
     public override KeyVariableDeclaration Unwrap(AlgorithmCallArguments parameters)
     {
         _ = AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
-        string input = parameters.Arguments[2].Value!;
+        KeyVariableDeclaration protectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
+        KeyMetadataValidator.Validate(protectionKey, KeyAlgorithm.Tdea, KeyUsage.UnwrapKey,
+            "Unwrap", MechanismName, parameters.DiagnosticSink);
+        string input = parameters.Arguments[2].SourceVariable is StringVariableDeclaration source
+            ? source.Value : parameters.Arguments[2].Value!;
+        if (VariableDictionary.Instance().Get(input) is StringVariableDeclaration declared)
+            input = declared.Value;
         string wire;
         char version;
         if (FormatConversions.ParseString(input) == FormatConversions.TR31)
@@ -60,18 +82,28 @@ public class WrapDES3TR31 : CryptoAlgorithm
 
         var block = TR31Block.FromString(wire);
         string header = Encoding.ASCII.GetString(block.HeaderDataToMac!);
-        byte[] kbpk = GetKey(parameters.Arguments[1].Value!);
-        byte[] key = version == 'B'
-            ? Tr31VersionBUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk)
-            : Tr31TdeaVariantUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk);
-        string value = FormatConversions.ByteArrayToHexString(key);
-        return new KeyVariableDeclaration
+        byte[] kbpk = GetKey(protectionKey);
+        byte[]? key = null;
+        try
         {
-            Value = value, KeyValue = value, KeySize = (key.Length * 8).ToString(),
-            KeyType = KeyTypeFromHeader(block.Header),
-            ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
-            KeyAttributes = block.HeaderOptionalBlocks()
-        };
+            DES3.Des3KeyQuality.Report(kbpk, protectionKey.Id, "Unwrap", MechanismName, parameters.DiagnosticSink);
+            key = version == 'B'
+                ? Tr31VersionBUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk, analysisKeys: true)
+                : Tr31TdeaVariantUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk, analysisKeys: true);
+            string value = FormatConversions.ByteArrayToHexString(key);
+            return new KeyVariableDeclaration
+            {
+                Value = value, KeyValue = value, KeySize = (key.Length * 8).ToString(),
+                KeyType = KeyTypeFromHeader(block.Header),
+                ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
+                KeyAttributes = block.HeaderOptionalBlocks()
+            };
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(kbpk);
+            if (key is not null) CryptographicOperations.ZeroMemory(key);
+        }
     }
 
     private static KeyType KeyTypeFromHeader(string? header)
@@ -97,12 +129,8 @@ public class WrapDES3TR31 : CryptoAlgorithm
                 nameof(authenticationValue));
     }
 
-    private static byte[] GetKey(string value)
+    private static byte[] GetKey(KeyVariableDeclaration key)
     {
-        // FunctionCall.Call passes variable.Value, as in the existing AES adapter.
-        var key = VariableDictionary.Instance().GetVariables().OfType<KeyVariableDeclaration>()
-            .FirstOrDefault(k => k.Value == value)
-            ?? throw new ArgumentException("Key variable not found.");
         return FormatConversions.HexStringToByteArray(key.KeyValue);
     }
 

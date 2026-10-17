@@ -75,7 +75,11 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         int prfOutputLength = GetPrfOutputLengthBits(prf);
         ulong iterations = ValidateIterationCount(outputLength, prfOutputLength, counterLength);
 
-        byte[] key = ResolveKeyBytes(KdfArgumentResolver.ResolveKey(parameters, 1));
+        KeyVariableDeclaration sourceKey = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(sourceKey, prf.Equals("AES-CMAC", StringComparison.OrdinalIgnoreCase)
+                ? KeyAlgorithm.Aes : KeyAlgorithm.Hmac, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
+        byte[] key = ResolveKeyBytes(sourceKey);
         ValidatePrfKey(prf, key);
         byte[] context = ResolveBinaryValue(parameters.Arguments[2].Value!, "Context");
         byte[] label = parameter.GetParameters().ContainsKey("#LABEL")

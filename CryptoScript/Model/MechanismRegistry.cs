@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
+using CryptoScript.Variables;
 
 namespace CryptoScript.Model;
 
@@ -10,12 +11,22 @@ public sealed record MechanismRegistryEntry
         string description,
         string documentationFileName,
         IEnumerable<CryptoScriptFunction> supportedFunctions,
-        IEnumerable<MechanismFunctionMetadata>? functionMetadata = null)
+        IEnumerable<MechanismFunctionMetadata>? functionMetadata = null,
+        KeyAlgorithm? generatedKeyAlgorithm = null)
     {
         CanonicalName = canonicalName;
         Description = description;
         DocumentationFileName = documentationFileName;
         SupportedFunctions = supportedFunctions.ToFrozenSet();
+        if (SupportedFunctions.Contains(CryptoScriptFunction.GenerateKey) != generatedKeyAlgorithm.HasValue ||
+            generatedKeyAlgorithm.HasValue &&
+            generatedKeyAlgorithm is not (KeyAlgorithm.Aes or KeyAlgorithm.Tdea or KeyAlgorithm.Hmac))
+        {
+            throw new ArgumentException(
+                "GenerateKey support requires exactly one defined symmetric key algorithm; unsupported functions must not declare one.",
+                nameof(generatedKeyAlgorithm));
+        }
+        GeneratedKeyAlgorithm = generatedKeyAlgorithm;
 
         MechanismFunctionMetadata[] copiedFunctionMetadata =
             (functionMetadata ?? Array.Empty<MechanismFunctionMetadata>()).ToArray();
@@ -35,6 +46,7 @@ public sealed record MechanismRegistryEntry
     public string Description { get; }
     public string DocumentationFileName { get; }
     public IReadOnlySet<CryptoScriptFunction> SupportedFunctions { get; }
+    public KeyAlgorithm? GeneratedKeyAlgorithm { get; }
     public IReadOnlyDictionary<CryptoScriptFunction, MechanismFunctionMetadata> FunctionMetadata { get; }
     internal bool StrictMechanismParameterContract { get; init; }
 
@@ -753,18 +765,18 @@ public static class MechanismRegistry
     private static readonly ReadOnlyCollection<MechanismRegistryEntry> RegistryEntries =
         Array.AsReadOnly(new MechanismRegistryEntry[]
         {
-            new("AES-CBC", "Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.AES-CBC.md", CipherFunctions, AesCbcFunctionMetadata),
-            new("AES-CBC-MAC", "AES Cipher Block Chaining Message Authentication Code with selectable deterministic padding and left truncation.", "Info.Mech.AES-CBC-MAC.md", MacFunctions, AesCbcMacFunctionMetadata),
-            new("AES-CCM", "Symmetric Advanced Encryption Standard in Counter with CBC-MAC mode.", "Info.Mech.AES-CCM.md", CipherFunctions),
-            new("AES-CMAC", "Symmetric Advanced Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.AES-CMAC.md", MacFunctions),
-            new("AES-CTR", "Symmetric Advanced Encryption Standard in Counter mode.", "Info.Mech.AES-CTR.md", CipherFunctions),
-            new("AES-ECB", "Symmetric Advanced Encryption Standard in Electronic Codebook mode.", "Info.Mech.AES-ECB.md", CipherFunctions),
-            new("AES-GCM", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GCM.md", CipherFunctions),
-            new("AES-GMAC", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GMAC.md", MacFunctions),
-            new("DES3-CBC", "Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.DES3-CBC.md", Des3CbcFunctions),
-            new("DES3-CMAC", "Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.DES3-CMAC.md", MacFunctions),
-            new("DES3-ECB", "Symmetric Triple Data Encryption Standard in Electronic Codebook mode.", "Info.Mech.DES3-ECB.md", CipherFunctions),
-            new("DES3-RETAIL", "Symmetric Triple Data Encryption Standard in Retail mode.", "Info.Mech.DES3-RETAIL.md", MacFunctions),
+            new("AES-CBC", "Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.AES-CBC.md", CipherFunctions, AesCbcFunctionMetadata, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CBC-MAC", "AES Cipher Block Chaining Message Authentication Code with selectable deterministic padding and left truncation.", "Info.Mech.AES-CBC-MAC.md", MacFunctions, AesCbcMacFunctionMetadata, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CCM", "Symmetric Advanced Encryption Standard in Counter with CBC-MAC mode.", "Info.Mech.AES-CCM.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CMAC", "Symmetric Advanced Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.AES-CMAC.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CTR", "Symmetric Advanced Encryption Standard in Counter mode.", "Info.Mech.AES-CTR.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-ECB", "Symmetric Advanced Encryption Standard in Electronic Codebook mode.", "Info.Mech.AES-ECB.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-GCM", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GCM.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-GMAC", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GMAC.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("DES3-CBC", "Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.DES3-CBC.md", Des3CbcFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
+            new("DES3-CMAC", "Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.DES3-CMAC.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
+            new("DES3-ECB", "Symmetric Triple Data Encryption Standard in Electronic Codebook mode.", "Info.Mech.DES3-ECB.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
+            new("DES3-RETAIL", "Symmetric Triple Data Encryption Standard in Retail mode.", "Info.Mech.DES3-RETAIL.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
             new("DUKPT-AES-INITIAL-KEY", "ANSI X9.24-3-2017 derivation of an AES DUKPT Initial Key from an AES BDK and 64-bit IKID.", "Info.Mech.DUKPT-AES-INITIAL-KEY.md", DerivationFunctions),
             new("DUKPT-AES-WORKING-KEY", "ANSI X9.24-3-2017 stateless host derivation of a directly usable Working Key from an AES DUKPT Initial Key and complete 96-bit KSN.", "Info.Mech.DUKPT-AES-WORKING-KEY.md", DerivationFunctions),
             new("DUKPT-TDEA-INITIAL-KEY", "Legacy ANSI X9.24 double-length TDEA DUKPT Initial Key derivation from a 16-byte BDK and complete 80-bit KSN.", "Info.Mech.DUKPT-TDEA-INITIAL-KEY.md", DerivationFunctions),
@@ -782,17 +794,17 @@ public static class MechanismRegistry
             new("HASH-SHA512-256", "Unkeyed message digest using SHA-512/256.", "Info.Mech.HASH-SHA512-256.md", HashFunctions),
             new("HKDF-EXPAND", "RFC 5869 HKDF Expand operation only; derives output keying material from an existing PRK.", "Info.Mech.HKDF-EXPAND.md", DerivationFunctions),
             new("HKDF-EXTRACT", "RFC 5869 HKDF Extract operation only; returns the pseudorandom key (PRK).", "Info.Mech.HKDF-EXTRACT.md", DerivationFunctions),
-            new("HMAC-SHA1", "Keyed-Hash Message Authentication Code using SHA-1.", "Info.Mech.HMAC-SHA1.md", MacFunctions),
-            new("HMAC-SHA224", "Keyed-Hash Message Authentication Code using SHA-224.", "Info.Mech.HMAC-SHA224.md", MacFunctions),
-            new("HMAC-SHA256", "Keyed-Hash Message Authentication Code using SHA-256.", "Info.Mech.HMAC-SHA256.md", MacFunctions),
-            new("HMAC-SHA3-224", "Keyed-Hash Message Authentication Code using SHA3-224.", "Info.Mech.HMAC-SHA3-224.md", MacFunctions),
-            new("HMAC-SHA3-256", "Keyed-Hash Message Authentication Code using SHA3-256.", "Info.Mech.HMAC-SHA3-256.md", MacFunctions),
-            new("HMAC-SHA3-384", "Keyed-Hash Message Authentication Code using SHA3-384.", "Info.Mech.HMAC-SHA3-384.md", MacFunctions),
-            new("HMAC-SHA3-512", "Keyed-Hash Message Authentication Code using SHA3-512.", "Info.Mech.HMAC-SHA3-512.md", MacFunctions),
-            new("HMAC-SHA384", "Keyed-Hash Message Authentication Code using SHA-384.", "Info.Mech.HMAC-SHA384.md", MacFunctions),
-            new("HMAC-SHA512", "Keyed-Hash Message Authentication Code using SHA-512.", "Info.Mech.HMAC-SHA512.md", MacFunctions),
-            new("HMAC-SHA512-224", "Keyed-Hash Message Authentication Code using SHA-512/224.", "Info.Mech.HMAC-SHA512-224.md", MacFunctions),
-            new("HMAC-SHA512-256", "Keyed-Hash Message Authentication Code using SHA-512/256.", "Info.Mech.HMAC-SHA512-256.md", MacFunctions),
+            new("HMAC-SHA1", "Keyed-Hash Message Authentication Code using SHA-1.", "Info.Mech.HMAC-SHA1.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA224", "Keyed-Hash Message Authentication Code using SHA-224.", "Info.Mech.HMAC-SHA224.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA256", "Keyed-Hash Message Authentication Code using SHA-256.", "Info.Mech.HMAC-SHA256.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-224", "Keyed-Hash Message Authentication Code using SHA3-224.", "Info.Mech.HMAC-SHA3-224.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-256", "Keyed-Hash Message Authentication Code using SHA3-256.", "Info.Mech.HMAC-SHA3-256.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-384", "Keyed-Hash Message Authentication Code using SHA3-384.", "Info.Mech.HMAC-SHA3-384.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-512", "Keyed-Hash Message Authentication Code using SHA3-512.", "Info.Mech.HMAC-SHA3-512.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA384", "Keyed-Hash Message Authentication Code using SHA-384.", "Info.Mech.HMAC-SHA384.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA512", "Keyed-Hash Message Authentication Code using SHA-512.", "Info.Mech.HMAC-SHA512.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA512-224", "Keyed-Hash Message Authentication Code using SHA-512/224.", "Info.Mech.HMAC-SHA512-224.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA512-256", "Keyed-Hash Message Authentication Code using SHA-512/256.", "Info.Mech.HMAC-SHA512-256.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
             new("KDF-EMV-AC-SESSION", "EMV Common Session Key Derivation for ATC-based Application Cryptogram and ARPC processing.", "Info.Mech.KDF-EMV-AC-SESSION.md", DerivationFunctions, EmvAcSessionFunctionMetadata)
             {
                 StrictMechanismParameterContract = true

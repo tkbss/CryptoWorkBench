@@ -14,6 +14,13 @@ The mechanism processes the 32-bit Transaction Counter contained in the KSN and 
 - **AES DUKPT KDF**: Intermediate and final keys are derived using the AES-based X9.24-3 KDF, including when the requested output is TDEA or HMAC keying material.
 - **Typed Result**: The returned `KEY` contains `KeyType`, `KeySizeInBits`, `DerivationMechanism` and restricted usage metadata.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Aes. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. Declared KEY metadata does not change AES DUKPT. #USAGE and #KEYTYPE on working-key parameters are protocol values controlling derivation data and result usage; they remain mandatory, with unchanged strength limits.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 
 | Function | Arguments | Input | Output |
@@ -49,7 +56,7 @@ PARAM working = Parameters(
 
 ## Initial Key and KSN
 
-The Initial Key must be typed as an AES secret key and contain exactly 128, 192 or 256 bits. Its actual key length determines the AES algorithm indicator and length used while deriving Intermediate Derivation Keys.
+The Initial Key must contain exactly 128, 192 or 256 bits. Expected metadata is an AES secret key; a conflicting declaration warns. Its actual key length determines the AES algorithm indicator and length used while deriving Intermediate Derivation Keys.
 
 The KSN must decode to exactly 12 bytes / 96 bits:
 

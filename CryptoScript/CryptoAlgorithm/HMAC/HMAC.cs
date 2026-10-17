@@ -42,10 +42,10 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
 
         public override KeyVariableDeclaration GenerateKey(string mechanism, string keySize)
         {
-            mechanism = NormalizeAndValidateMechanism(mechanism);
+            mechanism = GenerateKeyContract.RequireMechanism(mechanism, KeyAlgorithm.Hmac).CanonicalName;
             if (FormatConversions.ParseString(keySize) == FormatConversions.HEX)
             {
-                byte[] existingKey = FormatConversions.ToByteArray(keySize, FormatConversions.HEX);
+                byte[] existingKey = GenerateKeyContract.DecodeImport(keySize);
                 if (existingKey.Length == 0)
                     throw new ArgumentException("HMAC key must not be empty.");
 
@@ -70,7 +70,9 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
             ParameterVariableDeclaration parameter =
                 AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
             NormalizeAndValidateMechanism(parameter.Mechanism);
-            KeyVariableDeclaration key = ResolveKey(parameters.Arguments[1].Value!);
+            KeyVariableDeclaration key = AlgorithmArgumentResolver.ResolveKey(parameters.Arguments[1]);
+            KeyMetadataValidator.Validate(key, KeyAlgorithm.Hmac, KeyUsage.MacGenerate,
+                "Mac", parameter.Mechanism, parameters.DiagnosticSink);
             StringVariableDeclaration data = ResolveData(parameters.Arguments[2].Value!);
 
             return CreateMode(parameter.Mechanism).ModeMac(parameter, key, data);
@@ -102,26 +104,6 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
                 throw new ArgumentException($"Unsupported HMAC mechanism: {mechanism}.");
 
             return mechanism;
-        }
-
-        private static KeyVariableDeclaration ResolveKey(string value)
-        {
-            if (VariableDictionary.Instance().Get(value) is KeyVariableDeclaration declared)
-                return declared;
-            if (FormatConversions.ParseString(value) == FormatConversions.HEX)
-            {
-                return new KeyVariableDeclaration
-                {
-                    Value = value,
-                    KeyValue = value,
-                    ValueFormat = FormatConversions.HEX,
-                    Type = new CryptoTypeKey()
-                };
-            }
-            if (FormatConversions.ParseString(value) == FormatConversions.JSO)
-                return KeyVariableDeclaration.Deserialize(value);
-
-            throw new ArgumentException("wrong key argument");
         }
 
         private static StringVariableDeclaration ResolveData(string value)

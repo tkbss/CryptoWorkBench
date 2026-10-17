@@ -13,6 +13,10 @@ AES-CBC-MAC calculates a message authentication code by applying AES in CBC mode
 - **MAC Length**: #MACLEN selects 8 through 16 leftmost bytes. The default is 16 bytes.
 - **Return Value**: Mac returns a VAR containing hexadecimal MAC bytes in 0x(...) format.
 
+### Key Generation and Import
+
+GenerateKey(AES-CBC-MAC, ...) supports random generation and explicit hexadecimal import. The registry fixes the resulting KeyType to Secret(Aes) for both variants. Valid key lengths: 128, 192 or 256 bits (16, 24 or 32 bytes). Imported bytes are preserved exactly. The mechanism selects the key algorithm and does not restrict the resulting KEY to its original mode or HMAC digest; other compatible mechanisms of the same family may consume it.
+
 ## Functions
 
 | Function | Parameters | Input | Output |

@@ -150,7 +150,6 @@ public class EmvMasterOptionAMechanismTests
         Assert.That(error.ParameterName, Is.EqualTo("#UNKNOWN"));
     }
 
-    [TestCase("AES-ECB", Imk)]
     [TestCase("DES3-ECB", "0123456789ABCDEFFEDCBA98765432100011223344556677")]
     public void RejectsWrongKeyTypeOrLength(string algorithm, string value) =>
         RejectScript($"KEY IMK=GenerateKey({algorithm},0x({value})) PARAM p=Parameters({Mechanism}) KEY ICC=Derive(p,IMK,\"1234\")", "requires");
@@ -160,9 +159,11 @@ public class EmvMasterOptionAMechanismTests
     {
         Execute(Prefix + $"KEY aes=GenerateKey(AES-ECB,0x({Imk})) PARAM p=Parameters({Mechanism},#PSN:\"45\") KEY ICC=Derive(p,IMK,\"99012345678901234\")");
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), "67F8292358083E5EA7AB7FDA58D53B6B", Mechanism);
-        var error = Assert.Throws<SemanticErrorException>(() => Execute("KEY rejected=Derive(p,aes,\"99012345678901234\")"));
-        Assert.That(error!.SemanticError!.Message, Does.Contain("Secret TDEA KEY"));
-        Assert.That(VariableDictionary.Instance().Contains("rejected"), Is.False);
+        var runner = new CryptoScriptRunner();
+        runner.Execute(ParserBuilder.StringBuild("KEY warned=Derive(p,aes,\"99012345678901234\")").program());
+        AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("warned"), "67F8292358083E5EA7AB7FDA58D53B6B", Mechanism);
+        Assert.That(runner.Diagnostics.Select(d => d.DiagnosticCode), Is.EqualTo(new[] { SemanticDiagnosticCode.KeyTypeConflict }));
+        Assert.That(runner.Diagnostics[0].Identifier, Is.EqualTo("aes"));
     }
 
     [TestCase("#PSN:\"45\"", true)]

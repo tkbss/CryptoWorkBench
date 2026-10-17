@@ -64,7 +64,7 @@ The result is a secret `KEY` with hexadecimal `Value` and `KeyValue`. Its algori
 - AES key material other than 16, 24 or 32 bytes, or TDEA key material other than 16 bytes.
 - Unsupported key algorithms or inconsistent key-size metadata.
 - An ATC that is not exactly two bytes, is supplied in a non-hexadecimal input form, or is produced directly by a nested function call.
-- TDEA keys rejected by the existing DES3 primitive validation, including unusable weak key material.
+- Invalid TDEA key material lengths; weak or degenerate but technically valid test keys produce warnings and remain executable.
 
 Errors describe the violated contract and do not include key material.
 
@@ -78,3 +78,21 @@ The implementation reuses the existing AES-ECB and DES3-ECB primitives, validate
 - EMVCo Book E, Cryptography Worked Examples, reference vectors used for interoperability testing.
 
 ---
+
+### Algorithm selection contract
+
+KEY.KeyType.Algorithm is the binding algorithm selector: Aes selects AES and Tdea selects TDEA. This is the approved architecture decision, not an outstanding migration. An explicit declaration can select another cryptographic procedure, so this selector is not converted into a KeyTypeConflict warning. Unknown or unsupported algorithms fail; the key length is never used to guess the algorithm. No additional #ALGORITHM parameter is introduced.
+
+GenerateKey(AES-ECB, ...) produces Secret(Aes), and GenerateKey(DES3-ECB, ...) produces Secret(Tdea), for both random keys and hexadecimal imports. The original mode does not restrict later compatible use. Derive, Unwrap, JSON deserialization and legacy imports are additional KEY sources and can still produce Unknown; those inputs remain invalid for EMV algorithm selection until their existing metadata identifies Aes or Tdea. KeyUsage conflicts remain non-blocking warnings. Cryptographic results, length/ATC/data checks and ARQC fail-closed verification are unchanged. This mechanism does not support GenerateKey itself.
+
+### Semantic diagnostics
+
+Expected KeyType metadata: Secret Aes or Tdea, still required to select the algorithm. Expected KeyUsage: `DeriveKey`.
+Usage conflicts emit a non-blocking `KeyUsageConflict` warning; correct or Unspecified usage emits none. This mechanism retains KeyType as a binding algorithm selector, so Unknown remains a selection error and is not silently accepted or reduced to a `KeyTypeConflict` warning. These checks do not mutate KEY or PARAM and work without a diagnostic sink. This mechanism emits only the usage metadata warning. KeyAlgorithm selects AES or TDEA; Unknown and unsupported types still fail because no independent selector exists. No algorithm is inferred from key length. DES quality warnings are non-blocking for technically valid TDEA test keys; ATC, size and derivation rules remain binding.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+### TDEA test and analysis keys
+
+`DesParityViolation` (10) and `WeakDes3Key` (11) are non-blocking Warning diagnostics. Weak or semi-weak DES components and effective K1=K2 or K2=K3 are reported independently of parity; K1=K3 alone is not single-DES degeneration. Each quality category is reported at most once per operation on the original KEY, after any KeyTypeConflict and KeyUsageConflict metadata warnings. No KEY bytes or parity bits are changed. Technically valid calls also work without a diagnostic sink.
+
+This support is for test and analysis and makes no suitability claim for production payment systems. Invalid key lengths, malformed data and protocol errors remain blocking. ARQC verification and TR-31 authentication remain mandatory; failed verification stops execution without a successful result. AES behavior and the approved algorithm selectors remain unchanged.

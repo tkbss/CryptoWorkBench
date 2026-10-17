@@ -20,6 +20,13 @@ It does not implement transaction key derivation, Transaction Counter advancemen
 - **Two TDEA-ECB Operations**: Each half is produced by encrypting one 8-byte block, without an IV and without padding.
 - **Return Value**: `Derive` returns a generic 16-byte `KEY` in hexadecimal `0x(...)` form. `Mechanism` is empty and `DerivationMechanism` is `DUKPT-TDEA-INITIAL-KEY`.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Tdea. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. DES parity and weak-key properties use the existing DesParityViolation and WeakDes3Key quality warnings without changing bytes. The Initial-Key adapter uses the existing analysis primitive locally. Working-key #USAGE remains a mandatory derivation variant, including the unchanged one-way function and result usage.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 
 | Function | Arguments | Input | Output | Key Length |

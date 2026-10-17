@@ -13,6 +13,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 
         public override KeyVariableDeclaration GenerateKey(string mechanism, string size)
         {
+            mechanism = GenerateKeyContract.RequireMechanism(mechanism, KeyAlgorithm.Tdea).CanonicalName;
             if (FormatConversions.ParseString(size) == FormatConversions.HEX)
                 return CreateExistingKey(size, mechanism);
 
@@ -30,7 +31,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 
         private static KeyVariableDeclaration CreateExistingKey(string value, string mechanism)
         {
-            byte[] keyBytes = FormatConversions.ToByteArray(value, FormatConversions.HEX);
+            byte[] keyBytes = GenerateKeyContract.DecodeImport(value);
             ValidateKeyLength(keyBytes);
             return CreateKeyVariable(value, mechanism, keyBytes.Length * 8);
         }

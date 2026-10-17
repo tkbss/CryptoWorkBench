@@ -36,6 +36,8 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
             throw new ArgumentException($"{MechanismName} does not support additional parameters.");
 
         KeyVariableDeclaration bdk = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(bdk, KeyAlgorithm.Aes, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
         byte[] bdkBytes = ResolveKeyBytes(bdk);
         if (bdkBytes.Length is not (16 or 24 or 32))
             throw new ArgumentException($"{MechanismName} BDK must be 128, 192 or 256 bits.");

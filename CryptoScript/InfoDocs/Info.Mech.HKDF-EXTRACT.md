@@ -12,6 +12,13 @@ HKDF-EXTRACT performs only the Extract operation from RFC 5869: PRK = HMAC-Hash(
 - **Info Placeholder**: The third Derive argument is required by the common signature but must be empty. Non-empty data is an error.
 - **Return Value**: Derive returns a generic KEY of HashLen bytes. Its Mechanism is empty and its DerivationMechanism is HKDF-EXTRACT.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: no algorithm restriction on raw input keying material. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The HMAC Extract key is the salt; the IKM is not required to be typed Hmac. No KeyTypeConflict is produced for this input. Hash, salt, variant and output-length contracts are unchanged.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 The following functions are available for HKDF-EXTRACT mechanism:
 

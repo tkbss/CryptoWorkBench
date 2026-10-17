@@ -14,6 +14,13 @@ The mechanism reconstructs the Current Key internally with the classic TDEA DUKP
 - **Classic TDEA DUKPT**: The Current Key is reconstructed by processing the 21-bit Transaction Counter through the NRKGP.
 - **Data-Key Isolation**: Data variants additionally pass through the Annex C One-Way Function (OWF).
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Tdea. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. DES parity and weak-key properties use the existing DesParityViolation and WeakDes3Key quality warnings without changing bytes. The Initial-Key adapter uses the existing analysis primitive locally. Working-key #USAGE remains a mandatory derivation variant, including the unchanged one-way function and result usage.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 
 | Function | Arguments | Input | Output |
@@ -114,7 +121,7 @@ The result is the Annex C Data Request Working Key `0x(448D3F076D8304036A55A3D7E
 
 The mechanism rejects:
 
-- Initial Keys that are neither TDEA keys nor untyped legacy keys compatible with the existing transition policy.
+- Invalid Initial Key bytes; conflicting declared TDEA metadata emits a non-blocking warning.
 - Initial Keys shorter or longer than exactly 16 bytes.
 - KSN values that do not decode to exactly 10 bytes.
 - A Transaction Counter of zero.

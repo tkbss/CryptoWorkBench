@@ -13,6 +13,10 @@ DES3-CMAC calculates a message authentication code (MAC) with the Triple DES alg
 - **Input Length**: Empty input and input not aligned to 8 bytes are supported. CMAC handles the final block internally.
 - **Return Value**: Mac returns a VAR containing the full 8-byte MAC in hexadecimal 0x(...) format. Encrypt and Decrypt are not implemented for this mechanism.
 
+### Key Generation and Import
+
+GenerateKey(DES3-CMAC, ...) supports random generation and explicit hexadecimal import. The registry fixes the resulting KeyType to Secret(Tdea) for both variants. Valid key lengths: 128 or 192 bits (16 or 24 bytes). Imported bytes are preserved exactly. The mechanism selects the key algorithm and does not restrict the resulting KEY to its original mode or HMAC digest; other compatible mechanisms of the same family may consume it. External weak keys and parity errors retain their original bytes. Random generation keeps the existing non-degenerate TripleDES generator.
+
 ## Functions
 The following functions are available for DES3-CMAC mechanism:
 

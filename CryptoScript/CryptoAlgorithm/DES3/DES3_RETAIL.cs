@@ -52,6 +52,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         internal static byte[] ComputeMac(byte[] key, byte[] data, string padding, int macLength)
             => ComputeMacCore(key, data, padding, macLength, analysisKeys: false);
 
+        internal static byte[] ComputeMacForAnalysis(byte[] key, byte[] data, string padding, int macLength)
+            => ComputeMacCore(key, data, padding, macLength, analysisKeys: true);
+
         private static byte[] ComputeMacCore(byte[] key, byte[] data, string padding, int macLength, bool analysisKeys)
         {
             ArgumentNullException.ThrowIfNull(key);
