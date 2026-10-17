@@ -280,6 +280,8 @@ namespace CryptoScript.Model
             }            
             MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(parameter.Mechanism, parameter);
             var algo=AlgorithmFactory.Create(parameter.Mechanism);
+            if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2Tr31KeyBlock)
+                throw new ArgumentException("EP2 TR-31 requires structured calls with genuine PARAM and KEY references.");
             if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2PanReceiptEncryption)
                 throw new ArgumentException("EP2 PAN receipt encryption requires structured calls with genuine PARAM and KEY references.");
             if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption)

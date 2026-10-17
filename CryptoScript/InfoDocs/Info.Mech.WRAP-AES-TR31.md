@@ -68,3 +68,9 @@ PARAM unwrapParameters = #MECH:WRAP-AES-TR31
 KEY recovered = Unwrap(unwrapParameters, kbpk, normativeBlock)
 
 ---
+
+### EP2 fixed H profile
+
+Use [EP2-TR31-KEY-BLOCK](cryptoscript-info://mechanism/EP2-TR31-KEY-BLOCK) for
+EP2 Table 11 H key-block generation and strict authenticated reading. This generic
+mechanism retains its A/T Wrap contracts and historical authenticated H reader.

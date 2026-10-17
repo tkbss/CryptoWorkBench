@@ -418,6 +418,36 @@ public static class MechanismRegistry
         CryptoScriptFunction.Derive
     };
 
+    private static MechanismFunctionMetadata[] Ep2Tr31FunctionMetadata()
+    {
+        var mech = NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+            "Consistent mechanism selector.", "Exactly EP2-TR31-KEY-BLOCK.");
+        MechanismParameterMetadata Header(bool required) => NamedParameter("#BLKH", required, MechanismParameterDirection.Input,
+            MechanismParameterDataType.Data, "Complete EP2 Table 11 header; expected authenticated header for Unwrap.",
+            "D011299HX00N0000, D01129AHG00N0000 or D01129BHG00N0000.",
+            inputForms: new[] { MechanismParameterInputForm.StringLiteral, MechanismParameterInputForm.VariableReference });
+        var random = NamedParameter("#RND", false, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
+            "Optional deterministic filler; omitted means cryptographically secure random bytes.", "Exactly 14 HEX bytes; forbidden for Unwrap.",
+            inputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference });
+        var common = new[] {
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
+                "Genuine matching PARAM reference.", "Position 0; no nested or reconstructed objects."),
+            Argument("kbpk", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                "Genuine AES KBPK KEY reference.", "16 bytes; consistent known size. WrapKey/UnwrapKey metadata conflicts warn.") };
+        return new[] {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[] {
+                Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
+                    "Selects EP2 TR-31.", "EP2-TR31-KEY-BLOCK."), Header(false), random }),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Wrap, common.Concat(new[] {
+                Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                    "Genuine transported KEY reference.", "Exactly 16 bytes; HMAC classification conflicts warn. Header determines role."),
+                mech, Header(true), random })),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Unwrap, common.Concat(new[] {
+                Argument("block", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Data },
+                    "Genuine VAR holding a complete wire or composite block.", "112 ASCII wire characters; authenticated before key release."),
+                mech, Header(false) })) };
+    }
+
     private static MechanismFunctionMetadata[] Ep2PanReceiptFunctionMetadata()
     {
         const string mechanism = "EP2-PAN-RECEIPT-ENCRYPTION";
@@ -882,6 +912,9 @@ public static class MechanismRegistry
             },
             new("EP2-PAN-RECEIPT-ENCRYPTION", "EP2 PAN receipt AES-128 ECB encryption with mandatory ISO-7816 padding and an already derived transaction key.", "Info.Mech.EP2-PAN-RECEIPT-ENCRYPTION.md",
                 new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Encrypt, CryptoScriptFunction.Decrypt }, Ep2PanReceiptFunctionMetadata())
+            { StrictMechanismParameterContract = true },
+            new("EP2-TR31-KEY-BLOCK", "EP2 TR-31 Version D authenticated transport of 128-bit H material with the fixed Table 11 header profile.", "Info.Mech.EP2-TR31-KEY-BLOCK.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Wrap, CryptoScriptFunction.Unwrap }, Ep2Tr31FunctionMetadata())
             { StrictMechanismParameterContract = true },
             new("EP2-TRANSACTION-CERTIFICATE", "EP2 transaction certificate: leftmost eight bytes of HMAC-SHA256 over prepared DOL bytes.", "Info.Mech.EP2-TRANSACTION-CERTIFICATE.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, Ep2MacFunctionMetadata("EP2-TRANSACTION-CERTIFICATE"))
             {

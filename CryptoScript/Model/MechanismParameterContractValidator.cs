@@ -125,6 +125,9 @@ public static class MechanismParameterContractValidator
             }
         }
 
+        if (mechanism.CanonicalName == "EP2-TR31-KEY-BLOCK")
+            CryptoScript.CryptoAlgorithm.EP2.Ep2Tr31KeyBlock.ValidateValues(parameters);
+
         if (mechanism.CanonicalName == "EP2-DATA-ENCRYPTION")
             CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption.ValidateValues(parameters);
 

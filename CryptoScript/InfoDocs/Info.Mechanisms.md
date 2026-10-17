@@ -22,6 +22,7 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - EP2-DATA-ENCRYPTION : EP2 AES-128 CTR encryption with a 12-byte nonce, field offset and 24-bit counter.
 - EP2-MESSAGE-MAC : EP2 message MAC: leftmost eight bytes of HMAC-SHA256 over SHA-256 of message bytes.
 - EP2-PAN-RECEIPT-ENCRYPTION : EP2 PAN receipt AES-128 ECB encryption with mandatory ISO-7816 padding and an already derived transaction key.
+- EP2-TR31-KEY-BLOCK : EP2 TR-31 Version D authenticated transport of 128-bit H material with the fixed Table 11 header profile.
 - EP2-TRANSACTION-CERTIFICATE : EP2 transaction certificate: leftmost eight bytes of HMAC-SHA256 over prepared DOL bytes.
 - HMAC-SHA1 : Keyed-Hash Message Authentication Code using SHA-1.
 - HMAC-SHA224 : Keyed-Hash Message Authentication Code using SHA-224.

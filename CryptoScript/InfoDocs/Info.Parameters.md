@@ -143,3 +143,10 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - RND: Optional random bytes used by TR-31 Wrap for key-length obfuscation and cipher-block padding. The required length depends on the wrapped-key algorithm and size; an omitted or wrong-sized value is replaced with generated random filler.
 
 - [EP2-DATA-ENCRYPTION](cryptoscript-info://mechanism/EP2-DATA-ENCRYPTION) requires #NONCE (12 HEX bytes), #OFFSET (one HEX byte: SEND 00–07, RECEIVE 00–01) and #DIRECTION (normal string literal "SEND" or "RECEIVE", relative to the master). No defaults, extra or duplicate parameters; #IV, #COUNTER and #PAD are forbidden. Nonce generation and lifecycle belong to the caller. #OFFSET and #DIRECTION are reserved for this mechanism.
+
+## EP2 TR-31 profile
+
+EP2-TR31-KEY-BLOCK accepts only MECH, BLKH and RND. BLKH is required for Wrap;
+for Unwrap it optionally constrains the authenticated header. RND is exactly 14 HEX
+bytes when supplied to Wrap, securely generated when omitted, and forbidden for
+Unwrap. See [EP2-TR31-KEY-BLOCK](cryptoscript-info://mechanism/EP2-TR31-KEY-BLOCK).

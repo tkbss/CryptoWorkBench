@@ -57,6 +57,8 @@
                 return new EMV.MAC_EMV_ARPC_METHOD_1();
             if (canonicalMechanism == "MAC-EMV-ARPC-METHOD-2")
                 return new EMV.MAC_EMV_ARPC_METHOD_2();
+            if (canonicalMechanism == "EP2-TR31-KEY-BLOCK")
+                return new EP2.Ep2Tr31KeyBlock();
             if (canonicalMechanism == "EP2-PAN-RECEIPT-ENCRYPTION")
                 return new EP2.Ep2PanReceiptEncryption();
             if (canonicalMechanism == "EP2-DATA-ENCRYPTION")

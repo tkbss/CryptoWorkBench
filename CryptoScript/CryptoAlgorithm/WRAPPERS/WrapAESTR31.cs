@@ -118,7 +118,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         /// <summary>
         /// Decrypt with AES/CBC/NoPadding. Mirrors EncryptNoPadding but for decryption.
         /// </summary>
-        private byte[] DecryptNoPadding(byte[] key, byte[] iv, byte[] ciphertext)
+        internal static byte[] DecryptNoPadding(byte[] key, byte[] iv, byte[] ciphertext)
         {
             var cipher = new BufferedBlockCipher(new CbcBlockCipher(new AesEngine()));
             cipher.Init(false, new ParametersWithIV(new KeyParameter(key), iv));
@@ -231,7 +231,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 throw new NotSupportedException("WRAP-AES-TR31 supports only version D.");
         }
 
-        byte[] ComputeMAC(byte[] dataToMAC, byte[] key)
+        internal static byte[] ComputeMAC(byte[] dataToMAC, byte[] key)
         {            
             IMac mac = new CMac(new AesEngine());
             mac.Init(new KeyParameter(key));
@@ -240,7 +240,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             mac.DoFinal(result, 0);
             return result;
         }
-        private  byte[] EncryptNoPadding(byte[] key, byte[] iv, byte[] plaintext)
+        internal static byte[] EncryptNoPadding(byte[] key, byte[] iv, byte[] plaintext)
         {           
 
             // Create a BufferedBlockCipher with AES/CBC **without** a padding layer
@@ -343,7 +343,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 throw new ArgumentException(
                     $"TR-31 header declares total length {declaredLength}, but wrap produces {actualLength} characters.");
         }
-        private byte[] DeriveKey(byte[] key, byte[] data, int keySize)
+        internal static byte[] DeriveKey(byte[] key, byte[] data, int keySize)
         {
             IMac mac = new CMac(new AesEngine());
             byte[] derivedKey = new byte[32];
@@ -392,7 +392,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             }  
             return result;
         }
-        private byte[] MACDerivationData(int BPkeySize)
+        internal static byte[] MACDerivationData(int BPkeySize)
         {
             switch(BPkeySize)
             {
@@ -407,7 +407,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             }
             
         }
-        private byte[] EncryptionDerivationData(int BPkeySize)
+        internal static byte[] EncryptionDerivationData(int BPkeySize)
         {
             switch (BPkeySize)
             {
