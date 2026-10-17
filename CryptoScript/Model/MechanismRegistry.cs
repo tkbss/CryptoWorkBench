@@ -418,6 +418,31 @@ public static class MechanismRegistry
         CryptoScriptFunction.Derive
     };
 
+    private static MechanismFunctionMetadata[] Ep2MacFunctionMetadata(string mechanism) => new[]
+    {
+        new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[]
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism }, "Selects EP2 MAC processing.", mechanism + ".")
+        }),
+        new MechanismFunctionMetadata(CryptoScriptFunction.Mac, new[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet }, "Genuine PARAM reference at position 0.",
+                "No reconstructed objects or nested results; only the selected MECH is allowed."),
+            Argument("key", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key }, "Genuine KEY reference at position 1.",
+                "Exactly 32 bytes; known size metadata must agree. HMAC/MacGenerate metadata conflicts warn."),
+            new MechanismParameterMetadata("data", MechanismParameterKind.PositionalArgument,
+                MechanismParameterDirection.Input, true, new[] { MechanismParameterDataType.BinaryData },
+                mechanism == "EP2-MESSAGE-MAC" ? "Unchanged bytes after the message MAC field." : "Already prepared DOL value bytes.",
+                "Direct HEX literal or genuine HEX VAR; no nested results or implicit conversions. Output is eight bytes.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + "; no additional or duplicate parameters.")
+        })
+    };
+
     private static MechanismFunctionMetadata[] EmvAcFunctionMetadata(string mechanism, bool verify)
     {
         var generation = new List<MechanismParameterMetadata>
@@ -781,6 +806,14 @@ public static class MechanismRegistry
             new("DUKPT-AES-WORKING-KEY", "ANSI X9.24-3-2017 stateless host derivation of a directly usable Working Key from an AES DUKPT Initial Key and complete 96-bit KSN.", "Info.Mech.DUKPT-AES-WORKING-KEY.md", DerivationFunctions),
             new("DUKPT-TDEA-INITIAL-KEY", "Legacy ANSI X9.24 double-length TDEA DUKPT Initial Key derivation from a 16-byte BDK and complete 80-bit KSN.", "Info.Mech.DUKPT-TDEA-INITIAL-KEY.md", DerivationFunctions),
             new("DUKPT-TDEA-WORKING-KEY", "ANSI X9.24-3 Annex C stateless host derivation of a double-length TDEA Working Key from a TDEA Initial Key and complete 80-bit KSN.", "Info.Mech.DUKPT-TDEA-WORKING-KEY.md", DerivationFunctions),
+            new("EP2-MESSAGE-MAC", "EP2 message MAC: leftmost eight bytes of HMAC-SHA256 over SHA-256 of message bytes.", "Info.Mech.EP2-MESSAGE-MAC.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, Ep2MacFunctionMetadata("EP2-MESSAGE-MAC"))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("EP2-TRANSACTION-CERTIFICATE", "EP2 transaction certificate: leftmost eight bytes of HMAC-SHA256 over prepared DOL bytes.", "Info.Mech.EP2-TRANSACTION-CERTIFICATE.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, Ep2MacFunctionMetadata("EP2-TRANSACTION-CERTIFICATE"))
+            {
+                StrictMechanismParameterContract = true
+            },
             new("HASH-SHA1", "Unkeyed message digest using SHA-1.", "Info.Mech.HASH-SHA1.md", HashFunctions),
             new("HASH-SHA224", "Unkeyed message digest using SHA-224.", "Info.Mech.HASH-SHA224.md", HashFunctions),
             new("HASH-SHA256", "Unkeyed message digest using SHA-256.", "Info.Mech.HASH-SHA256.md", HashFunctions),

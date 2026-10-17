@@ -1,8 +1,5 @@
 using CryptoScript.Model;
 using CryptoScript.Variables;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Parameters;
 
 namespace CryptoScript.CryptoAlgorithm.HMAC
 {
@@ -16,11 +13,7 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
 
-            IMac mac = new HMac(DigestFactory.Create(parameter.Mechanism));
-            mac.Init(new KeyParameter(keyBytes));
-            mac.BlockUpdate(input, 0, input.Length);
-            byte[] result = new byte[mac.GetMacSize()];
-            mac.DoFinal(result, 0);
+            byte[] result = HmacPrimitive.Compute(parameter.Mechanism, keyBytes, input);
 
             string value = FormatConversions.ByteArrayToHexString(result);
             return new StringVariableDeclaration

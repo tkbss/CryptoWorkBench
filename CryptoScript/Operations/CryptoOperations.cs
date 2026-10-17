@@ -280,6 +280,8 @@ namespace CryptoScript.Model
             }            
             MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(parameter.Mechanism, parameter);
             var algo=AlgorithmFactory.Create(parameter.Mechanism);
+            if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2Mac)
+                throw new ArgumentException("EP2 MAC mechanisms require structured Mac calls with genuine PARAM and KEY references.");
             return algo;
         }
 

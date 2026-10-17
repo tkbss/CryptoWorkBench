@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlySixtyOneRegisteredMechanisms()
+    public void ContainsExactlySixtyThreeRegisteredMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(61));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(63));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -222,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(61));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(63));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {
@@ -407,6 +407,11 @@ public class MechanismRegistryTests
         CryptoScriptFunction function,
         Type? structuredArgumentType = null)
     {
+        // EP2 explicitly rejects legacy base-class stubs; an override is not support.
+        // Ep2MacTests.DirectUnsupportedAlgorithmOperationsThrow verifies these rejections.
+        if (algorithm is CryptoScript.CryptoAlgorithm.EP2.Ep2Mac &&
+            function is CryptoScriptFunction.Hash or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap)
+            return;
         if (HasConcreteAlgorithmOverride(algorithm, methodName, typeof(string[])) ||
             (structuredArgumentType is not null &&
              HasConcreteAlgorithmOverride(algorithm, methodName, structuredArgumentType)))

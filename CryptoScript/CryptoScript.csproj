@@ -213,6 +213,12 @@
     <None Update="InfoDocs\Info.Mech.KDF-EP2-PAN-SURROGATE-TRX.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.EP2-MESSAGE-MAC.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="InfoDocs\Info.Mech.EP2-TRANSACTION-CERTIFICATE.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mechanisms.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
