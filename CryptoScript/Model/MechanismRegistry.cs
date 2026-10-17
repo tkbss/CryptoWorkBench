@@ -418,6 +418,33 @@ public static class MechanismRegistry
         CryptoScriptFunction.Derive
     };
 
+    private static MechanismFunctionMetadata[] Ep2PanReceiptFunctionMetadata()
+    {
+        const string mechanism = "EP2-PAN-RECEIPT-ENCRYPTION";
+        var arguments = new[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
+                "Genuine matching PARAM reference at position 0.", "Only MECH; no reconstructed objects or nested results."),
+            Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                "Genuine Key PAN Receipt Trx KEY reference at position 1, already derived by the caller.",
+                "Exactly 16 bytes; known size must agree. AES and Encrypt/Decrypt usage conflicts warn."),
+            new MechanismParameterMetadata("data", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input,
+                true, new[] { MechanismParameterDataType.BinaryData }, "Already encoded PAN bytes or ciphertext; no PAN conversion.",
+                "Direct HEX literal or genuine HEX VAR; mandatory ISO-7816 padding. Decrypt requires positive 16-byte multiples and valid padding.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + "; no additional or duplicate parameters.")
+        };
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[] {
+                Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
+                    "Selects EP2 PAN receipt encryption.", mechanism + " or #MECH:" + mechanism + ".") }),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Encrypt, arguments),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Decrypt, arguments)
+        };
+    }
+
     private static MechanismFunctionMetadata[] Ep2EncryptionFunctionMetadata()
     {
         var consumed = new[]
@@ -853,6 +880,9 @@ public static class MechanismRegistry
             {
                 StrictMechanismParameterContract = true
             },
+            new("EP2-PAN-RECEIPT-ENCRYPTION", "EP2 PAN receipt AES-128 ECB encryption with mandatory ISO-7816 padding and an already derived transaction key.", "Info.Mech.EP2-PAN-RECEIPT-ENCRYPTION.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Encrypt, CryptoScriptFunction.Decrypt }, Ep2PanReceiptFunctionMetadata())
+            { StrictMechanismParameterContract = true },
             new("EP2-TRANSACTION-CERTIFICATE", "EP2 transaction certificate: leftmost eight bytes of HMAC-SHA256 over prepared DOL bytes.", "Info.Mech.EP2-TRANSACTION-CERTIFICATE.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, Ep2MacFunctionMetadata("EP2-TRANSACTION-CERTIFICATE"))
             {
                 StrictMechanismParameterContract = true

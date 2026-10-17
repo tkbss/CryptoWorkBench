@@ -77,11 +77,11 @@ namespace CryptoScript.Model
                 {
                     MechanismParameterContractValidator.ValidatePsnSupport(Parameter.Mechanism, Parameter);
                     MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(Parameter.Mechanism, Parameter);
-                    if (Parameter.Mechanism == "EP2-DATA-ENCRYPTION")
+                    if (Parameter.Mechanism is "EP2-DATA-ENCRYPTION" or "EP2-PAN-RECEIPT-ENCRYPTION")
                         MechanismParameterContractValidator.Validate(Parameter.Mechanism, CryptoScriptFunction.Parameters, Parameter);
                 }
                 catch (Exception exception) when (exception is FunctionContractException ||
-                    Parameter.Mechanism == "EP2-DATA-ENCRYPTION" && exception is ArgumentException)
+                    (Parameter.Mechanism is "EP2-DATA-ENCRYPTION" or "EP2-PAN-RECEIPT-ENCRYPTION") && exception is ArgumentException)
                 {
                     var error = new SemanticError { Type = "Declaration", Identifier = TypeName, Message = exception.Message };
                     semanticErrors.Add(error);

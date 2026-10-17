@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlySixtyFourRegisteredMechanisms()
+    public void ContainsExactlySixtyFiveRegisteredMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(64));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(65));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -222,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(64));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(65));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {
@@ -417,8 +417,8 @@ public class MechanismRegistryTests
         if (algorithm is CryptoScript.CryptoAlgorithm.EP2.Ep2Mac &&
             function is CryptoScriptFunction.Hash or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap or CryptoScriptFunction.Encrypt or CryptoScriptFunction.Decrypt)
             return;
-        // Ep2DataEncryptionTests verifies each explicit rejection.
-        if (algorithm is CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption &&
+        // Ep2DataEncryptionTests and Ep2PanReceiptEncryptionTests verify each explicit rejection.
+        if (algorithm is (CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption or CryptoScript.CryptoAlgorithm.EP2.Ep2PanReceiptEncryption) &&
             function is CryptoScriptFunction.Hash or CryptoScriptFunction.Mac or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap)
             return;
         if (HasConcreteAlgorithmOverride(algorithm, methodName, typeof(string[])) ||

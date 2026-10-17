@@ -213,6 +213,9 @@
     <None Update="InfoDocs\Info.Mech.KDF-EP2-PAN-SURROGATE-TRX.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="InfoDocs\Info.Mech.EP2-PAN-RECEIPT-ENCRYPTION.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="InfoDocs\Info.Mech.EP2-DATA-ENCRYPTION.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

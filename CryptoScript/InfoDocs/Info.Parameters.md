@@ -58,6 +58,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - MAC-EMV-AC-VERIFY
         - MAC-EMV-ARPC-METHOD-1
         - MAC-EMV-ARPC-METHOD-2
+        - EP2-PAN-RECEIPT-ENCRYPTION
         - EP2-DATA-ENCRYPTION
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
