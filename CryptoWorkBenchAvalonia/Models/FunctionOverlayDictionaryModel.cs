@@ -43,7 +43,11 @@ namespace CryptoWorkBenchAvalonia.Models
                 "\n- param-1 : The mechanism as #MECH:ALOG (e.g., AES-CBC)" +
                 "\n- param-2,..,param-N: Predefined parameters needed by  #MECH in the form of #PARAM:VALUE (e.g. #PAD:PKCS-7).")
             }},
+            { "Check", new List<(string, string)> {
+                ("Check(value, method)", "Finds one visible KEY by a full HEX check value or byte prefix. Optional method: KCV, KCVC, KCVK. No match or ambiguity reports an error without declaring a KEY.")
+            }},
             { "Print", new List<(string, string)> {
+                ("Print(key)", "Prints the complete key and its metadata, including full KCV, KCVC and KCVK values."),
                 ("Print(data)", "Prints the data to the output window:" +
                 "\n- data: The data to print")
             }},

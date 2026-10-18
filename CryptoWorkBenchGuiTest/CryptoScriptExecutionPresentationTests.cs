@@ -6,6 +6,11 @@ using CryptoScript.Variables;
 using CryptoWorkBenchAvalonia.Services;
 using CryptoWorkBenchAvalonia.ViewModels;
 using NUnit.Framework;
+using Avalonia;
+using Avalonia.Headless;
+using Avalonia.Input;
+using AvaloniaEdit;
+using CryptoWorkBenchAvalonia;
 
 namespace CryptoWorkBenchGuiTest;
 
@@ -74,6 +79,83 @@ public class CryptoScriptExecutionPresentationTests
     {
         Severity = SemanticDiagnosticSeverity.Warning, Message = message
     };
+
+    [Test]
+    public void CheckErrorsContinueAndKeyPrintReachesExistingGuiOutput()
+    {
+        editor.ParseLine("KEY missing=Check(0x(AA)) VAR continued=0x(01)");
+        Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
+        Assert.That(status.Diagnostics[0].Text, Does.Contain("KeyCheckValueNotFound"));
+        Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("continued"));
+        Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Not.Contain("missing"));
+        editor.ParseLine("KEY key=GenerateKey(AES-ECB,0x(000102030405060708090A0B0C0D0E0F)) Print(key)");
+        Assert.That(editor.PrintMessage, Does.Contain("KCV: 0x(c6a13b37878f5b826f4f8162a1c8d879)"));
+        Assert.That(editor.PrintMessage, Does.Contain("KCVC: 0x(be7ed6ae787dd5544c5561c7dcd06abb)"));
+        Assert.That(editor.PrintMessage, Does.Contain("KCVK: 0x(0a940bb5416ef045f1c39458c653ea5a)"));
+    }
+
+    public sealed class ScriptBookTestApp
+    {
+        public static AppBuilder BuildAvaloniaApp() =>
+            AppBuilder.Configure<Application>().UseHeadless(new AvaloniaHeadlessPlatformOptions());
+    }
+
+    [TestCase("\n", 1)]
+    [TestCase("\r\n", 1)]
+    [TestCase("\n", 2)]
+    [TestCase("\r\n", 2)]
+    public async Task KeyPrintSurvivesEditorSaveAndScriptBookReload(string newline, int printCount)
+    {
+        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        await session.Dispatch(() =>
+        {
+            var textEditor = new TextEditor();
+            editor.TextEditor = textEditor;
+            // Exercise the actual view input handler without unrelated XAML/navigation setup.
+            var view = (CryptoScriptEditView)RuntimeHelpers.GetUninitializedObject(typeof(CryptoScriptEditView));
+            typeof(CryptoScriptEditView).GetField("_textEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, textEditor);
+            typeof(CryptoScriptEditView).GetField("_viewModel", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, editor);
+            var entering = typeof(CryptoScriptEditView).GetMethod("textEditor_TextArea_TextEntering", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            void Enter(string script)
+            {
+                textEditor.Document.Insert(textEditor.Document.TextLength, script);
+                textEditor.TextArea.Caret.Offset = textEditor.Document.TextLength;
+                entering.Invoke(view, new object[] { textEditor.TextArea, new TextInputEventArgs { Text = newline } });
+                textEditor.Document.Insert(textEditor.Document.TextLength, newline);
+            }
+
+            string path = Path.Combine(Path.GetTempPath(), "g01-m1-" + Guid.NewGuid().ToString("N") + ".sbk");
+            try
+            {
+                Enter("KEY k=GenerateKey(AES-ECB,0x(000102030405060708090A0B0C0D0E0F))");
+                for (int i = 0; i < printCount; i++) Enter("Print(k)");
+                Enter("Print(0x(AB))");
+                Enter("VAR after=0x(CAFE)");
+                editor.SaveScriptBook(path);
+                string saved = File.ReadAllText(path);
+                // SaveScriptBook normalizes to LF. Also exercise externally supplied CRLF books.
+                if (newline == "\r\n") File.WriteAllText(path, saved.Replace("\n", "\r\n"));
+                VariableDictionary.Instance().Clear();
+                textEditor.Document.Text = string.Empty;
+                editor.OpenScriptBook(path);
+
+                Assert.That(editor.LastScriptBookSucceeded, Is.True, "Saved KEY output must not be parsed as script.");
+                Assert.That(status.Diagnostics, Is.Empty);
+                Assert.That(status.StatusString, Does.Not.Contain("SYNTAX ERROR"));
+                Assert.That(SyntaxErrorListner.SyntaxErrorOccured, Is.False);
+                Assert.That(VariableDictionary.Instance().Get("after").Value, Is.EqualTo("0x(CAFE)"));
+                string[] lines = File.ReadAllLines(path);
+                foreach (string label in new[] { "Identifier", "Type", "Value", "ValueFormat", "KeyValue", "KeySize", "KeyType", "KeySizeInBits", "KeyUsage", "KeyPolicy", "DerivationMechanism", "KeyAttributes", "KCV", "KCVC", "KCVK" })
+                    Assert.That(lines.Count(line => line.StartsWith("out: " + label + ":", StringComparison.Ordinal)), Is.EqualTo(printCount));
+                foreach (string fullValue in new[] { "Value: 0x(000102030405060708090A0B0C0D0E0F)", "KCV: 0x(c6a13b37878f5b826f4f8162a1c8d879)", "KCVC: 0x(be7ed6ae787dd5544c5561c7dcd06abb)", "KCVK: 0x(0a940bb5416ef045f1c39458c653ea5a)" })
+                    Assert.That(lines.Count(line => line == "out: " + fullValue), Is.EqualTo(printCount));
+                Assert.That(lines.Count(line => line == "out: 0x(AB)"), Is.EqualTo(1));
+                Assert.That(lines, Is.All.Not.Empty);
+                Assert.That(textEditor.Document.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries), Is.EqualTo(lines));
+            }
+            finally { if (File.Exists(path)) File.Delete(path); }
+        }, CancellationToken.None);
+    }
 
     [Test]
     public void SuccessfulInteractiveExecutionClearsOldDiagnosticsAndUpdatesVariables()

@@ -14,5 +14,7 @@ public enum SemanticDiagnosticCode
     KeyUsageConflict = 8,
     KeyTypeConflict = 9,
     DesParityViolation = 10,
-    WeakDes3Key = 11
+    WeakDes3Key = 11,
+    KeyCheckValueNotFound = 12,
+    KeyCheckValueAmbiguous = 13
 }

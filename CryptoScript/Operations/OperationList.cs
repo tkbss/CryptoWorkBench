@@ -20,6 +20,7 @@ namespace CryptoScript.Model
             "Print",
             "Info",
             "Compare",
+            "Check",
         };
         public static int MaximalOperationTextLenght()
         {

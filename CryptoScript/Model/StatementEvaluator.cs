@@ -6,7 +6,10 @@ namespace CryptoScript.Model
     public static class StatementEvaluator
     {
         public static Statement? Evaluate(StatementNode? node, List<SemanticError> semanticErrors)
-            => EvaluateCore(node, semanticErrors, null, null);
+        {
+            try { return EvaluateCore(node, semanticErrors, null, null); }
+            catch (KeyCheckValueSearchException) { return null; }
+        }
 
         internal static Statement? Evaluate(StatementNode? node, List<SemanticError> semanticErrors,
             SemanticDiagnosticExecution execution, DiagnosticLocation location)
@@ -21,6 +24,7 @@ namespace CryptoScript.Model
                 execution.Capture(semanticErrors, start, location);
                 if (exception.SemanticError is not null)
                     execution.CaptureError(exception.SemanticError, location);
+                if (exception is KeyCheckValueSearchException) return null;
                 throw;
             }
             finally

@@ -72,6 +72,11 @@ namespace CryptoScript.Model
                     fc.Call(execution);
                     return fc;
                 }
+                catch (KeyCheckValueSearchException e)
+                {
+                    if (!semanticErrors.Contains(e.SemanticError!)) semanticErrors.Add(e.SemanticError!);
+                    throw;
+                }
                 catch (FunctionContractException e)
                 {
                     throw CreateFunctionContractError(e, semanticErrors);
@@ -99,6 +104,11 @@ namespace CryptoScript.Model
                 fc.Arguments.AddRange(argValues.OfType<Argument>());
                 fc.Call(execution);
                 return fc;
+            }
+            catch (KeyCheckValueSearchException e)
+            {
+                if (!semanticErrors.Contains(e.SemanticError!)) semanticErrors.Add(e.SemanticError!);
+                throw;
             }
             catch (FunctionContractException e)
             {
@@ -256,6 +266,7 @@ namespace CryptoScript.Model
              exception.SemanticError.Message == "Unknown function: " + exception.SemanticError.FunctionName);
 
         private static bool IsCryptographicFunction(string functionName) =>
+            functionName.Equals("Check", StringComparison.OrdinalIgnoreCase) ||
             Enum.TryParse(functionName, ignoreCase: true, out CryptoScriptFunction _);
 
         private static string RedactSensitiveValues(

@@ -1,4 +1,4 @@
-﻿using CryptoScript.Operations;
+using CryptoScript.Operations;
 using CryptoScript.Variables;
 
 namespace CryptoScript.Model
@@ -41,6 +41,8 @@ namespace CryptoScript.Model
                     return op.Unwrap;
                 case "blockheader":
                     return op.BlockHeader;
+                case "check":
+                    return KeyCheckOperations.Check;
                 case "compare":
                     return GeneralOperations.Compare;
                 default:
@@ -78,6 +80,8 @@ namespace CryptoScript.Model
                     return op.Unwrap;
                 case "blockheader":
                     return op.BlockHeader;
+                case "check":
+                    return KeyCheckOperations.Check;
                 case "compare":
                     return GeneralOperations.Compare;
                 default:

@@ -12,6 +12,12 @@ namespace CryptoScript.Variables
 {
     public class KeyVariableDeclaration : VariableDeclaration
     {
+        [JsonIgnore]
+        public string? Kcv => CryptoAlgorithm.KeyCheckValueCalculator.Calculate(this, CryptoAlgorithm.KeyCheckValueMethod.KCV);
+        [JsonIgnore]
+        public string? Kcvc => CryptoAlgorithm.KeyCheckValueCalculator.Calculate(this, CryptoAlgorithm.KeyCheckValueMethod.KCVC);
+        [JsonIgnore]
+        public string? Kcvk => CryptoAlgorithm.KeyCheckValueCalculator.Calculate(this, CryptoAlgorithm.KeyCheckValueMethod.KCVK);
         private KeyType _keyType = KeyType.Secret(KeyAlgorithm.Unknown);
         private KeyUsagePolicy _usage = KeyUsagePolicy.Unspecified;
         private KeySize _keySizeInBits = global::CryptoScript.Variables.KeySize.Unknown;
@@ -69,7 +75,19 @@ namespace CryptoScript.Variables
         //public override string Value { get => base.Value; set => base.Value = value; }
         public override string PrintOutput()
         {
-            return base.PrintOutput();
+            static string Available(string? value) => string.IsNullOrEmpty(value) ? "N/A" : value;
+            return string.Join(Environment.NewLine, new[]
+            {
+                $"Identifier: {Available(Id)}", $"Type: {Available(Type?.Name)}",
+                $"Value: {Available(Value)}", $"ValueFormat: {Available(ValueFormat)}",
+                $"KeyValue: {Available(KeyValue)}", $"KeySize: {Available(KeySize)}",
+                $"KeyType: {KeyType.Algorithm}/{KeyType.MaterialKind}",
+                $"KeySizeInBits: {(KeySizeInBits.IsKnown ? KeySizeInBits.Bits.ToString(CultureInfo.InvariantCulture) : "N/A")}",
+                $"KeyUsage: {(Usage.Mode == KeyUsageMode.Unspecified ? "N/A" : Usage.AllowedUsages.ToString())}",
+                $"KeyPolicy: {Usage.Mode}", $"DerivationMechanism: {Available(DerivationMechanism)}",
+                $"KeyAttributes: {(KeyAttributes is { Count: > 0 } ? JsonConvert.SerializeObject(KeyAttributes) : "N/A")}",
+                $"KCV: {Available(Kcv)}", $"KCVC: {Available(Kcvc)}", $"KCVK: {Available(Kcvk)}"
+            });
         }
         public string Serialize()
         {

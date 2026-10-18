@@ -13,6 +13,13 @@ public class InfoCompletionProviderTests
     private readonly InfoCompletionProvider _provider = new();
 
     [Test]
+    public void CheckIsOfferedByFunctionListAndOverlay()
+    {
+        Assert.That(OperationList.Operations, Does.Contain("Check"));
+        Assert.That(new FunctionOverlayDictionaryModel().GetOverlays("Check(", 6), Is.Not.Null);
+    }
+
+    [Test]
     public void RemovedSignPrototypeIsNotOfferedByFunctionListsOrOverlays()
     {
         Assert.That(OperationList.Operations, Does.Not.Contain("Sign"));
