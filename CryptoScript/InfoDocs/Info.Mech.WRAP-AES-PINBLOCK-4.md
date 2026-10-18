@@ -24,3 +24,7 @@ Structural validation is not authentication and provides no authenticity guarant
 ## Security boundary
 
 CryptoScript processes cleartext PINs and key material in ordinary process memory. It is neither a secure cryptographic device (SCD) nor a hardware security module (HSM). These PIN-block functions are exclusively for development, analysis, interoperability testing, and education; they are not a substitute for standards-compliant production PIN processing. Processing real cardholder PINs in production requires appropriate secure infrastructure and compliance with all applicable requirements. No PCI compliance or certification is implied.
+
+## PIN-block translation
+
+Use `Info(pintranslations)` for [PCI translation rules and examples](cryptoscript-info://overview/pintranslations). `PinBlockTranslate` retains Wrap and Unwrap as independent operations.

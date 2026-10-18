@@ -1,0 +1,25 @@
+Warning comparison: baseline 5285f078af587b62f3c8a3fcd2495e973ef18d33 vs G02 fixes
+SDK 10.0.401; Debug Rebuild; Windows; -m:1 -nr:false.
+core: baseline=0 current=0 distinct compiler warnings; identical file/line/code/message.
+gui: baseline=9 current=9 distinct compiler warnings; identical file/line/code/message.
+CryptoWorkBenchAvalonia\ViewModels\KeyMapViewModel.cs(18,16): warning CS8618: Non-nullable field '_infoText' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'InfoHistoryBackCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'InfoHistoryForwardCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'LineHistoryBackCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'LineHistoryForwardCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+CryptoWorkBenchAvalonia\ViewModels\SidebarViewModel.cs(140,28): warning CS8602: Dereference of a possibly null reference.
+CryptoWorkBenchAvalonia\Views\CryptoScriptEditView.axaml.cs(114,72): warning CS8625: Cannot convert null literal to non-nullable reference type.
+CryptoWorkBenchAvalonia\Views\CryptoScriptEditView.axaml.cs(159,77): warning CS8625: Cannot convert null literal to non-nullable reference type.
+CryptoWorkBenchAvalonia\Views\CryptoScriptEditView.axaml.cs(25,12): warning CS8618: Non-nullable field '_insightWindow' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+Baseline restore also reported NU1900 (NuGet vulnerability service unavailable). Core build total 6 warnings; GUI total 17. Current --no-restore builds: 0 / 9. No compiler warning introduced.
+Test results:
+core-full.trx: {'total': '6857', 'executed': '6857', 'passed': '6857', 'failed': '0', 'error': '0', 'timeout': '0', 'aborted': '0', 'inconclusive': '0', 'passedButRunAborted': '0', 'notRunnable': '0', 'notExecuted': '0', 'disconnected': '0', 'warning': '0', 'completed': '0', 'inProgress': '0', 'pending': '0'}
+gui-full.trx: {'total': '209', 'executed': '209', 'passed': '209', 'failed': '0', 'error': '0', 'timeout': '0', 'aborted': '0', 'inconclusive': '0', 'passedButRunAborted': '0', 'notRunnable': '0', 'notExecuted': '0', 'disconnected': '0', 'warning': '0', 'completed': '0', 'inProgress': '0', 'pending': '0'}
+g02-and-docs.trx: {'total': '351', 'executed': '351', 'passed': '351', 'failed': '0', 'error': '0', 'timeout': '0', 'aborted': '0', 'inconclusive': '0', 'passedButRunAborted': '0', 'notRunnable': '0', 'notExecuted': '0', 'disconnected': '0', 'warning': '0', 'completed': '0', 'inProgress': '0', 'pending': '0'}
+git diff --check: exit 0 (Git also reports existing LF/CRLF conversion notices).
+Independent Python vectors:
+0 2D8F0FF09AFDCCD0
+1 429B597B94CB18A5
+2 978BB4AC07BBD2EB
+3 6694CAF82B1C2994
+4 6685B016B0CEC63CB7E0F2663C9551EC

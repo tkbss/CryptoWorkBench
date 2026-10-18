@@ -13,7 +13,7 @@ PATH_VALUE    : [a-zA-Z] ':' ~[\r\n]*      // C:\...
                 | '/' ~[\r\n]*              // /usr/local/...
                 ;
 FN            : [A-Z] [a-z] [a-zA-Z]*;
-INFO		  : 'functions' | 'mechanisms' | 'types' | 'parameters' | 'paddings' | 'mechanism' | 'keymap';
+INFO		  : 'functions' | 'mechanisms' | 'types' | 'parameters' | 'paddings' | 'mechanism' | 'keymap' | 'pintranslations';
 ID            : [a-zA-Z] [a-zA-Z0-9]*;
 VARIANT_VALUE : 'MAC-SEND' | 'MAC-RECEIVE' | 'KEY-ENCRYPTION'
               | 'PIN' | 'MAC-GENERATE' | 'MAC-VERIFY' | 'MAC-BOTH'

@@ -10,6 +10,8 @@ public static class InfoDocumentUri
 
         return documentId.Kind switch
         {
+            InfoDocumentKind.PinTranslationsOverview => $"{Scheme}://overview/pintranslations",
+            InfoDocumentKind.PinTranslation => $"{Scheme}://pintranslation/{documentId.SourceFormat}/{documentId.TargetFormat}",
             InfoDocumentKind.MechanismsOverview => $"{Scheme}://overview/mechanisms",
             InfoDocumentKind.FunctionsOverview => $"{Scheme}://overview/functions",
             InfoDocumentKind.ParametersOverview => $"{Scheme}://overview/parameters",
@@ -48,6 +50,10 @@ public static class InfoDocumentUri
         {
             documentId = uri.Host switch
             {
+                "overview" when segments is ["pintranslations"] => InfoDocumentId.CreatePinTranslationsOverview(),
+                "pintranslation" when segments is [var source, var target] &&
+                    int.TryParse(source, out int s) && int.TryParse(target, out int t) =>
+                    InfoDocumentId.CreatePinTranslation(s, t),
                 "overview" when segments is ["mechanisms"] =>
                     InfoDocumentId.CreateMechanismsOverview(),
                 "overview" when segments is ["functions"] =>

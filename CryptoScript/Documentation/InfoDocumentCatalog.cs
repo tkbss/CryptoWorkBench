@@ -88,6 +88,11 @@ public static class InfoDocumentCatalog
                 mechanism.CanonicalName));
         }
 
+        entries.Add(new(InfoDocumentId.CreatePinTranslationsOverview(), "Info.PinTranslations.md", "PIN translations"));
+        foreach (var rule in CryptoAlgorithm.PINBLOCK.PinBlockTranslationRules.Entries)
+            entries.Add(new(InfoDocumentId.CreatePinTranslation(rule.SourceFormat, rule.TargetFormat),
+                $"Info.PinTranslation.{rule.SourceFormat}-{rule.TargetFormat}.md",
+                $"PIN translation {rule.SourceFormat} to {rule.TargetFormat}"));
         ValidateEntries(entries);
         return Array.AsReadOnly(entries.ToArray());
     }
@@ -137,6 +142,8 @@ public static class InfoDocumentCatalog
     private static string GetExpectedFileName(InfoDocumentId documentId) =>
         documentId.Kind switch
         {
+            InfoDocumentKind.PinTranslationsOverview => "Info.PinTranslations.md",
+            InfoDocumentKind.PinTranslation => $"Info.PinTranslation.{documentId.SourceFormat}-{documentId.TargetFormat}.md",
             InfoDocumentKind.MechanismsOverview => "Info.Mechanisms.md",
             InfoDocumentKind.FunctionsOverview => "Info.Functions.md",
             InfoDocumentKind.ParametersOverview => "Info.Parameters.md",

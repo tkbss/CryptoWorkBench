@@ -16,6 +16,7 @@ public sealed class InfoCompletionProvider
 {
     private static readonly (string Text, string Description)[] ListCommands =
     {
+        ("pintranslations", "PCI PIN-block translation matrix and examples."),
         ("types", "Lists all supported CryptoScript types."),
         ("functions", "Lists all supported CryptoScript functions."),
         ("mechanisms", "Lists all supported cryptographic mechanisms."),

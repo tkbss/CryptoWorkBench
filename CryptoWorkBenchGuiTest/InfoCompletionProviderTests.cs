@@ -140,7 +140,7 @@ public class InfoCompletionProviderTests
 
         Assert.That(items, Is.SupersetOf(MechanismList.Instance.Mechanisms));
         Assert.That(
-            items.Except(new[] { "types", "functions", "mechanisms", "parameters" }),
+            items.Except(new[] { "types", "functions", "mechanisms", "parameters", "pintranslations" }),
             Is.EqualTo(MechanismList.Instance.Mechanisms));
     }
 

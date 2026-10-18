@@ -13,7 +13,7 @@ public enum PinBlockCipherFamily
     Aes
 }
 
-public sealed class PinBlockAlgorithm : CryptoAlgorithm
+public sealed partial class PinBlockAlgorithm : CryptoAlgorithm
 {
     private const int ArgumentCount = 3;
     private const int Des3PinBlockLength = 8;
@@ -79,21 +79,28 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
             arguments, legacyCall, requiresParameterIdentity: MutatesParameters, CryptoScriptFunction.Wrap);
         string pin = GetPin(resolved.Data);
 
+        return EncodeResolved(resolved, pin);
+    }
+
+    private StringVariableDeclaration EncodeResolved(PinBlockArguments resolved, string pin)
+    {
+        using var buffers = new SensitiveBuffers();
+
         if (IsFormat4)
             return WrapFormat4(resolved, pin);
 
         string? outputName = null;
         string? outputValue = null;
-        byte[] clearBlock = Format switch
+        byte[] clearBlock = buffers.Track(Format switch
         {
             0 => PinBlockFieldCodec.EncodeFormat0(pin, GetHexNibbles(resolved.Parameters, "PAN")),
             1 => EncodeFormat1(resolved.Parameters, pin, out outputName, out outputValue),
             2 => PinBlockFieldCodec.EncodeFormat2(pin),
             3 => EncodeFormat3(resolved.Parameters, pin, out outputName, out outputValue),
             _ => throw NotImplemented(CryptoScriptFunction.Wrap)
-        };
+        });
 
-        byte[] ciphertext = DES3_ECB.EncryptPinBlockForAnalysis(resolved.Key, clearBlock);
+        byte[] ciphertext = (TranslationEncrypt ?? DES3_ECB.EncryptPinBlockForAnalysis)(resolved.Key, clearBlock);
         StringVariableDeclaration result = CreateBinaryResult(ciphertext);
         ApplyOutputParameter(resolved.Parameters, outputName, outputValue);
         return result;
@@ -104,6 +111,12 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
         EnsureImplemented(CryptoScriptFunction.Unwrap);
         PinBlockArguments resolved = ResolveArguments(
             arguments, legacyCall, requiresParameterIdentity: MutatesParameters, CryptoScriptFunction.Unwrap);
+        return DecodeResolved(resolved);
+    }
+
+    private StringVariableDeclaration DecodeResolved(PinBlockArguments resolved)
+    {
+        using var buffers = new SensitiveBuffers();
         if (IsFormat4)
             return UnwrapFormat4(resolved);
 
@@ -114,7 +127,7 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
             PinBlockFieldCodec.ValidatePan(pan);
 
         byte[] ciphertext = GetPinBlock(resolved.Data, Des3PinBlockLength);
-        byte[] clearBlock = DES3_ECB.DecryptPinBlockForAnalysis(resolved.Key, ciphertext);
+        byte[] clearBlock = buffers.Track(DES3_ECB.DecryptPinBlockForAnalysis(resolved.Key, ciphertext));
 
         DecodedPinBlockFields decoded;
         try
@@ -154,7 +167,8 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
         AlgorithmCallArguments arguments,
         bool legacyCall,
         bool requiresParameterIdentity,
-        CryptoScriptFunction function)
+        CryptoScriptFunction function,
+        string? diagnosticFunction = null)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         if (arguments.Arguments.Count != ArgumentCount)
@@ -171,41 +185,43 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
             throw new ArgumentException("This PIN-block operation requires a referencable PARAM variable.");
         MechanismParameterContractValidator.Validate(MechanismName, function, parameters);
 
-        KeyVariableDeclaration key = ResolveKey(arguments.Arguments[1], legacyCall);
+        VariableDeclaration key = ResolveKey(arguments.Arguments[1], legacyCall);
         byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
-        if (CipherFamily == PinBlockCipherFamily.Aes)
+        try
         {
-            AES_ECB.ValidateKeyLength(keyBytes);
+            if (CipherFamily == PinBlockCipherFamily.Aes)
+            {
+                AES_ECB.ValidateKeyLength(keyBytes);
+            }
+            else
+            {
+                Des3Algorithm.ValidateKeyLength(keyBytes);
+            }
+
+            if (key is KeyVariableDeclaration declaredKey)
+                KeyMetadataValidator.Validate(declaredKey,
+                CipherFamily == PinBlockCipherFamily.Aes ? KeyAlgorithm.Aes : KeyAlgorithm.Tdea,
+                KeyUsage.PinEncrypt, diagnosticFunction ?? function.ToString(), MechanismName, arguments.DiagnosticSink);
+            if (CipherFamily == PinBlockCipherFamily.Des3)
+                Des3KeyQuality.Report(keyBytes, key.Id, diagnosticFunction ?? function.ToString(), MechanismName, arguments.DiagnosticSink);
+
+            StringVariableDeclaration data = ResolveData(arguments.Arguments[2], legacyCall);
+            return new PinBlockArguments(parameters, keyBytes, data);
         }
-        else
+        catch
         {
-            Des3Algorithm.ValidateKeyLength(keyBytes);
+            CryptographicOperations.ZeroMemory(keyBytes);
+            throw;
         }
-
-        KeyMetadataValidator.Validate(key,
-            CipherFamily == PinBlockCipherFamily.Aes ? KeyAlgorithm.Aes : KeyAlgorithm.Tdea,
-            KeyUsage.PinEncrypt, function.ToString(), MechanismName, arguments.DiagnosticSink);
-        if (CipherFamily == PinBlockCipherFamily.Des3)
-            Des3KeyQuality.Report(keyBytes, key.Id, function.ToString(), MechanismName, arguments.DiagnosticSink);
-
-        StringVariableDeclaration data = ResolveData(arguments.Arguments[2], legacyCall);
-        return new PinBlockArguments(parameters, keyBytes, data);
     }
 
-    private static KeyVariableDeclaration ResolveKey(AlgorithmCallArgument argument, bool legacyCall)
+    private static VariableDeclaration ResolveKey(AlgorithmCallArgument argument, bool legacyCall)
     {
         if (argument.SourceVariable is not null)
         {
             if (argument.SourceVariable.Type is not CryptoTypeKey)
                 throw new ArgumentException("PIN-block operations require a KEY variable as the second argument.");
-            if (argument.SourceVariable is KeyVariableDeclaration sourceKey)
-                return sourceKey;
-            return new KeyVariableDeclaration
-            {
-                Value = argument.SourceVariable.Value,
-                ValueFormat = argument.SourceVariable.ValueFormat,
-                Type = new CryptoTypeKey()
-            };
+            return argument.SourceVariable;
         }
         if (!legacyCall)
             throw new ArgumentException("PIN-block operations require a KEY variable as the second argument.");
@@ -296,14 +312,15 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
 
     private StringVariableDeclaration WrapFormat4(PinBlockArguments arguments, string pin)
     {
+        using var buffers = new SensitiveBuffers();
         string pan = GetHexNibbles(arguments.Parameters, "PAN");
         string randomField = (GetOptionalHexNibbles(arguments.Parameters, "RANDOM") ?? GenerateRandomField())
             .ToUpperInvariant();
-        byte[] pinField = PinBlockFormat4FieldCodec.EncodePinField(pin, randomField);
-        byte[] panField = PinBlockFormat4FieldCodec.EncodePanField(pan);
-        byte[] firstAesResult = AES_ECB.EncryptNoPadding(arguments.Key, pinField);
-        byte[] xorResult = Xor(firstAesResult, panField);
-        byte[] ciphertext = AES_ECB.EncryptNoPadding(arguments.Key, xorResult);
+        byte[] pinField = buffers.Track(PinBlockFormat4FieldCodec.EncodePinField(pin, randomField));
+        byte[] panField = buffers.Track(PinBlockFormat4FieldCodec.EncodePanField(pan));
+        byte[] firstAesResult = buffers.Track((TranslationEncrypt ?? AES_ECB.EncryptNoPadding)(arguments.Key, pinField));
+        byte[] xorResult = buffers.Track(Xor(firstAesResult, panField));
+        byte[] ciphertext = (TranslationEncrypt ?? AES_ECB.EncryptNoPadding)(arguments.Key, xorResult);
         StringVariableDeclaration result = CreateBinaryResult(ciphertext);
         ApplyOutputParameter(arguments.Parameters, "RANDOM", randomField);
         return result;
@@ -311,12 +328,13 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
 
     private StringVariableDeclaration UnwrapFormat4(PinBlockArguments arguments)
     {
+        using var buffers = new SensitiveBuffers();
         byte[] ciphertext = GetPinBlock(arguments.Data, AesPinBlockLength);
         string pan = GetHexNibbles(arguments.Parameters, "PAN");
-        byte[] panField = PinBlockFormat4FieldCodec.EncodePanField(pan);
-        byte[] xorResult = AES_ECB.DecryptNoPadding(arguments.Key, ciphertext);
-        byte[] firstAesResult = Xor(xorResult, panField);
-        byte[] pinField = AES_ECB.DecryptNoPadding(arguments.Key, firstAesResult);
+        byte[] panField = buffers.Track(PinBlockFormat4FieldCodec.EncodePanField(pan));
+        byte[] xorResult = buffers.Track(AES_ECB.DecryptNoPadding(arguments.Key, ciphertext));
+        byte[] firstAesResult = buffers.Track(Xor(xorResult, panField));
+        byte[] pinField = buffers.Track(AES_ECB.DecryptNoPadding(arguments.Key, firstAesResult));
         DecodedPinBlockFormat4Fields decoded;
         try
         {
@@ -448,6 +466,16 @@ public sealed class PinBlockAlgorithm : CryptoAlgorithm
 
     private NotImplementedException NotImplemented(CryptoScriptFunction function) =>
         new($"{MechanismName} {function} is not implemented.");
+
+    private sealed class SensitiveBuffers : IDisposable
+    {
+        private readonly List<byte[]> buffers = new();
+        internal byte[] Track(byte[] buffer) { buffers.Add(buffer); return buffer; }
+        public void Dispose()
+        {
+            foreach (byte[] buffer in buffers) CryptographicOperations.ZeroMemory(buffer);
+        }
+    }
 
     private sealed record PinBlockArguments(
         ParameterVariableDeclaration Parameters,

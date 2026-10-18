@@ -17,6 +17,7 @@ namespace CryptoScript.Model
             "Mac",
             "Wrap",
             "Unwrap",
+            "PinBlockTranslate",
             "Print",
             "Info",
             "Compare",

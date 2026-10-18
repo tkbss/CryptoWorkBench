@@ -19,6 +19,8 @@ namespace CryptoScript.Model
             {
                 case "mac":
                     return op.Mac;
+                case "pinblocktranslate":
+                    return op.PinBlockTranslate;
                 case "hash":
                     return op.Hash;
                 case "derive":
@@ -58,6 +60,8 @@ namespace CryptoScript.Model
             {
                 case "mac":
                     return op.Mac;
+                case "pinblocktranslate":
+                    return op.PinBlockTranslate;
                 case "hash":
                     return op.Hash;
                 case "derive":

@@ -24,6 +24,15 @@ public sealed class FunctionContractException : Exception
     }
 
     public FunctionContractError Error { get; }
+    internal FunctionContractException(FunctionContractException cause, string side)
+        : base($"{side} PARAM: " + CreateMessage(cause.Error, cause.Mechanism,
+            CryptoScriptFunction.PinBlockTranslate, cause.ParameterName), cause)
+    {
+        Error = cause.Error;
+        Mechanism = cause.Mechanism;
+        Function = CryptoScriptFunction.PinBlockTranslate;
+        ParameterName = cause.ParameterName;
+    }
     public string Mechanism { get; }
     public CryptoScriptFunction Function { get; }
     public string? ParameterName { get; }

@@ -26,7 +26,7 @@ public class SemanticDiagnosticSinkTests
         Assert.That(Enum.GetValues<SemanticDiagnosticSeverity>().Select(value => (int)value),
             Is.EqualTo(new[] { 0, 1 }));
         Assert.That(Enum.GetValues<SemanticDiagnosticCode>().Select(value => (int)value),
-            Is.EqualTo(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }));
+            Is.EqualTo(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }));
         Assert.That((int)SemanticDiagnosticSeverity.Error, Is.Zero);
         Assert.That((int)SemanticDiagnosticSeverity.Warning, Is.EqualTo(1));
         Assert.That((int)SemanticDiagnosticCode.Unclassified, Is.Zero);

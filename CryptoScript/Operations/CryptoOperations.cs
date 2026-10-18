@@ -11,6 +11,11 @@ namespace CryptoScript.Model
     
     public class CryptoOperations
     {
+        public VariableDeclaration PinBlockTranslate(OperationInvocation invocation) =>
+            CryptoAlgorithm.PINBLOCK.PinBlockAlgorithm.Translate(invocation, algorithmFactory);
+
+        public VariableDeclaration PinBlockTranslate(string[] arguments) =>
+            throw new ArgumentException("PinBlockTranslate requires structured variable references.");
         private readonly Func<string, CryptoAlgorithm.CryptoAlgorithm> algorithmFactory;
 
         public CryptoOperations() : this(AlgorithmFactory.Create) { }

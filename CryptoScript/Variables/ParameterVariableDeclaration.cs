@@ -18,6 +18,33 @@ namespace CryptoScript.Variables
 
         internal IReadOnlyList<string> ExplicitParameterNames => explicitParameterNames;
 
+        // Private staging preserves declaration provenance without parsing serialized values.
+        internal ParameterVariableDeclaration StagePinTranslation()
+        {
+            var stage = new ParameterVariableDeclaration { Id = Id, _mechanism = _mechanism };
+            stage.ParameterTypeValue = new Dictionary<string, string>(ParameterTypeValue);
+            stage.explicitParameterNames.AddRange(explicitParameterNames);
+            stage.Value = Value;
+            return stage;
+        }
+
+        internal static void CommitPinTranslation(ParameterVariableDeclaration source,
+            ParameterVariableDeclaration sourceStage, ParameterVariableDeclaration target,
+            ParameterVariableDeclaration targetStage)
+        {
+            // All allocation, validation and virtual setters run on private stages before here.
+            // The interpreter is synchronous. These non-throwing reference assignments publish
+            // the pair without callbacks or fallible SetParameter/rollback operations.
+            source.PublishPinTranslation(sourceStage);
+            target.PublishPinTranslation(targetStage);
+        }
+
+        private void PublishPinTranslation(ParameterVariableDeclaration stage)
+        {
+            ParameterTypeValue = stage.ParameterTypeValue;
+            base.Value = stage.Value;
+        }
+
         internal void RecordExplicitParameter(string type)
         {
             string normalizedType = type.StartsWith('#') ? type : "#" + type;

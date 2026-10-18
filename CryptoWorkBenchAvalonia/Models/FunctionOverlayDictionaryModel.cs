@@ -43,6 +43,10 @@ namespace CryptoWorkBenchAvalonia.Models
                 "\n- param-1 : The mechanism as #MECH:ALOG (e.g., AES-CBC)" +
                 "\n- param-2,..,param-N: Predefined parameters needed by  #MECH in the form of #PARAM:VALUE (e.g. #PAD:PKCS-7).")
             }},
+            { "PinBlockTranslate", new List<(string, string)> {
+                ("PinBlockTranslate(sourceParams, sourceKey, encryptedPinBlock, targetParams, targetKey)",
+                 "Translates an encrypted PIN block. Requires PARAM, KEY, VAR, PARAM, KEY references and distinct PARAMs. See Info(pintranslations) for PCI format and PAN rules.")
+            }},
             { "Check", new List<(string, string)> {
                 ("Check(value, method)", "Finds one visible KEY by a full HEX check value or byte prefix. Optional method: KCV, KCVC, KCVK. No match or ambiguity reports an error without declaring a KEY.")
             }},

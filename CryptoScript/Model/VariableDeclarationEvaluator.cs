@@ -20,6 +20,18 @@ namespace CryptoScript.Model
         {
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
+            // Check the fixed translation result contract before resolving runtime types:
+            // the grammar also accepts types (TR31H) that CryptoType.Parse cannot resolve.
+            if (declaration.Initializer is FunctionCallExpressionNode translation &&
+                translation.Name.Equals("PinBlockTranslate", StringComparison.OrdinalIgnoreCase) &&
+                !TypeName.Equals("VAR", StringComparison.OrdinalIgnoreCase))
+            {
+                var error = new SemanticError { Type = "Declaration", Identifier = TypeName,
+                    DiagnosticCode = SemanticDiagnosticCode.InvalidDeclaration,
+                    Message = $"Declaration type mismatch. Expected type: VAR; actual type: {TypeName}." };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
             var type = CryptoType.Parse(TypeName);
             var declarParam = declaration.Parameters.Items;
 

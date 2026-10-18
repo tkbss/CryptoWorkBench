@@ -73,6 +73,7 @@ public sealed class FileInfoDocumentationProvider : IInfoDocumentationProvider
     {
         documentId = name switch
         {
+            "pintranslations" => InfoDocumentId.CreatePinTranslationsOverview(),
             "functions" => InfoDocumentId.CreateFunctionsOverview(),
             "mechanisms" => InfoDocumentId.CreateMechanismsOverview(),
             "parameters" => InfoDocumentId.CreateParametersOverview(),

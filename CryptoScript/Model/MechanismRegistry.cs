@@ -240,7 +240,8 @@ public enum CryptoScriptFunction
     Derive,
     Wrap,
     Unwrap,
-    BlockHeader
+    BlockHeader,
+    PinBlockTranslate
 }
 
 public static class MechanismRegistry

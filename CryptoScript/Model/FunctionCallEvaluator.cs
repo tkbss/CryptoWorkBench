@@ -224,6 +224,8 @@ namespace CryptoScript.Model
                 Type = "FunctionContract",
                 FunctionName = exception.Function.ToString(),
                 ErrorCode = exception.Error,
+                Location = exception.Function == CryptoScriptFunction.PinBlockTranslate
+                    ? new DiagnosticLocation(Mechanism: exception.Mechanism) : null,
                 Identifier = exception.ParameterName ?? string.Empty,
                 Message = exception.Message
             };
@@ -244,6 +246,8 @@ namespace CryptoScript.Model
             var error = new SemanticError
             {
                 Type = "FunctionCall",
+                DiagnosticCode = exception is CryptoAlgorithm.PINBLOCK.PinBlockTranslationException translation
+                    ? translation.Code : SemanticDiagnosticCode.Unclassified,
                 FunctionName = call.Name,
                 FunctionCall = sensitive ? $"{call.Name}(<redacted>)" : functionCall.CallText ?? string.Empty,
                 Message = sensitive

@@ -16,5 +16,8 @@ public enum SemanticDiagnosticCode
     DesParityViolation = 10,
     WeakDes3Key = 11,
     KeyCheckValueNotFound = 12,
-    KeyCheckValueAmbiguous = 13
+    KeyCheckValueAmbiguous = 13,
+    PinBlockTranslationForbidden = 14,
+    PinBlockPanMismatch = 15,
+    InvalidPinBlock = 16
 }
