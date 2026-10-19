@@ -10,6 +10,7 @@ public static class InfoDocumentUri
 
         return documentId.Kind switch
         {
+            InfoDocumentKind.Type => $"{Scheme}://type/{Escape(documentId.TypeName!)}",
             InfoDocumentKind.PinTranslationsOverview => $"{Scheme}://overview/pintranslations",
             InfoDocumentKind.PinTranslation => $"{Scheme}://pintranslation/{documentId.SourceFormat}/{documentId.TargetFormat}",
             InfoDocumentKind.MechanismsOverview => $"{Scheme}://overview/mechanisms",
@@ -50,6 +51,7 @@ public static class InfoDocumentUri
         {
             documentId = uri.Host switch
             {
+                "type" when segments is [var type] => InfoDocumentId.CreateType(type),
                 "overview" when segments is ["pintranslations"] => InfoDocumentId.CreatePinTranslationsOverview(),
                 "pintranslation" when segments is [var source, var target] &&
                     int.TryParse(source, out int s) && int.TryParse(target, out int t) =>

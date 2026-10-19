@@ -23,7 +23,7 @@ public class MechanismListTests
 
     private static readonly string[] Expected =
     {
-        "AES-ECB", "AES-CBC", "AES-CBC-MAC", "AES-CTR", "AES-CMAC", "AES-GCM", "AES-CCM", "AES-GMAC",
+        "AES-ECB", "SECRET_SPLIT", "SECRET_SHAMIR", "AES-CBC", "AES-CBC-MAC", "AES-CTR", "AES-CMAC", "AES-GCM", "AES-CCM", "AES-GMAC",
         "HMAC-SHA1", "HMAC-SHA224", "HMAC-SHA256", "HMAC-SHA384", "HMAC-SHA512",
         "HMAC-SHA512-224", "HMAC-SHA512-256",
         "HMAC-SHA3-224", "HMAC-SHA3-256", "HMAC-SHA3-384", "HMAC-SHA3-512",
@@ -42,7 +42,7 @@ public class MechanismListTests
     [Test]
     public void PreservesExactNamesAndOrder()
     {
-        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(66));
+        Assert.That(MechanismList.Instance.Mechanisms, Has.Count.EqualTo(68));
         Assert.That(MechanismList.Instance.Mechanisms, Is.EqualTo(Expected));
     }
 

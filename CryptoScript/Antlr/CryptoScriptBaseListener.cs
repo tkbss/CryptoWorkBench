@@ -84,6 +84,30 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.type"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

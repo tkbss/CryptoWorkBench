@@ -75,11 +75,11 @@ public class InfoDocumentCatalogTests
 
         Assert.Multiple(() =>
         {
-            mechanismDocuments.Should().HaveCount(66);
+            mechanismDocuments.Should().HaveCount(68);
             mechanismDocuments.Select(entry => entry.DocumentId.Mechanism)
                 .Should().Equal(MechanismRegistry.Entries.Select(entry => entry.CanonicalName));
             InfoDocumentCatalog.Entries.Should().HaveCount(
-                MechanismRegistry.Entries.Count + PaddingRegistry.Entries.Count + 4 + 26);
+                MechanismRegistry.Entries.Count + PaddingRegistry.Entries.Count + 4 + 26 + 10);
         });
 
         foreach (MechanismRegistryEntry mechanism in MechanismRegistry.Entries)

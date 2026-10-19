@@ -66,3 +66,7 @@ Markdown and Mermaid are the authoritative sources intended for version control 
 Generated PDF, DOCX and rendered diagram files are reproducible outputs. Write them beneath `generated/`, which is excluded by the local [ignore policy](.gitignore). Commit such outputs only if a later publication policy explicitly requires it. No generated outputs or publishing tools are included in this initialization.
 
 Use relative links with forward slashes and exact filename casing. New chapter, evidence and diagram filenames use lowercase kebab-case and two-digit chapter prefixes. `README.md` retains its conventional casing. References to application files preserve their existing casing. Do not introduce links to chapter files before those files exist.
+
+## G03 Implementation Evidence
+
+[G03 implementation report](G03-report.md) records the secret-sharing architecture, pinned Bouncy Castle sources, ISO review scope, security findings, interoperability tests and verification limitations. [Reproducible reference checks](evidence/G03/run-reference.ps1) accompany the report.

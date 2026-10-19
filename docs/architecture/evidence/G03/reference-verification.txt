@@ -1,0 +1,15 @@
+Note: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\docs\architecture\evidence\G03\bc-java\ShamirSecretSplitterTest.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+OK
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  CryptoScriptUnitTest -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll
+Test run for C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+WARNING: Overwriting results file: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\docs\architecture\evidence\G03\g03-reference.trx
+Results File: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\docs\architecture\evidence\G03\g03-reference.trx
+
+Passed!  - Failed:     0, Passed:    60, Skipped:     0, Total:    60, Duration: 243 ms - CryptoScriptUnitTest.dll (net10.0)
+C# -> original BC Java: 20 cases passed
+

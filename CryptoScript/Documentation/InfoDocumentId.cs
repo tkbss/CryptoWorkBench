@@ -14,7 +14,8 @@ public enum InfoDocumentKind
     PaddingsOverview,
     Padding,
     PinTranslationsOverview,
-    PinTranslation
+    PinTranslation,
+    Type
 }
 
 public sealed record InfoDocumentId
@@ -25,7 +26,7 @@ public sealed record InfoDocumentId
         string? padding = null,
         string? function = null,
         string? parameter = null,
-        int? sourceFormat = null, int? targetFormat = null)
+        int? sourceFormat = null, int? targetFormat = null, string? typeName = null)
     {
         SourceFormat = sourceFormat;
         TargetFormat = targetFormat;
@@ -34,6 +35,7 @@ public sealed record InfoDocumentId
         Padding = padding;
         Function = function;
         Parameter = parameter;
+        TypeName = typeName;
     }
 
     public int? SourceFormat { get; }
@@ -49,6 +51,10 @@ public sealed record InfoDocumentId
     public string? Padding { get; }
     public string? Function { get; }
     public string? Parameter { get; }
+    public string? TypeName { get; }
+    public static InfoDocumentId CreateType(string type) => type == "SECRET"
+        ? new(InfoDocumentKind.Type, typeName: type)
+        : throw new ArgumentException("Unknown documented type.", nameof(type));
 
     public static InfoDocumentId CreateMechanismsOverview() =>
         new(InfoDocumentKind.MechanismsOverview);

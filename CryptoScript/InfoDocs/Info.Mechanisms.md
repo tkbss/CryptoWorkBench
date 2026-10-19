@@ -1,6 +1,6 @@
 # Mechnisms
 
-List of all cryptograhic algorithms implemented in CRYPTO-SCRIPT.   
+List of all cryptograhic algorithms implemented in CRYPTO-SCRIPT.
 
 ---
 Every mechanism is specifying a certain cryptographic algorithm. Detailed information about each mechanism can be obtained through Info(mechanism).
@@ -86,3 +86,8 @@ General AES/DES3 Encrypt, Decrypt and Mac operations can use technically valid k
 | 8.12 | no | SHA-256(DOL) | leftmost 16 of 32 Byte |
 | 8.13 | yes | SHA-256(Terminal Properties) | leftmost 16 of 32 Byte |
 | 8.14 | no | raw DOL | full 32 Byte |
+
+## Secret sharing
+
+- SECRET_SHAMIR : Shamir k-of-n sharing over GF(256).
+- SECRET_SPLIT : XOR n-of-n key components.

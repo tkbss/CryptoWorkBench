@@ -78,7 +78,8 @@ public enum MechanismParameterDataType
     BinaryData,
     Integer,
     HexString,
-    Padding
+    Padding,
+    Secret
 }
 
 public enum MechanismParameterInputForm
@@ -241,11 +242,45 @@ public enum CryptoScriptFunction
     Wrap,
     Unwrap,
     BlockHeader,
-    PinBlockTranslate
+    PinBlockTranslate,
+    Share, Secret, Restore
 }
 
 public static class MechanismRegistry
 {
+    private static MechanismFunctionMetadata[] SecretFunctionMetadata(bool shamir)
+    {
+        var named = new List<MechanismParameterMetadata>
+        {
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Secret sharing mechanism.", shamir ? "SECRET_SHAMIR" : "SECRET_SPLIT"),
+            NamedParameter("#PARTS", true, MechanismParameterDirection.Input, MechanismParameterDataType.Integer,
+                "Total number of shares.", "2..255"),
+            NamedParameter("#SHAREFORMAT", false, MechanismParameterDirection.Input, MechanismParameterDataType.Data,
+                "External share representation.", "Quoted X-Y, Y-X or SEPARATE-X.", MechanismParameterDefaultKind.Literal, "\"X-Y\"")
+        };
+        if (shamir)
+        {
+            named.Add(NamedParameter("#MINPARTS", true, MechanismParameterDirection.Input, MechanismParameterDataType.Integer,
+                "Reconstruction threshold.", "2..PARTS"));
+            named.Add(NamedParameter("#POLYNOM", false, MechanismParameterDirection.Input, MechanismParameterDataType.Data,
+                "GF(256) representation, independent of the key algorithm.", "Quoted SHAMIR-GF256-11B or SHAMIR-GF256-11D.",
+                MechanismParameterDefaultKind.Literal, "\"SHAMIR-GF256-11B\""));
+        }
+        var parameter = Argument("parameters", true, MechanismParameterDirection.Input, [MechanismParameterDataType.ParameterSet],
+            "Typed PARAM reference.", "Validated secret sharing parameters.");
+        return
+        [
+            new(CryptoScriptFunction.Parameters, named),
+            new(CryptoScriptFunction.Share, new[] { parameter,
+                Argument("key", true, MechanismParameterDirection.Input, [MechanismParameterDataType.Key], "Symmetric KEY reference.", "Nonempty key bytes.") }.Concat(named)),
+            new(CryptoScriptFunction.Secret, new[] { parameter,
+                Argument("shares", true, MechanismParameterDirection.Input, [MechanismParameterDataType.BinaryData, MechanismParameterDataType.Integer],
+                    "Repeated positional HEX shares or integer/HEX pairs.", "Unique indices 1..255; equal nonempty payload lengths; may be below threshold.") }.Concat(named)),
+            new(CryptoScriptFunction.Restore, [Argument("secret", true, MechanismParameterDirection.Input, [MechanismParameterDataType.Secret],
+                "Typed SECRET reference.", "At least MinParts consistent shares; uses container metadata only.")])
+        ];
+    }
     private static MechanismParameterMetadata Argument(
         string name,
         bool required,
@@ -983,6 +1018,10 @@ public static class MechanismRegistry
             {
                 StrictMechanismParameterContract = true
             },
+            new("SECRET_SHAMIR", "Shamir k-of-n sharing over GF(256).", "Info.Mech.SECRET_SHAMIR.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Share, CryptoScriptFunction.Secret, CryptoScriptFunction.Restore }, SecretFunctionMetadata(true)),
+            new("SECRET_SPLIT", "XOR n-of-n key components.", "Info.Mech.SECRET_SPLIT.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Share, CryptoScriptFunction.Secret, CryptoScriptFunction.Restore }, SecretFunctionMetadata(false)),
             // BlockHeader is supported only through CryptoOperations' internal
             // BLOCKHEADER-WRAP-AES-TR31 dispatch and its populated one-argument overload.
             new("WRAP-AES-PINBLOCK-4", "ISO 9564 format 4 PIN-block wrapping and unwrapping with AES.", "Info.Mech.WRAP-AES-PINBLOCK-4.md", WrapFunctions, PinBlockFormat4FunctionMetadata),

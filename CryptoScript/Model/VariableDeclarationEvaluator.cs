@@ -33,6 +33,13 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException { SemanticError = error };
             }
             var type = CryptoType.Parse(TypeName);
+            if (type is CryptoTypeSecret && declaration.Initializer is not FunctionCallExpressionNode)
+            {
+                var error = new SemanticError { Type = "Declaration", Identifier = TypeName,
+                    Message = "SECRET requires a Share or Secret function result." };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
             var declarParam = declaration.Parameters.Items;
 
             Statement? stmt = null;
@@ -87,12 +94,15 @@ namespace CryptoScript.Model
                 }
                 try
                 {
+                    if (SecretSharing.SecretParameters.IsSecretMechanism(Parameter.Mechanism))
+                        _ = SecretSharing.SecretParameters.Read(Parameter);
                     MechanismParameterContractValidator.ValidatePsnSupport(Parameter.Mechanism, Parameter);
                     MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(Parameter.Mechanism, Parameter);
                     if (Parameter.Mechanism is "EP2-DATA-ENCRYPTION" or "EP2-PAN-RECEIPT-ENCRYPTION" or "EP2-TR31-KEY-BLOCK")
                         MechanismParameterContractValidator.Validate(Parameter.Mechanism, CryptoScriptFunction.Parameters, Parameter);
                 }
                 catch (Exception exception) when (exception is FunctionContractException ||
+                    SecretSharing.SecretParameters.IsSecretMechanism(Parameter.Mechanism) && exception is ArgumentException ||
                     (Parameter.Mechanism is "EP2-DATA-ENCRYPTION" or "EP2-PAN-RECEIPT-ENCRYPTION" or "EP2-TR31-KEY-BLOCK") && exception is ArgumentException)
                 {
                     var error = new SemanticError { Type = "Declaration", Identifier = TypeName, Message = exception.Message };

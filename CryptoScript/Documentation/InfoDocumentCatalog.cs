@@ -93,6 +93,15 @@ public static class InfoDocumentCatalog
             entries.Add(new(InfoDocumentId.CreatePinTranslation(rule.SourceFormat, rule.TargetFormat),
                 $"Info.PinTranslation.{rule.SourceFormat}-{rule.TargetFormat}.md",
                 $"PIN translation {rule.SourceFormat} to {rule.TargetFormat}"));
+        foreach (string function in new[] { "Share", "Secret", "Restore" })
+            entries.Add(new(InfoDocumentId.CreateFunction(function), $"Info.Func.{function}.md", function));
+        entries.Add(new(InfoDocumentId.CreateType("SECRET"), "Info.Type.SECRET.md", "SECRET"));
+        foreach (string parameter in new[] { "PARTS", "MINPARTS", "POLYNOM", "SHAREFORMAT" })
+            entries.Add(new(InfoDocumentId.CreateMechanismParameter("SECRET_SHAMIR", parameter),
+                $"Info.Param.SECRET_SHAMIR.{parameter}.md", "#" + parameter));
+        foreach (string parameter in new[] { "PARTS", "SHAREFORMAT" })
+            entries.Add(new(InfoDocumentId.CreateMechanismParameter("SECRET_SPLIT", parameter),
+                $"Info.Param.SECRET_SPLIT.{parameter}.md", "#" + parameter));
         ValidateEntries(entries);
         return Array.AsReadOnly(entries.ToArray());
     }
@@ -142,6 +151,7 @@ public static class InfoDocumentCatalog
     private static string GetExpectedFileName(InfoDocumentId documentId) =>
         documentId.Kind switch
         {
+            InfoDocumentKind.Type => $"Info.Type.{documentId.TypeName}.md",
             InfoDocumentKind.PinTranslationsOverview => "Info.PinTranslations.md",
             InfoDocumentKind.PinTranslation => $"Info.PinTranslation.{documentId.SourceFormat}-{documentId.TargetFormat}.md",
             InfoDocumentKind.MechanismsOverview => "Info.Mechanisms.md",

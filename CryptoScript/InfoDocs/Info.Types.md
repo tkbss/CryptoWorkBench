@@ -1,11 +1,11 @@
-# Types 
+# Types
 
 List of all types used in CRYPTO-SCRIPT. Upper case lettersfor every type is mandatory.
 
 ---
 
 ## Built-in Types
-- **VAR**   : Variable type used to store data such as messages, signatures, ciphertexts, etc.  
+- **VAR**   : Variable type used to store data such as messages, signatures, ciphertexts, etc.
     - FORMATS: A VAR type can have the following formats:
         - **STRING** : Text format for storing plain text data: "TEXT"
         - **HEX**    : Hexadecimal format for storing binary data as hex strings: 0x(123456789abcdef...)
@@ -63,3 +63,7 @@ compliance of CryptoScript Workbench. The user selects any prefix used for analy
 [XFS4IoT Specification, CWA 17852, release v2.0](https://www.cencenelec.eu/media/CEN-CENELEC/AreasOfWork/CEN%20sectors/Digital%20Society/CWA%20Download%20Area/XFS/CWA17852/cwa-17852-xfs4iot-specification-release-v2-0.pdf).
 The AES first-16-byte extension is an explicit Workbench legacy-system requirement,
 not a claim that XFS4IoT or PCI specifies that extension.
+
+## SECRET
+
+[SECRET](cryptoscript-info://type/SECRET) holds immutable key shares, reconstruction parameters, preferred share format and optional original key metadata. Share/Secret construct it; Restore returns a KEY. Explicit Print displays all shares.

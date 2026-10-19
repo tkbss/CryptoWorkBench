@@ -28,17 +28,21 @@ namespace CryptoScript.Model
         }
         public static CryptoScriptParser FileBuild(string filename) 
         {
-            StreamReader reader = File.OpenText(filename);
+            using StreamReader reader = File.OpenText(filename);
 
             // Create a CharStream from the input code
             AntlrInputStream input = new AntlrInputStream(reader);
 
             // Create the lexer
             CryptoScriptLexer lexer = new CryptoScriptLexer(input);
+            lexer.RemoveErrorListeners();
+            lexer.AddErrorListener(new LexerErrorListener(consoleDiagnostics: true));
             // Create a token stream from the lexer
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             // Create the parser
             CryptoScriptParser parser = new CryptoScriptParser(tokens);
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(new SyntaxErrorListner(consoleDiagnostics: true));
             return parser;
         }
     }

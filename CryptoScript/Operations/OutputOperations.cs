@@ -23,6 +23,8 @@ namespace CryptoScript.Model
 
         public VariableDeclaration Print(OperationInvocation invocation)
         {
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is SecretVariableDeclaration secret)
+                return Print(new[] { secret.PrintOutput().ReplaceLineEndings(Environment.NewLine + "out: ") });
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is KeyVariableDeclaration key)
                 // ScriptBooks skip output one physical line at a time. The legacy
                 // Print path supplies the first prefix and publishes the event once.

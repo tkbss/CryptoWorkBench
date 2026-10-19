@@ -71,6 +71,26 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.type"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

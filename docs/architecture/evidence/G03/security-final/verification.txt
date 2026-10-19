@@ -1,0 +1,60 @@
+dotnet test CryptoScriptUnitTest --no-restore --logger 'trx;LogFileName=core-final.trx' --results-directory TestResults/G03-R01-R1-R2
+Exit: 0
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  CryptoScriptUnitTest -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll
+Test run for C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\TestResults\G03-R01-R1-R2\core-final.trx
+
+Passed!  - Failed:     0, Passed:  6980, Skipped:     0, Total:  6980, Duration: 4 s - CryptoScriptUnitTest.dll (net10.0)
+
+dotnet test CryptoWorkBenchGuiTest --no-restore --logger 'trx;LogFileName=gui-final.trx' --results-directory TestResults/G03-R01-R1-R2
+Exit: 0
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  Avalonia Accelerate Community requires telemetry. To opt out, please upgrade to a paid tier. Learn more: https://avaloniaui.net/accelerate/
+  CryptoWorkBenchConsole -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchConsole\bin\Debug\net10.0\CryptoWorkBenchConsole.dll
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\Views\CryptoScriptEditView.axaml.cs(159,77): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\Views\CryptoScriptEditView.axaml.cs(25,12): warning CS8618: Non-nullable field '_insightWindow' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\ViewModels\KeyMapViewModel.cs(18,16): warning CS8618: Non-nullable field '_infoText' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'InfoHistoryBackCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'InfoHistoryForwardCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'LineHistoryBackCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\ViewModels\MainViewModel.cs(19,12): warning CS8618: Non-nullable property 'LineHistoryForwardCommand' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\Views\CryptoScriptEditView.axaml.cs(114,72): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\ViewModels\SidebarViewModel.cs(140,28): warning CS8602: Dereference of a possibly null reference. [C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj]
+  CryptoWorkBenchAvalonia -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\bin\Debug\net10.0\CryptoWorkBenchAvalonia.dll
+  Avalonia Accelerate Community requires telemetry. To opt out, please upgrade to a paid tier. Learn more: https://avaloniaui.net/accelerate/
+  CryptoWorkBenchGuiTest -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchGuiTest\bin\Debug\net10.0\CryptoWorkBenchGuiTest.dll
+Test run for C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchGuiTest\bin\Debug\net10.0\CryptoWorkBenchGuiTest.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\TestResults\G03-R01-R1-R2\gui-final.trx
+
+Passed!  - Failed:     0, Passed:   222, Skipped:     0, Total:   222, Duration: 1 s - CryptoWorkBenchGuiTest.dll (net10.0)
+
+dotnet build CryptoWorkBench.sln --no-restore -m:1
+Exit: 0
+Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  CryptoWorkBenchConsole -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchConsole\bin\Debug\net10.0\CryptoWorkBenchConsole.dll
+  CryptoScriptUnitTest -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.02
+
+dotnet build CryptoWorkBenchAvalonia.Desktop --no-restore -m:1
+Exit: 0
+Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  CryptoWorkBenchAvalonia -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\bin\Debug\net10.0\CryptoWorkBenchAvalonia.dll
+  CryptoWorkBenchAvalonia.Desktop -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia.Desktop\bin\Debug\net10.0\CryptoWorkBenchAvalonia.Desktop.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.36
+
+

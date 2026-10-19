@@ -38,6 +38,8 @@ public static class MechanismParameterContractValidator
             ValidateMechanismParameter(mechanism, parameters);
 
         ValidateEmvCryptogramParameterSupport(mechanism.CanonicalName, parameters, function);
+        if (SecretSharing.SecretParameters.IsSecretMechanism(mechanism.CanonicalName))
+            _ = SecretSharing.SecretParameters.Read(parameters);
 
         if (mechanism.CanonicalName is "MAC-EMV-AC" or "MAC-EMV-AC-VERIFY")
         {

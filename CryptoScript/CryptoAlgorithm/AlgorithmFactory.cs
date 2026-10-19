@@ -9,6 +9,8 @@
                 ? mechanism["#MECH:".Length..]
                 : mechanism;
             string canonicalMechanism = normalizedMechanism.ToUpperInvariant();
+            if (SecretSharing.SecretParameters.IsSecretMechanism(canonicalMechanism))
+                return new SecretSharing.SecretSharingAlgorithm();
 
             if (canonicalMechanism == "BLOCKHEADER-WRAP-AES-TR31")
                 return new WRAPPERS.Tr31BlockHeader();

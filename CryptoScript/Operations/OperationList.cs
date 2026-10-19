@@ -11,6 +11,7 @@ namespace CryptoScript.Model
         public static List<string> Operations { get; set; } = new List<string>()
         {
             "Parameters",
+            "Share", "Secret", "Restore",
             "GenerateKey",
             "Encrypt",
             "Decrypt",

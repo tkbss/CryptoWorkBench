@@ -28,6 +28,8 @@ namespace CryptoScript.Model
                     return new CryptoTypeVar();
                 case "key":
                     return new CryptoTypeKey();
+                case "secret":
+                    return new CryptoTypeSecret();
                 case "param":
                     return new CryptoTypeParameters();
                 case "path":                    
@@ -35,6 +37,11 @@ namespace CryptoScript.Model
                 default: throw new Exception();
             }
         }
+    }
+    public sealed class CryptoTypeSecret : CryptoType
+    {
+        public override string Name => "SECRET";
+        public CryptoTypeSecret() { Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_SECRET); }
     }
     public class CryptoTypeKey : CryptoType 
     {

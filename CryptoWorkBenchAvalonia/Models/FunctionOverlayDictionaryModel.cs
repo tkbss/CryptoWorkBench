@@ -16,6 +16,15 @@ namespace CryptoWorkBenchAvalonia.Models
         public  Dictionary<string, List<(string header, string description)>> functionOverloads = new Dictionary<string, List<(string header, string description)>> 
         {
 
+            { "Share", new List<(string, string)> {
+                ("Share(parameters, key)", "Creates a SECRET containing all XOR or Shamir shares and independent key metadata. Requires PARAM and KEY references.")
+            }},
+            { "Secret", new List<(string, string)> {
+                ("Secret(parameters, shares...)", "Creates a SECRET from repeated HEX literals (X-Y or Y-X), or decimal index/HEX pairs (SEPARATE-X). Incomplete sets are allowed.")
+            }},
+            { "Restore", new List<(string, string)> {
+                ("Restore(secret)", "Reconstructs a KEY from the SECRET descriptor and enough consistent shares. This does not authenticate the key.")
+            }},
             { "Encrypt", new List<(string, string)>{
                 ("Encrypt(parameters, key, mechanism)", "Encrypts data using the specified parameters:" +
                 "\n- parameters: The encryption algorithm (e.g., AES-CBC) and additional parameters (e.g. IV)"+
@@ -51,6 +60,7 @@ namespace CryptoWorkBenchAvalonia.Models
                 ("Check(value, method)", "Finds one visible KEY by a full HEX check value or byte prefix. Optional method: KCV, KCVC, KCVK. No match or ambiguity reports an error without declaring a KEY.")
             }},
             { "Print", new List<(string, string)> {
+                ("Print(secret)", "Prints all full share values, indices, reconstruction metadata and copyable Secret statements. This discloses the shared material."),
                 ("Print(key)", "Prints the complete key and its metadata, including full KCV, KCVC and KCVK values."),
                 ("Print(data)", "Prints the data to the output window:" +
                 "\n- data: The data to print")

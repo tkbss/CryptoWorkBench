@@ -15,7 +15,9 @@ declaration   : type ID '=' expression
               | type ID '=' (declareparam)*
               | type ID '=' tr31Header
               ;
-declareparam  :  PARAM_TYPE ':' MECHANISM
+declareparam  :  P_POLYNOM ':' polynomialValue
+              |  P_SHAREFORMAT ':' shareFormatValue
+              |  PARAM_TYPE ':' MECHANISM
               |  PARAM_TYPE ':' PADDING
               |  PARAM_TYPE ':' HEX_STRING
               |  PARAM_TYPE ':' BASE64_STRING
@@ -24,7 +26,10 @@ declareparam  :  PARAM_TYPE ':' MECHANISM
               |  PARAM_TYPE ':' NORMAL_STRING
 			  |  PARAM_TYPE ':' INT
 			  ;
-type          : T_KEY
+polynomialValue : {TokenStream.LT(1).Text == "\"SHAMIR-GF256-11B\"" || TokenStream.LT(1).Text == "\"SHAMIR-GF256-11D\""}? NORMAL_STRING;
+shareFormatValue : {TokenStream.LT(1).Text == "\"X-Y\"" || TokenStream.LT(1).Text == "\"Y-X\"" || TokenStream.LT(1).Text == "\"SEPARATE-X\""}? NORMAL_STRING;
+type          : T_SECRET
+              | T_KEY
               | T_VAR
               | T_PARAMETER
               | T_PATH

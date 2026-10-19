@@ -15,6 +15,9 @@ namespace CryptoScript.Model
         {
             operation = operation.ToLower();
             var op = algorithmFactory is null ? new CryptoOperations() : new CryptoOperations(algorithmFactory);
+            if (operation == "share") return SecretOperations.Share;
+            if (operation == "secret") return SecretOperations.Secret;
+            if (operation == "restore") return SecretOperations.Restore;
             switch (operation)
             {
                 case "mac":
@@ -55,6 +58,7 @@ namespace CryptoScript.Model
         public static Func<string[], VariableDeclaration> CreateOperation(string operation)
         { 
             operation = operation.ToLower();
+            if (operation is "share" or "secret" or "restore") return SecretOperations.RequireTypedArguments;
             var op = new CryptoOperations();             
             switch (operation)
             {

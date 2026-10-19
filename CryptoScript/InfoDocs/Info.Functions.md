@@ -1,6 +1,6 @@
 # Function List
 
-List of all functions of CRYPTO-SCRIPT. Upper and lower case letters in the function name are mandatory.  
+List of all functions of CRYPTO-SCRIPT. Upper and lower case letters in the function name are mandatory.
 Possible Parameters are given in overlay window during typing.
 
 ---
@@ -76,3 +76,7 @@ shared check value again is ambiguous. Short prefixes can also match unrelated k
 ## PinBlockTranslate
 
 `VAR result=PinBlockTranslate(sourceParams,sourceKey,encryptedPinBlock,targetParams,targetKey)` requires exactly five genuine references of type PARAM, KEY, VAR, PARAM, KEY. Source and target PARAMs must be distinct. Returns only the encrypted target block and commits both parameter outputs after success. See `Info(pintranslations)` and the [PCI translation matrix](cryptoscript-info://overview/pintranslations) for PAN requirements, allowed transitions and the offline ICC-only restriction for format 2.
+
+## Secret sharing
+
+[Share(PARAM, KEY)](cryptoscript-info://function/Share), [Secret(PARAM, Shares...)](cryptoscript-info://function/Secret), [Restore(SECRET)](cryptoscript-info://function/Restore). See [SECRET and complete Print output](cryptoscript-info://type/SECRET).

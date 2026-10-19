@@ -94,6 +94,72 @@ public class CryptoScriptExecutionPresentationTests
         Assert.That(editor.PrintMessage, Does.Contain("KCVK: 0x(0a940bb5416ef045f1c39458c653ea5a)"));
     }
 
+    [Test]
+    public void SecretPrintUsesExistingGuiEventAndScriptBookOutputPaths()
+    {
+        ExecuteBook([
+            "KEY k=GenerateKey(AES-ECB,128)",
+            "PARAM p=Parameters(SECRET_SHAMIR,#PARTS:3,#MINPARTS:2,#SHAREFORMAT:\"Y-X\")",
+            "SECRET s=Share(p,k)", "KEY r=Restore(s)", "Print(s)"
+        ]);
+        Assert.That(status.Diagnostics, Is.Empty);
+        Assert.That(editor.LastScriptBookSucceeded, Is.True);
+        Assert.That(editor.PrintMessage, Does.Contain("ShareFormat: Y-X").And.Contain("AvailableShares: 3"));
+        Assert.That(variables.DataVariables.Any(v => v.Identifier == "s" && v.Type == "SECRET"), Is.True);
+        var set = ((SecretVariableDeclaration)VariableDictionary.Instance().Get("s")).SecretSet;
+        foreach (var share in set.Shares)
+            Assert.That(editor.PrintMessage, Does.Contain(Convert.ToHexString(share.Value)));
+        Assert.That(editor.PrintMessage, Does.Contain("out: SECRET importedSecret = Secret("));
+        ExecuteBook(editor.PrintMessage.Split(Environment.NewLine).Append("KEY replay=Restore(s)").ToArray());
+        Assert.That(editor.LastScriptBookSucceeded, Is.True);
+        Assert.That(VariableDictionary.Instance().Contains("replay"), Is.True);
+        Assert.That(VariableDictionary.Instance().Get("r").Value,
+            Is.EqualTo(VariableDictionary.Instance().Get("k").Value).IgnoreCase);
+    }
+
+    [TestCase("0x(01AABBCC) 0x(02DDEEFF)")]
+    [TestCase("0x(AABBCC01) 0x(DDEEFF02)")]
+    [TestCase("1,0x(AABBCC),2 0x(DDEEFF)")]
+    [TestCase("0x(01AABBCC),0x(02DDEEFFGG)")]
+    [TestCase("0x(01AABBCC),0x(02DDEEFF@)")]
+    [TestCase("0x(01AABBCC),0x(02DDEEFF")]
+    public void SecretImportSyntaxErrorsReachGuiWithoutShareMaterial(string arguments)
+    {
+        editor.ParseLine("SECRET s=Secret(p," + arguments + ")");
+        Assert.That(status.StatusString, Does.Contain("Secret import").And.Contain("line 1").And.Contain("column"));
+        Assert.That(status.StatusString, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+        Assert.That(status.Diagnostics, Is.Empty); // No semantic evaluation after lexical/syntax failure.
+        Assert.That(VariableDictionary.Instance().Contains("s"), Is.False);
+    }
+
+    [TestCase("VAR v=\"bad\\q SECRET s=Secret(p,0x(01AABBCC) 0x(02DDEEFF))")]
+    [TestCase("VAR v=\"bad\\z Print(Secret(p,\n0x(01AABBCC) 0x(02DDEEFF)))")]
+    public void LexerRecoverySecretErrorsAreRedactedInGui(string script)
+    {
+        editor.ParseLine(script);
+        Assert.That(status.StatusString, Does.Contain("Secret import"));
+        Assert.That(status.StatusString, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+        foreach (var error in SyntaxErrorList.Instance())
+            Assert.That(error.Symbol + error.Message, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+        Assert.That(SyntaxErrorListner.ErrorMessage.ToString(), Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+    }
+
+    [TestCase("\n", 0)]
+    [TestCase("\n", 21)]
+    [TestCase("\r\n", 0)]
+    [TestCase("\r\n", 21)]
+    public void LaterLexerFailureCannotCopyEarlierSharesIntoGuiDiagnostics(string newline, int column)
+    {
+        editor.ParseLine("PARAM p=Parameters(SECRET_SHAMIR,#PARTS:2,#MINPARTS:2)");
+        editor.ParseLine("SECRET s=Secret(p,0x(01AABBCC),0x(02DDEEFF))" + newline + new string(' ', column) + "@");
+        var error = SyntaxErrorList.Instance().OfType<LexerError>().Single();
+        Assert.That(error.Symbol, Is.EqualTo("@"));
+        Assert.That(error.Line, Is.EqualTo("2"));
+        Assert.That(error.Column, Is.EqualTo(column.ToString()));
+        Assert.That(status.StatusString + SyntaxErrorListner.ErrorMessage,
+            Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+    }
+
     public sealed class ScriptBookTestApp
     {
         public static AppBuilder BuildAvaloniaApp() =>

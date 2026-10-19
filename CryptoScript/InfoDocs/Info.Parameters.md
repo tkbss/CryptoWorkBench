@@ -2,8 +2,8 @@
 
 List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' followed by the parameter name and a colon: '#'PARAMETER_NAME ':' PARAMETER_VALUE
 
----   
-    
+---
+
 - MECH: Mechanism parameter specifying the cryptographic algorithm used. Information about each mechanism can be obtained through Info(mechanism).
     - MECHANISM VALUES:
         - AES-CBC
@@ -150,3 +150,7 @@ EP2-TR31-KEY-BLOCK accepts only MECH, BLKH and RND. BLKH is required for Wrap;
 for Unwrap it optionally constrains the authenticated header. RND is exactly 14 HEX
 bytes when supplied to Wrap, securely generated when omitted, and forbidden for
 Unwrap. See [EP2-TR31-KEY-BLOCK](cryptoscript-info://mechanism/EP2-TR31-KEY-BLOCK).
+
+## Secret sharing parameters
+
+[PARTS](cryptoscript-info://parameter/SECRET_SHAMIR/PARTS), [MINPARTS](cryptoscript-info://parameter/SECRET_SHAMIR/MINPARTS), [POLYNOM](cryptoscript-info://parameter/SECRET_SHAMIR/POLYNOM), [SHAREFORMAT](cryptoscript-info://parameter/SECRET_SHAMIR/SHAREFORMAT). MINPARTS and POLYNOM are forbidden for SECRET_SPLIT.

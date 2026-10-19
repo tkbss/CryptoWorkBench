@@ -56,6 +56,18 @@ public interface ICryptoScriptVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CryptoScriptParser.type"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

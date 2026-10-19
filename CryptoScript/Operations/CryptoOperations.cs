@@ -46,6 +46,11 @@ namespace CryptoScript.Model
 
             MechanismParameterContractValidator.Validate(
                 mechanism, CryptoScriptFunction.Parameters, suppliedParameters);
+            if (SecretSharing.SecretParameters.IsSecretMechanism(suppliedParameters.Mechanism))
+            {
+                suppliedParameters.Type = new CryptoTypeParameters();
+                return suppliedParameters;
+            }
             return GenerateParameters(values);
         }
         public VariableDeclaration GenerateKey(OperationInvocation invocation)

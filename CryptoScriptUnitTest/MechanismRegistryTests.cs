@@ -14,7 +14,7 @@ public class MechanismRegistryTests
     // Formatting tolerance is limited to Markdown list indentation, whitespace around
     // the list marker and colon, and trailing line whitespace.
     private static readonly Regex MechanismDescriptionLine = new(
-        @"^\s*-\s+(?<name>[A-Z0-9-]+)\s+:\s+(?<description>\S(?:.*\S)?)\s*$",
+        @"^\s*-\s+(?<name>[A-Z0-9_-]+)\s+:\s+(?<description>\S(?:.*\S)?)\s*$",
         RegexOptions.CultureInvariant);
 
     private static readonly string[] RoadmapMechanisms =
@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlySixtySixRegisteredMechanisms()
+    public void ContainsExactlySixtyEightRegisteredMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(66));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(68));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -222,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(66));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(68));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {
@@ -311,6 +311,17 @@ public class MechanismRegistryTests
     {
         Algorithm algorithm = AlgorithmFactory.Create(mechanism);
         var functions = new HashSet<CryptoScriptFunction>();
+        if (algorithm is CryptoScript.SecretSharing.SecretSharingAlgorithm)
+        {
+            // Object-valued operations are dispatched by OperationFactory, not byte-string algorithms.
+            foreach (var function in new[] { CryptoScriptFunction.Share, CryptoScriptFunction.Secret, CryptoScriptFunction.Restore })
+            {
+                var operation = OperationFactory.CreateInvocationOperation(function.ToString());
+                Assert.That(operation.Method.DeclaringType, Is.EqualTo(typeof(CryptoScript.Operations.SecretOperations)));
+                Assert.That(operation.Method.Name, Is.EqualTo(function.ToString()));
+                functions.Add(function);
+            }
+        }
 
         if (HasConcreteAlgorithmOverride(
                 algorithm,
