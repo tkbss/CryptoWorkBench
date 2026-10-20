@@ -82,7 +82,7 @@ public class EmvArpcIntegrationTests
         Prepare(mechanism);
         var key = (KeyVariableDeclaration)VariableDictionary.Instance().Get("sk");
         key.KeyType = KeyType.Secret(algorithm);
-        key.KeyValue = "0x(" + new string('A', length * 2) + ")";
+        key.Value = "0x(" + new string('A', length * 2) + ")";
         Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR result=Mac(p,sk,arqc)"));
     }
 
@@ -94,13 +94,13 @@ public class EmvArpcIntegrationTests
         var key = (KeyVariableDeclaration)dictionary.Get("sk");
         dictionary.Add(new KeyVariableDeclaration
         {
-            Id = "other", KeyValue = key.KeyValue, Value = key.Value, ValueFormat = key.ValueFormat,
+            Id = "other", Value = key.Value, ValueFormat = key.ValueFormat,
             KeyType = KeyType.Secret(KeyAlgorithm.Hmac), KeySizeInBits = key.KeySizeInBits
         });
         Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR bad=Mac(p,other,arqc)"));
         EmvAcFixtures.Execute("VAR good=Mac(p,sk,arqc)");
         Assert.That(dictionary.Get("sk"), Is.SameAs(key));
-        key.KeyValue = "0x(" + new string('A', 48) + ")";
+        key.Value = "0x(" + new string('A', 48) + ")";
         var error = Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR bad=Mac(p,sk,arqc)"));
         Assert.That(error!.SemanticError!.Message, Does.Contain("size metadata"));
         Assert.That(dictionary.Contains("bad"), Is.False);
@@ -243,7 +243,7 @@ public class EmvArpcIntegrationTests
         var key = (KeyVariableDeclaration)dictionary.Get("sk");
         key.KeyType = KeyType.Secret(KeyAlgorithm.Tdea);
         var reference = Ap5TReferenceVectors.All.Single(p => p.Name == "both");
-        key.KeyValue = "0x(" + reference.Key + ")";
+        key.Value = "0x(" + reference.Key + ")";
         var parameter = (ParameterVariableDeclaration)dictionary.Get("p");
         dictionary.Get("arqc").Value = "0x(" + Ap5TReferenceVectors.Arqc + ")";
         if (mechanism == EmvArpcFixtures.Method1)
@@ -332,7 +332,6 @@ public class EmvArpcIntegrationTests
         {
             var key = (KeyVariableDeclaration)dictionary.Get(id);
             Assert.That(key.Value, Is.EqualTo("0x(" + expected + ")").IgnoreCase);
-            Assert.That(key.KeyValue, Is.EqualTo(key.Value));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(option == "C" ? KeyAlgorithm.Aes : KeyAlgorithm.Tdea)));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(issuer.Length * 4)));

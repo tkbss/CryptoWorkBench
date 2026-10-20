@@ -89,7 +89,7 @@ public sealed class Ep2DataEncryption : CryptoAlgorithm
         byte[]? output = null;
         try
         {
-            keyBytes = DecodeHex(string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue);
+            keyBytes = DecodeHex(key.Value);
             if (keyBytes.Length != 16 || key.KeySizeInBits.IsKnown && key.KeySizeInBits != new KeySize(128))
                 throw new ArgumentException("EP2 encryption requires exactly 16 key bytes and consistent key size metadata.");
             Ep2DataEncryptionPrimitive.ValidateDataLength(Math.Max(0, ((long)dataValue.Length - 4) / 2));

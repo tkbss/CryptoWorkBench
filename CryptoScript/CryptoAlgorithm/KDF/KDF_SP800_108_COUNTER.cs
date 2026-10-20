@@ -102,7 +102,6 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = outputLength.ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
@@ -117,7 +116,6 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         var keyVariable = new KeyVariableDeclaration
         {
             Value = FormatConversions.ByteArrayToHexString(key),
-            KeyValue = FormatConversions.ByteArrayToHexString(key),
             ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey()
         };
@@ -194,7 +192,7 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (!IsBinaryFormat(format) && IsBinaryFormat(key.ValueFormat))
             format = key.ValueFormat;

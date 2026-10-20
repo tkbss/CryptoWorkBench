@@ -87,7 +87,6 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = "128",
             KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
@@ -177,7 +176,7 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && key.ValueFormat == FormatConversions.HEX)
             format = key.ValueFormat;

@@ -82,16 +82,15 @@ public class GenerateKeyContractTests
         Assert.That(key.KeySize, Is.EqualTo(bits.ToString()));
         Assert.That(key.Type, Is.TypeOf<CryptoTypeKey>());
         Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
-        Assert.That(FormatConversions.HexStringToByteArray(key.KeyValue), Has.Length.EqualTo(bits / 8));
-        Assert.That(key.Value, Is.EqualTo(key.KeyValue));
-        if (import) Assert.That(key.KeyValue, Is.EqualTo(supplied));
+        Assert.That(FormatConversions.HexStringToByteArray(key.Value), Has.Length.EqualTo(bits / 8));
+        if (import) Assert.That(key.Value, Is.EqualTo(supplied));
         if (!import && entry.GeneratedKeyAlgorithm == KeyAlgorithm.Tdea)
             Assert.That(TripleDES.IsWeakKey(FormatConversions.HexStringToByteArray(key.Value)), Is.False);
 
         var restored = KeyVariableDeclaration.Deserialize(key.Serialize());
         Assert.That(restored.KeyType, Is.EqualTo(key.KeyType));
         Assert.That(restored.KeySizeInBits, Is.EqualTo(key.KeySizeInBits));
-        Assert.That(restored.KeyValue, Is.EqualTo(key.KeyValue));
+        Assert.That(restored.Value, Is.EqualTo(key.Value));
 
         // Use the generated key with another compatible mechanism. Modes and HMAC
         // digest names do not become a permanent restriction on this KEY.
@@ -214,7 +213,7 @@ public class GenerateKeyContractTests
             var key = Generate("AES-ECB", size, route);
             Assert.That(key.KeySize, Is.EqualTo("128"));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(128)));
-            Assert.That(FormatConversions.HexStringToByteArray(key.KeyValue), Has.Length.EqualTo(16));
+            Assert.That(FormatConversions.HexStringToByteArray(key.Value), Has.Length.EqualTo(16));
         }
     }
 
@@ -255,7 +254,7 @@ public class GenerateKeyContractTests
     {
         foreach (var entry in Generators.Where(e => e.GeneratedKeyAlgorithm == KeyAlgorithm.Tdea))
             foreach (string route in Routes)
-                Assert.That(Generate(entry.CanonicalName, supplied, route).KeyValue, Is.EqualTo(supplied));
+                Assert.That(Generate(entry.CanonicalName, supplied, route).Value, Is.EqualTo(supplied));
     }
 
     [Test]

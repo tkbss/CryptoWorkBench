@@ -66,7 +66,6 @@ public class Ep2KdfDocumentationTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Value, Is.EqualTo($"0x({expected})").IgnoreCase);
-            Assert.That(result.Value, Is.EqualTo(result.KeyValue));
             Assert.That(result.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(result.DerivationMechanism, Is.EqualTo(mechanism));
         });

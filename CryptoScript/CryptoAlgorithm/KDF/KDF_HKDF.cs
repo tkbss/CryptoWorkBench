@@ -141,7 +141,6 @@ public class KDF_HKDF : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = outputLengthBits.ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
@@ -152,7 +151,7 @@ public class KDF_HKDF : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (!IsDataFormat(format) && IsDataFormat(key.ValueFormat))
             format = key.ValueFormat;

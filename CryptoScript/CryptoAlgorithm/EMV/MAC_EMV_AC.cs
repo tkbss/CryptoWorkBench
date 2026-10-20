@@ -69,7 +69,7 @@ internal static class EmvAcArgumentContract
 
     internal static byte[] DecodeSessionKey(KeyVariableDeclaration key)
     {
-        byte[] bytes = DecodeHex(string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue, "Session KEY");
+        byte[] bytes = DecodeHex(key.Value, "Session KEY");
         bool returned = false;
         try
         {

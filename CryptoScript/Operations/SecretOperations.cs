@@ -77,7 +77,7 @@ public static class SecretOperations
             string value = FormatConversions.ByteArrayToHexString(material);
             return new KeyVariableDeclaration
             {
-                Type = new CryptoTypeKey(), Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
+                Type = new CryptoTypeKey(), Value = value, ValueFormat = FormatConversions.HEX,
                 KeySizeInBits = new KeySize(checked(material.Length * 8)),
                 KeyType = metadata?.KeyType ?? KeyType.Secret(KeyAlgorithm.Unknown),
                 Usage = metadata?.Usage ?? KeyUsagePolicy.Unspecified,

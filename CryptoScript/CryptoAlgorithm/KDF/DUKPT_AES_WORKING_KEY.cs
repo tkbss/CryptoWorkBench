@@ -106,7 +106,6 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = workingKeyType.KeyLengthBits.ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(workingKeyType.KeyAlgorithm),
@@ -170,7 +169,7 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && key.ValueFormat == FormatConversions.HEX)
             format = key.ValueFormat;

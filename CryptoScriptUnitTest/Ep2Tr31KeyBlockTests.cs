@@ -90,7 +90,7 @@ public class Ep2Tr31KeyBlockTests
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Hmac)));
             Assert.That(key.KeySize, Is.EqualTo("128")); Assert.That(key.KeyAttributes.Single().Data, Is.EqualTo(header));
             Variable("wire").Value = "\"" + wire + "\"";
-            Assert.That(new Ep2Tr31KeyBlock().Unwrap(Args("u", "kbpk", "wire")).KeyValue, Is.EqualTo(key.KeyValue));
+            Assert.That(new Ep2Tr31KeyBlock().Unwrap(Args("u", "kbpk", "wire")).Value, Is.EqualTo(key.Value));
             var operations = new CryptoOperations();
             OperationInvocation Invocation(params string[] ids) => new(ids.Select(id =>
                 new ResolvedCallArgument(Variable(id).Value, ResolvedCallArgumentKind.Variable, Variable(id))));
@@ -152,10 +152,10 @@ public class Ep2Tr31KeyBlockTests
         Run(Prefix());
         foreach (string id in new[] { "kbpk", "material" })
         {
-            var key = (KeyVariableDeclaration)Variable(id); string original = key.KeyValue;
-            key.KeyValue = "0x(" + new string('0', length * 2) + ")";
+            var key = (KeyVariableDeclaration)Variable(id); string original = key.Value;
+            key.Value = "0x(" + new string('0', length * 2) + ")";
             Assert.Throws<ArgumentException>(() => new Ep2Tr31KeyBlock().Wrap(Args("p", "kbpk", "material")));
-            key.KeyValue = original;
+            key.Value = original;
         }
     }
 
@@ -276,18 +276,18 @@ public class Ep2Tr31KeyBlockTests
         kbpk.KeyType = KeyType.Secret(KeyAlgorithm.Aes); kbpk.Usage = KeyUsagePolicy.Unspecified;
         runner = Run("VAR same=Wrap(p,kbpk,kbpk)");
         Assert.That(runner.Diagnostics.Count, Is.EqualTo(1)); // Same object has two different roles, H conflicts once.
-        material.KeyValue = kbpk.KeyValue; material.KeyType = KeyType.Secret(KeyAlgorithm.Hmac);
+        material.Value = kbpk.Value; material.KeyType = KeyType.Secret(KeyAlgorithm.Hmac);
         Assert.That(Run("VAR equal=Wrap(p,kbpk,material)").Diagnostics, Is.Empty);
         foreach (string id in new[] { "kbpk", "material" })
         {
             var key = (KeyVariableDeclaration)Variable(id);
             var args = Args("p", "kbpk", "material").Arguments.ToArray();
-            var wrongSize = new KeyVariableDeclaration { KeyValue = key.KeyValue, KeySize = "256" };
-            args[id == "kbpk" ? 1 : 2] = new(wrongSize.KeyValue, wrongSize, ResolvedCallArgumentKind.Variable);
+            var wrongSize = new KeyVariableDeclaration { Value = key.Value, KeySize = "256" };
+            args[id == "kbpk" ? 1 : 2] = new(wrongSize.Value, wrongSize, ResolvedCallArgumentKind.Variable);
             Assert.Throws<ArgumentException>(() => new Ep2Tr31KeyBlock().Wrap(new AlgorithmCallArguments(args)));
-            key.KeyValue = "0x(GG)";
+            key.Value = "0x(GG)";
             Assert.Throws<ArgumentException>(() => new Ep2Tr31KeyBlock().Wrap(Args("p", "kbpk", "material")));
-            key.KeyValue = "0x(" + Kbpk + ")";
+            key.Value = "0x(" + Kbpk + ")";
         }
     }
 

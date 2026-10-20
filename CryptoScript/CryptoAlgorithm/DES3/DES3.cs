@@ -41,7 +41,6 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             return new KeyVariableDeclaration
             {
                 Value = value,
-                KeyValue = value,
                 ValueFormat = FormatConversions.ParseString(value),
                 KeySize = keySize.ToString(),
                 KeyType = KeyType.Secret(KeyAlgorithm.Tdea),

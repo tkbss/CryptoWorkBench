@@ -65,7 +65,7 @@ public class EmvAcVerifyMechanismTests
             Assert.That(dictionary.Contains("verified"), Is.False);
             Assert.That(dictionary.Contains("after"), Is.False);
             Assert.That(dictionary.Contains("last"), Is.False);
-            Assert.That(((KeyVariableDeclaration)dictionary.Get("sk")).KeyValue, Is.EqualTo("0x(" + key + ")").IgnoreCase);
+            Assert.That(((KeyVariableDeclaration)dictionary.Get("sk")).Value, Is.EqualTo("0x(" + key + ")").IgnoreCase);
             Assert.That(dictionary.Get("data").Value, Is.EqualTo("0x(" + EmvAcFixtures.Data + ")").IgnoreCase);
             Assert.That(runner.Diagnostics, Has.Count.EqualTo(cipher == "DES3-ECB" ? 2 : 1));
             if (cipher == "DES3-ECB")
@@ -190,7 +190,7 @@ public class EmvAcVerifyMechanismTests
     {
         EmvAcFixtures.Execute(EmvAcFixtures.Prefix("DES3-ECB", EmvAcFixtures.Vectors[0].Key) +
             $"PARAM p=Parameters({Mechanism},#EXPECTED:0x({EmvAcFixtures.AesAc}))");
-        ((KeyVariableDeclaration)VariableDictionary.Instance().Get("sk")).KeyValue = "0x(" + new string('0', 32) + ")";
+        ((KeyVariableDeclaration)VariableDictionary.Instance().Get("sk")).Value = "0x(" + new string('0', 32) + ")";
         ((ParameterVariableDeclaration)VariableDictionary.Instance().Get("p")).SetParameter("#EXPECTED", "0x(0001)");
         var error = Assert.Throws<ArgumentException>(() => new MAC_EMV_AC_VERIFY().Mac(EmvAcFixtures.Structured()));
         Assert.That(error!.Message, Does.Contain("Expected cryptogram"));

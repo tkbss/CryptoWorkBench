@@ -193,7 +193,7 @@ This value was independently calculated with AES-CMAC. It is an executable Crypt
 
 The returned value follows the existing CryptoScript KDF convention:
 
-- `Value` and `KeyValue` contain identical hexadecimal `0x(...)` output.
+- `Value` contains the hexadecimal `0x(...)` output.
 - `KeySize` is the requested `#OUTLEN` in bits.
 - `Mechanism` is empty because the result is generic derived keying material.
 - `DerivationMechanism` is `KDF-SP800-108-COUNTER`.

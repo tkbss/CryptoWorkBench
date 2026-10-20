@@ -27,7 +27,6 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 byte[] aesKey = aesAlg.Key; // Getting the generated AES key
                 string keyValue = FormatConversions.ByteArrayToHexString(aesKey);
                 key.Value = keyValue;
-                key.KeyValue = keyValue;
                 key.ValueFormat = FormatConversions.ParseString(keyValue);
                 key.KeySizeInBits = new KeySize(keySize);
                 key.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
@@ -45,7 +44,6 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 throw new ArgumentException("wrong key size");
             k.KeySize = keySize.ToString();
             k.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
-            k.KeyValue = key;
             k.Type = new CryptoTypeKey();
             return k;
         }

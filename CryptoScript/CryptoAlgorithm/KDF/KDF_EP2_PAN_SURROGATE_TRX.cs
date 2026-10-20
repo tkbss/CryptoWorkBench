@@ -53,7 +53,6 @@ public sealed class KDF_EP2_PAN_SURROGATE_TRX : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = (OutputLengthBytes * 8).ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
@@ -70,7 +69,7 @@ public sealed class KDF_EP2_PAN_SURROGATE_TRX : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (!IsDataFormat(format) && IsDataFormat(key.ValueFormat))
             format = key.ValueFormat;

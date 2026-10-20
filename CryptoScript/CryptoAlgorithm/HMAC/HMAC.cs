@@ -89,7 +89,6 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
             return new KeyVariableDeclaration
             {
                 Value = value,
-                KeyValue = value,
                 ValueFormat = FormatConversions.ParseString(value),
                 KeySize = keySizeBits.ToString(),
                 KeyType = KeyType.Secret(KeyAlgorithm.Hmac),

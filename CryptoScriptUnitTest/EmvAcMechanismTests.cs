@@ -120,7 +120,7 @@ public class EmvSpecificParameterBindingTests
         var p = (ParameterVariableDeclaration)VariableDictionary.Instance().Get("p");
         p.SetParameter(name, value);
         var key = (KeyVariableDeclaration)VariableDictionary.Instance().Get("sk");
-        key.Value = key.KeyValue = "0x(INVALID)"; // A primitive/decoder error must not win over the contract error.
+        key.Value = "0x(INVALID)"; // A primitive/decoder error must not win over the contract error.
         string before = key.Serialize(), parametersBefore = p.Value;
         var error = Assert.Throws<SemanticErrorException>(() =>
             EmvAcFixtures.Execute("VAR result=Mac(p,sk,data) VAR after=0x(AABB)"));
@@ -694,7 +694,7 @@ public class EmvAcMechanismTests
         key.DerivationMechanism = "Imported";
         var otherKey = new KeyVariableDeclaration
         {
-            Id = "other", KeyValue = key.KeyValue, Value = key.Value,
+            Id = "other", Value = key.Value,
             KeyType = KeyType.Secret(KeyAlgorithm.Hmac), KeySizeInBits = new KeySize(128)
         };
         dictionary.Add(otherKey);
@@ -732,10 +732,10 @@ public class EmvAcMechanismTests
     {
         EmvAcFixtures.Execute(EmvAcFixtures.Prefix() + $"PARAM p=Parameters({Mechanism})");
         var key = (KeyVariableDeclaration)VariableDictionary.Instance().Get("sk");
-        key.KeyValue = "0x(" + new string('A', 48) + ")";
+        key.Value = "0x(" + new string('A', 48) + ")";
         var error = Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR ac=Mac(p,sk,data)"));
         Assert.That(error!.SemanticError!.Message, Does.Contain("size metadata"));
-        key.KeyValue = "0x(" + EmvAcFixtures.AesKey + ")";
+        key.Value = "0x(" + EmvAcFixtures.AesKey + ")";
         ((ParameterVariableDeclaration)VariableDictionary.Instance().Get("p")).GetParameters().Add("#UNKNOWN", "secret");
         Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR ac=Mac(p,sk,data)"));
     }
@@ -747,7 +747,7 @@ public class EmvAcMechanismTests
     public void InvalidKeyLengthIsRejected(int length)
     {
         EmvAcFixtures.Execute(EmvAcFixtures.Prefix() + $"PARAM p=Parameters({Mechanism})");
-        ((KeyVariableDeclaration)VariableDictionary.Instance().Get("sk")).KeyValue = "0x(" + new string('A', length * 2) + ")";
+        ((KeyVariableDeclaration)VariableDictionary.Instance().Get("sk")).Value = "0x(" + new string('A', length * 2) + ")";
         Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR ac=Mac(p,sk,data)"));
     }
 

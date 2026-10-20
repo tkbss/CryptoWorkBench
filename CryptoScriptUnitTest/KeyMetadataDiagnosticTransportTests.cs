@@ -530,7 +530,7 @@ public class KeyMetadataDiagnosticTransportTests
             { Value = Data, Type = new CryptoTypeVar(), ValueFormat = FormatConversions.HEX };
 
         private static KeyVariableDeclaration KeyResult() => new()
-            { Value = Data, KeyValue = Data, Type = new CryptoTypeKey(), ValueFormat = FormatConversions.HEX };
+            { Value = Data, Type = new CryptoTypeKey(), ValueFormat = FormatConversions.HEX };
 
         public override StringVariableDeclaration Encrypt(AlgorithmCallArguments parameters)
         {

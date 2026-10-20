@@ -121,11 +121,11 @@ public class Ep2MacTests
         var key = (KeyVariableDeclaration)valid[1].SourceVariable!;
         foreach (int size in new[] { 0, 16, 24, 31, 33 })
         {
-            key.KeyValue = "0x(" + new string('0', size * 2) + ")";
+            key.Value = "0x(" + new string('0', size * 2) + ")";
             Assert.Throws<ArgumentException>(() => algorithm.Mac(new AlgorithmCallArguments(valid)));
             Assert.Throws<ArgumentException>(() => Ep2MacPrimitive.Compute(new byte[size], Array.Empty<byte>(), false));
         }
-        key.KeyValue = "0x(GG)";
+        key.Value = "0x(GG)";
         Assert.Throws<ArgumentException>(() => algorithm.Mac(new AlgorithmCallArguments(valid)));
     }
 
@@ -186,7 +186,7 @@ public class Ep2MacTests
             SemanticDiagnosticCode.KeyTypeConflict, SemanticDiagnosticCode.KeyUsageConflict }));
         Assert.That(runner.Diagnostics.All(x => x.Severity == SemanticDiagnosticSeverity.Warning && x.Identifier == "k"), Is.True);
         Assert.That(string.Join(" ",runner.Diagnostics.Select(x => x.Message)), Does.Not.Contain(Key).And.Not.Contain(Data));
-        key.KeyValue = "0x(11)";
+        key.Value = "0x(11)";
         var parser = ParserBuilder.StringBuild("VAR failed=Mac(p,k,d)");
         runner = new CryptoScriptRunner();
         Assert.Throws<SemanticErrorException>(() => runner.Execute(parser.program()));
@@ -221,7 +221,7 @@ public class Ep2MacTests
         Assert.Throws<SemanticErrorException>(() => Run("Mac(serialized,k,d)"));
         var original = (KeyVariableDeclaration)VariableDictionary.Instance().Get("k");
         var mismatch = new KeyVariableDeclaration {
-            Value=original.Value, KeyValue=original.KeyValue, ValueFormat=FormatConversions.HEX,
+            Value=original.Value, ValueFormat=FormatConversions.HEX,
             KeySize="128", Type=new CryptoTypeKey()
         };
         var parameters = VariableDictionary.Instance().Get("p");

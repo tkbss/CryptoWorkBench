@@ -60,7 +60,7 @@ public class Ap5TAnalysisBackendTests
 
     private static KeyVariableDeclaration Key(string id, string material) => new()
     {
-        Id = id, KeyValue = Hex(material), Value = Hex(material), ValueFormat = FormatConversions.HEX,
+        Id = id, Value = Hex(material), ValueFormat = FormatConversions.HEX,
         Type = new CryptoTypeKey(), KeyType = KeyType.Secret(KeyAlgorithm.Tdea), KeySizeInBits = new KeySize(material.Length * 4)
     };
     private static (ParameterVariableDeclaration P, KeyVariableDeclaration K, VariableDeclaration D) Inputs(Vector v, bool conflict)
@@ -129,7 +129,6 @@ public class Ap5TAnalysisBackendTests
         {
             Assert.That(outputKey.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));
             Assert.That(outputKey.KeySizeInBits, Is.EqualTo(new KeySize(128)));
-            Assert.That(outputKey.KeyValue, Is.EqualTo(outputKey.Value));
             Assert.That(outputKey.Usage, Is.EqualTo(KeyUsagePolicy.Unspecified));
             if (v.Function == "Derive") Assert.That(outputKey.DerivationMechanism, Is.EqualTo(v.Mechanism));
         }

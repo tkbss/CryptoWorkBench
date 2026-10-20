@@ -9,7 +9,7 @@ public class KeyMetadataValidatorTests
     private static KeyVariableDeclaration Key(KeyAlgorithm algorithm = KeyAlgorithm.Aes) => new()
     {
         Id = "key", KeyType = KeyType.Secret(algorithm),
-        Value = "not technically valid key data", KeyValue = "sensitive-key-material",
+        Value = "not technically valid key data",
         KeySizeInBits = new KeySize(7), DerivationMechanism = "unchanged"
     };
 
@@ -75,7 +75,7 @@ public class KeyMetadataValidatorTests
             Assert.That(diagnostic.Value, Is.Empty);
             Assert.That(diagnostic.FunctionCall, Is.Empty);
             Assert.That(SemanticDiagnosticFormatter.Format(diagnostic),
-                Does.Not.Contain(key.Value).And.Not.Contain(key.KeyValue).And.Not.Contain("compliant"));
+                Does.Not.Contain(key.Value).And.Not.Contain("compliant"));
         }
         Assert.That(diagnostics[0].Message, Does.Contain("Hmac").And.Contain("Aes"));
         Assert.That(diagnostics[1].Message, Does.Contain("MacGenerate").And.Contain("Decrypt"));

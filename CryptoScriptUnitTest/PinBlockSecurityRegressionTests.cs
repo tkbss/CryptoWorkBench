@@ -341,7 +341,6 @@ public class PinBlockSecurityRegressionTests
         {
             Id = "k",
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey(),
             KeyType = KeyType.Secret(algorithm),

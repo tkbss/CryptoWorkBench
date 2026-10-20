@@ -65,7 +65,7 @@ public sealed class KDF_EMV_MASTER_C : CryptoAlgorithm
             string value = FormatConversions.ByteArrayToHexString(derived);
             return new KeyVariableDeclaration
             {
-                Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
+                Value = value, ValueFormat = FormatConversions.HEX,
                 KeyType = KeyType.Secret(KeyAlgorithm.Aes), KeySizeInBits = keySize,
                 Usage = KeyUsagePolicy.Unspecified, DerivationMechanism = MechanismName,
                 Type = new CryptoTypeKey()

@@ -66,7 +66,6 @@ public class EmvAcSessionMechanismTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Value, Is.EqualTo($"0x({expectedSessionKey})").IgnoreCase);
-            Assert.That(result.KeyValue, Is.EqualTo(result.Value));
             Assert.That(result.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(result.KeyType, Is.EqualTo(KeyType.Secret(expectedAlgorithm)));
             Assert.That(result.KeySizeInBits, Is.EqualTo(new KeySize(expectedSize)));
@@ -240,7 +239,6 @@ public class EmvAcSessionMechanismTests
         {
             Id = "master",
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeyType = KeyType.Secret(KeyAlgorithm.Aes),
             KeySizeInBits = new KeySize(192),
@@ -456,7 +454,6 @@ public class EmvAcSessionMechanismTests
         {
             Id = id,
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeyType = new KeyType(algorithm, materialKind),
             KeySizeInBits = new KeySize(bytes.Length * 8),
@@ -475,7 +472,6 @@ public class EmvAcSessionMechanismTests
             Assert.That(session.KeySizeInBits, Is.EqualTo(new KeySize(size)));
             Assert.That(session.Usage, Is.EqualTo(KeyUsagePolicy.Unspecified));
             Assert.That(session.ValueFormat, Is.EqualTo(FormatConversions.HEX));
-            Assert.That(session.KeyValue, Is.EqualTo(session.Value));
             Assert.That(session.DerivationMechanism, Is.EqualTo(Mechanism));
         });
     }

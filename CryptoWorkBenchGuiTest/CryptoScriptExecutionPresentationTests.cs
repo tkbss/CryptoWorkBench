@@ -211,7 +211,8 @@ public class CryptoScriptExecutionPresentationTests
                 Assert.That(SyntaxErrorListner.SyntaxErrorOccured, Is.False);
                 Assert.That(VariableDictionary.Instance().Get("after").Value, Is.EqualTo("0x(CAFE)"));
                 string[] lines = File.ReadAllLines(path);
-                foreach (string label in new[] { "Identifier", "Type", "Value", "ValueFormat", "KeyValue", "KeySize", "KeyType", "KeySizeInBits", "KeyUsage", "KeyPolicy", "DerivationMechanism", "KeyAttributes", "KCV", "KCVC", "KCVK" })
+                Assert.That(lines.Any(line => line.StartsWith("out: KeyValue:", StringComparison.Ordinal)), Is.False);
+                foreach (string label in new[] { "Identifier", "Type", "Value", "ValueFormat", "KeySize", "KeyType", "KeySizeInBits", "KeyUsage", "KeyPolicy", "DerivationMechanism", "KeyAttributes", "KCV", "KCVC", "KCVK" })
                     Assert.That(lines.Count(line => line.StartsWith("out: " + label + ":", StringComparison.Ordinal)), Is.EqualTo(printCount));
                 foreach (string fullValue in new[] { "Value: 0x(000102030405060708090A0B0C0D0E0F)", "KCV: 0x(c6a13b37878f5b826f4f8162a1c8d879)", "KCVC: 0x(be7ed6ae787dd5544c5561c7dcd06abb)", "KCVK: 0x(0a940bb5416ef045f1c39458c653ea5a)" })
                     Assert.That(lines.Count(line => line == "out: " + fullValue), Is.EqualTo(printCount));

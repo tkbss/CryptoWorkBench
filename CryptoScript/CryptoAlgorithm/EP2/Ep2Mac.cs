@@ -75,7 +75,7 @@ public sealed class Ep2Mac : CryptoAlgorithm
         byte[]? result = null;
         try
         {
-            keyBytes = DecodeHex(string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue);
+            keyBytes = DecodeHex(key.Value);
             if (keyBytes.Length != 32 || key.KeySizeInBits.IsKnown && key.KeySizeInBits != new KeySize(256))
                 throw new ArgumentException("EP2 Mac requires exactly 32 key bytes and consistent key size metadata.");
             input = DecodeHex(dataValue);

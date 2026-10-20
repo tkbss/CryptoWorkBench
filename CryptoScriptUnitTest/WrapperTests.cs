@@ -75,7 +75,6 @@ namespace CryptoScriptUnitTest
             var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
-            Assert.That(ik.KeyValue.ToUpper() == "0x(3F419E1CB7079442AA37474C2EFBF8B8)".ToUpper());
             string v = "0x(3F419E1CB7079442AA37474C2EFBF8B8)";
             Assert.That(ik.Value.ToUpper() == v.ToUpper());
         }
@@ -94,7 +93,6 @@ namespace CryptoScriptUnitTest
             var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
-            Assert.That(ik.KeyValue.ToUpper() == "0x(3F419E1CB7079442AA37474C2EFBF8B8)".ToUpper());
             string v = "0x(3F419E1CB7079442AA37474C2EFBF8B8)";
             Assert.That(ik.Value.ToUpper() == v.ToUpper());
         }
@@ -113,7 +111,7 @@ namespace CryptoScriptUnitTest
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
             string partRSAKey="308204a40201000282010100d6c460fb012e8dedf2d78574b451e9bf1c69";
-            string pr=FormatConversions.HexStringToString(ik.KeyValue);
+            string pr=FormatConversions.HexStringToString(ik.Value);
             Assert.That(pr.Substring(0, partRSAKey.Length).ToUpper() == partRSAKey.ToUpper());
         }
     }

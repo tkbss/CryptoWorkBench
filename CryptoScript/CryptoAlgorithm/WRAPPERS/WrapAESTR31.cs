@@ -68,7 +68,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 blockMac = block.Mac;
             }
             // 4) Derive the encryption and MAC keys from the protection key
-            byte[] masterKeyBytes = FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue);
+            byte[] masterKeyBytes = FormatConversions.HexStringToByteArray(keyProtectionKey.Value);
             int protKeySizeBits = Convert.ToInt32(keyProtectionKey.KeySize);
 
             byte[] macKey = DeriveKey(masterKeyBytes, MACDerivationData(protKeySizeBits), protKeySizeBits);
@@ -100,7 +100,6 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             // 8) Build a KeyVariableDeclaration to hold the result
             KeyVariableDeclaration unwrappedKey = new KeyVariableDeclaration()
             {
-                KeyValue = actualKeyHex,
                 KeySize = actualBitSize.ToString(),  // or store the bits as needed
                 KeyType = KeyTypeFromHeader(block.Header),
                 Value = actualKeyHex, // pick some name or pass in an extra param
@@ -207,10 +206,10 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             if (!ReferenceEquals(keyProtectionKey, keyToWrap) || transportedAlgorithm != KeyAlgorithm.Aes)
                 KeyMetadataValidator.Validate(keyToWrap, transportedAlgorithm, KeyUsage.None,
                     "Wrap", "WRAP-AES-TR31", parameters.DiagnosticSink);
-            byte[] macKey=DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue), 
+            byte[] macKey=DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.Value),
                 MACDerivationData(Convert.ToInt32(keyProtectionKey.KeySize)),
                 Convert.ToInt32(keyProtectionKey.KeySize));
-            byte[] encryptionKey = DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.KeyValue),
+            byte[] encryptionKey = DeriveKey(FormatConversions.HexStringToByteArray(keyProtectionKey.Value),
                 EncryptionDerivationData(Convert.ToInt32(keyProtectionKey.KeySize)),
                 Convert.ToInt32(keyProtectionKey.KeySize));
             byte[]? random = string.IsNullOrEmpty(rnd) ? null : FormatConversions.HexStringToByteArray(rnd);
@@ -263,7 +262,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         }
         private static byte[] DecodeTransportedKey(KeyVariableDeclaration key, KeyAlgorithm algorithm)
         {
-            string hex = key.KeyValue;
+            string hex = key.Value;
             if (hex.StartsWith("0x(", StringComparison.Ordinal))
             {
                 if (!hex.EndsWith(')'))

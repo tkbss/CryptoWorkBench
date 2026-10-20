@@ -116,7 +116,7 @@ public class DukptTdeaInitialKeyTests
         string value = $"0x({bdk})";
         VariableDictionary.Instance().Add(new KeyVariableDeclaration
         {
-            Id = "bdk", Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
+            Id = "bdk", Value = value, ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey()
         });
         return Execute($"PARAM p=Parameters({Mechanism}) KEY output=Derive(p,bdk,0x({ksn}))")

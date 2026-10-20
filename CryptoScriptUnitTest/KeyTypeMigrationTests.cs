@@ -154,6 +154,6 @@ public class KeyTypeMigrationTests
         key.KeyType.Should().Be(KeyType.Secret(algorithm));
         key.KeySizeInBits.Should().Be(new KeySize(bits));
         key.KeySize.Should().Be(bits.ToString());
-        FormatConversions.HexStringToByteArray(key.KeyValue).Length.Should().Be(bits / 8);
+        FormatConversions.HexStringToByteArray(key.Value).Length.Should().Be(bits / 8);
     }
 }

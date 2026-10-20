@@ -150,7 +150,7 @@ namespace CryptoScriptUnitTest
             var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get(recoveredName);
             Assert.Multiple(() =>
             {
-                Assert.That(recovered.KeyValue, Is.EqualTo(original.KeyValue).IgnoreCase);
+                Assert.That(recovered.Value, Is.EqualTo(original.Value).IgnoreCase);
                 Assert.That(recovered.KeySize, Is.EqualTo(original.KeySize));
             });
         }

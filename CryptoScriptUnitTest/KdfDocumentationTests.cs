@@ -68,7 +68,6 @@ public class KdfDocumentationTests
         Assert.Multiple(() =>
         {
             Assert.That(key.Type, Is.TypeOf<CryptoTypeKey>());
-            Assert.That(key.Value, Is.EqualTo(key.KeyValue));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(FormatConversions.HexStringToByteArray(key.Value), Has.Length.EqualTo(32));
             Assert.That(key.KeySize, Is.EqualTo("256"));

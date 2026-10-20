@@ -41,7 +41,7 @@ public class PinBlockSemanticDiagnosticsTests
     private static KeyVariableDeclaration Key(string hex, KeyAlgorithm algorithm, KeyUsagePolicy? usage = null,
         string id = "k") => new()
     {
-        Id = id, Type = new CryptoTypeKey(), Value = Hex(hex), KeyValue = Hex(hex),
+        Id = id, Type = new CryptoTypeKey(), Value = Hex(hex),
         ValueFormat = FormatConversions.HEX, KeyType = KeyType.Secret(algorithm),
         KeySizeInBits = new KeySize((ulong)hex.Length * 4),
         Usage = usage ?? KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt)

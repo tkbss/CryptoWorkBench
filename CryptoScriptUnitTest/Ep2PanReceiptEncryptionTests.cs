@@ -114,17 +114,17 @@ public class Ep2PanReceiptEncryptionTests
         foreach (int length in new[] { 0, 1, 15, 17, 24, 32 })
         foreach (bool encrypt in new[] { false, true })
         {
-            key.KeyValue = "0x(" + new string('0', length * 2) + ")";
+            key.Value = "0x(" + new string('0', length * 2) + ")";
             Assert.Throws<ArgumentException>(() => Ep2PanReceiptEncryptionPrimitive.Transform(new byte[length], new byte[16], encrypt));
             var algorithm = new Ep2PanReceiptEncryption();
             Assert.Throws<ArgumentException>(() => { if (encrypt) algorithm.Encrypt(Arguments()); else algorithm.Decrypt(Arguments()); });
         }
         foreach (int length in new[] { 0, 1, 15, 17, 31, 33 })
             Assert.Throws<ArgumentException>(() => Ep2PanReceiptEncryptionPrimitive.Transform(Convert.FromHexString(Key), new byte[length], false));
-        key.KeyValue = "0x(GG)";
+        key.Value = "0x(GG)";
         Assert.Throws<ArgumentException>(() => new Ep2PanReceiptEncryption().Encrypt(Arguments()));
-        var wrongSize = new KeyVariableDeclaration { KeyValue = "0x(" + Key + ")", KeySize = "256" };
-        var args = Arguments().Arguments.ToArray(); args[1] = new(wrongSize.KeyValue, wrongSize, ResolvedCallArgumentKind.Variable);
+        var wrongSize = new KeyVariableDeclaration { Value = "0x(" + Key + ")", KeySize = "256" };
+        var args = Arguments().Arguments.ToArray(); args[1] = new(wrongSize.Value, wrongSize, ResolvedCallArgumentKind.Variable);
         Assert.Throws<ArgumentException>(() => new Ep2PanReceiptEncryption().Encrypt(new AlgorithmCallArguments(args)));
     }
 
@@ -158,7 +158,7 @@ public class Ep2PanReceiptEncryptionTests
             $"PARAM kd=Parameters(KDF-EP2-PAN-RECEIPT-TRX) KEY trx=Derive(kd,terminal,0x({Dol})) " +
             $"PARAM p=Parameters({Mechanism}) VAR encrypted=Encrypt(p,trx,0x({Plain})) VAR restored=Decrypt(p,trx,encrypted)");
         var key = (KeyVariableDeclaration)Variable("trx");
-        Assert.That(key.KeyValue, Is.EqualTo("0x(" + Key + ")").IgnoreCase);
+        Assert.That(key.Value, Is.EqualTo("0x(" + Key + ")").IgnoreCase);
         Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Unknown)));
         Assert.That(Variable("encrypted").Value, Is.EqualTo("0x(" + Cipher + ")").IgnoreCase);
         Assert.That(Variable("restored").Value, Is.EqualTo("0x(" + Plain + ")").IgnoreCase);
@@ -263,7 +263,7 @@ public class Ep2PanReceiptEncryptionTests
             SemanticDiagnosticCode.KeyTypeConflict, SemanticDiagnosticCode.KeyUsageConflict }));
         Assert.That(runner.Diagnostics.All(x => x.Severity == SemanticDiagnosticSeverity.Warning && x.Identifier == "k"), Is.True);
         Assert.That(string.Join(" ", runner.Diagnostics.Select(x => x.Message)), Does.Not.Contain(Key).And.Not.Contain(Plain));
-        key.KeyValue = "0x(11)";
+        key.Value = "0x(11)";
         runner = new CryptoScriptRunner();
         Assert.Throws<SemanticErrorException>(() => runner.Execute(ParserBuilder.StringBuild($"{function}(p,k,data)").program()));
         Assert.That(runner.Diagnostics.Count(x => x.Severity == SemanticDiagnosticSeverity.Warning), Is.EqualTo(2));

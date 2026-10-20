@@ -130,7 +130,7 @@ public class EmvMasterOptionAMechanismTests
         RejectScript("KEY ICC=Derive(p,IMK,\"1234\",\"45\")", "argument");
         VariableDictionary.Instance().Add(new KeyVariableDeclaration
         {
-            Id = "inconsistent", Value = "0x(" + Imk + ")", KeyValue = "0x(" + Imk + ")",
+            Id = "inconsistent", Value = "0x(" + Imk + ")",
             ValueFormat = FormatConversions.HEX, KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
             KeySizeInBits = new KeySize(192), Type = new CryptoTypeKey()
         });
@@ -316,7 +316,6 @@ public class EmvMasterOptionAMechanismTests
         Assert.Multiple(() =>
         {
             Assert.That(key.Value, Is.EqualTo("0x(" + expected + ")").IgnoreCase);
-            Assert.That(key.KeyValue, Is.EqualTo(key.Value));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(128)));
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));

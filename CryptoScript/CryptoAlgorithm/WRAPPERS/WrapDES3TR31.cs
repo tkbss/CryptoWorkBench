@@ -93,7 +93,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
             string value = FormatConversions.ByteArrayToHexString(key);
             return new KeyVariableDeclaration
             {
-                Value = value, KeyValue = value, KeySize = (key.Length * 8).ToString(),
+                Value = value, KeySize = (key.Length * 8).ToString(),
                 KeyType = KeyTypeFromHeader(block.Header),
                 ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
                 KeyAttributes = block.HeaderOptionalBlocks()
@@ -131,7 +131,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
 
     private static byte[] GetKey(KeyVariableDeclaration key)
     {
-        return FormatConversions.HexStringToByteArray(key.KeyValue);
+        return FormatConversions.HexStringToByteArray(key.Value);
     }
 
     private static char RequireSupportedVersion(string header)

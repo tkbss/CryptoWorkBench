@@ -83,7 +83,7 @@ public class Tr31AesVersionTests
             return;
         }
         Run("KEY r=Unwrap(p,k,b)");
-        Assert.That(((KeyVariableDeclaration)VariableDictionary.Instance().Get("r")).KeyValue,
+        Assert.That(((KeyVariableDeclaration)VariableDictionary.Instance().Get("r")).Value,
             Is.EqualTo($"0x({Key})").IgnoreCase);
     }
 
@@ -92,7 +92,7 @@ public class Tr31AesVersionTests
     {
         var expected = Outputs[3];
         Run($"PARAM p=#MECH:WRAP-AES-TR31 VAR b=\"D0144D0AB00E0000{expected[1]}{expected[2]}\" KEY r=Unwrap(p,k,b)");
-        Assert.That(((KeyVariableDeclaration)VariableDictionary.Instance().Get("r")).KeyValue,
+        Assert.That(((KeyVariableDeclaration)VariableDictionary.Instance().Get("r")).Value,
             Is.EqualTo($"0x({Key})").IgnoreCase);
     }
 

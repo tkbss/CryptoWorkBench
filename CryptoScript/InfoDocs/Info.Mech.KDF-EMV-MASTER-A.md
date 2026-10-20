@@ -79,7 +79,7 @@ PAN may also be declared with `VAR pan = "99012345678901234"` and passed as `Der
 ## Result KEY Metadata
 
 Algorithm TDEA; Secret material; KeySizeInBits 128 including parity bits; ValueFormat HEX;
-KeyValue and Value contain the same derived key; DerivationMechanism KDF-EMV-MASTER-A;
+Value contains the derived key; DerivationMechanism KDF-EMV-MASTER-A;
 KeyUsage Unspecified. The result can be passed directly to KDF-EMV-AC-SESSION.
 
 ## Security and Errors

@@ -28,7 +28,7 @@ Digital signatures are not supported in CryptoScript V1. Asymmetric cryptography
 `Print(k)` displays the actual KEY object's Identifier, Type, complete Value,
 ValueFormat, KeyType, KeySizeInBits, KeyUsage, KeyPolicy, DerivationMechanism,
 KeyAttributes, KCV, KCVC and KCVK. Unavailable values are shown as `N/A`.
-The legacy `KeyValue` and `KeySize` fields are also included.
+The legacy `KeySize` field is also included. `Value` is the sole canonical representation of key material.
 The full key and full check values are printed; no truncation or masking is applied.
 Other `Print` arguments retain their existing output behavior.
 

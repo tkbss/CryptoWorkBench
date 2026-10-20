@@ -47,7 +47,6 @@ public class KdfEp2SessionTests
         result.KeySize.Should().Be((outputLength * 8).ToString());
         result.KeySizeInBits.Should().Be(new KeySize(outputLength * 8));
         result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Unknown));
-        result.Value.Should().Be(result.KeyValue);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
         result.DerivationMechanism.Should().Be("KDF-EP2-SESSION");
         result.Type.Should().BeOfType<CryptoTypeKey>();

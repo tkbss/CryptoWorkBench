@@ -70,9 +70,7 @@ namespace CryptoScript.Variables
                 _keySize = value;
             }
         }
-        public string KeyValue { get; set; } = string.Empty;
         public List<OptionalBlock> KeyAttributes { get; set; } = new List<OptionalBlock>();
-        //public override string Value { get => base.Value; set => base.Value = value; }
         public override string PrintOutput()
         {
             static string Available(string? value) => string.IsNullOrEmpty(value) ? "N/A" : value;
@@ -80,7 +78,7 @@ namespace CryptoScript.Variables
             {
                 $"Identifier: {Available(Id)}", $"Type: {Available(Type?.Name)}",
                 $"Value: {Available(Value)}", $"ValueFormat: {Available(ValueFormat)}",
-                $"KeyValue: {Available(KeyValue)}", $"KeySize: {Available(KeySize)}",
+                $"KeySize: {Available(KeySize)}",
                 $"KeyType: {KeyType.Algorithm}/{KeyType.MaterialKind}",
                 $"KeySizeInBits: {(KeySizeInBits.IsKnown ? KeySizeInBits.Bits.ToString(CultureInfo.InvariantCulture) : "N/A")}",
                 $"KeyUsage: {(Usage.Mode == KeyUsageMode.Unspecified ? "N/A" : Usage.AllowedUsages.ToString())}",

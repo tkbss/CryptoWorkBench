@@ -118,7 +118,7 @@ public class Ap5SemanticDiagnosticsTests
 
     private static KeyVariableDeclaration Key(string id, string hex, KeyAlgorithm algorithm) => new()
     {
-        Id = id, Value = Hex(hex), KeyValue = Hex(hex), ValueFormat = FormatConversions.HEX,
+        Id = id, Value = Hex(hex), ValueFormat = FormatConversions.HEX,
         KeySizeInBits = new KeySize(hex.Length * 4), KeyType = KeyType.Secret(algorithm), Type = new CryptoTypeKey()
     };
 
@@ -214,7 +214,7 @@ public class Ap5SemanticDiagnosticsTests
             Assert.That(d.Location.ParentOperationId, Is.Null);
             Assert.That(d.Location.Mechanism, Is.EqualTo(v.Mechanism));
             Assert.That(d.Location.Identifier, Is.EqualTo("k"));
-            Assert.That(d.Message, Does.Not.Contain(k.KeyValue));
+            Assert.That(d.Message, Does.Not.Contain(k.Value));
         }
 
         string[] legacy = [p.Value, k.Value, data.Value];
@@ -298,7 +298,6 @@ public class Ap5SemanticDiagnosticsTests
         data.ValueFormat = FormatConversions.HEX;
         if (data is KeyVariableDeclaration transported)
         {
-            transported.KeyValue = data.Value;
             transported.KeySize = "128";
         }
         var sink = new SemanticDiagnosticSink();
@@ -350,7 +349,7 @@ public class Ap5SemanticDiagnosticsTests
     {
         var v = (Vector)input;
         var (p, k, data) = Inputs(v, 0);
-        k.Value = k.KeyValue = Hex(new string('0', v.Key.Length));
+        k.Value = Hex(new string('0', v.Key.Length));
         string before = k.Serialize();
         var sink = new SemanticDiagnosticSink();
         if (v.Function == "Unwrap" || v.Mechanism == "MAC-EMV-AC-VERIFY")
@@ -369,7 +368,7 @@ public class Ap5SemanticDiagnosticsTests
         var v = Vectors().Single(v => v.Mechanism == "DUKPT-TDEA-INITIAL-KEY");
         var (p, k, data) = Inputs(v, 0);
         // Each component is a known weak DES key, while K1 differs from K2.
-        k.Value = k.KeyValue = "0x(0101010101010101FEFEFEFEFEFEFEFE)";
+        k.Value = "0x(0101010101010101FEFEFEFEFEFEFEFE)";
         string before = k.Serialize();
         var sink = new SemanticDiagnosticSink();
         Assert.That(Direct(v, Arguments(p, k, data, sink)), Is.TypeOf<KeyVariableDeclaration>());
@@ -382,7 +381,7 @@ public class Ap5SemanticDiagnosticsTests
     {
         var v = Vectors().Single(v => v.Mechanism == "DUKPT-TDEA-INITIAL-KEY");
         var (p, k, data) = Inputs(v, 3);
-        k.Value = k.KeyValue = "0x(0123456789ABCDEF0123456789ABCDEF)";
+        k.Value = "0x(0123456789ABCDEF0123456789ABCDEF)";
         string before = k.Serialize(), parameterBefore = p.Value, dataBefore = data.Value;
         // Independently calculated with .NET DES.EncryptEcb, not the production
         // Bouncy Castle EDE fallback: K1=K2 reduces EDE to single DES.

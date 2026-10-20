@@ -47,7 +47,7 @@ public static class KeyCheckOperations
             return new KeyVariableDeclaration
             {
                 Type = new CryptoTypeKey(), Value = source.Value, ValueFormat = source.ValueFormat,
-                KeyValue = source.KeyValue, KeySize = source.KeySize, KeySizeInBits = source.KeySizeInBits,
+                KeySize = source.KeySize, KeySizeInBits = source.KeySizeInBits,
                 KeyType = source.KeyType, Usage = source.Usage, DerivationMechanism = source.DerivationMechanism,
                 KeyAttributes = source.KeyAttributes?.Select(block => new CryptoAlgorithm.WRAPPERS.OptionalBlock
                 {

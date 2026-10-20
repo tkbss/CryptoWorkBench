@@ -9,7 +9,7 @@ namespace CryptoScriptUnitTest;
 [NonParallelizable]
 public class KeyMechanismReaderMigrationTests
 {
-    private const string KeyValue = "0x(0123456789ABCDEFFEDCBA9876543210)";
+    private const string KeyMaterial = "0x(0123456789ABCDEFFEDCBA9876543210)";
 
     [SetUp]
     public void SetUp() => VariableDictionary.Instance().Clear();
@@ -30,8 +30,8 @@ public class KeyMechanismReaderMigrationTests
     public void Des3WarnsForKnownNonTdeaSecretKeys(KeyAlgorithm algorithm)
     {
         var sink = new SemanticDiagnosticSink();
-        Encrypt(new KeyVariableDeclaration { KeyType = KeyType.Secret(algorithm), Value = KeyValue,
-            KeyValue = KeyValue, ValueFormat = FormatConversions.HEX }, sink);
+        Encrypt(new KeyVariableDeclaration { KeyType = KeyType.Secret(algorithm), Value = KeyMaterial,
+            ValueFormat = FormatConversions.HEX }, sink);
         Assert.That(sink.GetSnapshot().Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyTypeConflict));
     }
 
@@ -50,7 +50,7 @@ public class KeyMechanismReaderMigrationTests
     [TestCase("HMAC-SHA256", true)]
     public void Des3PreservesLegacyJsonCompatibility(string legacyMechanism, bool warns)
     {
-        string json = $"{{\"Mechanism\":\"{legacyMechanism}\",\"Value\":\"{KeyValue}\",\"KeyValue\":\"{KeyValue}\",\"ValueFormat\":\"HEX_STRING\"}}";
+        string json = $"{{\"Mechanism\":\"{legacyMechanism}\",\"Value\":\"{KeyMaterial}\",\"KeyValue\":\"{KeyMaterial}\",\"ValueFormat\":\"HEX_STRING\"}}";
         KeyVariableDeclaration key = KeyVariableDeclaration.Deserialize(json);
 
         var sink = new SemanticDiagnosticSink();
@@ -63,8 +63,7 @@ public class KeyMechanismReaderMigrationTests
         Encrypt(new KeyVariableDeclaration
         {
             KeyType = type,
-            Value = KeyValue,
-            KeyValue = KeyValue,
+            Value = KeyMaterial,
             ValueFormat = FormatConversions.HEX
         });
 

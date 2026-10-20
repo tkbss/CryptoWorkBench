@@ -60,7 +60,7 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
             string value = FormatConversions.ByteArrayToHexString(derived);
             return new KeyVariableDeclaration
             {
-                Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
+                Value = value, ValueFormat = FormatConversions.HEX,
                 KeyType = KeyType.Secret(KeyAlgorithm.Tdea), KeySizeInBits = new KeySize(128),
                 Usage = KeyUsagePolicy.Unspecified, DerivationMechanism = MechanismName,
                 Type = new CryptoTypeKey()
@@ -93,7 +93,7 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
 
     internal static byte[] DecodeKey(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && key.ValueFormat == FormatConversions.HEX)
             format = FormatConversions.HEX;

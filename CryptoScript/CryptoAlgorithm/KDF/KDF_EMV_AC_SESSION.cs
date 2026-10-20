@@ -75,7 +75,6 @@ public sealed class KDF_EMV_AC_SESSION : CryptoAlgorithm
             return new KeyVariableDeclaration
             {
                 Value = value,
-                KeyValue = value,
                 ValueFormat = FormatConversions.HEX,
                 KeySizeInBits = keySize,
                 KeyType = masterKey.KeyType,
@@ -94,9 +93,7 @@ public sealed class KDF_EMV_AC_SESSION : CryptoAlgorithm
 
     private static byte[] ResolveMasterKeyBytes(KeyVariableDeclaration masterKey)
     {
-        string value = string.IsNullOrEmpty(masterKey.KeyValue)
-            ? masterKey.Value
-            : masterKey.KeyValue;
+        string value = masterKey.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && masterKey.ValueFormat == FormatConversions.HEX)
             format = masterKey.ValueFormat;

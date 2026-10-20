@@ -223,16 +223,16 @@ public class Ep2DataEncryptionTests
         Run(Prefix()); var key = (KeyVariableDeclaration)Variable("k");
         foreach (int length in new[] { 0, 1, 15, 17, 24, 32 })
         {
-            key.KeyValue = "0x(" + new string('0', length * 2) + ")";
+            key.Value = "0x(" + new string('0', length * 2) + ")";
             Assert.Throws<ArgumentException>(() => new Ep2DataEncryption().Encrypt(Arguments()));
             Assert.Throws<ArgumentException>(() => Ep2DataEncryptionPrimitive.Transform(new byte[length], new byte[12], 0, "SEND", Array.Empty<byte>()));
         }
-        key.KeyValue = "0x(GG)";
+        key.Value = "0x(GG)";
         Assert.Throws<ArgumentException>(() => new Ep2DataEncryption().Encrypt(Arguments()));
         foreach (int length in new[] { 0, 11, 13, 16 })
             Assert.Throws<ArgumentException>(() => Ep2DataEncryptionPrimitive.Transform(new byte[16], new byte[length], 0, "SEND", Array.Empty<byte>()));
-        var wrongSize = new KeyVariableDeclaration { KeyValue = "0x(" + Key + ")", KeySize = "256" };
-        var args = Arguments().Arguments.ToArray(); args[1] = new(wrongSize.KeyValue, wrongSize, ResolvedCallArgumentKind.Variable);
+        var wrongSize = new KeyVariableDeclaration { Value = "0x(" + Key + ")", KeySize = "256" };
+        var args = Arguments().Arguments.ToArray(); args[1] = new(wrongSize.Value, wrongSize, ResolvedCallArgumentKind.Variable);
         Assert.Throws<ArgumentException>(() => new Ep2DataEncryption().Encrypt(new AlgorithmCallArguments(args)));
     }
 
@@ -253,7 +253,7 @@ public class Ep2DataEncryptionTests
             SemanticDiagnosticCode.KeyTypeConflict, SemanticDiagnosticCode.KeyUsageConflict }));
         Assert.That(runner.Diagnostics.All(x => x.Severity == SemanticDiagnosticSeverity.Warning && x.Identifier == "k"), Is.True);
         Assert.That(string.Join(" ", runner.Diagnostics.Select(x => x.Message)), Does.Not.Contain(Key).And.Not.Contain(Plain));
-        key.KeyValue = "0x(11)";
+        key.Value = "0x(11)";
         runner = new CryptoScriptRunner();
         Assert.Throws<SemanticErrorException>(() => runner.Execute(ParserBuilder.StringBuild($"{function}(p,k,data)").program()));
         Assert.That(runner.Diagnostics.Count(x => x.Severity == SemanticDiagnosticSeverity.Warning), Is.EqualTo(2));
@@ -267,7 +267,7 @@ public class Ep2DataEncryptionTests
             "PARAM kd=Parameters(KDF-EP2-SESSION,#SALT:0x(0123456789ABCDEF23456789ABCDEF01456789ABCDEF01236789ABCDEF012345),#VARIANT:ENCRYPTION) " +
             "KEY derived=Derive(kd,k,\"\") VAR encrypted=Encrypt(p,derived,data) VAR result=Decrypt(p,derived,encrypted)");
         var key = (KeyVariableDeclaration)Variable("derived");
-        Assert.That(key.KeyValue, Is.EqualTo("0x(29DDFF143885D21CD2425D1FDDA2C229)").IgnoreCase);
+        Assert.That(key.Value, Is.EqualTo("0x(29DDFF143885D21CD2425D1FDDA2C229)").IgnoreCase);
         Assert.That(Variable("result").Value, Is.EqualTo("0x(" + Plain + ")").IgnoreCase);
         Assert.That(runner.Diagnostics, Is.Empty);
         string before = key.Serialize();

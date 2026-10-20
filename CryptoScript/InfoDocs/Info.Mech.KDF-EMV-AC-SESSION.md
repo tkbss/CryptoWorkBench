@@ -55,7 +55,7 @@ The example returns `0x(89F7B697A028A93345BE7A409665B9A4)`.
 
 ## Result KEY Metadata
 
-The result is a secret `KEY` with hexadecimal `Value` and `KeyValue`. Its algorithm and key size are preserved from the master key, `DerivationMechanism` is `KDF-EMV-AC-SESSION`, and `Usage` is `Unspecified`.
+The result is a secret `KEY` with hexadecimal `Value`. Its algorithm and key size are preserved from the master key, `DerivationMechanism` is `KDF-EMV-AC-SESSION`, and `Usage` is `Unspecified`.
 
 ## Invalid Inputs
 

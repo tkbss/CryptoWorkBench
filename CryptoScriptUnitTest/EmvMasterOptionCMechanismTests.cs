@@ -56,7 +56,7 @@ public class EmvMasterOptionCMechanismTests
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), icc, bits, Mechanism);
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("session"), session, bits, "KDF-EMV-AC-SESSION");
         var original = (KeyVariableDeclaration)VariableDictionary.Instance().Get("IMK");
-        Assert.That(original.KeyValue, Is.EqualTo("0x(" + imk + ")").IgnoreCase);
+        Assert.That(original.Value, Is.EqualTo("0x(" + imk + ")").IgnoreCase);
     }
 
     [TestCase("PARAM p=Parameters(KDF-EMV-MASTER-C)")]
@@ -170,7 +170,6 @@ public class EmvMasterOptionCMechanismTests
         Assert.Multiple(() =>
         {
             Assert.That(key.Value, Is.EqualTo("0x(" + expected + ")").IgnoreCase);
-            Assert.That(key.KeyValue, Is.EqualTo(key.Value));
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(algorithm)));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(128)));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
@@ -438,7 +437,7 @@ public class EmvMasterOptionCMechanismTests
     {
         var key = new KeyVariableDeclaration
         {
-            Id = id, Value = "0x(" + hex + ")", KeyValue = "0x(" + hex + ")",
+            Id = id, Value = "0x(" + hex + ")",
             ValueFormat = FormatConversions.HEX, KeyType = type, KeySizeInBits = new KeySize(bits),
             Type = new CryptoTypeKey()
         };
@@ -451,7 +450,6 @@ public class EmvMasterOptionCMechanismTests
         Assert.Multiple(() =>
         {
             Assert.That(key.Value, Is.EqualTo("0x(" + expected + ")").IgnoreCase);
-            Assert.That(key.KeyValue, Is.EqualTo(key.Value));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(bits)));
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));

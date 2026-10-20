@@ -255,7 +255,9 @@ public class KeyCheckValueTests
                 new ResolvedCallArgument(key.Value, ResolvedCallArgumentKind.Variable, key)]));
             Assert.That(messages, Has.Count.EqualTo(1));
             string[] lines = messages[0].Split(Environment.NewLine);
-            Assert.That(lines, Has.Length.EqualTo(16));
+            Assert.That(lines, Has.Length.EqualTo(15));
+            Assert.That(lines.Count(line => line.StartsWith("out: Value:", StringComparison.Ordinal)), Is.EqualTo(1));
+            Assert.That(lines.Any(line => line.StartsWith("out: KeyValue:", StringComparison.Ordinal)), Is.False);
             Assert.That(lines.All(line => line.StartsWith("out: ", StringComparison.Ordinal)), Is.True);
             Assert.That(lines, Does.Contain("out: DerivationMechanism: source"));
             Assert.That(lines, Does.Contain("out: detail"));

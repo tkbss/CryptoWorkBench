@@ -73,7 +73,7 @@ public sealed class Ep2PanReceiptEncryption : CryptoAlgorithm
         byte[]? output = null;
         try
         {
-            keyBytes = DecodeHex(string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue);
+            keyBytes = DecodeHex(key.Value);
             if (keyBytes.Length != 16 || key.KeySizeInBits.IsKnown && key.KeySizeInBits != new KeySize(128))
                 throw new ArgumentException("EP2 PAN receipt encryption requires exactly 16 key bytes and consistent key size metadata.");
             input = DecodeHex(dataValue);

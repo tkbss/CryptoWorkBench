@@ -33,7 +33,7 @@ public class Tr31HeaderAuthorityTests
 
     private static KeyVariableDeclaration Key(string id, string hex, KeyAlgorithm a) => new()
     {
-        Id = id, KeyValue = "0x(" + hex + ")", Value = "0x(" + hex + ")",
+        Id = id, Value = "0x(" + hex + ")",
         ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
         KeySizeInBits = new KeySize(hex.Length * 4),
         KeyType = a is KeyAlgorithm.Rsa or KeyAlgorithm.Ec ? KeyType.Public(a) : KeyType.Secret(a),
@@ -111,7 +111,7 @@ public class Tr31HeaderAuthorityTests
         foreach (string block in readable)
         {
             var recovered = algorithm.Unwrap(Args(p, k, new StringVariableDeclaration { Value = block }));
-            Assert.That(recovered.KeyValue, Is.EqualTo("0x(" + v.Key + ")").IgnoreCase);
+            Assert.That(recovered.Value, Is.EqualTo("0x(" + v.Key + ")").IgnoreCase);
             Assert.That(recovered.KeySizeInBits.Bits, Is.EqualTo(v.Key.Length * 4));
             Assert.That(recovered.KeyType.Algorithm, Is.EqualTo(expected));
         }
@@ -139,7 +139,7 @@ public class Tr31HeaderAuthorityTests
     public void InvalidActualMaterialLengthsAreNeverTruncatedOrFilled(char a, int length)
     {
         var (p, k, t) = Inputs(Tr31VersionDTransportVectors.All.First(v => v.Algorithm == a), KeyAlgorithm.Unknown);
-        t.KeyValue = "0x(" + new string('1', length * 2) + ")";
+        t.Value = "0x(" + new string('1', length * 2) + ")";
         Assert.Throws<ArgumentException>(() => new WrapAESTR31().Wrap(Args(p, k, t)));
     }
 
@@ -148,7 +148,7 @@ public class Tr31HeaderAuthorityTests
     public void InvalidMaterialEncodingFails(string material)
     {
         var (p, k, t) = Inputs(Tr31VersionDTransportVectors.All[0], KeyAlgorithm.Tdea);
-        t.KeyValue = material;
+        t.Value = material;
         var sink = new SemanticDiagnosticSink();
         Assert.Throws<ArgumentException>(() => new WrapAESTR31().Wrap(Args(p, k, t, sink)));
         Assert.That(sink.GetSnapshot(), Is.Empty);
@@ -159,11 +159,11 @@ public class Tr31HeaderAuthorityTests
     {
         var v = Tr31VersionDTransportVectors.All[0];
         var (p, k, t) = Inputs(v, KeyAlgorithm.Unknown);
-        t.KeyValue = "0x(" + v.Key + "3031323334353637)";
+        t.Value = "0x(" + v.Key + "3031323334353637)";
         Assert.That(Assert.Throws<ArgumentException>(() => new WrapAESTR31().Wrap(Args(p, k, t)))!.Message,
             Does.Contain("size metadata"));
         var legacy = KeyVariableDeclaration.Deserialize("{\"Mechanism\":\"WRAP-AES-TR31\"}");
-        legacy.KeyValue = v.Key; // Preserve raw hexadecimal host input; size is genuinely unknown.
+        legacy.Value = v.Key; // Preserve raw hexadecimal host input; size is genuinely unknown.
         Assert.That(new WrapAESTR31().Wrap(Args(p, k, legacy)).Value, Is.EqualTo(v.Composite).IgnoreCase);
         Assert.That(legacy.KeySizeInBits.IsKnown, Is.False);
     }
@@ -196,7 +196,7 @@ public class Tr31HeaderAuthorityTests
         var algorithm = new WrapAESTR31();
         var block = algorithm.Wrap(Args(p, k, t));
         Assert.That(TR31String.FromString(block.Value).Cryptogram, Has.Length.EqualTo(32));
-        Assert.That(algorithm.Unwrap(Args(p, k, block)).KeyValue, Is.EqualTo("0x(" + v.Key + ")").IgnoreCase);
+        Assert.That(algorithm.Unwrap(Args(p, k, block)).Value, Is.EqualTo("0x(" + v.Key + ")").IgnoreCase);
     }
 
     [TestCase("D")] [TestCase("D0144D0A")]

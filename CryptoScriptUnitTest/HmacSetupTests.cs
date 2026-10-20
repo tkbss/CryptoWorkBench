@@ -61,7 +61,6 @@ public class HmacSetupTests
         first.KeySizeInBits.Should().Be(new KeySize(136));
         first.KeySize.Should().Be("136");
         first.ValueFormat.Should().Be(FormatConversions.HEX);
-        first.KeyValue.Should().Be(first.Value);
         FormatConversions.HexStringToByteArray(first.Value).Should().HaveCount(17);
         second.Value.Should().NotBe(first.Value);
         VariableDictionary.Instance().Get("first").Should().BeSameAs(first);

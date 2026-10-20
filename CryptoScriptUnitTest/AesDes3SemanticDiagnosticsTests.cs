@@ -19,7 +19,7 @@ public class AesDes3SemanticDiagnosticsTests
 
     private static KeyVariableDeclaration Key(string hex, KeyAlgorithm algorithm) => new()
     {
-        Id = "key", Type = new CryptoTypeKey(), Value = "0x(" + hex + ")", KeyValue = "0x(" + hex + ")",
+        Id = "key", Type = new CryptoTypeKey(), Value = "0x(" + hex + ")",
         ValueFormat = FormatConversions.HEX, KeyType = KeyType.Secret(algorithm), KeySizeInBits = new KeySize(hex.Length * 4)
     };
 
@@ -75,7 +75,7 @@ public class AesDes3SemanticDiagnosticsTests
             Assert.That(diagnostic.Severity, Is.EqualTo(SemanticDiagnosticSeverity.Warning));
             Assert.That(diagnostic.Location, Is.EqualTo(new DiagnosticLocation(
                 FunctionName: function, Mechanism: mechanism, Identifier: "key")));
-            Assert.That(diagnostic.Message, Does.Not.Contain(key.Value).And.Not.Contain(key.KeyValue));
+            Assert.That(diagnostic.Message, Does.Not.Contain(key.Value));
         }
         Assert.That(key.Serialize(), Is.EqualTo(snapshot));
         Assert.That(Call(function, p, key, Data, null).Value, Is.EqualTo(expected));
@@ -239,7 +239,6 @@ public class AesDes3SemanticDiagnosticsTests
         var des = new DES3();
         var key = des.GenerateKey("DES3-ECB", "0x(00000000000000000000000000000000)");
         Assert.That(key.Value, Is.EqualTo("0x(00000000000000000000000000000000)"));
-        Assert.That(key.KeyValue, Is.EqualTo(key.Value));
         Assert.Throws<ArgumentException>(() => new DES3_ECB().ModeEncryption(Parameters("DES3-ECB"), key,
             new StringVariableDeclaration { Value = Data, ValueFormat = FormatConversions.HEX }));
         Assert.Throws<ArgumentException>(() => DES3.ValidateUsableKey(new byte[16]));

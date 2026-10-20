@@ -60,7 +60,7 @@ public class EmvAlgorithmSelectionContractTests
         const string bytes = "0x(2EF6E07ECBA86BCF3C3CFF7BBEBE6F38)";
         var key = new KeyVariableDeclaration
         {
-            Id = "master", Value = bytes, KeyValue = bytes, ValueFormat = FormatConversions.HEX,
+            Id = "master", Value = bytes, ValueFormat = FormatConversions.HEX,
             KeySizeInBits = new KeySize(128), KeyType = KeyType.Secret(algorithm), Type = new CryptoTypeKey()
         };
         var p = new KDF_EMV_AC_SESSION().GenerateParameters("KDF-EMV-AC-SESSION");
@@ -93,7 +93,7 @@ public class EmvAlgorithmSelectionContractTests
             Reset();
             var key = KeyVariableDeclaration.Deserialize(
                 "{\"Id\":\"unknown\",\"Value\":\"0x(" + new string('A', length * 2) + ")\"," +
-                "\"KeyValue\":\"0x(" + new string('A', length * 2) + ")\",\"ValueFormat\":\"HEX_STRING\"" +
+                "\"ValueFormat\":\"HEX_STRING\"" +
                 (legacy ? "" : ",\"KeyType\":{\"Algorithm\":0,\"MaterialKind\":0}") + "}");
             key.Type = new CryptoTypeKey();
             Assert.That(key.KeyType.Algorithm, Is.EqualTo(KeyAlgorithm.Unknown));

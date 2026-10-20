@@ -53,7 +53,6 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = (bdkBytes.Length * 8).ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Aes),
@@ -85,7 +84,7 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && key.ValueFormat == FormatConversions.HEX)
             format = key.ValueFormat;

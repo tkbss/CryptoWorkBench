@@ -79,8 +79,8 @@ PAN may be declared as `VAR pan = "99012345678901234"` and passed as `Derive(p, 
 
 ## Result Metadata and Security
 
-Secret TDEA; KeySizeInBits 128 including parity bits; ValueFormat HEX; identical Value and
-KeyValue; KeyUsage Unspecified; DerivationMechanism KDF-EMV-MASTER-B. The result is directly
+Secret TDEA; KeySizeInBits 128 including parity bits; ValueFormat HEX;
+Value contains the derived key; KeyUsage Unspecified; DerivationMechanism KDF-EMV-MASTER-B. The result is directly
 usable with KDF-EMV-AC-SESSION. No extra derived-key repair or rejection policy is applied.
 
 Errors omit key, PAN and PSN values. Owned snapshots, hash buffers and temporary ECB results

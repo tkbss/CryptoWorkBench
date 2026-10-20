@@ -79,7 +79,7 @@ The ICC KEY is directly usable with KDF-EMV-AC-SESSION without manual conversion
 
 ## Result Metadata and Security
 
-Secret AES; KeySizeInBits 128, 192 or 256; ValueFormat HEX; identical Value and KeyValue;
+Secret AES; KeySizeInBits 128, 192 or 256; ValueFormat HEX; Value contains the derived key;
 KeyUsage Unspecified; DerivationMechanism KDF-EMV-MASTER-C. The subsequent session KEY
 retains the AES size and reports KDF-EMV-AC-SESSION. No extra key-usage or AES weak-key
 policy is introduced.

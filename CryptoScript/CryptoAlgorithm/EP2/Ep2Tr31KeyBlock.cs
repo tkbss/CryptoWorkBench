@@ -71,7 +71,7 @@ public sealed class Ep2Tr31KeyBlock : CryptoAlgorithm
             if (p.GetParameters().ContainsKey("#BLKH") && ReadHeader(p) != wire[..16])
                 throw new ArgumentException("EP2 TR-31 authenticated header does not match the expected header.");
             string hex = FormatConversions.ByteArrayToHexString(key);
-            return new KeyVariableDeclaration { Type = new CryptoTypeKey(), KeyValue = hex, Value = hex,
+            return new KeyVariableDeclaration { Type = new CryptoTypeKey(), Value = hex,
                 KeySize = "128", KeyType = KeyType.Secret(KeyAlgorithm.Hmac),
                 KeyAttributes = [new OptionalBlock { ID = "HDR", Data = wire[..16] }] };
         }
@@ -98,7 +98,7 @@ public sealed class Ep2Tr31KeyBlock : CryptoAlgorithm
         ? k : throw new ArgumentException("EP2 TR-31 requires genuine KEY references at key positions.");
     private static byte[] DecodeKey(KeyVariableDeclaration key)
     {
-        byte[] bytes = DecodeHex(string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue);
+        byte[] bytes = DecodeHex(key.Value);
         if (bytes.Length == 16 && (!key.KeySizeInBits.IsKnown || key.KeySizeInBits == new KeySize(128))) return bytes;
         Ep2Tr31KeyBlockPrimitive.Clear(bytes);
         throw new ArgumentException("EP2 TR-31 requires 16 key bytes with consistent known size metadata.");

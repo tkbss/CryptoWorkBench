@@ -255,8 +255,7 @@ public class Tr31AesCharacterizationTests
         var result = (KeyVariableDeclaration)VariableDictionary.Instance().Get("cr");
         Assert.Multiple(() =>
         {
-            Assert.That(result.KeyValue, Is.EqualTo($"0x({key})").IgnoreCase);
-            Assert.That(result.Value, Is.EqualTo(result.KeyValue));
+            Assert.That(result.Value, Is.EqualTo($"0x({key})").IgnoreCase);
             Assert.That(result.KeySize, Is.EqualTo(bits.ToString()));
             Assert.That(result.KeySizeInBits, Is.EqualTo(new KeySize(bits)));
         });
