@@ -1,6 +1,7 @@
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using CryptoScript;
 using CryptoScript.CryptoAlgorithm;
 using CryptoScript.SecretSharing;
@@ -372,11 +373,49 @@ public class VariableSnapshotFileStoreTests
         // cannot remove on Darwin.
         var probe = Target("probe");
         File.WriteAllText(probe.Value, "");
-        Assert.That(Run("/bin/ls", "-le", probe.Value), Does.Contain("everyone allow"));
-        store.Write(Target(), Data());
-        Assert.That(Run("/bin/ls", "-le", Target().Value), Does.Not.Contain("everyone allow"));
-        Assert.That(store.Read(Target()), Has.Count.EqualTo(1));
+        Assert.That(File.Exists(probe.Value), Is.True);
+        var inheritedEntries = MacAclEntries(Run("/bin/ls", "-le", probe.Value));
+        Assert.That(inheritedEntries.Any(IsInheritedEveryoneAllow), Is.True,
+            "The probe must actually inherit an allow ACE for group:everyone.");
+        var source = Data();
+        store.Write(Target(), source);
+        Assert.That(MacAclEntries(Run("/bin/ls", "-le", Target().Value)), Is.Empty,
+            "The published file must have no extended ACL entries for any principal.");
+        Assert.That(serializer.Serialize(store.Read(Target())), Is.EqualTo(serializer.Serialize(source)));
         NoTemporaryFiles();
+    }
+
+    private static string[] MacAclEntries(string listing) =>
+        listing.Split('\n')
+            .Select(line => Regex.Match(line.TrimEnd('\r'), @"^[ \t]*[0-9]+[ \t]*:[ \t]*(.*)$",
+                RegexOptions.CultureInvariant))
+            .Where(match => match.Success)
+            .Select(match => match.Groups[1].Value)
+            .ToArray();
+
+    private static bool IsInheritedEveryoneAllow(string entry) =>
+        Regex.IsMatch(entry, @"\Agroup:everyone[ \t]+inherited[ \t]+allow(?:[ \t]+|\z)",
+            RegexOptions.CultureInvariant);
+
+    // Run on every platform: a retained ACE must never disappear from the parsed list,
+    // even when its principal, flags or permissions differ from the fixture's ACE.
+    [TestCase("-rw-r--r-- 1 owner staff 0 Oct 20 file\n", 0, false)]
+    [TestCase("-rw-r--r-- 1 owner staff 0 Oct 20 everyone inherited allow\n", 0, false)]
+    [TestCase(" 0: group:everyone inherited allow read,write\n", 1, true)]
+    [TestCase("\t12 \t: \tgroup:everyone\tinherited\tallow\tread,write\r\n", 1, true)]
+    [TestCase(" 0: group:everyone allow read,write\n", 1, false)]
+    [TestCase(" 0: group:everyone inherited deny read,write\n", 1, false)]
+    [TestCase(" 0: group:everyoneElse inherited allow read\n", 1, false)]
+    [TestCase(" 0: user:everyone inherited allow read\n", 1, false)]
+    [TestCase(" 0: group:everyone inherited allowSomething read\n", 1, false)]
+    [TestCase(" 0: user:other allow read\n 1: group:everyone inherited allow read,write\n", 2, true)]
+    [TestCase(" 0: \n 1: unknown future ACE syntax\n", 2, false)]
+    public void MacAclListingRecognizesNumberedEntriesAndExactInheritedGrant(
+        string listing, int expectedCount, bool expectedInheritedGrant)
+    {
+        var entries = MacAclEntries(listing);
+        Assert.That(entries, Has.Length.EqualTo(expectedCount));
+        Assert.That(entries.Any(IsInheritedEveryoneAllow), Is.EqualTo(expectedInheritedGrant));
     }
 
     private static string Run(string executable, params string[] arguments)
