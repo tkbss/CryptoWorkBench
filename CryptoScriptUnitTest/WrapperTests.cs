@@ -17,7 +17,9 @@ namespace CryptoScriptUnitTest
         [Test]
         public void TR31BlockParsingTest() 
         {      
-            TR31Block tr31block = TR31Block.FromString(b);
+            // The verbatim fixture includes a source-formatting newline outside KBLEN.
+            // Pass the exact published wire bytes; the reader no longer ignores suffixes.
+            TR31Block tr31block = TR31Block.FromString(b.TrimEnd('\r', '\n'));
             Assert.That(tr31block.Header == "D3776S0RS00N0400");
             Assert.That(tr31block.OptionalBlocks.Count == 4);
             Assert.That(tr31block.OptionalBlocks[0].ID == "CT");
@@ -100,7 +102,7 @@ namespace CryptoScriptUnitTest
         public void WrapperTr31UnwrapNormalStringRSAKeyTest() 
         { 
             string input=
-                "VAR block= \""+b+"\""+
+                "VAR block= \""+b.TrimEnd('\r', '\n')+"\""+
                 "KEY kbpk = GenerateKey(AES-CBC,0x(FA36E44278DB3AB5F298F9F7DA8F1F88)) " +
                 "PARAM p=#MECH:WRAP-AES-TR31" +
                 "KEY ik=Unwrap(p,kbpk,block)";

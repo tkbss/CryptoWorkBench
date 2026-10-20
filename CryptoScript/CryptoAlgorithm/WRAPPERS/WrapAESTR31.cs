@@ -1,4 +1,4 @@
-﻿using CryptoScript.Variables;
+using CryptoScript.Variables;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto;
@@ -46,21 +46,24 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             byte[]? encryptedKeyData = null;
             byte[]? blockMac = null;
             TR31Block? block =null;
+            int wireLength = 0;
             // 3) Parse the TR-31 block into (header, wrappedKey, mac).
             //    This depends on how your TR31String is implemented.
             //    Example assumes a constructor that can parse a string:
             if (FormatConversions.ParseString(wrappedValue) == FormatConversions.TR31)
             {
-                TR31String tr31 = TR31String.FromString(wrappedValue);
+                TR31String tr31 = TR31String.FromString(wrappedValue, RequireVersionD);
                 RequireVersionD(tr31.Block);
-                block = TR31Block.FromString(tr31.Block);
+                wireLength = checked(tr31.Block.Length + 2 * (tr31.Cryptogram.Length + tr31.Mac.Length));
+                block = TR31Block.FromString(tr31.Block + Convert.ToHexString(tr31.Cryptogram) + Convert.ToHexString(tr31.Mac));
                 blockHeaderBytes = FormatConversions.StringToByteArray(tr31.Block);
                 block.Cryptogram=encryptedKeyData = tr31.Cryptogram;
                 block.Mac=blockMac = tr31.Mac;
             }
             if (FormatConversions.ParseString(wrappedValue) == FormatConversions.STR)
             {
-                string wire = FormatConversions.ToString(wrappedValue);
+                string wire = TR31String.ReadWireString(wrappedValue, RequireVersionD);
+                wireLength = wire.Length;
                 RequireVersionD(wire);
                 block =TR31Block.FromString(wire);
                 blockHeaderBytes = block.HeaderDataToMac;
@@ -91,11 +94,13 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             {
                 throw new Exception("TR-31 block MAC verification failed.");
             }
+            Tr31HeaderBinding.CompareAfterAuthentication(p, Encoding.ASCII.GetString(blockHeaderBytes), wireLength);
 
-            // 7) Parse the recoveredKeyData to figure out the actual key bits.
-            //    This is the reverse of ConstructBinaryKeyData. You can examine
-            //    length/marker bytes for 128,192,256 etc. Below is a simple example:
-            (string actualKeyHex, int actualBitSize) = ParseBinaryKeyData(recoveredKeyData);
+            // Interpret the complete authenticated bit length through the shared strict extractor.
+            byte[] recoveredKey = Tr31ConfidentialData.ExtractKey(recoveredKeyData);
+            Tr31ConfidentialData.ValidateAlgorithmKeyLength(recoveredKey, block.Header![7]);
+            string actualKeyHex = FormatConversions.ByteArrayToHexString(recoveredKey);
+            int actualBitSize = checked(recoveredKey.Length * 8);
 
             // 8) Build a KeyVariableDeclaration to hold the result
             KeyVariableDeclaration unwrappedKey = new KeyVariableDeclaration()
@@ -141,50 +146,6 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             return diff == 0;
         }
 
-        /// <summary>
-        /// Reverse of ConstructBinaryKeyData. Inspects recoveredKeyData’s length 
-        /// and marker bytes to figure out whether it’s a 128/192/256-bit key. 
-        /// Then extracts the actual key bytes (and ignores random).
-        /// </summary>
-        private (string keyHex, int keyBits) ParseBinaryKeyData(byte[] recovered)
-        {
-            // Example logic matching your ConstructBinaryKeyData:
-            //  - For 128 bits: total length 32 bytes, recovered[1] = 0x80
-            //  - For 192 bits: total length 32 bytes, recovered[1] = 0xC0
-            //  - For 256 bits: total length 48 bytes, recovered[0] = 0x01
-            // (You may adjust if your data has other markers)
-
-            if (recovered.Length == 32 && recovered[1] == 0x80)
-            {
-                // 128-bit key
-                byte[] keyBytes = new byte[16];
-                Array.Copy(recovered, 2, keyBytes, 0, 16);
-                return (FormatConversions.ByteArrayToHexString(keyBytes), 128);
-            }
-            else if (recovered.Length == 32 && recovered[1] == 0xC0)
-            {
-                // 192-bit key
-                byte[] keyBytes = new byte[24];
-                Array.Copy(recovered, 2, keyBytes, 0, 24);
-                return (FormatConversions.ByteArrayToHexString(keyBytes), 192);
-            }
-            else if (recovered.Length == 48 && recovered[0] == 0x01)
-            {
-                // 256-bit key
-                byte[] keyBytes = new byte[32];
-                Array.Copy(recovered, 2, keyBytes, 0, 32);
-                return (FormatConversions.ByteArrayToHexString(keyBytes), 256);
-            }
-            else 
-            {
-                //arbitary length in bits defined in the first two bytes
-                int l = (recovered[0] << 8) | recovered[1];
-                l = l / 8;
-                byte[] keyBytes = new byte[l];
-                Array.Copy(recovered, 2, keyBytes, 0, l);
-                return (FormatConversions.ByteArrayToHexString(keyBytes),l*8);
-            }                
-        }
         public override StringVariableDeclaration Wrap(string[] parameters) =>
             Wrap(AlgorithmCallArguments.FromValues(parameters));
 
@@ -192,9 +153,11 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
         {
             ParameterVariableDeclaration p =
                 AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
-            string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
-            RequireVersionD(header);
-            KeyAlgorithm transportedAlgorithm = ResolveWrapAlgorithm(header);
+            var definition = Tr31HeaderBinding.Definition(p);
+            string header = definition is null ? FormatConversions.ToString(p.GetParameter("#BLKH")) : string.Empty;
+            RequireVersionD(definition?.Version ?? header);
+            KeyAlgorithm transportedAlgorithm = definition is null ? ResolveWrapAlgorithm(header) :
+                definition.Algorithm == "A" ? KeyAlgorithm.Aes : KeyAlgorithm.Tdea;
             string rnd = p.GetParameter("#RND");
             KeyVariableDeclaration keyProtectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
             KeyVariableDeclaration keyToWrap = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[2]);
@@ -216,6 +179,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             int targetLength = transportedAlgorithm == KeyAlgorithm.Aes ? 32 : 24;
             byte[] keyData = Tr31ConfidentialData.Create(transportedBytes, blockSize: 16,
                 obfuscationPaddingLength: targetLength - transportedBytes.Length, random: random).ToArray();
+            header = Tr31HeaderBinding.Resolve(p, keyData.Length);
             byte[] dataToMAC = ConstructDataToMAC(header, keyData);
             byte[] macResult = ComputeMAC(dataToMAC, macKey);
             byte[] wrappedKey = EncryptNoPadding(encryptionKey, macResult, keyData);

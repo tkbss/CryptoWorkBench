@@ -121,6 +121,16 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTr31Field([NotNull] CryptoScriptParser.Tr31FieldContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerAttribute"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterHeaderAttribute([NotNull] CryptoScriptParser.HeaderAttributeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.headerAttribute"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitHeaderAttribute([NotNull] CryptoScriptParser.HeaderAttributeContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -140,6 +150,26 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionCall([NotNull] CryptoScriptParser.FunctionCallContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.functionTopic"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.functionTopic"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterHeaderArguments([NotNull] CryptoScriptParser.HeaderArgumentsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitHeaderArguments([NotNull] CryptoScriptParser.HeaderArgumentsContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.arguments"/>.
 	/// </summary>

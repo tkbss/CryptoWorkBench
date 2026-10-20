@@ -15,7 +15,9 @@ public enum InfoDocumentKind
     Padding,
     PinTranslationsOverview,
     PinTranslation,
-    Type
+    Type,
+    Tr31Overview,
+    Tr31Attributes
 }
 
 public sealed record InfoDocumentId
@@ -41,6 +43,8 @@ public sealed record InfoDocumentId
     public int? SourceFormat { get; }
     public int? TargetFormat { get; }
     public static InfoDocumentId CreatePinTranslationsOverview() => new(InfoDocumentKind.PinTranslationsOverview);
+    public static InfoDocumentId CreateTr31Overview() => new(InfoDocumentKind.Tr31Overview);
+    public static InfoDocumentId CreateTr31Attributes() => new(InfoDocumentKind.Tr31Attributes);
     public static InfoDocumentId CreatePinTranslation(int source, int target)
     {
         CryptoAlgorithm.PINBLOCK.PinBlockTranslationRules.Get(source, target);

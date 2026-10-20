@@ -23,6 +23,8 @@ namespace CryptoScript.Model
 
         public VariableDeclaration Print(OperationInvocation invocation)
         {
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is BlockHeaderVariableDeclaration header)
+                return Print(new[] { header.PrintOutput() });
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is SecretVariableDeclaration secret)
                 return Print(new[] { secret.PrintOutput().ReplaceLineEndings(Environment.NewLine + "out: ") });
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is KeyVariableDeclaration key)

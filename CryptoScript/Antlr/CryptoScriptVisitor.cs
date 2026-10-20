@@ -86,6 +86,12 @@ public interface ICryptoScriptVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTr31Field([NotNull] CryptoScriptParser.Tr31FieldContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.headerAttribute"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitHeaderAttribute([NotNull] CryptoScriptParser.HeaderAttributeContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CryptoScriptParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -97,6 +103,18 @@ public interface ICryptoScriptVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitFunctionCall([NotNull] CryptoScriptParser.FunctionCallContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.functionTopic"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitHeaderArguments([NotNull] CryptoScriptParser.HeaderArgumentsContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="CryptoScriptParser.arguments"/>.
 	/// </summary>

@@ -23,6 +23,9 @@ public static class MechanismParameterContractValidator
     {
         ArgumentNullException.ThrowIfNull(mechanism);
         ArgumentNullException.ThrowIfNull(parameters);
+        if (parameters.HeaderReference is not null &&
+            mechanism.CanonicalName is not ("WRAP-AES-TR31" or "WRAP-DES3-TR31"))
+            throw new ArgumentException("Typed TR31H references are supported only by WRAP-AES-TR31 and WRAP-DES3-TR31; EP2 retains its strict raw-header profile.");
 
         ValidatePsnSupport(mechanism.CanonicalName, parameters, function);
 

@@ -14,6 +14,7 @@ namespace CryptoScript.Model
             Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory)
         {
             operation = operation.ToLower();
+            if (operation == "createheader") return HeaderOperations.CreateHeader;
             var op = algorithmFactory is null ? new CryptoOperations() : new CryptoOperations(algorithmFactory);
             if (operation == "share") return SecretOperations.Share;
             if (operation == "secret") return SecretOperations.Secret;
@@ -58,6 +59,7 @@ namespace CryptoScript.Model
         public static Func<string[], VariableDeclaration> CreateOperation(string operation)
         { 
             operation = operation.ToLower();
+            if (operation == "createheader") return _ => throw new ArgumentException("CreateHeader requires named attributes.");
             if (operation is "share" or "secret" or "restore") return SecretOperations.RequireTypedArguments;
             var op = new CryptoOperations();             
             switch (operation)

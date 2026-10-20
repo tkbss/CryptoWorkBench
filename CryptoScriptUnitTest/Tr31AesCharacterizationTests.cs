@@ -231,10 +231,11 @@ public class Tr31AesCharacterizationTests
     }
 
     [Test]
-    public void FullWireUnwrapIgnoresCharactersBeyondDeclaredLength()
+    public void FullWireUnwrapRejectsCharactersBeyondDeclaredLength()
     {
         var block = Wrap(128, "D0144D0AB00E0000", Sequence(1, 30));
-        CheckUnwrap($"\"{block.Block}{Convert.ToHexString(block.Cryptogram)}{Convert.ToHexString(block.Mac)}DEADBEEF\"", Sequence(32, 16), 128);
+        Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(() =>
+            CheckUnwrap($"\"{block.Block}{Convert.ToHexString(block.Cryptogram)}{Convert.ToHexString(block.Mac)}DEADBEEF\"", Sequence(32, 16), 128));
     }
 
     private static TR31String Wrap(int bits, string header, string? random)

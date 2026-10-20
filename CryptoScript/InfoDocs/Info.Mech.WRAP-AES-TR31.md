@@ -28,7 +28,7 @@ WRAP-AES-TR31 creates and reads ANSI X9.143-2022 TR-31 Version D key blocks. Ver
 - **Authentication**: Version D includes the complete 16-byte AES-CMAC authentication value. Unwrap verifies it before returning the key.
 - **Compatibility**: Unwrap can still read historical CryptoWorkBench AES-128 `D0112` blocks that omitted the required AES key-length obfuscation; those blocks are not ANSI-conformant. New AES-128 wraps use the `D0144` layout. This legacy case is distinct from the correct `D0112` layout for a contained TDEA-128 or TDEA-192 key described above.
 - **Write Profile and Legacy Reads**: New wraps require header algorithm `A` or `T`; missing, malformed or unsupported algorithms are errors. Earlier opaque non-A/T writes (including H, unknown D/Z and R) are intentionally no longer accepted. Existing authenticated HMAC and unknown/opaque Unwrap compatibility is retained: H is classified as Secret(Hmac); unrecognized algorithms, including R, remain Secret(Unknown). RSA-labelled opaque reads do not implement RSA transport. RSA generation, import and transport belong to Version 2.
-- **Return Value**: Wrap returns a VAR in composite form: `"header"0x(ciphertext)0x(authentication-value)`. Unwrap accepts this form without Optional Blocks, or a quoted complete TR-31 wire block including Optional Blocks, and returns a KEY. The existing composite reader cannot read Optional Blocks; use the complete wire form for those blocks.
+- **Return Value**: Wrap returns a VAR in composite form: `"header"0x(ciphertext)0x(authentication-value)`. Unwrap accepts both this form and a quoted complete TR-31 wire block, with or without Optional Blocks, and returns a KEY. Printable label characters are escaped in the script representation and preserved in the authenticated wire header.
 
 ### Semantic diagnostics
 
@@ -51,9 +51,9 @@ The following functions are available for WRAP-AES-TR31 mechanism:
 ## Parameters
 These parameters are used with the WRAP-AES-TR31 mechanism:
 - **#MECH**: Set to `WRAP-AES-TR31` in a directly declared PARAM.
-- **#BLKH**: Required by Wrap. Supply the complete authenticated TR-31 header, including Optional Blocks when present. The four-digit declared total length must equal the generated wire-block length; a contradictory header is rejected rather than rewritten.
+- **#BLKH**: Required by Wrap. Supply a TR31H reference in a direct PARAM declaration for automatic KBLEN, or a complete raw TR-31 header including Optional Blocks. For a raw header, the four-digit declared total length must equal the generated wire-block length; a contradictory header is rejected rather than rewritten. Typed Unwrap compares the authenticated header to the definition with only KBLEN resolved from the verified wire.
 - **#RND**: Optional hexadecimal random filler in wire order: key-length obfuscation first, then block padding. For AES-128, AES-192 and AES-256 use exactly 30, 22 and 14 bytes respectively for deterministic output; for TDEA-128 and TDEA-192 use 14 and 6 bytes. If omitted or supplied with another length, CryptoWorkBench generates the complete filler with a cryptographically secure random generator.
-- **Input and Output**: Wrap receives declared KEY variables. Unwrap accepts a composite TR-31 value without Optional Blocks, or a quoted complete wire block with or without Optional Blocks. No external IV or configurable padding is used; the calculated authentication value is the AES-CBC IV.
+- **Input and Output**: Wrap receives declared KEY variables. Unwrap accepts a composite TR-31 value or a quoted complete wire block, both with or without Optional Blocks. No external IV or configurable padding is used; the calculated authentication value is the AES-CBC IV.
 
 ---
 ## Example Usage
@@ -74,3 +74,10 @@ KEY recovered = Unwrap(unwrapParameters, kbpk, normativeBlock)
 Use [EP2-TR31-KEY-BLOCK](cryptoscript-info://mechanism/EP2-TR31-KEY-BLOCK) for
 EP2 Table 11 H key-block generation and strict authenticated reading. This generic
 mechanism retains its A/T Wrap contracts and historical authenticated H reader.
+
+
+### Typed TR-31 headers
+
+See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
+
+`TR31H header = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)` creates a reusable definition. Pass it as `#BLKH:header`; Wrap computes KBLEN without modifying the definition. For WRAP-DES3-TR31 use A/B/C and ALGO:T.

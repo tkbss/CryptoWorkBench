@@ -73,6 +73,9 @@ public sealed class FileInfoDocumentationProvider : IInfoDocumentationProvider
     {
         documentId = name switch
         {
+            "tr31" => InfoDocumentId.CreateTr31Overview(),
+            "tr31attributes" => InfoDocumentId.CreateTr31Attributes(),
+            "CreateHeader" => InfoDocumentId.CreateFunction(name),
             "SECRET" => InfoDocumentId.CreateType("SECRET"),
             "Share" or "Secret" or "Restore" => InfoDocumentId.CreateFunction(name),
             "pintranslations" => InfoDocumentId.CreatePinTranslationsOverview(),

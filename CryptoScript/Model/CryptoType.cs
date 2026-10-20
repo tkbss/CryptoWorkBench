@@ -24,6 +24,8 @@ namespace CryptoScript.Model
             typeId = typeId.ToLower();
             switch(typeId) 
             {
+                case "tr31h":
+                    return new CryptoTypeTR31Header();
                 case "var":
                     return new CryptoTypeVar();
                 case "key":

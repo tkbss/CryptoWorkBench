@@ -14,6 +14,7 @@ Possible Parameters are given in overlay window during typing.
 - Generate a key: **KEY k = GenerateKey(mechanism, length)**
 - Find an existing key by check value: **KEY k = Check(value, method)** (method optional)
 - Generate parameters: **PARAM p = Parameters(mechanism, p1, ..., pn)**
+- Create a TR-31 header: **TR31H h = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)**
 - Print variable to output: **Print(s)**
 - Show Crypto Script information: **Info(type)**
 - Load variable from file: **VAR d = Load(VAR, path)**
@@ -80,3 +81,10 @@ shared check value again is ambiguous. Short prefixes can also match unrelated k
 ## Secret sharing
 
 [Share(PARAM, KEY)](cryptoscript-info://function/Share), [Secret(PARAM, Shares...)](cryptoscript-info://function/Secret), [Restore(SECRET)](cryptoscript-info://function/Restore). See [SECRET and complete Print output](cryptoscript-info://type/SECRET).
+
+
+## Typed TR-31 headers
+
+See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
+
+`TR31H header = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)` creates a reusable definition. Pass it as `#BLKH:header`; Wrap computes KBLEN without modifying the definition. For WRAP-DES3-TR31 use A/B/C and ALGO:T.

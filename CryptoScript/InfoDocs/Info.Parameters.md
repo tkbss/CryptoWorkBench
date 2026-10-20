@@ -125,7 +125,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - NONCE: Unique nonce value for symmetric encryption used in certain modes.
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.
-- BLKH: TR-31 Key Block Header used by Wrap. The header is authenticated, and its declared total length must match the resulting key-block structure.
+- BLKH: TR-31 header used by Wrap. A direct PARAM declaration accepts a genuine TR31H reference (`#BLKH:header`) for automatic length calculation, or a quoted complete raw header whose declared length must match the generated block. Typed references are supported by WRAP-AES-TR31 and WRAP-DES3-TR31; EP2 retains its strict raw-header profile.
 - ARC: Required only by [ARPC Method 1](cryptoscript-info://mechanism/MAC-EMV-ARPC-METHOD-1).
   Exactly two bytes as a resolved HEX value, for example `#ARC:0x(3030)`; no implicit ASCII or integer conversion.
 - CSU: Required only by [ARPC Method 2](cryptoscript-info://mechanism/MAC-EMV-ARPC-METHOD-2).
@@ -154,3 +154,10 @@ Unwrap. See [EP2-TR31-KEY-BLOCK](cryptoscript-info://mechanism/EP2-TR31-KEY-BLOC
 ## Secret sharing parameters
 
 [PARTS](cryptoscript-info://parameter/SECRET_SHAMIR/PARTS), [MINPARTS](cryptoscript-info://parameter/SECRET_SHAMIR/MINPARTS), [POLYNOM](cryptoscript-info://parameter/SECRET_SHAMIR/POLYNOM), [SHAREFORMAT](cryptoscript-info://parameter/SECRET_SHAMIR/SHAREFORMAT). MINPARTS and POLYNOM are forbidden for SECRET_SPLIT.
+
+
+## Typed TR-31 headers
+
+See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
+
+`TR31H header = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)` creates a reusable definition. Pass it as `#BLKH:header`; Wrap computes KBLEN without modifying the definition. For WRAP-DES3-TR31 use A/B/C and ALGO:T.

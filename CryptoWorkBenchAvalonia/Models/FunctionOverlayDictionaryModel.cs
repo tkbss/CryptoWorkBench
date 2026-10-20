@@ -15,6 +15,10 @@ namespace CryptoWorkBenchAvalonia.Models
     {
         public  Dictionary<string, List<(string header, string description)>> functionOverloads = new Dictionary<string, List<(string header, string description)>> 
         {
+            { "CreateHeader", new List<(string, string)> {
+                ("CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)",
+                 "Returns TR31H. Optional KEYVN:00, KEYCTX:0 and repeated OPTID/OPTBD pairs. Wrap computes KBLEN. See Info(tr31attributes).")
+            }},
 
             { "Share", new List<(string, string)> {
                 ("Share(parameters, key)", "Creates a SECRET containing all XOR or Shamir shares and independent key metadata. Requires PARAM and KEY references.")

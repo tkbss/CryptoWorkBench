@@ -37,7 +37,9 @@ type          : T_SECRET
               ;
 
 tr31Header    : '{' tr31Field+ '}';
-tr31Field     : TR31_FIELD_NAME ':' (TR31_FIELD_VALUE | INT) ';';
+tr31Field     : headerAttribute ';';
+headerAttribute : (ID | TR31_FIELD_NAME | TR31_OPT_BLOCK_DATA) ':'
+                  (ID | FN | TR31_FIELD_VALUE | INT | NUM | KV_00 | NORMAL_STRING | HEX_STRING);
 
 
 expression    : HEX_STRING
@@ -49,8 +51,12 @@ expression    : HEX_STRING
               ;
 
 
-functionCall  : FN '(' arguments? ')'
+functionCall  : FN '(' ({$FN.text == "CreateHeader"}? headerArguments
+                      | {$FN.text == "Info"}? functionTopic
+                      | arguments)? ')'
               ; 
+functionTopic : FN (',' arguments)?;
+headerArguments : headerAttribute (',' headerAttribute)*;
 arguments     : argument (',' argument)*
               ;
 argument      : MECHANISM 

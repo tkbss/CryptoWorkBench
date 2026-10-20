@@ -14,6 +14,7 @@ namespace CryptoScript.Variables
     
     public class ParameterVariableDeclaration : VariableDeclaration
     {
+        public BlockHeaderVariableDeclaration? HeaderReference { get; private set; }
         private readonly List<string> explicitParameterNames = new();
 
         internal IReadOnlyList<string> ExplicitParameterNames => explicitParameterNames;
@@ -128,6 +129,7 @@ namespace CryptoScript.Variables
                 item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase));
             if (t == null)
                 throw new ArgumentException($"Unknown parameter name '{type}'.", nameof(type));
+            if (t == "#BLKH") HeaderReference = null;
 
             if (ParameterTypeValue.ContainsKey(t))
             {
@@ -168,7 +170,9 @@ namespace CryptoScript.Variables
         }
         public void SetParameter(ArgumentParameter p)
         {
-            SetParameter(p.Type, p.Value);            
+            SetParameter(p.Type, p.Value);
+            if (p.Type.Equals("#BLKH", StringComparison.OrdinalIgnoreCase))
+                HeaderReference = p.HeaderReference;
 
         }
         public void ParseToDictionary(string input)

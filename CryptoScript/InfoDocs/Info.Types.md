@@ -15,6 +15,9 @@ List of all types used in CRYPTO-SCRIPT. Upper case lettersfor every type is man
   `KeySizeInBits`, usage policy, derivation mechanism and optional key attributes.
   AES and TDEA secret keys expose the calculated properties `Kcv`, `Kcvc`, `Kcvk`.
   See the KEY check values below and `Info(functions)` for `Print` and `Check`.
+- **TR31H**: Validated, structured TR-31 header definition from [CreateHeader](cryptoscript-info://function/CreateHeader).
+  Pass a variable reference as `#BLKH:header`. Wrap calculates the total length without changing the definition.
+  [All header attributes](cryptoscript-info://overview/tr31attributes) are documented separately.
 - **PARAM** : Parameter type used to store cryptographic parameters needed for cryptographic algorithms.
     - STRUCTURE: A PARAM type can have the following structure:
         - **#NAME:** : Defines the parameter with a unique identifier. E.g., #MECH:

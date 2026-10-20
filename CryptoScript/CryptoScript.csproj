@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="InfoDocs\Info.TR31.md;InfoDocs\Info.TR31Attributes.md;InfoDocs\Info.Func.CreateHeader.md" CopyToOutputDirectory="Always" />
     <None Update="InfoDocs\Info.Mech.SECRET*.md;InfoDocs\Info.Func.Share.md;InfoDocs\Info.Func.Secret.md;InfoDocs\Info.Func.Restore.md;InfoDocs\Info.Type.SECRET.md;InfoDocs\Info.Param.SECRET*.md" CopyToOutputDirectory="Always" />
     <None Update="SecretSharing\BouncyCastle-LICENSE.html" CopyToOutputDirectory="PreserveNewest" />
     <None Update="InfoDocs\Info.PinTranslation*.md" CopyToOutputDirectory="Always" />

@@ -6,9 +6,15 @@ namespace CryptoScript.Model
     {
         public static FunctionCallExpressionNode Map(CryptoScriptParser.FunctionCallContext context)
         {
+            if (context.functionTopic() is { } topic)
+                return new FunctionCallExpressionNode(context.FN().GetText(), context.GetText(),
+                    Array.AsReadOnly(new FunctionCallArgumentNode[] { new InfoArgumentNode(topic.FN().GetText()) }
+                        .Concat(topic.arguments()?.argument().Select(MapArgument) ?? []).ToArray()));
             return new FunctionCallExpressionNode(
                 context.FN().GetText(), context.GetText(),
-                Array.AsReadOnly(context.arguments()?.argument().Select(MapArgument).ToArray()
+                Array.AsReadOnly(context.headerArguments()?.headerAttribute().Select(field =>
+                    (FunctionCallArgumentNode)new HeaderAttributeArgumentNode(field.GetChild(0).GetText(), field.GetChild(2).GetText())).ToArray()
+                    ?? context.arguments()?.argument().Select(MapArgument).ToArray()
                     ?? Array.Empty<FunctionCallArgumentNode>()));
         }
 
@@ -19,7 +25,13 @@ namespace CryptoScript.Model
             if (context.functionCall() is { } call)
                 return new NestedCallArgumentNode(Map(call));
             if (context.ID() is { } identifier)
+            {
+                if (context.Parent.Parent is CryptoScriptParser.FunctionCallContext parent &&
+                    parent.FN().GetText() == "Info" &&
+                    identifier.GetText() is "tr31" or "tr31attributes")
+                    return new InfoArgumentNode(identifier.GetText());
                 return new VariableArgumentNode(identifier.GetText());
+            }
             if (context.expression() is { } expression)
                 return new LiteralArgumentNode(expression.GetText());
             if (context.declareparam() is { } parameter)

@@ -16,6 +16,9 @@ public sealed class InfoCompletionProvider
 {
     private static readonly (string Text, string Description)[] ListCommands =
     {
+        ("tr31", "TR-31 key blocks, versions and transport."),
+        ("CreateHeader", "Builds a typed TR31H header with automatic total length."),
+        ("tr31attributes", "TR-31 fixed fields and Optional Block reference."),
         ("pintranslations", "PCI PIN-block translation matrix and examples."),
         ("types", "Lists all supported CryptoScript types."),
         ("functions", "Lists all supported CryptoScript functions."),

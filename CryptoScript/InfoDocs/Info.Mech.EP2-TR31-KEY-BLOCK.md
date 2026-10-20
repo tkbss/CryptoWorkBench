@@ -128,3 +128,10 @@ revocation, replay protection, protocol role selection and secure deletion of
 long-lived secrets remain the caller's responsibility. Metadata warnings alone
 do not establish PCI or EP2 compliance. Fixed filler is for reproducible tests;
 omit RND for normal key transport.
+
+
+### Typed TR-31 headers
+
+See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
+
+EP2 retains its strict profile and raw-header comparison. Typed TR31H references are not accepted.

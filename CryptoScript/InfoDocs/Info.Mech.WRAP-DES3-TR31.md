@@ -37,7 +37,7 @@ The following functions are available for WRAP-DES3-TR31 mechanism:
 ## Parameters
 These parameters are used with the WRAP-DES3-TR31 mechanism:
 - **#MECH**: Set to `WRAP-DES3-TR31` in a directly declared PARAM.
-- **#BLKH**: Required by Wrap. Supply a complete Version A, B or C header, including Optional Blocks when present. The header is authenticated and its declared total length must describe the resulting wire block.
+- **#BLKH**: Required by Wrap. Supply a TR31H reference in a direct PARAM declaration for automatic KBLEN, or a complete Version A, B or C raw header including Optional Blocks. The raw header is authenticated unchanged and its declared total length must describe the resulting wire block. Typed Unwrap compares the authenticated header to the definition with only KBLEN resolved from the verified wire.
 - **#RND**: Optional hexadecimal filler in wire order: key-length obfuscation first, then TDEA block padding. A 128-bit wrapped TDEA key uses 8 bytes of obfuscation and 6 bytes of block padding, for 14 bytes total. A 192-bit key uses no obfuscation and 6 bytes of block padding, for 6 bytes total. If omitted or supplied with another length, CryptoWorkBench generates the complete filler with a cryptographically secure random generator.
 - **Input and Output**: Wrap accepts Versions A, B and C only. No external IV or configurable padding is used by this mechanism.
 
@@ -72,3 +72,10 @@ KEY recoveredWireB = Unwrap(unwrapParametersB, kbpkB, wireBlockB)
 `DesParityViolation` (10) and `WeakDes3Key` (11) are non-blocking Warning diagnostics. Weak or semi-weak DES components and effective K1=K2 or K2=K3 are reported independently of parity; K1=K3 alone is not single-DES degeneration. Each quality category is reported at most once per operation on the original KEY, after any KeyTypeConflict and KeyUsageConflict metadata warnings. No KEY bytes or parity bits are changed. Technically valid calls also work without a diagnostic sink.
 
 This support is for test and analysis and makes no suitability claim for production payment systems. Invalid key lengths, malformed data and protocol errors remain blocking. ARQC verification and TR-31 authentication remain mandatory; failed verification stops execution without a successful result. AES behavior and the approved algorithm selectors remain unchanged.
+
+
+### Typed TR-31 headers
+
+See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
+
+`TR31H header = CreateHeader(KBVID:B, KEYU:D0, ALGO:T, MODEU:B, EXP:E)` creates a reusable definition. Pass it as `#BLKH:header`; Wrap computes KBLEN without modifying the definition. WRAP-DES3-TR31 supports A/B/C and ALGO:T.

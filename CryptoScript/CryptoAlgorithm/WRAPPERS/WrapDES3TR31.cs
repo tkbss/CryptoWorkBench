@@ -17,7 +17,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
     {
         ParameterVariableDeclaration p =
             AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
-        string header = FormatConversions.ToString(p.GetParameter("#BLKH"));
+        string header = Tr31HeaderBinding.Definition(p)?.Version ?? FormatConversions.ToString(p.GetParameter("#BLKH"));
         char version = RequireSupportedVersion(header);
         KeyVariableDeclaration protectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
         KeyMetadataValidator.Validate(protectionKey, KeyAlgorithm.Tdea, KeyUsage.WrapKey,
@@ -33,6 +33,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
             string random = p.GetParameter("#RND");
             data = Tr31ConfidentialData.Create(key, 8, 24 - key.Length,
                 string.IsNullOrEmpty(random) ? null : FormatConversions.HexStringToByteArray(random)).ToArray();
+            header = Tr31HeaderBinding.Resolve(p, data.Length);
             var wrapped = version == 'B'
                 ? Tr31VersionBWrap.Wrap(header, kbpk, data, analysisKeys: true)
                 : Tr31TdeaVariantWrap.Wrap(header, kbpk, data, analysisKeys: true);
@@ -55,7 +56,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
 
     public override KeyVariableDeclaration Unwrap(AlgorithmCallArguments parameters)
     {
-        _ = AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
+        var p = AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         KeyVariableDeclaration protectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
         KeyMetadataValidator.Validate(protectionKey, KeyAlgorithm.Tdea, KeyUsage.UnwrapKey,
             "Unwrap", MechanismName, parameters.DiagnosticSink);
@@ -67,14 +68,14 @@ public class WrapDES3TR31 : CryptoAlgorithm
         char version;
         if (FormatConversions.ParseString(input) == FormatConversions.TR31)
         {
-            var composite = TR31String.FromString(input);
+            var composite = TR31String.FromString(input, header => RequireSupportedVersion(header));
             version = RequireSupportedVersion(composite.Block);
             RequireAuthenticationValueLength(version, composite.Mac);
             wire = composite.Block + Convert.ToHexString(composite.Cryptogram) + Convert.ToHexString(composite.Mac);
         }
         else if (FormatConversions.ParseString(input) == FormatConversions.STR)
         {
-            wire = FormatConversions.ToString(input);
+            wire = TR31String.ReadWireString(input, header => RequireSupportedVersion(header));
             version = RequireSupportedVersion(wire);
         }
         else
@@ -90,6 +91,8 @@ public class WrapDES3TR31 : CryptoAlgorithm
             key = version == 'B'
                 ? Tr31VersionBUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk, analysisKeys: true)
                 : Tr31TdeaVariantUnwrap.Unwrap(header, block.Cryptogram!, block.Mac!, kbpk, analysisKeys: true);
+            Tr31HeaderBinding.CompareAfterAuthentication(p, header, wire.Length);
+            Tr31ConfidentialData.ValidateAlgorithmKeyLength(key, block.Header![7]);
             string value = FormatConversions.ByteArrayToHexString(key);
             return new KeyVariableDeclaration
             {

@@ -219,14 +219,14 @@ public class VariableDeclarationEvaluatorTests
     }
 
     [Test]
-    public void Tr31TypeResolutionStillFailsBeforeFunctionEvaluation()
+    public void Tr31TypeResolvesButUnstructuredLegacyAstIsRejected()
     {
-        var expected = Assert.Throws<Exception>(() => CryptoType.Parse("TR31H"));
-        var actual = Assert.Throws<Exception>(() => Evaluate(Node("TR31H") with
+        Assert.That(CryptoType.Parse("TR31H"), Is.TypeOf<CryptoTypeTR31Header>());
+        var actual = Assert.Throws<ArgumentException>(() => Evaluate(Node("TR31H") with
         {
             Initializer = Call(), Tr31Header = new Tr31HeaderInitializerNode("{KBVID:D;}")
         }));
-        Assert.That(actual!.Message, Is.EqualTo(expected!.Message));
+        Assert.That(actual!.Message, Does.Contain("structured fields"));
         Assert.That(errors, Is.Empty);
         Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
     }

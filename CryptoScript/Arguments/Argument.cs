@@ -9,6 +9,11 @@ using CryptoScript.Variables;
 namespace CryptoScript.Model
 {
     public  class Argument: Statement { }
+    public sealed class ArgumentHeaderAttribute : Argument
+    {
+        public string Name { get; init; } = "";
+        public string RawValue { get; init; } = "";
+    }
     public class ArgumentVariable: Argument
     {
         public VariableDeclaration? Id { get; set; }        
@@ -40,6 +45,7 @@ namespace CryptoScript.Model
     }
     public class ArgumentParameter: Argument
     {
+        public BlockHeaderVariableDeclaration? HeaderReference { get; private set; }
         
         public string Type { get; set; }    = string.Empty;
         public string Value { get; set; } = string.Empty;
@@ -55,6 +61,15 @@ namespace CryptoScript.Model
         }
         private void SetValue(string value)
         {
+            HeaderReference = null;
+            if (Type.Equals("#BLKH", StringComparison.OrdinalIgnoreCase) &&
+                VariableDictionary.Instance().Get(value) is BlockHeaderVariableDeclaration header)
+            {
+                if (header.Definition is null) throw new ArgumentException("TR31H has no validated header definition.");
+                HeaderReference = header;
+                Value = value;
+                return;
+            }
             if (Type.Equals("#PSN", StringComparison.OrdinalIgnoreCase))
             {
                 if (!value.StartsWith('"') || !value.EndsWith('"') || value.Length != 4 ||

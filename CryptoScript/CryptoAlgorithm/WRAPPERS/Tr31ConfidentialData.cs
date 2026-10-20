@@ -59,11 +59,21 @@ public sealed class Tr31ConfidentialData
         if (confidentialData.Length < LengthFieldBytes)
             throw new ArgumentException("Missing key length field.", nameof(confidentialData));
         int bits = (confidentialData[0] << 8) | confidentialData[1];
-        if (bits % 8 != 0)
-            throw new ArgumentException("Key length must be byte-aligned.", nameof(confidentialData));
+        if (bits == 0 || bits % 8 != 0)
+            throw new ArgumentException("Key length must be positive and byte-aligned.", nameof(confidentialData));
         int keyBytes = bits / 8;
         if (keyBytes > confidentialData.Length - LengthFieldBytes)
             throw new ArgumentException("Encoded key length exceeds confidential data.", nameof(confidentialData));
         return confidentialData[LengthFieldBytes..(LengthFieldBytes + keyBytes)];
+    }
+
+    internal static void ValidateAlgorithmKeyLength(byte[] key, char algorithm)
+    {
+        algorithm = char.ToUpperInvariant(algorithm);
+        // Preserve opaque legacy reads for other algorithm codes. A/T have explicit
+        // technical key-size contracts, independent of non-blocking KEY metadata warnings.
+        if (algorithm == 'A' && key.Length is not (16 or 24 or 32) ||
+            algorithm == 'T' && key.Length is not (16 or 24))
+            throw new ArgumentException("Authenticated TR-31 algorithm and key length are incompatible.");
     }
 }

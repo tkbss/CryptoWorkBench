@@ -139,6 +139,12 @@ namespace CryptoScript.Model
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
             SemanticDiagnosticExecution? execution, DiagnosticLocation? parent)
         {
+            if (argument is Ast.HeaderAttributeArgumentNode field)
+            {
+                if (functionName != "CreateHeader")
+                    throw new ArgumentException("Named header attributes are only accepted by CreateHeader.");
+                return new ArgumentHeaderAttribute { Name = field.Name, RawValue = field.RawValue };
+            }
             if (argument is Ast.MechanismArgumentNode mechanism)
             {
 
@@ -166,6 +172,8 @@ namespace CryptoScript.Model
                     execution, parent) as FunctionCall;
                 if (fc != null && fc.ReturnVariable != null)
                 {
+                    if (fc.ReturnVariable is BlockHeaderVariableDeclaration header)
+                        return new ArgumentVariable { Id = header };
                     var expr = Expression.Create(fc.ReturnVariable.Value);
                     ArgumentExpression argExpr = new ArgumentExpression()
                     {

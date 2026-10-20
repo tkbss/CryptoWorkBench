@@ -20,8 +20,7 @@ namespace CryptoScript.Model
         {
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
-            // Check the fixed translation result contract before resolving runtime types:
-            // the grammar also accepts types (TR31H) that CryptoType.Parse cannot resolve.
+            // Check the fixed translation result contract before evaluating the operation.
             if (declaration.Initializer is FunctionCallExpressionNode translation &&
                 translation.Name.Equals("PinBlockTranslate", StringComparison.OrdinalIgnoreCase) &&
                 !TypeName.Equals("VAR", StringComparison.OrdinalIgnoreCase))
@@ -33,6 +32,18 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException { SemanticError = error };
             }
             var type = CryptoType.Parse(TypeName);
+            FunctionCallExpressionNode? stmtFromHeader = null;
+            if (declaration.Tr31Header is not null)
+            {
+                if (type is not CryptoTypeTR31Header)
+                    throw new ArgumentException("Header initializers require TR31H.");
+                // The formerly incomplete brace syntax uses exactly the canonical builder semantics.
+                stmtFromHeader = new FunctionCallExpressionNode("CreateHeader", declaration.Tr31Header.RawText,
+                    declaration.Tr31Header.Fields ?? throw new ArgumentException("Header initializer requires structured fields."));
+            }
+            if (type is CryptoTypeTR31Header && declaration.Initializer is not FunctionCallExpressionNode &&
+                declaration.Tr31Header is null)
+                throw new ArgumentException("TR31H requires CreateHeader or a validated header initializer.");
             if (type is CryptoTypeSecret && declaration.Initializer is not FunctionCallExpressionNode)
             {
                 var error = new SemanticError { Type = "Declaration", Identifier = TypeName,
@@ -43,6 +54,7 @@ namespace CryptoScript.Model
             var declarParam = declaration.Parameters.Items;
 
             Statement? stmt = null;
+            if (stmtFromHeader is not null) stmt = evaluateFunctionCall(stmtFromHeader);
             if (declaration.Initializer is FunctionCallExpressionNode call)
             {
                 stmt = evaluateFunctionCall(call);

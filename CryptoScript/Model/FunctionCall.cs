@@ -48,6 +48,8 @@ namespace CryptoScript.Model
 
         private static ResolvedCallArgument ResolveArgument(Argument argument) => argument switch
         {
+            ArgumentHeaderAttribute field => new ResolvedCallArgument(
+                field.Name + ":" + field.RawValue, ResolvedCallArgumentKind.HeaderAttribute),
             ArgumentMechanism mechanism => new ResolvedCallArgument(
                 mechanism.Mechanism!.Value, ResolvedCallArgumentKind.Mechanism),
             ArgumentExpression expression => new ResolvedCallArgument(

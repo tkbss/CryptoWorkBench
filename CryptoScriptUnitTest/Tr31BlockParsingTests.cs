@@ -60,23 +60,14 @@ public class Tr31BlockParsingTests
     [TestCase('C', 4)]
     [TestCase('D', 16)]
     [TestCase('Z', 16)]
-    public void UsesVersionLengthAtAuthenticationOnlyBoundary(char version, int bytes)
+    public void RejectsAuthenticationOnlyAndTruncatedAuthenticationBoundary(char version, int bytes)
     {
         string header = $"{version}{16 + bytes * 2:D4}D0TB00E0000";
         byte[] authentication = Enumerable.Range(1, bytes).Select(i => (byte)i).ToArray();
-        var block = TR31Block.FromString(header + Convert.ToHexString(authentication));
-        Assert.Multiple(() =>
-        {
-            Assert.That(block.Cryptogram, Is.Empty);
-            Assert.That(block.Mac, Is.EqualTo(authentication));
-        });
+        // Complete-wire parsing now requires ciphertext as well as a MAC.
+        Assert.Throws<ArgumentException>(() => TR31Block.FromString(header + Convert.ToHexString(authentication)));
 
         string shorterHeader = $"{version}{16 + (bytes - 1) * 2:D4}D0TB00E0000";
-        var shorter = TR31Block.FromString(shorterHeader + Convert.ToHexString(authentication[..^1]));
-        Assert.Multiple(() =>
-        {
-            Assert.That(shorter.Cryptogram, Is.Null);
-            Assert.That(shorter.Mac, Is.Null);
-        });
+        Assert.Throws<ArgumentException>(() => TR31Block.FromString(shorterHeader + Convert.ToHexString(authentication[..^1])));
     }
 }

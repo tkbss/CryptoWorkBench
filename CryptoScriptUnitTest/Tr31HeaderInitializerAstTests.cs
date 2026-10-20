@@ -24,17 +24,17 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
-        public void ValidHeaderStillFailsAtTypeResolution()
+        public void IncompleteHeaderFailsSemanticValidationAfterTypeResolution()
         {
             var context = ParseDeclaration(false);
             var previous = VariableDictionary.Instance().GetVariables().ToArray();
             var errors = new List<CryptoScript.ErrorListner.SemanticError>();
-            var expected = Assert.Throws<Exception>(() => CryptoType.Parse("TR31H"));
+            Assert.That(CryptoType.Parse("TR31H"), Is.TypeOf<CryptoTypeTR31Header>());
 
-            var actual = Assert.Throws<Exception>(() => StatementEvaluator.Evaluate(AntlrToStatement.Map((CryptoScriptParser.StatementContext)context.Parent), errors));
+            var actual = Assert.Throws<CryptoScript.ErrorListner.SemanticErrorException>(() => StatementEvaluator.Evaluate(AntlrToStatement.Map((CryptoScriptParser.StatementContext)context.Parent), errors));
 
-            Assert.That(actual!.Message, Is.EqualTo(expected!.Message));
-            Assert.That(errors, Is.Empty);
+            Assert.That(actual!.SemanticError.Message, Does.Contain("Missing required attribute ALGO"));
+            Assert.That(errors, Has.Count.EqualTo(1));
             Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(previous));
         }
 
