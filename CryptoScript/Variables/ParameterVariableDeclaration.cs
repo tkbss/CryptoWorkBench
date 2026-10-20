@@ -19,6 +19,20 @@ namespace CryptoScript.Variables
 
         internal IReadOnlyList<string> ExplicitParameterNames => explicitParameterNames;
 
+        // Snapshot restoration deliberately bypasses setters and BuildValue: those paths
+        // rebuild text, change provenance and may add parameters.
+        internal static ParameterVariableDeclaration FromSnapshot(string mechanism,
+            IEnumerable<KeyValuePair<string, string>> parameters, IEnumerable<string> explicitNames,
+            string value, BlockHeaderVariableDeclaration? header)
+        {
+            var result = new ParameterVariableDeclaration { _mechanism = mechanism };
+            result.ParameterTypeValue = new Dictionary<string, string>(parameters, StringComparer.Ordinal);
+            result.explicitParameterNames.AddRange(explicitNames);
+            result.Value = value;
+            result.HeaderReference = header;
+            return result;
+        }
+
         // Private staging preserves declaration provenance without parsing serialized values.
         internal ParameterVariableDeclaration StagePinTranslation()
         {
