@@ -13,6 +13,7 @@ namespace CryptoScript.Model
             "Parameters",
             "CreateHeader",
             "Share", "Secret", "Restore",
+            "Save",
             "GenerateKey",
             "Encrypt",
             "Decrypt",

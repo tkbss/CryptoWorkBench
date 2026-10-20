@@ -20,6 +20,18 @@ namespace CryptoScript.Model
         {
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
+            if (declaration.Initializer is FunctionCallExpressionNode save &&
+                Operations.SnapshotOperations.IsSave(save.Name))
+            {
+                var error = new SemanticError
+                {
+                    Type = "Declaration", FunctionName = "Save", FunctionCall = "Save(<redacted>)",
+                    DiagnosticCode = SemanticDiagnosticCode.InvalidDeclaration,
+                    Message = "Save has no return value and cannot initialize a variable."
+                };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
             // Check the fixed translation result contract before evaluating the operation.
             if (declaration.Initializer is FunctionCallExpressionNode translation &&
                 translation.Name.Equals("PinBlockTranslate", StringComparison.OrdinalIgnoreCase) &&
@@ -61,7 +73,28 @@ namespace CryptoScript.Model
             }
             if (declaration.Initializer is LiteralInitializerNode expression)
             {
-                stmt = Expression.Create(expression.RawText);
+                if (type is CryptoTypePath)
+                {
+                    string raw = expression.RawText;
+                    // PATH has its own literal mapping; other declared types retain their existing behavior.
+                    if (raw.StartsWith('"') && raw.EndsWith('"'))
+                        raw = System.Text.RegularExpressions.Regex.Replace(raw[1..^1], @"\\([btnrf""'\\])",
+                            match => match.Groups[1].Value[0] switch
+                            {
+                                'b' => "\b", 't' => "\t", 'n' => "\n", 'r' => "\r", 'f' => "\f",
+                                var character => character.ToString()
+                            });
+                    else if (!FormatConversions.IsPathRegex(raw))
+                    {
+                        var error = new SemanticError { Type = "Declaration",
+                            DiagnosticCode = SemanticDiagnosticCode.InvalidDeclaration,
+                            Message = "PATH requires a path literal or a quoted string." };
+                        semanticErrors.Add(error);
+                        throw new SemanticErrorException { SemanticError = error };
+                    }
+                    stmt = new ExpressionPath { PathValue = raw };
+                }
+                else stmt = Expression.Create(expression.RawText);
             }
             if(declarParam.Count!=0)
             {

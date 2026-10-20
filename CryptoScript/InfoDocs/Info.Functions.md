@@ -16,6 +16,7 @@ Possible Parameters are given in overlay window during typing.
 - Generate parameters: **PARAM p = Parameters(mechanism, p1, ..., pn)**
 - Create a TR-31 header: **TR31H h = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)**
 - Print variable to output: **Print(s)**
+- Export variables as plaintext JSON: **[Save(path, variable1, variable2, ...)](cryptoscript-info://function/Save)** or **Save(path, ALL)**
 - Show Crypto Script information: **Info(type)**
 - Load variable from file: **VAR d = Load(VAR, path)**
 - Load parameters from file: **PARAM p = Load(PARAM, path)**

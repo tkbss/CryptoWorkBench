@@ -41,7 +41,7 @@ public class AesDes3SemanticDiagnosticsTests
             new ResolvedCallArgument(parameters.Value, ResolvedCallArgumentKind.Variable, parameters),
             new ResolvedCallArgument(key.Value, ResolvedCallArgumentKind.Variable, key),
             new ResolvedCallArgument(data, ResolvedCallArgumentKind.HexLiteral)
-        }, sink));
+        }, sink)) ?? throw new AssertionException("Cryptographic operations must return a variable.");
     }
 
     private static CryptoScriptProgram Execute(CryptoScriptRunner runner, string text)

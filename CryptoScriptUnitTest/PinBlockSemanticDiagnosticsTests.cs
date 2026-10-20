@@ -91,13 +91,13 @@ public class PinBlockSemanticDiagnosticsTests
         return route switch
         {
             "typed" => (StringVariableDeclaration)(function == "Wrap" ? algorithm.Wrap(args) : algorithm.Unwrap(args)),
-            "dispatch" => (StringVariableDeclaration)OperationFactory.CreateInvocationOperation(function)(
+            "dispatch" => (StringVariableDeclaration)(OperationFactory.CreateInvocationOperation(function)(
                 new OperationInvocation(new[]
                 {
                     new ResolvedCallArgument(p.Value, ResolvedCallArgumentKind.Variable, p),
                     new ResolvedCallArgument(key.Value, ResolvedCallArgumentKind.Variable, key),
                     new ResolvedCallArgument(data.Value, ResolvedCallArgumentKind.Variable, data)
-                }, sink)),
+                }, sink)) ?? throw new AssertionException("PIN block operations must return a variable.")),
             "legacy" => LegacyCall(algorithm, function, p, key, data),
             _ => throw new ArgumentException("Unknown test route.")
         };

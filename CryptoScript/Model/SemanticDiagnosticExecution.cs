@@ -30,7 +30,7 @@ internal sealed class SemanticDiagnosticExecution
     internal ISemanticDiagnosticSink CreateSink(DiagnosticLocation location) =>
         new LocatedSink(this, location);
 
-    internal Func<OperationInvocation, Variables.VariableDeclaration> CreateOperation(string functionName) =>
+    internal Func<OperationInvocation, Variables.VariableDeclaration?> CreateOperation(string functionName) =>
         OperationFactory.CreateInvocationOperation(functionName, algorithmFactory);
 
     internal void Capture(List<SemanticError> errors, int start, DiagnosticLocation location)

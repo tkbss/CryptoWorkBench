@@ -1,5 +1,7 @@
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
+using CryptoScript.Operations;
+using CryptoScript.Serialization;
 
 namespace CryptoScript.Model
 {
@@ -50,7 +52,7 @@ namespace CryptoScript.Model
             FunctionCall fc, SemanticDiagnosticExecution? execution)
         {
             string functionName = call.Name;
-            fc.CallText = call.CallText;
+            fc.CallText = SnapshotOperations.IsSave(functionName) ? "Save(<redacted>)" : call.CallText;
             fc.Name = functionName;
             try
             {
@@ -65,6 +67,19 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException() { SemanticError=se};
             }
             var arguments = call.Arguments;
+            if (SnapshotOperations.IsSave(functionName))
+            {
+                try
+                {
+                    fc.Arguments.AddRange(SnapshotOperations.ResolveSaveArguments(call));
+                    fc.Call(execution);
+                    return fc;
+                }
+                catch (Exception e)
+                {
+                    throw CreateFunctionCallError(e, call, fc, semanticErrors);
+                }
+            }
             if (arguments.Count == 0)
             {
                 try
@@ -168,6 +183,17 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.NestedCallArgumentNode nestedCall)
             {
+                if (SnapshotOperations.IsSave(nestedCall.Call.Name))
+                {
+                    var error = new SemanticError
+                    {
+                        Type = "FunctionCall", FunctionName = "Save", FunctionCall = "Save(<redacted>)",
+                        DiagnosticCode = SemanticDiagnosticCode.FunctionContractViolation,
+                        Message = "Save has no return value and cannot be used as a function argument."
+                    };
+                    semanticErrors.Add(error);
+                    throw new SemanticErrorException { SemanticError = error };
+                }
                 var fc = EvaluateFunctionCall(nestedCall.Call, semanticErrors, evaluateParameter,
                     execution, parent) as FunctionCall;
                 if (fc != null && fc.ReturnVariable != null)
@@ -250,6 +276,19 @@ namespace CryptoScript.Model
             FunctionCall functionCall,
             List<SemanticError> semanticErrors)
         {
+            if (SnapshotOperations.IsSave(call.Name))
+            {
+                var saveError = new SemanticError
+                {
+                    Type = "FunctionCall", FunctionName = "Save", FunctionCall = "Save(<redacted>)",
+                    DiagnosticCode = exception is SaveArgumentException argumentError
+                        ? argumentError.Code : SemanticDiagnosticCode.FunctionExecutionFailed,
+                    Message = exception is SaveArgumentException or VariableSnapshotFileException
+                        ? exception.Message : "Save failed."
+                };
+                semanticErrors.Add(saveError);
+                return new SemanticErrorException { SemanticError = saveError };
+            }
             bool sensitive = IsCryptographicFunction(call.Name);
             var error = new SemanticError
             {
@@ -271,7 +310,8 @@ namespace CryptoScript.Model
             List<SemanticError> semanticErrors) =>
             exception.SemanticError is not null &&
             semanticErrors.Contains(exception.SemanticError) &&
-            (IsCryptographicFunction(exception.SemanticError.FunctionName) ||
+            (SnapshotOperations.IsSave(exception.SemanticError.FunctionName) ||
+             IsCryptographicFunction(exception.SemanticError.FunctionName) ||
              // Unknown functions are rejected before arguments are evaluated. Keep
              // their already-redacted diagnostic intact through enclosing calls.
              exception.SemanticError.Type == "FunctionCall" &&
