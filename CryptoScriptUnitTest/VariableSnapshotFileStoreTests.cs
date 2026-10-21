@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CryptoScript;
 using CryptoScript.CryptoAlgorithm;
+using CryptoScript.CryptoAlgorithm.WRAPPERS;
 using CryptoScript.SecretSharing;
 using CryptoScript.Serialization;
 using CryptoScript.Variables;
@@ -68,13 +69,19 @@ public class VariableSnapshotFileStoreTests
         return result;
     }
 
+    private static BlockHeaderVariableDeclaration Header() => new()
+    {
+        Id = "header",
+        Definition = Tr31HeaderDefinition.Create(new Dictionary<string, string>
+        {
+            ["KBVID"] = "D", ["KEYU"] = "D0", ["ALGO"] = "A", ["MODEU"] = "B", ["EXP"] = "E"
+        })
+    };
+
     [Test]
     public void AllSixTypesRoundTripWithExactS01BytesAndNoMutation()
     {
-        var header = new BlockHeaderVariableDeclaration
-        {
-            Id = "header", ValueFormat = FormatConversions.STR, Value = "\"D0112D0AB00E0000\""
-        };
+        var header = Header();
         VariableDeclaration[] source =
         [
             Data()[0],
@@ -112,7 +119,7 @@ public class VariableSnapshotFileStoreTests
     [TestCase(false)]
     public void SharedHeaderIdentitySurvivesFileRoundTrip(bool includeHeader)
     {
-        var header = new BlockHeaderVariableDeclaration { Id = "header" };
+        var header = Header();
         VariableDeclaration[] source = includeHeader
             ? [Parameter("first", header), Parameter("second", header), header]
             : [Parameter("first", header), Parameter("second", header)];

@@ -129,7 +129,16 @@ public static class Tr31AttributeRegistry
 
     internal static bool IsHex(string value) => value.Length > 0 &&
         value.AsSpan().IndexOfAnyExcept("0123456789abcdefABCDEF") < 0;
-    internal static string DecodeText(string raw) =>
-        Newtonsoft.Json.JsonConvert.DeserializeObject<string>(raw)
-        ?? throw new ArgumentException("Expected a string.");
+    internal static string DecodeText(string raw)
+    {
+        // Create (not CreateDefault) keeps header reconstruction independent of host converters.
+        var serializer = Newtonsoft.Json.JsonSerializer.Create(new Newtonsoft.Json.JsonSerializerSettings
+        {
+            CheckAdditionalContent = true,
+            Culture = CultureInfo.InvariantCulture,
+            TypeNameHandling = Newtonsoft.Json.TypeNameHandling.None
+        });
+        using var reader = new Newtonsoft.Json.JsonTextReader(new StringReader(raw));
+        return serializer.Deserialize<string>(reader) ?? throw new ArgumentException("Expected a string.");
+    }
 }

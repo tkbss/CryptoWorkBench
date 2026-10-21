@@ -64,8 +64,12 @@ Recognized nonempty formats are `HEX_STRING`, `BASE64_STRING`, `NORMAL_STRING`,
 `runtimeTypeId` preserves the runtime `CryptoType.Id`; null represents a null
 runtime `Type`, which occurs in older PATH/KEY objects. The discriminant `type`
 still determines the concrete variable class. A non-null runtime type must match
-the variable class. Root identifiers must tokenize as one CryptoScript `ID`
-(`[A-Za-z][A-Za-z0-9]*`, excluding reserved tokens); they are unique, case-sensitive.
+the variable class. Root identifiers must match the ASCII-alphanumeric pattern
+`[A-Za-z][A-Za-z0-9]*` and tokenize as CryptoScript `ID` or `FN`; other reserved
+tokens remain excluded. They are unique and case-sensitive. S04 permits FN-shaped
+names such as `MasterKey`/`SessionKey` in snapshots and contextual Load selectors.
+This does not make those names valid in every ordinary CryptoScript declaration
+or variable-reference position; the normal grammar is unchanged.
 
 `payloadKind` is `scalar` for VAR/PATH with empty inherited source text and
 `structured` otherwise. The other four types always use `structured`.
@@ -186,7 +190,11 @@ The ordered parameter list and exact cached `Value` text are independent runtime
 state. Direct dictionary changes can leave the text stale; snapshots preserve
 both instead of rebuilding it. Explicit parameter provenance preserves order and
 repetitions; automatically generated parameters remain non-explicit.
-`headerReference` is null or an object ID, never a name lookup.
+`headerReference` is null or an object ID, never a name lookup. A non-null reference
+must target a TR31H with a validated, non-null `Tr31HeaderDefinition`. Standalone
+legacy headers remain supported, but cannot serve as typed PARAM references.
+S01-F rejects previously accepted inconsistent v1 files that used such a legacy
+target; valid typed graphs and standalone legacy snapshots retain their format.
 
 An internal `ParameterVariableDeclaration.FromSnapshot` factory sets the private
 state without invoking `Mechanism`, `SetParameter`, `SetInstance`, `BuildValue`,
@@ -304,12 +312,27 @@ filesystem handling, GUI integration, Scriptbook import/export, encryption,
 authentication, password derivation and cryptographic canonicalization belong to
 later work.
 
-The complete `value` token is the future protection boundary. Identifier and
-metadata remain readable and can be authenticated as AAD. A future secure
-container must additionally authenticate format/version, object IDs, root versus
-dependency membership, ordering and all graph links; embedded dependency payloads
-must receive the same protection as roots. S01's validation and KCV checks are
-not authentication.
+### Proposed S05 protection contract (not implemented)
+
+In encrypted SecureSave mode, the **complete S01-v1 JSON should be used as the
+protected inner payload**, including identifiers, metadata, values and dependencies.
+This supersedes the earlier design of encrypting only `value` while leaving
+identifiers and metadata readable. Arbitrary runtime display IDs, GMAC strings,
+legacy textual key sizes and derivation metadata can contain confidential text;
+source text and cached parameter text can duplicate sensitive values.
+Neither `metadata` nor `identifier` has a general public-cleartext exemption.
+A possible public metadata projection is a separate extension requiring explicit
+approval, not part of this proposal or of S01-F.
+
+A future secure container must authenticate format/version, every entry and its
+metadata/value association, object IDs, root versus dependency membership,
+ordering and all graph links. Protecting the exact serialized UTF-8 payload bytes
+does not require claiming JSON canonicalization. Secure envelope parameters and
+version selection must also be bound to authentication. S01 validation and KCV
+checks are not authentication. The proposed GMAC-only mode provides authenticity
+but **no confidentiality**: the authenticated payload remains readable.
+These are architectural requirements, not a cryptographic implementation or a
+change to S01 JSON version 1, Save/Load syntax, or S02 file infrastructure.
 
 Temporary decoded key/share byte buffers are cleared where the serializer owns
 them. The returned JSON and the existing runtime string-based key model contain

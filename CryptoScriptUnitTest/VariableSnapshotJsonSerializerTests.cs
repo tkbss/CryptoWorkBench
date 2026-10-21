@@ -366,6 +366,107 @@ public class VariableSnapshotJsonSerializerTests
         Assert.That(VariableDictionary.Instance().GetVariables().ToArray(), Is.EqualTo(globals));
     }
 
+    [TestCase("missing-profile")]
+    [TestCase("null-profile")]
+    [TestCase("invalid-base64")]
+    [TestCase("empty-base64")]
+    [TestCase("x-out-of-range")]
+    [TestCase("too-many-shares")]
+    [TestCase("unknown-format")]
+    [TestCase("unknown-profile")]
+    public void SecretHardeningRejectsInvalidPayloadWithoutPartialResults(string mutation)
+    {
+        var source = new SecretVariableDeclaration(new(new(SecretDescriptor.Shamir, 2, 2, 8),
+            [new(1, new byte[] { 1 }), new(2, new byte[] { 2 })])) { Id = "secret" };
+        var document = JObject.Parse(serializer.Serialize([Key(), source]));
+        var payload = document["variables"]![1]!["value"]!;
+        payload["source"]!["text"] = "sensitive-snapshot-marker";
+        switch (mutation)
+        {
+            case "missing-profile": ((JObject)payload["descriptor"]!).Remove("profile"); break;
+            case "null-profile": payload["descriptor"]!["profile"] = JValue.CreateNull(); break;
+            case "invalid-base64": payload["shares"]![0]!["bytes"] = "sensitive-snapshot-marker!"; break;
+            case "empty-base64": payload["shares"]![0]!["bytes"] = ""; break;
+            case "x-out-of-range": payload["shares"]![0]!["x"] = 256; break;
+            case "too-many-shares":
+                ((JArray)payload["shares"]!).Add(new JObject { ["x"] = 3, ["bytes"] = "Aw==" }); break;
+            case "unknown-format": payload["preferredShareFormat"] = "sensitive-snapshot-marker"; break;
+            case "unknown-profile": payload["descriptor"]!["profile"] = "sensitive-snapshot-marker"; break;
+            default: throw new ArgumentOutOfRangeException(nameof(mutation));
+        }
+        AssertHardeningRejection(document);
+    }
+
+    [TestCase("legacy-text")]
+    [TestCase("corrupt-legacy-text")]
+    [TestCase("null-legacy")]
+    [TestCase("wrong-legacy-type")]
+    public void HeaderHardeningRejectsLegacyTypedReferenceWithoutPartialResults(string mutation)
+    {
+        var header = Header();
+        var document = JObject.Parse(serializer.Serialize([Key(), Parameter("paramdata", header)]));
+        var payload = document["dependencies"]![0]!["value"]!;
+        payload["definition"] = JValue.CreateNull();
+        payload["legacyValue"] = mutation switch
+        {
+            "legacy-text" => new JValue("D0112D0AB00E0000"),
+            "corrupt-legacy-text" => new JValue("sensitive-snapshot-marker: not a header"),
+            "null-legacy" => JValue.CreateNull(),
+            "wrong-legacy-type" => new JObject { ["sensitive-snapshot-marker"] = true },
+            _ => throw new ArgumentOutOfRangeException(nameof(mutation))
+        };
+        AssertHardeningRejection(document);
+    }
+
+    private void AssertHardeningRejection(JObject document)
+    {
+        var globals = VariableDictionary.Instance().GetVariables().ToArray();
+        var globalState = globals.Select(v => (v.Id, v.Value, v.ValueFormat, v.Text)).ToArray();
+        IReadOnlyList<VariableDeclaration>? returned = null;
+        var error = Assert.Throws<JsonSerializationException>(() => returned = serializer.Deserialize(document.ToString()))!;
+        Assert.That(returned, Is.Null, "No earlier valid root may be returned on failure.");
+        Assert.That(error.Message, Is.EqualTo("Invalid CryptoScript variable snapshot."));
+        Assert.That(error.ToString(), Does.Not.Contain("sensitive-snapshot-marker"));
+        Assert.That(error.InnerException, Is.Null);
+        Assert.That(VariableDictionary.Instance().GetVariables().ToArray(), Is.EqualTo(globals));
+        Assert.That(globals.Select(v => (v.Id, v.Value, v.ValueFormat, v.Text)).ToArray(), Is.EqualTo(globalState));
+    }
+
+    [Test]
+    public void HeaderHardeningIgnoresGlobalStringConverter()
+    {
+        var header = Header(); // Contains an LB block with escaped punctuation.
+        string expected = serializer.Serialize([header]);
+        var converter = new HostStringConverter();
+        var old = JsonConvert.DefaultSettings;
+        try
+        {
+            JsonConvert.DefaultSettings = () => new() { Converters = { converter } };
+            var restored = (BlockHeaderVariableDeclaration)serializer.Deserialize(expected).Single();
+            Assert.That(restored.Definition!.OptionalBlocks.Select(b => (b.ID, b.Length, b.Data)),
+                Is.EqualTo(header.Definition!.OptionalBlocks.Select(b => (b.ID, b.Length, b.Data))));
+            Assert.That(serializer.Serialize([restored]), Is.EqualTo(expected));
+            Assert.That(converter.Calls, Is.Zero);
+        }
+        finally { JsonConvert.DefaultSettings = old; }
+    }
+
+    private sealed class HostStringConverter : JsonConverter<string>
+    {
+        public int Calls { get; private set; }
+        public override string? ReadJson(JsonReader reader, Type objectType, string? existingValue,
+            bool hasExistingValue, JsonSerializer serializer)
+        {
+            Calls++;
+            return "host-converter-changed-text";
+        }
+        public override void WriteJson(JsonWriter writer, string? value, JsonSerializer serializer)
+        {
+            Calls++;
+            writer.WriteValue("host-converter-changed-text");
+        }
+    }
+
     [Test]
     public void JsonGlobalSettingsCannotEnablePolymorphismOrChangeSchema()
     {

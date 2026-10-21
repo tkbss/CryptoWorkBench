@@ -25,7 +25,7 @@ internal static class ParameterSnapshotCodec
         var mech = pairs.FirstOrDefault(p => p.Key == "#MECH");
         Require(mech.Key is null ? meta.Mechanism.Length == 0 : mech.Value == meta.Mechanism,
             "Inconsistent parameter mechanism.");
-        Require(header is null || names.Contains("#BLKH") &&
+        Require(header is null || header.Definition is not null && names.Contains("#BLKH") &&
             meta.Mechanism is "WRAP-AES-TR31" or "WRAP-DES3-TR31", "Invalid typed header reference.");
         var result = ParameterVariableDeclaration.FromSnapshot(meta.Mechanism, pairs,
             payload.ExplicitParameterNames, payload.Text, header);
