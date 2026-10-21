@@ -35,6 +35,14 @@ namespace CryptoScript.Variables
             if(variables.ContainsKey(v.Id))
                 variables[v.Id]=v;
         }
+        // Prepare the complete state privately. Enumeration, validation and allocation
+        // may fail, but the live dictionary is untouched until the final reference swap.
+        // No callbacks or fallible work follow publication in the synchronous interpreter.
+        internal void PublishBatch(IEnumerable<VariableDeclaration> state)
+        {
+            var prepared = state.ToDictionary(variable => variable.Id, StringComparer.Ordinal);
+            variables = prepared;
+        }
         public bool Contains(string Id)
         {
             return variables.ContainsKey(Id);

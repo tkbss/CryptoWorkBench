@@ -161,6 +161,36 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -56,6 +56,8 @@ public static class ParameterRegistry
                 "Nonce used by mechanisms that require a unique or per-operation value."),
             new("#OFFSET",
                 "One-byte HEX field offset from EP2 Table 10 for EP2-DATA-ENCRYPTION."),
+            new("#ONCONFLICT",
+                "Load-only final argument: REJECT (default) or REPLACE existing snapshot root names. Not a mechanism parameter."),
             new("#OUTLEN",
                 "Requested output length for mechanisms that produce configurable-length output."),
             new("#PAD",

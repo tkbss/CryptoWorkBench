@@ -67,5 +67,6 @@ guarantee. Use a destination directory and ancestors you control.
 SECRET shares are exported in full. Saving enough shares together can permit
 recovery of the original key. Restrictive file permissions do not provide
 encryption, custodial separation or protection from privileged processes.
-Save does not implement SecureSave or a script-level Load function, execute
-snapshot contents, modify source variables or publish new variables.
+Save does not implement SecureSave, execute snapshot contents, modify source
+variables or publish new variables. Use [Load](cryptoscript-info://function/Load)
+to import snapshots with explicit conflict handling.

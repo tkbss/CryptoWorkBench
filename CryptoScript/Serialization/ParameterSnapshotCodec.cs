@@ -13,7 +13,9 @@ internal static class ParameterSnapshotCodec
     internal static ParameterVariableDeclaration Decode(ParameterMetadataDto meta, ParameterPayloadDto payload,
         BlockHeaderVariableDeclaration? header)
     {
-        var known = AntlrLanguageMetadata.GetParameters().Append("#MACLEN").ToHashSet(StringComparer.Ordinal);
+        // Call-only options must not expand the S01 PARAM metadata allowlist.
+        var known = AntlrLanguageMetadata.GetParameters().Where(name => name != "#ONCONFLICT")
+            .Append("#MACLEN").ToHashSet(StringComparer.Ordinal);
         var names = new HashSet<string>(StringComparer.Ordinal);
         foreach (var p in payload.Parameters)
             Require(known.Contains(p.Name) && names.Add(p.Name), "Unknown or duplicate parameter.");

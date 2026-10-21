@@ -4,6 +4,7 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 
 ---
 
+- ONCONFLICT: [Load](cryptoscript-info://function/Load) only; `REJECT` (default) or `REPLACE`. At most once, as the final argument. Not accepted in PARAM declarations or by cryptographic mechanisms.
 - MECH: Mechanism parameter specifying the cryptographic algorithm used. Information about each mechanism can be obtained through Info(mechanism).
     - MECHANISM VALUES:
         - AES-CBC

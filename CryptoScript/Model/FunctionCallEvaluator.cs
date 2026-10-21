@@ -52,7 +52,8 @@ namespace CryptoScript.Model
             FunctionCall fc, SemanticDiagnosticExecution? execution)
         {
             string functionName = call.Name;
-            fc.CallText = SnapshotOperations.IsSave(functionName) ? "Save(<redacted>)" : call.CallText;
+            fc.CallText = SnapshotOperations.IsSnapshot(functionName)
+                ? $"{SnapshotOperations.CanonicalName(functionName)}(<redacted>)" : call.CallText;
             fc.Name = functionName;
             try
             {
@@ -66,12 +67,14 @@ namespace CryptoScript.Model
                 execution?.Report(se, fc.Location!, SemanticDiagnosticCode.UnknownFunction);
                 throw new SemanticErrorException() { SemanticError=se};
             }
+            ValidateArgumentContracts(call, semanticErrors);
             var arguments = call.Arguments;
-            if (SnapshotOperations.IsSave(functionName))
+            if (SnapshotOperations.IsSnapshot(functionName))
             {
                 try
                 {
-                    fc.Arguments.AddRange(SnapshotOperations.ResolveSaveArguments(call));
+                    fc.Arguments.AddRange(SnapshotOperations.IsLoad(functionName)
+                        ? SnapshotOperations.ResolveLoadArguments(call) : SnapshotOperations.ResolveSaveArguments(call));
                     fc.Call(execution);
                     return fc;
                 }
@@ -183,13 +186,14 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.NestedCallArgumentNode nestedCall)
             {
-                if (SnapshotOperations.IsSave(nestedCall.Call.Name))
+                if (SnapshotOperations.IsSnapshot(nestedCall.Call.Name))
                 {
+                    string name = SnapshotOperations.CanonicalName(nestedCall.Call.Name);
                     var error = new SemanticError
                     {
-                        Type = "FunctionCall", FunctionName = "Save", FunctionCall = "Save(<redacted>)",
+                        Type = "FunctionCall", FunctionName = name, FunctionCall = $"{name}(<redacted>)",
                         DiagnosticCode = SemanticDiagnosticCode.FunctionContractViolation,
-                        Message = "Save has no return value and cannot be used as a function argument."
+                        Message = $"{name} has no return value and cannot be used as a function argument."
                     };
                     semanticErrors.Add(error);
                     throw new SemanticErrorException { SemanticError = error };
@@ -238,7 +242,8 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.ParameterArgumentNode parameter)
             {
-
+                if (parameter.TypeName == "#ONCONFLICT")
+                    throw new ArgumentException("#ONCONFLICT is accepted only by Load.");
                 return evaluateParameter(parameter.TypeName, parameter.RawValue);
             }
             if (argument is Ast.InfoArgumentNode infoNode)
@@ -267,6 +272,42 @@ namespace CryptoScript.Model
             return new SemanticErrorException { SemanticError = error };
         }
 
+        // Inspect the complete argument tree before evaluating any sibling. A void
+        // snapshot call or a misplaced Load-only parameter must not trigger earlier
+        // nested operations (including Print, Save or file access).
+        private static void ValidateArgumentContracts(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> semanticErrors)
+        {
+            foreach (var argument in call.Arguments)
+            {
+                string? name = null;
+                string? message = null;
+                if (argument is Ast.NestedCallArgumentNode nested)
+                {
+                    if (SnapshotOperations.IsSnapshot(nested.Call.Name))
+                    {
+                        name = SnapshotOperations.CanonicalName(nested.Call.Name);
+                        message = $"{name} has no return value and cannot be used as a function argument.";
+                    }
+                    else ValidateArgumentContracts(nested.Call, semanticErrors);
+                }
+                if (argument is Ast.ParameterArgumentNode { TypeName: "#ONCONFLICT" } &&
+                    !SnapshotOperations.IsLoad(call.Name))
+                {
+                    name = call.Name;
+                    message = "#ONCONFLICT is accepted only by Load.";
+                }
+                if (message is null) continue;
+                var error = new SemanticError
+                {
+                    Type = "FunctionCall", FunctionName = name!, FunctionCall = $"{name}(<redacted>)",
+                    DiagnosticCode = SemanticDiagnosticCode.FunctionContractViolation, Message = message
+                };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
+        }
+
         private static bool IsFunctionContractError(SemanticErrorException exception) =>
             exception.SemanticError is { Type: "FunctionContract", ErrorCode: not null };
 
@@ -276,15 +317,16 @@ namespace CryptoScript.Model
             FunctionCall functionCall,
             List<SemanticError> semanticErrors)
         {
-            if (SnapshotOperations.IsSave(call.Name))
+            if (SnapshotOperations.IsSnapshot(call.Name))
             {
+                string name = SnapshotOperations.CanonicalName(call.Name);
                 var saveError = new SemanticError
                 {
-                    Type = "FunctionCall", FunctionName = "Save", FunctionCall = "Save(<redacted>)",
-                    DiagnosticCode = exception is SaveArgumentException argumentError
+                    Type = "FunctionCall", FunctionName = name, FunctionCall = $"{name}(<redacted>)",
+                    DiagnosticCode = exception is SnapshotArgumentException argumentError
                         ? argumentError.Code : SemanticDiagnosticCode.FunctionExecutionFailed,
-                    Message = exception is SaveArgumentException or VariableSnapshotFileException
-                        ? exception.Message : "Save failed."
+                    Message = exception is SnapshotArgumentException or VariableSnapshotFileException
+                        ? exception.Message : $"{name} failed."
                 };
                 semanticErrors.Add(saveError);
                 return new SemanticErrorException { SemanticError = saveError };
@@ -310,7 +352,7 @@ namespace CryptoScript.Model
             List<SemanticError> semanticErrors) =>
             exception.SemanticError is not null &&
             semanticErrors.Contains(exception.SemanticError) &&
-            (SnapshotOperations.IsSave(exception.SemanticError.FunctionName) ||
+            (SnapshotOperations.IsSnapshot(exception.SemanticError.FunctionName) ||
              IsCryptographicFunction(exception.SemanticError.FunctionName) ||
              // Unknown functions are rejected before arguments are evaluated. Keep
              // their already-redacted diagnostic intact through enclosing calls.

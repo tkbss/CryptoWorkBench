@@ -22,27 +22,30 @@ namespace CryptoScript.ErrorListner
             // at the failing character (or EOF). Never copy beyond that region.
             int start = Math.Clamp(lexer.TokenStartCharIndex, 0, stream.Size);
             int stop = Math.Min(stream.Size - 1, Math.Max(start, stream.Index));
-            bool secretImport = SecretImportDiagnosticScope.Contains(recognizer, start, stop);
+            bool secretImport = ImportDiagnosticScope.Contains(recognizer, start, stop, "Secret");
+            bool loadImport = ImportDiagnosticScope.Contains(recognizer, start, stop, "Load");
+            bool sensitiveImport = secretImport || loadImport;
+            string safeMessage = loadImport ? "Invalid token in Load; check PATH, selectors and #ONCONFLICT."
+                : "Invalid token in Secret import; check indices and HEX literals.";
             if (consoleDiagnostics)
             {
                 ConsoleErrorListener<int>.Instance.SyntaxError(output, recognizer, offendingSymbol, line,
-                    charPositionInLine, secretImport ? "Invalid token in Secret import; check indices and HEX literals." : msg, e);
+                    charPositionInLine, sensitiveImport ? safeMessage : msg, e);
                 return;
             }
             LexerErrorOccured = true;
-            if (secretImport)
+            if (sensitiveImport)
             {
-                const string message = "Invalid token in Secret import; check indices and HEX literals.";
                 SyntaxErrorList.Instance().Add(new LexerError
                 {
                     Line = line.ToString(), Column = charPositionInLine.ToString(),
-                    Symbol = "<redacted>", Message = message
+                    Symbol = "<redacted>", Message = safeMessage
                 });
                 // A lexer-only failure must also stop the existing GUI execution
                 // path, which publishes the syntax error buffer before evaluation.
                 SyntaxErrorListner.SyntaxErrorOccured = true;
                 SyntaxErrorListner.ErrorMessage.AppendLine(
-                    $"SYNTAX ERROR: Token <redacted> (line {line}, column {charPositionInLine}) : {message}");
+                    $"SYNTAX ERROR: Token <redacted> (line {line}, column {charPositionInLine}) : {safeMessage}");
                 return;
             }
             string token = stop >= start ? stream.GetText(new Interval(start, stop)) : string.Empty;

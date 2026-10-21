@@ -77,7 +77,7 @@ public sealed class FileInfoDocumentationProvider : IInfoDocumentationProvider
             "tr31attributes" => InfoDocumentId.CreateTr31Attributes(),
             "CreateHeader" => InfoDocumentId.CreateFunction(name),
             "SECRET" => InfoDocumentId.CreateType("SECRET"),
-            "Share" or "Secret" or "Restore" or "Save" => InfoDocumentId.CreateFunction(name),
+            "Share" or "Secret" or "Restore" or "Save" or "Load" => InfoDocumentId.CreateFunction(name),
             "pintranslations" => InfoDocumentId.CreatePinTranslationsOverview(),
             "functions" => InfoDocumentId.CreateFunctionsOverview(),
             "mechanisms" => InfoDocumentId.CreateMechanismsOverview(),

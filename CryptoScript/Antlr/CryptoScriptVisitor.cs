@@ -110,6 +110,24 @@ public interface ICryptoScriptVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

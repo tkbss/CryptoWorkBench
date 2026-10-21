@@ -50,7 +50,7 @@ public class AntlrLanguageMetadataTests
     {
         var parameters = new[] { "#MECH", "#IV", "#PAD", "#MACLEN", "#NONCE", "#COUNTER", "#ADATA", "#BLKH", "#RND", "#HASH", "#SALT", "#OUTLEN", "#VARIANT", "#PRF", "#LABEL", "#USAGE", "#KEYTYPE", "#PAN", "#PSN", "#TRANSACTION", "#FILL", "#RANDOM", "#EXPECTED", "#ARC", "#CSU", "#OFFSET", "#DIRECTION", "#PARTS", "#MINPARTS", "#POLYNOM", "#SHAREFORMAT" };
         var paddings = new[] { "ISO-7816", "ISO-10126", "PKCS-7", "ISO-9797-M1", "ISO-9797-M2", "ISO-9797-M3", "ANSI-X923", "TLS-CBC", "NONE" };
-        Assert.That(AntlrLanguageMetadata.GetParameters(), Is.EqualTo(parameters));
+        Assert.That(AntlrLanguageMetadata.GetParameters(), Is.EqualTo(parameters.Append("#ONCONFLICT")));
         Assert.That(AntlrLanguageMetadata.GetPaddings(), Is.EqualTo(paddings));
         Assert.That(ParameterTypeList.Instance.Paddings, Is.EqualTo(paddings));
         Assert.That(ParameterTypeList.Instance.ParameterTypes, Is.EqualTo(parameters));

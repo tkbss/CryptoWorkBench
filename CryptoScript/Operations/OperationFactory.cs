@@ -15,6 +15,7 @@ namespace CryptoScript.Model
         {
             operation = operation.ToLower();
             if (operation == "save") return SnapshotOperations.Save;
+            if (operation == "load") return SnapshotOperations.Load;
             if (operation == "createheader") return HeaderOperations.CreateHeader;
             var op = algorithmFactory is null ? new CryptoOperations() : new CryptoOperations(algorithmFactory);
             if (operation == "share") return SecretOperations.Share;
@@ -61,6 +62,7 @@ namespace CryptoScript.Model
         { 
             operation = operation.ToLower();
             if (operation == "save") return _ => throw new ArgumentException("Save requires typed variable references.");
+            if (operation == "load") return _ => throw new ArgumentException("Load requires a typed PATH reference and snapshot selectors.");
             if (operation == "createheader") return _ => throw new ArgumentException("CreateHeader requires named attributes.");
             if (operation is "share" or "secret" or "restore") return SecretOperations.RequireTypedArguments;
             var op = new CryptoOperations();             

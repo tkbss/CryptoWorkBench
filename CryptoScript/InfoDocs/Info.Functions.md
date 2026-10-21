@@ -17,10 +17,8 @@ Possible Parameters are given in overlay window during typing.
 - Create a TR-31 header: **TR31H h = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)**
 - Print variable to output: **Print(s)**
 - Export variables as plaintext JSON: **[Save(path, variable1, variable2, ...)](cryptoscript-info://function/Save)** or **Save(path, ALL)**
+- Import variables from plaintext JSON: **[Load(path, variable1, variable2, ...)](cryptoscript-info://function/Load)**, **Load(path)** or **Load(path, ALL)**; optional final **#ONCONFLICT:REPLACE**
 - Show Crypto Script information: **Info(type)**
-- Load variable from file: **VAR d = Load(VAR, path)**
-- Load parameters from file: **PARAM p = Load(PARAM, path)**
-- Load key from file: **KEY k = Load(KEY, path)**
 - Compare two variables of same type: **VAL res = Compare(VAR, VAR)**
 
 Digital signatures are not supported in CryptoScript V1. Asymmetric cryptography is reserved for V2.

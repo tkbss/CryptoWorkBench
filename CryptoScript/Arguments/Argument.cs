@@ -9,6 +9,11 @@ using CryptoScript.Variables;
 namespace CryptoScript.Model
 {
     public  class Argument: Statement { }
+    // A snapshot root name, deliberately not looked up in the live dictionary.
+    public sealed class ArgumentSnapshotSelector : Argument
+    {
+        public required string Identifier { get; init; }
+    }
     public sealed class ArgumentHeaderAttribute : Argument
     {
         public string Name { get; init; } = "";

@@ -20,14 +20,15 @@ namespace CryptoScript.Model
         {
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
-            if (declaration.Initializer is FunctionCallExpressionNode save &&
-                Operations.SnapshotOperations.IsSave(save.Name))
+            if (declaration.Initializer is FunctionCallExpressionNode snapshot &&
+                Operations.SnapshotOperations.IsSnapshot(snapshot.Name))
             {
+                string name = Operations.SnapshotOperations.CanonicalName(snapshot.Name);
                 var error = new SemanticError
                 {
-                    Type = "Declaration", FunctionName = "Save", FunctionCall = "Save(<redacted>)",
+                    Type = "Declaration", FunctionName = name, FunctionCall = $"{name}(<redacted>)",
                     DiagnosticCode = SemanticDiagnosticCode.InvalidDeclaration,
-                    Message = "Save has no return value and cannot initialize a variable."
+                    Message = $"{name} has no return value and cannot initialize a variable."
                 };
                 semanticErrors.Add(error);
                 throw new SemanticErrorException { SemanticError = error };

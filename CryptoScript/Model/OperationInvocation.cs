@@ -15,7 +15,8 @@ public enum ResolvedCallArgumentKind
     Parameter,
     Info,
     Empty,
-    HeaderAttribute
+    HeaderAttribute,
+    SnapshotSelector
 }
 
 public sealed record ResolvedCallArgument

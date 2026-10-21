@@ -204,7 +204,10 @@ public sealed class VariableSnapshotJsonSerializer
         if (!Regex.IsMatch(value, @"\A[A-Za-z][A-Za-z0-9]*\z", RegexOptions.CultureInvariant)) return false;
         var lexer = new CryptoScriptLexer(new Antlr4.Runtime.AntlrInputStream(value));
         lexer.RemoveErrorListeners();
-        return lexer.NextToken().Type == CryptoScriptLexer.ID;
+        // FN describes an identifier's spelling, not an instruction to execute it.
+        // Load's contextual selectors also accept names such as MasterKey/SessionKey.
+        // Actual reserved type, mechanism and parameter tokens remain disallowed.
+        return lexer.NextToken().Type is CryptoScriptLexer.ID or CryptoScriptLexer.FN;
     }
 
     private static bool KnownFormat(string value) => value == "" || value == FormatConversions.HEX ||

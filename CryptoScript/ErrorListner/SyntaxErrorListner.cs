@@ -19,23 +19,27 @@ namespace CryptoScript.ErrorListner
             var displayMsg = msg;
 
             int start = e is NoViableAltException alternative ? alternative.StartToken.StartIndex : offendingSymbol?.StartIndex ?? -1;
-            bool secretImport = SecretImportDiagnosticScope.Contains(recognizer, start, offendingSymbol?.StopIndex ?? start);
+            bool secretImport = ImportDiagnosticScope.Contains(recognizer, start, offendingSymbol?.StopIndex ?? start, "Secret");
+            bool loadImport = ImportDiagnosticScope.Contains(recognizer, start, offendingSymbol?.StopIndex ?? start, "Load");
+            bool sensitiveImport = secretImport || loadImport;
+            string safeMessage = loadImport ? "Invalid Load syntax; check PATH, selectors and #ONCONFLICT."
+                : "Invalid Secret import syntax; check argument separators, indices and HEX literals.";
             if (consoleDiagnostics)
             {
                 // FileBuild historically uses ANTLR's console diagnostics.
-                var symbol = secretImport ? new CommonToken(offendingSymbol?.Type ?? TokenConstants.InvalidType, "<redacted>")
+                var symbol = sensitiveImport ? new CommonToken(offendingSymbol?.Type ?? TokenConstants.InvalidType, "<redacted>")
                     { Line = line, Column = charPositionInLine } : offendingSymbol;
                 ConsoleErrorListener<IToken>.Instance.SyntaxError(output, recognizer, symbol, line,
-                    charPositionInLine, secretImport ? "Invalid Secret import syntax; check argument separators, indices and HEX literals." : msg, e);
+                    charPositionInLine, sensitiveImport ? safeMessage : msg, e);
                 return;
             }
             SyntaxErrorOccured = true;
-            if (secretImport)
+            if (sensitiveImport)
             {
                 displaySymbol = "<redacted>";
-                displayMsg = "Invalid Secret import syntax; check argument separators, indices and HEX literals.";
+                displayMsg = safeMessage;
             }
-            // Preserve existing diagnostics outside Secret imports.
+            // Preserve existing diagnostics outside sensitive imports.
             else if (recognizer is Parser parser && offendingSymbol != null)
             {
                 var tokenStream = parser.TokenStream;

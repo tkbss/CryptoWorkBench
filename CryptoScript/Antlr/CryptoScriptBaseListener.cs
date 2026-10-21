@@ -192,6 +192,42 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

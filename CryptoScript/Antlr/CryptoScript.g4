@@ -53,13 +53,20 @@ expression    : HEX_STRING
 
 functionCall  : FN '(' ({$FN.text == "CreateHeader"}? headerArguments
                       | {$FN.text == "Info"}? functionTopic
+                      | {$FN.text == "Load"}? loadArguments
                       | arguments)? ')'
               ; 
 functionTopic : FN (',' arguments)?;
+// FN-shaped snapshot identifiers (e.g. MasterKey) are contextual to Load.
+loadArguments : loadArgument (',' loadArgument)*;
+loadArgument : FN | argument;
+// Keep the raw value for Load's semantic validation; never resolve it as a variable.
+onConflictParameter : P_ONCONFLICT ':' (ID | FN | expression | MECHANISM | PADDING | VARIANT_VALUE);
 headerArguments : headerAttribute (',' headerAttribute)*;
 arguments     : argument (',' argument)*
               ;
 argument      : MECHANISM 
+              | onConflictParameter
               | declareparam              
               | ID
               | functionCall
