@@ -28,6 +28,36 @@ List of all types used in CRYPTO-SCRIPT. Upper case lettersfor every type is man
     - EXAMPLE (Windows): "C:\folder\subfolder\file.txt"
     - EXAMPLE (Linux): "/home/user/folder/file.txt"
 
+## KEY literals
+
+```cryptoscript
+KEY k = 0x(00112233445566778899AABBCCDDEEFF)
+KEY same = b64(ABEiM0RVZneImaq7zN3u/w==)
+PARAM p = Parameters(AES-CBC)
+VAR data = 0x(000102030405060708090A0B0C0D0E0F)
+VAR encrypted = Encrypt(p, k, data)
+VAR decrypted = Decrypt(p, k, encrypted)
+```
+
+Nonempty whole-byte HEX and valid Base64 literals create complete KEY objects.
+The original literal and format are preserved. `KeySizeInBits` and `KeySize`
+describe all decoded bytes (128 bits in this example), including leading zeros.
+The defaults are `Secret(Unknown)`, `Usage.Unspecified`, empty derivation
+mechanism and empty key attributes. Length does not select an algorithm.
+String, numeric, path and malformed binary initializers are rejected before a
+variable is published or an existing variable is replaced. VAR declarations and
+GenerateKey retain their own behavior; GenerateKey supplies algorithm metadata.
+
+A key without declared algorithm can be used where the existing mechanism
+contract supplies the algorithm and the material is technically valid. For
+example, AES accepts 16, 24 or 32 bytes. Encryption/decryption does not assign an
+algorithm or change KEY metadata. An Unknown key has no KCV, KCVC or KCVK
+(`null` in the runtime, `N/A` in Print), even after AES use.
+
+[Save](cryptoscript-info://function/Save) exports these keys as KEY snapshots
+without inferring an algorithm. The snapshot roundtrip preserves their material,
+format, size and Unknown metadata. Snapshots contain unencrypted key material.
+
 ## KEY check values
 
 Let `K` be the complete key and `B` the cipher block size in bytes:

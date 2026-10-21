@@ -34,8 +34,10 @@ namespace CryptoScriptUnitTest
             var statement=res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             ClassicAssert.IsTrue(res.Statements.Count == 1);   
-            ClassicAssert.IsTrue(statement is StringVariableDeclaration);
-            var variable = statement as StringVariableDeclaration;
+            ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
+            var variable = statement as KeyVariableDeclaration;
+            Assert.That(variable!.KeyType.Algorithm, Is.EqualTo(KeyAlgorithm.Unknown));
+            Assert.That(variable.KeySizeInBits.Bits, Is.EqualTo(16UL));
             ClassicAssert.IsTrue(variable?.Id == "key0");
             ClassicAssert.IsTrue(variable?.Value == "0x(1234)");
             ClassicAssert.IsTrue(variable?.Type is CryptoTypeKey);
@@ -52,8 +54,10 @@ namespace CryptoScriptUnitTest
             var statement=res.Statements.FirstOrDefault(); 
             ClassicAssert.IsNotNull(statement); 
             ClassicAssert.IsTrue(res.Statements.Count == 2);    
-            ClassicAssert.IsTrue(statement is StringVariableDeclaration); 
-            var variable = statement as StringVariableDeclaration; 
+            ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
+            var variable = statement as KeyVariableDeclaration;
+            Assert.That(variable!.KeyType.Algorithm, Is.EqualTo(KeyAlgorithm.Unknown));
+            Assert.That(variable.KeySizeInBits.Bits, Is.EqualTo(16UL));
             ClassicAssert.IsTrue(variable?.Id == "key1"); 
             ClassicAssert.IsTrue(variable?.Value == "0x(1234)"); 
             ClassicAssert.IsTrue(variable?.Type is CryptoTypeKey);

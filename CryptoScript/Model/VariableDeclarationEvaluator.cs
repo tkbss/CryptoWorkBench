@@ -44,6 +44,9 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException { SemanticError = error };
             }
             var type = CryptoType.Parse(TypeName);
+            if (type is CryptoTypeKey && declaration.Initializer is null &&
+                declaration.Tr31Header is null && declaration.Parameters.Items.Count == 0)
+                throw InvalidKeyLiteral(semanticErrors);
             FunctionCallExpressionNode? stmtFromHeader = null;
             if (declaration.Tr31Header is not null)
             {
@@ -177,9 +180,26 @@ namespace CryptoScript.Model
                 stmt= variable;
             }
 
-            stmt = Expression.BuildVariable(stmt, Id, type);
+            try { stmt = Expression.BuildVariable(stmt, Id, type); }
+            catch (Exception exception) when (type is CryptoTypeKey &&
+                declaration.Initializer is LiteralInitializerNode &&
+                exception is ArgumentException or FormatException or OverflowException)
+            {
+                throw InvalidKeyLiteral(semanticErrors);
+            }
             return stmt;
 
+        }
+
+        private static SemanticErrorException InvalidKeyLiteral(List<SemanticError> semanticErrors)
+        {
+            var error = new SemanticError
+            {
+                Type = "Declaration", DiagnosticCode = SemanticDiagnosticCode.InvalidDeclaration,
+                Message = "KEY requires a valid nonempty HEX or Base64 literal containing whole bytes."
+            };
+            semanticErrors.Add(error);
+            return new SemanticErrorException { SemanticError = error };
         }
     }
 }

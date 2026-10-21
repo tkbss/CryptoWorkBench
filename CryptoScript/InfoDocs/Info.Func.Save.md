@@ -46,9 +46,13 @@ Save uses the version 1 S01 snapshot format and S02 file store without changing
 their contracts. Supported runtime classes are VAR, KEY, PARAM, PATH, TR31H and
 SECRET. The serializer preserves embedded/shared TR31H references. Unsupported or
 inconsistent runtime objects cause an error; Save does not repair or convert them.
-In particular, the legacy literal declaration `KEY k = 0x(...)` currently creates
-a VAR-class object tagged KEY, which S01 rejects. Use a typed KEY function result
-(such as GenerateKey or Restore) when exporting a KEY.
+Literal declarations such as `KEY k = 0x(00112233445566778899AABBCCDDEEFF)`
+and valid `b64(...)` literals create complete KEY objects and can be exported.
+Their algorithm remains `Unknown`, their bit size comes from the decoded bytes,
+and KCV/KCVC/KCVK remain unavailable. Save and the snapshot roundtrip preserve
+these properties. A suitable mechanism such as AES can use such a key without
+changing its metadata, provided its material is technically valid for that
+mechanism. See `Info(types)` for KEY metadata.
 
 Files use UTF-8 without BOM. Save always uses `CreateNew`: an existing target is
 never overwritten, including a target created by a competing process. S02

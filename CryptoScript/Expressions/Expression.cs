@@ -19,6 +19,12 @@ namespace CryptoScript.Model
         }
         public static Statement BuildVariable(Statement stmt,string Id, CryptoType type) 
         {
+            if (type is CryptoTypeKey && stmt is Expression keyExpression)
+            {
+                var key = BuildLiteralKey(keyExpression, Id, type);
+                VariableDictionary.Instance().Add(key);
+                return key;
+            }
             var newVariable = new StringVariableDeclaration();
             if (stmt is ExpressionString expressionString)
             {
@@ -89,6 +95,37 @@ namespace CryptoScript.Model
             }
             return stmt; 
         }
+        private static KeyVariableDeclaration BuildLiteralKey(Expression expression, string id, CryptoType type)
+        {
+            string literal = expression.Value();
+            string format;
+            byte[] material;
+            if (expression is ExpressionHex && literal.StartsWith("0x(", StringComparison.Ordinal) && literal.EndsWith(')'))
+            {
+                format = FormatConversions.HEX;
+                material = Convert.FromHexString(literal[3..^1]);
+            }
+            else if (expression is ExpressionBase64 && literal.StartsWith("b64(", StringComparison.Ordinal) && literal.EndsWith(')'))
+            {
+                format = FormatConversions.B64;
+                material = Convert.FromBase64String(literal[4..^1]);
+            }
+            else throw new ArgumentException("KEY requires a nonempty HEX or Base64 literal.");
+
+            try
+            {
+                if (material.Length == 0)
+                    throw new ArgumentException("KEY requires nonempty binary material.");
+                return new KeyVariableDeclaration
+                {
+                    Id = id, Type = type, Value = literal, ValueFormat = format,
+                    KeySizeInBits = new KeySize(checked((ulong)material.Length * 8))
+                    // Defaults remain Secret(Unknown), Unspecified usage, no derivation or attributes.
+                };
+            }
+            finally { System.Security.Cryptography.CryptographicOperations.ZeroMemory(material); }
+        }
+
         static public Expression Create(string expr)
         {           
 

@@ -328,14 +328,18 @@ public class SaveFunctionTests
     }
 
     [Test]
-    public void LegacyMismatchedKeyClassIsRejectedWithoutChangingItsExistingContract()
+    public void LiteralKeyIsTypedAndCanBeSaved()
     {
         Prepare();
         Run("KEY legacy = 0x(AABBCCDD)");
-        var error = Reject("Save(path, legacy)");
-        Assert.That(error.Message, Does.Contain("InvalidSnapshot").And.Not.Contain("AABBCCDD"));
-        Assert.That(Variables.Get("legacy"), Is.TypeOf<StringVariableDeclaration>());
-        Assert.That(Directory.GetFiles(directory), Is.Empty);
+        Run("Save(path, legacy)");
+        Assert.That(Variables.Get("legacy"), Is.TypeOf<KeyVariableDeclaration>());
+        var restored = store.Read((PathVariableDeclaration)Variables.Get("path")).Single();
+        Assert.That(restored, Is.TypeOf<KeyVariableDeclaration>());
+        Assert.That(serializer.Serialize([restored]), Is.EqualTo(serializer.Serialize([Variables.Get("legacy")])));
+        Assert.That(((KeyVariableDeclaration)restored).KeyType.Algorithm, Is.EqualTo(KeyAlgorithm.Unknown));
+        Assert.That(((KeyVariableDeclaration)restored).KeySizeInBits.Bits, Is.EqualTo(32UL));
+        Assert.That(Directory.GetFiles(directory), Is.EqualTo(new[] { Destination }));
     }
 
     [TestCase("123")]
