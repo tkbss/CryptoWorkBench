@@ -21,9 +21,9 @@ namespace CryptoScript.Model
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
             if (declaration.Initializer is FunctionCallExpressionNode snapshot &&
-                Operations.SecureSaveOperations.IsVoidSnapshot(snapshot.Name))
+                (Operations.SecureSaveOperations.IsVoidSnapshot(snapshot.Name) || Operations.DeleteOperations.IsDelete(snapshot.Name)))
             {
-                string name = Operations.SecureSaveOperations.CanonicalName(snapshot.Name);
+                string name = Operations.DeleteOperations.IsDelete(snapshot.Name) ? "Delete" : Operations.SecureSaveOperations.CanonicalName(snapshot.Name);
                 var error = new SemanticError
                 {
                     Type = "Declaration", FunctionName = name, FunctionCall = $"{name}(<redacted>)",

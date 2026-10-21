@@ -24,6 +24,7 @@ namespace CryptoScript.Model
             operation = operation.ToLower();
             if (operation == "secureload") return _ => throw new Serialization.SecureLoadException("AsyncExecutionRequired");
             if (operation == "securesave") return _ => throw new Serialization.SecureSaveException("AsyncExecutionRequired");
+            if (operation == "delete") return DeleteOperations.Delete;
             if (operation == "save") return SnapshotOperations.Save;
             if (operation == "load") return SnapshotOperations.Load;
             if (operation == "createheader") return HeaderOperations.CreateHeader;
@@ -73,6 +74,7 @@ namespace CryptoScript.Model
             operation = operation.ToLower();
             if (operation == "secureload") return _ => throw new Serialization.SecureLoadException("AsyncExecutionRequired");
             if (operation == "securesave") return _ => throw new Serialization.SecureSaveException("AsyncExecutionRequired");
+            if (operation == "delete") return _ => throw new ArgumentException("Delete requires typed variable references.");
             if (operation == "save") return _ => throw new ArgumentException("Save requires typed variable references.");
             if (operation == "load") return _ => throw new ArgumentException("Load requires a typed PATH reference and snapshot selectors.");
             if (operation == "createheader") return _ => throw new ArgumentException("CreateHeader requires named attributes.");

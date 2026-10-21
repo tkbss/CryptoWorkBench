@@ -20,6 +20,7 @@ Possible Parameters are given in overlay window during typing.
 - Import variables from plaintext JSON: **[Load(path, variable1, variable2, ...)](cryptoscript-info://function/Load)**, **Load(path)** or **Load(path, ALL)**; optional final **#ONCONFLICT:REPLACE**
 - Export an authenticated password-protected snapshot: **[SecureSave(path, variable1, ...)](cryptoscript-info://function/SecureSave)** or **SecureSave(path, ALL)** (asynchronous)
 - Import an authenticated password-protected snapshot: **[SecureLoad(path, variable1, ...)](cryptoscript-info://function/SecureLoad)** or **SecureLoad(path)** (asynchronous)
+- Remove variables from the current dictionary: **[Delete(variable1, ...)](cryptoscript-info://function/Delete)** or **Delete(ALL)** (synchronous, no return value)
 - Show Crypto Script information: **Info(type)**
 - Compare two variables of same type: **VAL res = Compare(VAR, VAR)**
 

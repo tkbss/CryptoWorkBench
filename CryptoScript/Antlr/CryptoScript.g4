@@ -53,7 +53,7 @@ expression    : HEX_STRING
 
 functionCall  : FN '(' ({$FN.text == "CreateHeader"}? headerArguments
                       | {$FN.text == "Info"}? functionTopic
-                      | {$FN.text == "Load" || $FN.text == "SecureLoad"}? loadArguments
+                      | {$FN.text == "Load" || $FN.text == "SecureLoad" || $FN.text == "Delete"}? loadArguments
                       | {$FN.text == "SecureSave"}? secureArguments
                       | arguments)? ')'
               ; 

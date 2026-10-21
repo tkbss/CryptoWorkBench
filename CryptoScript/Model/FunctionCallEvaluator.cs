@@ -130,7 +130,7 @@ namespace CryptoScript.Model
             FunctionCall fc, SemanticDiagnosticExecution? execution)
         {
             string functionName = call.Name;
-            fc.CallText = SnapshotOperations.IsSnapshot(functionName)
+            fc.CallText = DeleteOperations.IsDelete(functionName) ? "Delete(<redacted>)" : SnapshotOperations.IsSnapshot(functionName)
                 ? $"{SnapshotOperations.CanonicalName(functionName)}(<redacted>)" : call.CallText;
             fc.Name = functionName;
             try
@@ -155,11 +155,11 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException { SemanticError = error };
             }
             var arguments = call.Arguments;
-            if (SnapshotOperations.IsSnapshot(functionName))
+            if (SnapshotOperations.IsSnapshot(functionName) || DeleteOperations.IsDelete(functionName))
             {
                 try
                 {
-                    fc.Arguments.AddRange(SnapshotOperations.IsLoad(functionName)
+                    fc.Arguments.AddRange(DeleteOperations.IsDelete(functionName) ? DeleteOperations.ResolveArguments(call) : SnapshotOperations.IsLoad(functionName)
                         ? SnapshotOperations.ResolveLoadArguments(call) : SnapshotOperations.ResolveSaveArguments(call));
                     fc.Call(execution);
                     return fc;
@@ -272,9 +272,9 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.NestedCallArgumentNode nestedCall)
             {
-                if (SecureSaveOperations.IsVoidSnapshot(nestedCall.Call.Name))
+                if ((SecureSaveOperations.IsVoidSnapshot(nestedCall.Call.Name) || DeleteOperations.IsDelete(nestedCall.Call.Name)))
                 {
-                    string name = SecureSaveOperations.CanonicalName(nestedCall.Call.Name);
+                    string name = DeleteOperations.IsDelete(nestedCall.Call.Name) ? "Delete" : SecureSaveOperations.CanonicalName(nestedCall.Call.Name);
                     var error = new SemanticError
                     {
                         Type = "FunctionCall", FunctionName = name, FunctionCall = $"{name}(<redacted>)",
@@ -370,9 +370,9 @@ namespace CryptoScript.Model
                 string? message = null;
                 if (argument is Ast.NestedCallArgumentNode nested)
                 {
-                    if (SecureSaveOperations.IsVoidSnapshot(nested.Call.Name))
+                    if ((SecureSaveOperations.IsVoidSnapshot(nested.Call.Name) || DeleteOperations.IsDelete(nested.Call.Name)))
                     {
-                        name = SecureSaveOperations.CanonicalName(nested.Call.Name);
+                        name = DeleteOperations.IsDelete(nested.Call.Name) ? "Delete" : SecureSaveOperations.CanonicalName(nested.Call.Name);
                         message = $"{name} has no return value and cannot be used as a function argument.";
                     }
                     else ValidateArgumentContracts(nested.Call, semanticErrors);
@@ -403,9 +403,9 @@ namespace CryptoScript.Model
             FunctionCall functionCall,
             List<SemanticError> semanticErrors)
         {
-            if (SnapshotOperations.IsSnapshot(call.Name))
+            if (SnapshotOperations.IsSnapshot(call.Name) || DeleteOperations.IsDelete(call.Name))
             {
-                string name = SnapshotOperations.CanonicalName(call.Name);
+                string name = DeleteOperations.IsDelete(call.Name) ? "Delete" : SnapshotOperations.CanonicalName(call.Name);
                 var saveError = new SemanticError
                 {
                     Type = "FunctionCall", FunctionName = name, FunctionCall = $"{name}(<redacted>)",

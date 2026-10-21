@@ -15,6 +15,7 @@ namespace CryptoScript.Model
             "Share", "Secret", "Restore",
             "Save",
             "Load",
+            "Delete",
             "GenerateKey",
             "Encrypt",
             "Decrypt",
