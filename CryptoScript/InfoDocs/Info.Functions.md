@@ -19,6 +19,7 @@ Possible Parameters are given in overlay window during typing.
 - Export variables as plaintext JSON: **[Save(path, variable1, variable2, ...)](cryptoscript-info://function/Save)** or **Save(path, ALL)**
 - Import variables from plaintext JSON: **[Load(path, variable1, variable2, ...)](cryptoscript-info://function/Load)**, **Load(path)** or **Load(path, ALL)**; optional final **#ONCONFLICT:REPLACE**
 - Export an authenticated password-protected snapshot: **[SecureSave(path, variable1, ...)](cryptoscript-info://function/SecureSave)** or **SecureSave(path, ALL)** (asynchronous)
+- Import an authenticated password-protected snapshot: **[SecureLoad(path, variable1, ...)](cryptoscript-info://function/SecureLoad)** or **SecureLoad(path)** (asynchronous)
 - Show Crypto Script information: **Info(type)**
 - Compare two variables of same type: **VAL res = Compare(VAR, VAR)**
 

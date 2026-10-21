@@ -79,6 +79,59 @@ public class AsyncPasswordGuiTests
         }, CancellationToken.None);
     }
 
+    [TestCase("success")] [TestCase("wrong")] [TestCase("cancel")]
+    public async Task ProductiveSecureLoadDialogUpdatesVariablesAndStopsBookOnFailure(string outcome)
+    {
+        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        await session.Dispatch(async () =>
+        {
+            string directory = Path.Combine(Path.GetTempPath(), "S06-GUI-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(directory);
+            var dictionary = VariableDictionary.Instance(); var previous = dictionary.GetVariables().ToArray();
+            var owner = new Window(); owner.Show(); using var host = new PasswordDialogHost(() => owner);
+            var status = new StatusViewModel(); var variables = new VariableViewModel();
+            using var editor = new CryptoScriptEditViewModel(status, variables, new InfoViewModel(), new MainViewModel(), null!, new HistoryService());
+            Task? activeExecution = null;
+            try
+            {
+                dictionary.Clear();
+                var path = new PathVariableDeclaration {Id="path",Type=new CryptoTypePath(),Value=Path.Combine(directory,"secure.json")};
+                dictionary.Add(path); dictionary.Add(new StringVariableDeclaration {Id="data",Value="GUI-CANARY"});
+                var save = new CryptoScriptRunner(); save.PasswordRequested += (_,r) => Task.FromResult(PasswordResponse.Supplied(r.RequestId,
+                    PasswordSecret.TakeOwnership("canary".ToCharArray()),PasswordSecret.TakeOwnership("canary".ToCharArray())));
+                await Task.Run(() => save.ExecuteAsync(CryptoScript.Model.ParserBuilder.StringBuild("SecureSave(path,data,#SECUREKDF:PBKDF2)").program()));
+                dictionary.Clear(); dictionary.Add(path);
+                var runner = new CryptoScriptRunner(); runner.PasswordRequested += host.RequestAsync;
+                var lines = new List<string>();
+                var execution = editor.ExecuteScriptBookAsync(new[] {"SecureLoad(path)","Print(data)","Info(SecureLoad)"}, lines.Add, runnerFactory:()=>runner);
+                activeExecution = execution;
+                var dialog = await OpenDialog(owner);
+                Assert.That(dialog.ConfirmationInput.Parent,Is.Null);
+                bool responsive=false; await Dispatcher.UIThread.InvokeAsync(()=>responsive=true); Assert.That(responsive,Is.True);
+                Assert.That(execution.IsCompleted,Is.False);
+                if (outcome=="cancel") dialog.Close(); else {dialog.PasswordInput.Text=outcome=="wrong" ? "wrong" : "canary"; dialog.Confirm();}
+                await execution;
+                Assert.That(editor.LastScriptBookSucceeded,Is.EqualTo(outcome=="success"));
+                Assert.That(lines,Has.Count.EqualTo(outcome=="success" ? 3 : 1));
+                Assert.That(dictionary.Contains("data"),Is.EqualTo(outcome=="success"));
+                if (outcome=="success") Assert.That(variables.DataVariables.Any(v=>v.Identifier=="data"),Is.True);
+                if (outcome=="wrong")
+                {
+                    Assert.That(status.StatusString,Does.Contain("semantic error"));
+                    Assert.That(status.Diagnostics.Single().Text,Does.Contain("SecureAuthenticationFailed"));
+                }
+                if (outcome=="cancel") Assert.That(status.StatusString,Does.Contain("cancelled by user"));
+                Assert.That(dialog.PasswordInput.Text,Is.Empty);
+                return true;
+            }
+            finally
+            {
+                owner.Close();
+                if (activeExecution is not null) await activeExecution;
+                dictionary.Clear(); foreach(var v in previous) dictionary.Add(v); Directory.Delete(directory,true);
+            }
+        }, CancellationToken.None);
+    }
+
     [TestCase(PasswordPurpose.SecureSave)] [TestCase(PasswordPurpose.SecureLoad)]
     public async Task WorkerRequestOpensResponsiveUiDialogAndClearsInputs(PasswordPurpose purpose)
     {

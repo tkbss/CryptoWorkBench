@@ -42,10 +42,11 @@ namespace CryptoScript.Variables
         // Prepare the complete state privately. Enumeration, validation and allocation
         // may fail, but the live dictionary is untouched until the final reference swap.
         // No callbacks or fallible work follow publication in the synchronous interpreter.
-        internal void PublishBatch(IEnumerable<VariableDeclaration> state)
+        internal void PublishBatch(IEnumerable<VariableDeclaration> state, CancellationToken cancellationToken = default)
         {
             InterpreterExecution.VerifyAccess();
             var prepared = state.ToDictionary(variable => variable.Id, StringComparer.Ordinal);
+            cancellationToken.ThrowIfCancellationRequested();
             variables = prepared;
         }
         public bool Contains(string Id)

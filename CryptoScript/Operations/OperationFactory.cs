@@ -11,6 +11,10 @@ namespace CryptoScript.Model
             SecureSaveOperations.IsSecureSave(name) ? SecureSaveOperations.ExecuteAsync :
             throw new ArgumentException("Unknown asynchronous function.");
 
+        internal static Func<PreparedSecureLoad, AsyncOperationContext, Task> CreateSecureLoadOperation(string name) =>
+            SecureLoadOperations.IsSecureLoad(name) ? SecureLoadOperations.ExecuteAsync :
+            throw new ArgumentException("Unknown asynchronous function.");
+
         public static Func<OperationInvocation, VariableDeclaration?> CreateInvocationOperation(string operation)
             => CreateInvocationOperation(operation, null);
 
@@ -18,6 +22,7 @@ namespace CryptoScript.Model
             Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory)
         {
             operation = operation.ToLower();
+            if (operation == "secureload") return _ => throw new Serialization.SecureLoadException("AsyncExecutionRequired");
             if (operation == "securesave") return _ => throw new Serialization.SecureSaveException("AsyncExecutionRequired");
             if (operation == "save") return SnapshotOperations.Save;
             if (operation == "load") return SnapshotOperations.Load;
@@ -66,6 +71,7 @@ namespace CryptoScript.Model
         public static Func<string[], VariableDeclaration> CreateOperation(string operation)
         { 
             operation = operation.ToLower();
+            if (operation == "secureload") return _ => throw new Serialization.SecureLoadException("AsyncExecutionRequired");
             if (operation == "securesave") return _ => throw new Serialization.SecureSaveException("AsyncExecutionRequired");
             if (operation == "save") return _ => throw new ArgumentException("Save requires typed variable references.");
             if (operation == "load") return _ => throw new ArgumentException("Load requires a typed PATH reference and snapshot selectors.");

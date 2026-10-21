@@ -92,6 +92,45 @@ internal static class SecureContainerCryptography
         return checked((int)size);
     }
 
+    internal static byte[] Unprotect(SecureEnvelope envelope, byte[] password, CancellationToken token)
+    {
+        byte[]? master = null, key = null, plaintext = null;
+        try
+        {
+            token.ThrowIfCancellationRequested();
+            try { master = DeriveMaster(envelope.Options, password, envelope.Salt); }
+            finally { CryptographicOperations.ZeroMemory(password); }
+            token.ThrowIfCancellationRequested();
+            key = HKDF.DeriveKey(HashAlgorithmName.SHA256, master, 32, new byte[32], KeyInfo(envelope.Options));
+            CryptographicOperations.ZeroMemory(master);
+            byte[] header = Header(envelope.Options, envelope.Salt, envelope.Nonce,
+                SecureManifest.Frame(envelope.Manifest), envelope.Payload.Length);
+            using var aes = new AesGcm(key, 16);
+            if (envelope.Options.Gmac)
+            {
+                using var aad = new SecureBuffer(checked(header.Length + 8 + envelope.Payload.Length));
+                aad.Bytes(header); aad.B(envelope.Payload);
+                aes.Decrypt(envelope.Nonce, ReadOnlySpan<byte>.Empty, envelope.Tag, Span<byte>.Empty, aad.Span);
+                plaintext = envelope.Payload.ToArray();
+            }
+            else
+            {
+                plaintext = new byte[envelope.Payload.Length];
+                aes.Decrypt(envelope.Nonce, envelope.Payload, envelope.Tag, plaintext, header);
+            }
+            token.ThrowIfCancellationRequested();
+            var result = plaintext; plaintext = null; return result;
+        }
+        catch (AuthenticationTagMismatchException) { throw new SecureLoadException("SecureAuthenticationFailed"); }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(password);
+            if (master is not null) CryptographicOperations.ZeroMemory(master);
+            if (key is not null) CryptographicOperations.ZeroMemory(key);
+            if (plaintext is not null) CryptographicOperations.ZeroMemory(plaintext);
+        }
+    }
+
     private static byte[] Envelope(SecureSaveOptions o, byte[] payload, byte[] manifest,
         byte[] salt, byte[] nonce, byte[] tag, int capacity)
     {

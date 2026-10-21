@@ -1144,7 +1144,7 @@ public partial class CryptoScriptParser : Parser {
 			case 3:
 				{
 				State = 145;
-				if (!((_localctx._FN!=null?_localctx._FN.Text:null) == "Load")) throw new FailedPredicateException(this, "$FN.text == \"Load\"");
+				if (!((_localctx._FN!=null?_localctx._FN.Text:null) == "Load" || (_localctx._FN!=null?_localctx._FN.Text:null) == "SecureLoad")) throw new FailedPredicateException(this, "$FN.text == \"Load\" || $FN.text == \"SecureLoad\"");
 				State = 146;
 				loadArguments();
 				}
@@ -2017,7 +2017,7 @@ public partial class CryptoScriptParser : Parser {
 		switch (predIndex) {
 		case 2: return (_localctx._FN!=null?_localctx._FN.Text:null) == "CreateHeader";
 		case 3: return (_localctx._FN!=null?_localctx._FN.Text:null) == "Info";
-		case 4: return (_localctx._FN!=null?_localctx._FN.Text:null) == "Load";
+		case 4: return (_localctx._FN!=null?_localctx._FN.Text:null) == "Load" || (_localctx._FN!=null?_localctx._FN.Text:null) == "SecureLoad";
 		case 5: return (_localctx._FN!=null?_localctx._FN.Text:null) == "SecureSave";
 		}
 		return true;

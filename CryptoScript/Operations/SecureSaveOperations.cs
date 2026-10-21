@@ -20,8 +20,8 @@ internal sealed class PreparedSecureSave(PreparedSnapshotDestination destination
 internal static class SecureSaveOperations
 {
     internal static bool IsSecureSave(string name) => name.Equals("SecureSave", StringComparison.OrdinalIgnoreCase);
-    internal static bool IsVoidSnapshot(string name) => IsSecureSave(name) || SnapshotOperations.IsSnapshot(name);
-    internal static string CanonicalName(string name) => IsSecureSave(name) ? "SecureSave" : SnapshotOperations.CanonicalName(name);
+    internal static bool IsVoidSnapshot(string name) => IsSecureSave(name) || SecureLoadOperations.IsSecureLoad(name) || SnapshotOperations.IsSnapshot(name);
+    internal static string CanonicalName(string name) => IsSecureSave(name) ? "SecureSave" : SecureLoadOperations.IsSecureLoad(name) ? "SecureLoad" : SnapshotOperations.CanonicalName(name);
 
     internal static PreparedSecureSave Prepare(FunctionCallExpressionNode call)
     {

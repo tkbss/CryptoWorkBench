@@ -86,6 +86,45 @@ namespace CryptoScript.Model
             }
         }
 
+        internal static async Task<Statement> EvaluateSecureLoadAsync(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> errors, SemanticDiagnosticExecution execution, DiagnosticLocation parent,
+            AsyncOperationContext context)
+        {
+            var fc = new FunctionCall { Name = "SecureLoad", CallText = "SecureLoad(<redacted>)",
+                Location = execution.BeginOperation(parent, "SecureLoad") };
+            try
+            {
+                PreparedSecureLoad prepared;
+                using (InterpreterExecution.EnterState(runner: true))
+                {
+                    ValidateArgumentContracts(call, errors);
+                    prepared = SecureLoadOperations.Prepare(call, context.CancellationToken);
+                }
+                using (prepared)
+                {
+                    using (InterpreterExecution.EnterState(runner: true)) execution.BeforeOperation(fc);
+                    await OperationFactory.CreateSecureLoadOperation(call.Name)(prepared, context).ConfigureAwait(false);
+                }
+                return fc;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (SecurePasswordCancelledException) { throw; }
+            catch (Exception exception)
+            {
+                if (exception is SemanticErrorException semantic && semantic.SemanticError is { } existing)
+                { execution.CaptureError(existing, fc.Location!); throw; }
+                var error = new SemanticError { Type = "FunctionCall", FunctionName = "SecureLoad",
+                    FunctionCall = "SecureLoad(<redacted>)",
+                    Message = exception is SecureLoadException or VariableSnapshotFileException or PasswordProtocolException
+                        ? exception.Message : "SecureLoad failed.",
+                    DiagnosticCode = exception is SecureLoadException or SnapshotArgumentException or PasswordProtocolException
+                        ? SemanticDiagnosticCode.FunctionContractViolation : SemanticDiagnosticCode.FunctionExecutionFailed };
+                errors.Add(error); execution.Report(error, fc.Location!);
+                if (exception is PasswordProtocolException) throw;
+                throw new SemanticErrorException { SemanticError = error };
+            }
+        }
+
         private static Statement EvaluateFunctionCallCore(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
             FunctionCall fc, SemanticDiagnosticExecution? execution)
@@ -107,10 +146,10 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException() { SemanticError=se};
             }
             ValidateArgumentContracts(call, semanticErrors);
-            if (SecureSaveOperations.IsSecureSave(functionName))
+            if (SecureSaveOperations.IsSecureSave(functionName) || SecureLoadOperations.IsSecureLoad(functionName))
             {
-                var error = new SemanticError { Type = "FunctionCall", FunctionName = "SecureSave",
-                    FunctionCall = "SecureSave(<redacted>)", Message = "SecureSave requires asynchronous execution.",
+                var error = new SemanticError { Type = "FunctionCall", FunctionName = functionName,
+                    FunctionCall = functionName + "(<redacted>)", Message = functionName + " requires asynchronous execution.",
                     DiagnosticCode = SemanticDiagnosticCode.AsyncExecutionRequired };
                 semanticErrors.Add(error);
                 throw new SemanticErrorException { SemanticError = error };
@@ -290,7 +329,7 @@ namespace CryptoScript.Model
             if (argument is Ast.ParameterArgumentNode parameter)
             {
                 if (parameter.TypeName == "#ONCONFLICT")
-                    throw new ArgumentException("#ONCONFLICT is accepted only by Load.");
+                    throw new ArgumentException("#ONCONFLICT is accepted only by Load and SecureLoad.");
                 return evaluateParameter(parameter.TypeName, parameter.RawValue);
             }
             if (argument is Ast.InfoArgumentNode infoNode)
@@ -339,10 +378,10 @@ namespace CryptoScript.Model
                     else ValidateArgumentContracts(nested.Call, semanticErrors);
                 }
                 if (argument is Ast.ParameterArgumentNode { TypeName: "#ONCONFLICT" } &&
-                    !SnapshotOperations.IsLoad(call.Name))
+                    !SnapshotOperations.IsLoad(call.Name) && !SecureLoadOperations.IsSecureLoad(call.Name))
                 {
                     name = call.Name;
-                    message = "#ONCONFLICT is accepted only by Load.";
+                    message = "#ONCONFLICT is accepted only by Load and SecureLoad.";
                 }
                 if (message is null) continue;
                 var error = new SemanticError

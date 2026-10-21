@@ -115,6 +115,14 @@ namespace CryptoScript.Model
                             program.AddStatement(await FunctionCallEvaluator.EvaluateSecureSaveAsync(
                                 secure.Call, errors, execution, location, context).ConfigureAwait(false));
                         }
+                        else if (node is FunctionCallStatementNode load && Operations.SecureLoadOperations.IsSecureLoad(load.Call.Name))
+                        {
+                            var context = new AsyncOperationContext(
+                                (purpose, ct) => RequestPasswordAsync(execution.ExecutionId, purpose, ct),
+                                token, execution.CreateSink(location));
+                            program.AddStatement(await FunctionCallEvaluator.EvaluateSecureLoadAsync(
+                                load.Call, errors, execution, location, context).ConfigureAwait(false));
+                        }
                         else if (node is AsyncInfrastructureStatement asynchronous)
                         {
                             var context = new AsyncOperationContext(

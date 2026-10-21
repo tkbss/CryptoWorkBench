@@ -69,33 +69,44 @@ public static class SnapshotOperations
             else
                 throw new SnapshotArgumentException("Load accepts #ONCONFLICT:REJECT or #ONCONFLICT:REPLACE once, as the last argument.");
         }
+        PublishLoadedRoots(roots, names, replace);
+        return null;
+    }
+
+    internal static void PublishLoadedRoots(IReadOnlyList<VariableDeclaration> roots, IReadOnlyList<string> names,
+        bool replace, CancellationToken token = default, bool secure = false)
+    {
+        Exception Failure(string category, string message, SemanticDiagnosticCode code = SemanticDiagnosticCode.FunctionContractViolation) =>
+            secure ? new SecureLoadException(category) : new SnapshotArgumentException(message, code);
+        var dictionary = VariableDictionary.Instance();
         if (names.Distinct(StringComparer.Ordinal).Count() != names.Count)
-            throw new SnapshotArgumentException("Load does not accept duplicate selectors.");
+            throw Failure("InvalidSelection", "Load does not accept duplicate selectors.");
         bool all = names.Contains("ALL", StringComparer.Ordinal);
         if (all && names.Count != 1)
-            throw new SnapshotArgumentException("Load ALL cannot be combined with other selections.");
+            throw Failure("InvalidSelection", "Load ALL cannot be combined with other selections.");
         var byName = roots.ToDictionary(variable => variable.Id, StringComparer.Ordinal);
         if (names.Count != 0 && !all && names.Any(name => !byName.ContainsKey(name)))
-            throw new SnapshotArgumentException("Load selection references an unknown snapshot variable.", SemanticDiagnosticCode.UnknownVariable);
+            throw Failure("InvalidSelection", "Load selection references an unknown snapshot variable.", SemanticDiagnosticCode.UnknownVariable);
         var selected = names.Count == 0 || all ? roots.ToArray() : names.Select(name => byName[name]).ToArray();
         var existing = dictionary.GetVariables().ToArray();
         var selectedNames = selected.Select(variable => variable.Id).ToHashSet(StringComparer.Ordinal);
         var replaced = existing.Where(variable => selectedNames.Contains(variable.Id))
             .ToHashSet(ReferenceEqualityComparer.Instance);
         if (!replace && replaced.Count != 0)
-            throw new SnapshotArgumentException("Load rejected a variable name conflict.");
+            throw Failure("NameConflict", "Load rejected a variable name conflict.");
         // PARAM.HeaderReference is the only direct variable-to-variable reference in
         // the supported model. Use object identity, never an identifier-based relink.
         if (replace && existing.OfType<ParameterVariableDeclaration>().Any(parameter =>
             !replaced.Contains(parameter) && parameter.HeaderReference is { } header && replaced.Contains(header)))
-            throw new SnapshotArgumentException("Load replacement conflicts with a reference held by an unchanged variable.");
+            throw Failure("ReferenceConflict", "Load replacement conflicts with a reference held by an unchanged variable.");
 
         // Preserve imported objects, metadata and shared/embedded references unchanged.
         // Unselected dependencies stay reachable internally, never become implicit roots.
         var prepared = existing.ToDictionary(variable => variable.Id, StringComparer.Ordinal);
         foreach (var variable in selected) prepared[variable.Id] = variable;
-        dictionary.PublishBatch(prepared.Values);
-        return null;
+        token.ThrowIfCancellationRequested();
+        dictionary.PublishBatch(prepared.Values, token);
+
     }
 
     // Contextual ALL selection: no lexer keyword and no value-based variable lookup.
