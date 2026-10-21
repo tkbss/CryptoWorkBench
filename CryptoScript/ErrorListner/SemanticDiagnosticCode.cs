@@ -19,5 +19,6 @@ public enum SemanticDiagnosticCode
     KeyCheckValueAmbiguous = 13,
     PinBlockTranslationForbidden = 14,
     PinBlockPanMismatch = 15,
-    InvalidPinBlock = 16
+    InvalidPinBlock = 16,
+    AsyncExecutionRequired = 17
 }

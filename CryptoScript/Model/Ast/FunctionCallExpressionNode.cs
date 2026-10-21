@@ -6,6 +6,7 @@ namespace CryptoScript.Model.Ast
         IReadOnlyList<FunctionCallArgumentNode> Arguments) : ExpressionNode;
 
     public abstract record FunctionCallArgumentNode;
+    public sealed record SecureOptionArgumentNode(string Name, string RawValue) : FunctionCallArgumentNode;
     public sealed record HeaderAttributeArgumentNode(string Name, string RawValue) : FunctionCallArgumentNode;
     public sealed record MechanismArgumentNode(string RawText) : FunctionCallArgumentNode;
     public sealed record VariableArgumentNode(string Identifier) : FunctionCallArgumentNode;

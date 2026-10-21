@@ -35,4 +35,5 @@
     <ProjectReference Include="..\CryptoScript\CryptoScript.csproj" />
   </ItemGroup>
 
+  <ItemGroup><None Update="Fixtures\SecureSave\*.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>

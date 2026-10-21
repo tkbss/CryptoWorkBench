@@ -95,7 +95,7 @@ public static class InfoDocumentCatalog
             entries.Add(new(InfoDocumentId.CreatePinTranslation(rule.SourceFormat, rule.TargetFormat),
                 $"Info.PinTranslation.{rule.SourceFormat}-{rule.TargetFormat}.md",
                 $"PIN translation {rule.SourceFormat} to {rule.TargetFormat}"));
-        foreach (string function in new[] { "Share", "Secret", "Restore", "CreateHeader", "Save", "Load" })
+        foreach (string function in new[] { "Share", "Secret", "Restore", "CreateHeader", "Save", "Load", "SecureSave" })
             entries.Add(new(InfoDocumentId.CreateFunction(function), $"Info.Func.{function}.md", function));
         entries.Add(new(InfoDocumentId.CreateType("SECRET"), "Info.Type.SECRET.md", "SECRET"));
         foreach (string parameter in new[] { "PARTS", "MINPARTS", "POLYNOM", "SHAREFORMAT" })

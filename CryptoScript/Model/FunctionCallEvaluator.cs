@@ -47,6 +47,45 @@ namespace CryptoScript.Model
             }
         }
 
+        internal static async Task<Statement> EvaluateSecureSaveAsync(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> errors, SemanticDiagnosticExecution execution, DiagnosticLocation parent,
+            AsyncOperationContext context)
+        {
+            var fc = new FunctionCall { Name = "SecureSave", CallText = "SecureSave(<redacted>)",
+                Location = execution.BeginOperation(parent, "SecureSave") };
+            try
+            {
+                PreparedSecureSave prepared;
+                using (InterpreterExecution.EnterState(runner: true))
+                {
+                    ValidateArgumentContracts(call, errors);
+                    prepared = SecureSaveOperations.Prepare(call);
+                }
+                using (prepared)
+                {
+                    using (InterpreterExecution.EnterState(runner: true)) execution.BeforeOperation(fc);
+                    await OperationFactory.CreateAsyncOperation(call.Name)(prepared, context).ConfigureAwait(false);
+                }
+                return fc;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (SecurePasswordCancelledException) { throw; }
+            catch (Exception exception)
+            {
+                if (exception is SemanticErrorException semantic && semantic.SemanticError is { } existing)
+                { execution.CaptureError(existing, fc.Location!); throw; }
+                var error = new SemanticError { Type = "FunctionCall", FunctionName = "SecureSave",
+                    FunctionCall = "SecureSave(<redacted>)",
+                    Message = exception is SecureSaveException or VariableSnapshotFileException or PasswordProtocolException
+                        ? exception.Message : "SecureSave failed.",
+                    DiagnosticCode = exception is SecureSaveException or SnapshotArgumentException or PasswordProtocolException
+                        ? SemanticDiagnosticCode.FunctionContractViolation : SemanticDiagnosticCode.FunctionExecutionFailed };
+                errors.Add(error); execution.Report(error, fc.Location!);
+                if (exception is PasswordProtocolException) throw;
+                throw new SemanticErrorException { SemanticError = error };
+            }
+        }
+
         private static Statement EvaluateFunctionCallCore(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
             FunctionCall fc, SemanticDiagnosticExecution? execution)
@@ -68,6 +107,14 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException() { SemanticError=se};
             }
             ValidateArgumentContracts(call, semanticErrors);
+            if (SecureSaveOperations.IsSecureSave(functionName))
+            {
+                var error = new SemanticError { Type = "FunctionCall", FunctionName = "SecureSave",
+                    FunctionCall = "SecureSave(<redacted>)", Message = "SecureSave requires asynchronous execution.",
+                    DiagnosticCode = SemanticDiagnosticCode.AsyncExecutionRequired };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
             var arguments = call.Arguments;
             if (SnapshotOperations.IsSnapshot(functionName))
             {
@@ -186,9 +233,9 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.NestedCallArgumentNode nestedCall)
             {
-                if (SnapshotOperations.IsSnapshot(nestedCall.Call.Name))
+                if (SecureSaveOperations.IsVoidSnapshot(nestedCall.Call.Name))
                 {
-                    string name = SnapshotOperations.CanonicalName(nestedCall.Call.Name);
+                    string name = SecureSaveOperations.CanonicalName(nestedCall.Call.Name);
                     var error = new SemanticError
                     {
                         Type = "FunctionCall", FunctionName = name, FunctionCall = $"{name}(<redacted>)",
@@ -284,9 +331,9 @@ namespace CryptoScript.Model
                 string? message = null;
                 if (argument is Ast.NestedCallArgumentNode nested)
                 {
-                    if (SnapshotOperations.IsSnapshot(nested.Call.Name))
+                    if (SecureSaveOperations.IsVoidSnapshot(nested.Call.Name))
                     {
-                        name = SnapshotOperations.CanonicalName(nested.Call.Name);
+                        name = SecureSaveOperations.CanonicalName(nested.Call.Name);
                         message = $"{name} has no return value and cannot be used as a function argument.";
                     }
                     else ValidateArgumentContracts(nested.Call, semanticErrors);

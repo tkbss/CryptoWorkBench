@@ -107,7 +107,15 @@ namespace CryptoScript.Model
                         if (!next) break;
                         token.ThrowIfCancellationRequested();
                         var location = new DiagnosticLocation(execution.ExecutionId, ++index);
-                        if (node is AsyncInfrastructureStatement asynchronous)
+                        if (node is FunctionCallStatementNode secure && Operations.SecureSaveOperations.IsSecureSave(secure.Call.Name))
+                        {
+                            var context = new AsyncOperationContext(
+                                (purpose, ct) => RequestPasswordAsync(execution.ExecutionId, purpose, ct),
+                                token, execution.CreateSink(location));
+                            program.AddStatement(await FunctionCallEvaluator.EvaluateSecureSaveAsync(
+                                secure.Call, errors, execution, location, context).ConfigureAwait(false));
+                        }
+                        else if (node is AsyncInfrastructureStatement asynchronous)
                         {
                             var context = new AsyncOperationContext(
                                 (purpose, ct) => RequestPasswordAsync(execution.ExecutionId, purpose, ct),

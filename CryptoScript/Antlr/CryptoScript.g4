@@ -54,6 +54,7 @@ expression    : HEX_STRING
 functionCall  : FN '(' ({$FN.text == "CreateHeader"}? headerArguments
                       | {$FN.text == "Info"}? functionTopic
                       | {$FN.text == "Load"}? loadArguments
+                      | {$FN.text == "SecureSave"}? secureArguments
                       | arguments)? ')'
               ; 
 functionTopic : FN (',' arguments)?;
@@ -78,3 +79,8 @@ argument      : MECHANISM
 
 
 
+
+secureArguments : secureArgument (',' secureArgument)*;
+secureArgument : secureOption | FN | argument;
+secureOption : (SOPT_SECUREMODE | SOPT_SECUREKDF | SOPT_ARGONMEM | SOPT_ARGONITER | SOPT_ARGONLANES | SOPT_PBKDFITER)
+    ':' (ID | FN | expression | MECHANISM | PADDING | VARIANT_VALUE);

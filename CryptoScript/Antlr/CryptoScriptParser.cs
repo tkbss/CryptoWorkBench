@@ -66,32 +66,36 @@ public partial class CryptoScriptParser : Parser {
 		P_PRF=118, P_LABEL=119, P_USAGE=120, P_KEY_TYPE=121, P_PAN=122, P_PSN=123,
 		P_TRANSACTION=124, P_FILL=125, P_RANDOM=126, P_EXPECTED=127, P_ARC=128,
 		P_CSU=129, P_OFFSET=130, P_DIRECTION=131, P_PARTS=132, P_MINPARTS=133,
-		P_POLYNOM=134, P_SHAREFORMAT=135, P_ONCONFLICT=136, WS=137, TR31_FIELD_NAME=138,
-		TR31_FIELD_VALUE=139, TR31_KB_VERSION_ID=140, TR31_KB_LENGTH=141, TR31_WRAPPED_KEYLEN=142,
-		TR31_KU=143, TR31_ALGO=144, TR31_MODEU=145, TR31_KEY_VERSION_NUM=146,
-		TR31_EXPORTABILITY=147, TR31_NUM_OPT_BLOCKS=148, TR31_KEY_CONTEXT=149,
-		TR31_RESERVED_FIELD=150, TR31_OPT_BLOCK_ID=151, TR31_OPT_BLOCK_DATA=152,
-		NUM=153, KU_B0=154, KU_B1=155, KU_B2=156, KU_B3=157, KU_C0=158, KU_D0=159,
-		KU_D1=160, KU_D2=161, KU_D3=162, KU_E0=163, KU_E1=164, KU_E2=165, KU_E3=166,
-		KU_F3=167, KU_F4=168, KU_F5=169, KU_F6=170, KU_I0=171, KU_K0=172, KU_K1=173,
-		KU_K2=174, KU_K3=175, KU_K4=176, KU_M0=177, KU_M1=178, KU_P2=179, KU_V0=180,
-		KU_V1=181, KU_V2=182, KU_V3=183, KU_V4=184, KU_V5=185, KV_00=186, OPT_AL=187,
-		OPT_BI=188, OPT_CT=189, OPT_DA=190, OPT_HM=191, OPT_IK=192, OPT_KC=193,
-		OPT_KP=194, OPT_KS=195, OPT_KV=196, OPT_LB=197, OPT_PA=198, OPT_PB=199,
-		OPT_PK=200, OPT_TC=201, OPT_TS=202, OPT_WP=203, H=204, R=205, S=206, T=207,
-		D=208, E=209, A=210, B=211, C=212, G=213, N=214, V=215, X=216, Y=217;
+		P_POLYNOM=134, P_SHAREFORMAT=135, P_ONCONFLICT=136, WS=137, SOPT_SECUREMODE=138,
+		SOPT_SECUREKDF=139, SOPT_ARGONMEM=140, SOPT_ARGONITER=141, SOPT_ARGONLANES=142,
+		SOPT_PBKDFITER=143, TR31_FIELD_NAME=144, TR31_FIELD_VALUE=145, TR31_KB_VERSION_ID=146,
+		TR31_KB_LENGTH=147, TR31_WRAPPED_KEYLEN=148, TR31_KU=149, TR31_ALGO=150,
+		TR31_MODEU=151, TR31_KEY_VERSION_NUM=152, TR31_EXPORTABILITY=153, TR31_NUM_OPT_BLOCKS=154,
+		TR31_KEY_CONTEXT=155, TR31_RESERVED_FIELD=156, TR31_OPT_BLOCK_ID=157,
+		TR31_OPT_BLOCK_DATA=158, NUM=159, KU_B0=160, KU_B1=161, KU_B2=162, KU_B3=163,
+		KU_C0=164, KU_D0=165, KU_D1=166, KU_D2=167, KU_D3=168, KU_E0=169, KU_E1=170,
+		KU_E2=171, KU_E3=172, KU_F3=173, KU_F4=174, KU_F5=175, KU_F6=176, KU_I0=177,
+		KU_K0=178, KU_K1=179, KU_K2=180, KU_K3=181, KU_K4=182, KU_M0=183, KU_M1=184,
+		KU_P2=185, KU_V0=186, KU_V1=187, KU_V2=188, KU_V3=189, KU_V4=190, KU_V5=191,
+		KV_00=192, OPT_AL=193, OPT_BI=194, OPT_CT=195, OPT_DA=196, OPT_HM=197,
+		OPT_IK=198, OPT_KC=199, OPT_KP=200, OPT_KS=201, OPT_KV=202, OPT_LB=203,
+		OPT_PA=204, OPT_PB=205, OPT_PK=206, OPT_TC=207, OPT_TS=208, OPT_WP=209,
+		H=210, R=211, S=212, T=213, D=214, E=215, A=216, B=217, C=218, G=219,
+		N=220, V=221, X=222, Y=223;
 	public const int
 		RULE_program = 0, RULE_statement = 1, RULE_declaration = 2, RULE_declareparam = 3,
 		RULE_polynomialValue = 4, RULE_shareFormatValue = 5, RULE_type = 6, RULE_tr31Header = 7,
 		RULE_tr31Field = 8, RULE_headerAttribute = 9, RULE_expression = 10, RULE_functionCall = 11,
 		RULE_functionTopic = 12, RULE_loadArguments = 13, RULE_loadArgument = 14,
 		RULE_onConflictParameter = 15, RULE_headerArguments = 16, RULE_arguments = 17,
-		RULE_argument = 18;
+		RULE_argument = 18, RULE_secureArguments = 19, RULE_secureArgument = 20,
+		RULE_secureOption = 21;
 	public static readonly string[] ruleNames = {
 		"program", "statement", "declaration", "declareparam", "polynomialValue",
 		"shareFormatValue", "type", "tr31Header", "tr31Field", "headerAttribute",
 		"expression", "functionCall", "functionTopic", "loadArguments", "loadArgument",
-		"onConflictParameter", "headerArguments", "arguments", "argument"
+		"onConflictParameter", "headerArguments", "arguments", "argument", "secureArguments",
+		"secureArgument", "secureOption"
 	};
 
 	private static readonly string[] _LiteralNames = {
@@ -122,16 +126,17 @@ public partial class CryptoScriptParser : Parser {
 		"'#PRF'", "'#LABEL'", "'#USAGE'", "'#KEYTYPE'", "'#PAN'", "'#PSN'", "'#TRANSACTION'",
 		"'#FILL'", "'#RANDOM'", "'#EXPECTED'", "'#ARC'", "'#CSU'", "'#OFFSET'",
 		"'#DIRECTION'", "'#PARTS'", "'#MINPARTS'", "'#POLYNOM'", "'#SHAREFORMAT'",
-		"'#ONCONFLICT'", null, null, null, "'KBVID'", "'KBLEN'", "'WKL'", "'KEYU'",
-		"'ALGO'", "'MODEU'", "'KEYVN'", "'EXP'", "'NUMOPTB'", "'KEYCTX'", "'RSV'",
-		"'OPTID'", "'OPTBD'", null, "'B0'", "'B1'", "'B2'", "'B3'", "'C0'", "'D0'",
-		"'D1'", "'D2'", "'D3'", "'E0'", "'E1'", "'E2'", "'E3'", "'F3'", "'F4'",
-		"'F5'", "'F6'", "'I0'", "'K0'", "'K1'", "'K2'", "'K3'", "'K4'", "'M0'",
-		"'M1'", "'P2'", "'V0'", "'V1'", "'V2'", "'V3'", "'V4'", "'V5'", "'00'",
-		"'AL'", "'BI'", "'CT'", "'DA'", "'HM'", "'IK'", "'KC'", "'KP'", "'KS'",
-		"'KV'", "'LB'", "'PA'", "'PB'", "'PK'", "'TC'", "'TS'", "'WP'", "'H'",
-		"'R'", "'S'", "'T'", "'D'", "'E'", "'A'", "'B'", "'C'", "'G'", "'N'",
-		"'V'", "'X'", "'Y'"
+		"'#ONCONFLICT'", null, "'#SECUREMODE'", "'#SECUREKDF'", "'#ARGONMEM'",
+		"'#ARGONITER'", "'#ARGONLANES'", "'#PBKDFITER'", null, null, "'KBVID'",
+		"'KBLEN'", "'WKL'", "'KEYU'", "'ALGO'", "'MODEU'", "'KEYVN'", "'EXP'",
+		"'NUMOPTB'", "'KEYCTX'", "'RSV'", "'OPTID'", "'OPTBD'", null, "'B0'",
+		"'B1'", "'B2'", "'B3'", "'C0'", "'D0'", "'D1'", "'D2'", "'D3'", "'E0'",
+		"'E1'", "'E2'", "'E3'", "'F3'", "'F4'", "'F5'", "'F6'", "'I0'", "'K0'",
+		"'K1'", "'K2'", "'K3'", "'K4'", "'M0'", "'M1'", "'P2'", "'V0'", "'V1'",
+		"'V2'", "'V3'", "'V4'", "'V5'", "'00'", "'AL'", "'BI'", "'CT'", "'DA'",
+		"'HM'", "'IK'", "'KC'", "'KP'", "'KS'", "'KV'", "'LB'", "'PA'", "'PB'",
+		"'PK'", "'TC'", "'TS'", "'WP'", "'H'", "'R'", "'S'", "'T'", "'D'", "'E'",
+		"'A'", "'B'", "'C'", "'G'", "'N'", "'V'", "'X'", "'Y'"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, null, null, null, "INT", "T_KEY",
@@ -162,18 +167,19 @@ public partial class CryptoScriptParser : Parser {
 		"P_PRF", "P_LABEL", "P_USAGE", "P_KEY_TYPE", "P_PAN", "P_PSN", "P_TRANSACTION",
 		"P_FILL", "P_RANDOM", "P_EXPECTED", "P_ARC", "P_CSU", "P_OFFSET", "P_DIRECTION",
 		"P_PARTS", "P_MINPARTS", "P_POLYNOM", "P_SHAREFORMAT", "P_ONCONFLICT",
-		"WS", "TR31_FIELD_NAME", "TR31_FIELD_VALUE", "TR31_KB_VERSION_ID", "TR31_KB_LENGTH",
-		"TR31_WRAPPED_KEYLEN", "TR31_KU", "TR31_ALGO", "TR31_MODEU", "TR31_KEY_VERSION_NUM",
-		"TR31_EXPORTABILITY", "TR31_NUM_OPT_BLOCKS", "TR31_KEY_CONTEXT", "TR31_RESERVED_FIELD",
-		"TR31_OPT_BLOCK_ID", "TR31_OPT_BLOCK_DATA", "NUM", "KU_B0", "KU_B1", "KU_B2",
-		"KU_B3", "KU_C0", "KU_D0", "KU_D1", "KU_D2", "KU_D3", "KU_E0", "KU_E1",
-		"KU_E2", "KU_E3", "KU_F3", "KU_F4", "KU_F5", "KU_F6", "KU_I0", "KU_K0",
-		"KU_K1", "KU_K2", "KU_K3", "KU_K4", "KU_M0", "KU_M1", "KU_P2", "KU_V0",
-		"KU_V1", "KU_V2", "KU_V3", "KU_V4", "KU_V5", "KV_00", "OPT_AL", "OPT_BI",
-		"OPT_CT", "OPT_DA", "OPT_HM", "OPT_IK", "OPT_KC", "OPT_KP", "OPT_KS",
-		"OPT_KV", "OPT_LB", "OPT_PA", "OPT_PB", "OPT_PK", "OPT_TC", "OPT_TS",
-		"OPT_WP", "H", "R", "S", "T", "D", "E", "A", "B", "C", "G", "N", "V",
-		"X", "Y"
+		"WS", "SOPT_SECUREMODE", "SOPT_SECUREKDF", "SOPT_ARGONMEM", "SOPT_ARGONITER",
+		"SOPT_ARGONLANES", "SOPT_PBKDFITER", "TR31_FIELD_NAME", "TR31_FIELD_VALUE",
+		"TR31_KB_VERSION_ID", "TR31_KB_LENGTH", "TR31_WRAPPED_KEYLEN", "TR31_KU",
+		"TR31_ALGO", "TR31_MODEU", "TR31_KEY_VERSION_NUM", "TR31_EXPORTABILITY",
+		"TR31_NUM_OPT_BLOCKS", "TR31_KEY_CONTEXT", "TR31_RESERVED_FIELD", "TR31_OPT_BLOCK_ID",
+		"TR31_OPT_BLOCK_DATA", "NUM", "KU_B0", "KU_B1", "KU_B2", "KU_B3", "KU_C0",
+		"KU_D0", "KU_D1", "KU_D2", "KU_D3", "KU_E0", "KU_E1", "KU_E2", "KU_E3",
+		"KU_F3", "KU_F4", "KU_F5", "KU_F6", "KU_I0", "KU_K0", "KU_K1", "KU_K2",
+		"KU_K3", "KU_K4", "KU_M0", "KU_M1", "KU_P2", "KU_V0", "KU_V1", "KU_V2",
+		"KU_V3", "KU_V4", "KU_V5", "KV_00", "OPT_AL", "OPT_BI", "OPT_CT", "OPT_DA",
+		"OPT_HM", "OPT_IK", "OPT_KC", "OPT_KP", "OPT_KS", "OPT_KV", "OPT_LB",
+		"OPT_PA", "OPT_PB", "OPT_PK", "OPT_TC", "OPT_TS", "OPT_WP", "H", "R",
+		"S", "T", "D", "E", "A", "B", "C", "G", "N", "V", "X", "Y"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -246,21 +252,21 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 41;
+			State = 47;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 195584L) != 0)) {
 				{
 				{
-				State = 38;
+				State = 44;
 				statement();
 				}
 				}
-				State = 43;
+				State = 49;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 44;
+			State = 50;
 			Match(Eof);
 			}
 		}
@@ -310,7 +316,7 @@ public partial class CryptoScriptParser : Parser {
 		StatementContext _localctx = new StatementContext(Context, State);
 		EnterRule(_localctx, 2, RULE_statement);
 		try {
-			State = 48;
+			State = 54;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case T_KEY:
@@ -321,14 +327,14 @@ public partial class CryptoScriptParser : Parser {
 			case T_TR31H:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 46;
+				State = 52;
 				declaration();
 				}
 				break;
 			case FN:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 47;
+				State = 53;
 				functionCall();
 				}
 				break;
@@ -396,55 +402,55 @@ public partial class CryptoScriptParser : Parser {
 		EnterRule(_localctx, 4, RULE_declaration);
 		int _la;
 		try {
-			State = 74;
+			State = 80;
 			ErrorHandler.Sync(this);
 			switch ( Interpreter.AdaptivePredict(TokenStream,3,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 50;
+				State = 56;
 				type();
-				State = 51;
+				State = 57;
 				Match(ID);
-				State = 52;
+				State = 58;
 				Match(T__0);
-				State = 53;
+				State = 59;
 				expression();
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 55;
+				State = 61;
 				type();
-				State = 56;
+				State = 62;
 				Match(ID);
-				State = 57;
+				State = 63;
 				Match(T__0);
-				State = 58;
+				State = 64;
 				functionCall();
 				}
 				break;
 			case 3:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 60;
-				type();
-				State = 61;
-				Match(ID);
-				State = 62;
-				Match(T__0);
 				State = 66;
+				type();
+				State = 67;
+				Match(ID);
+				State = 68;
+				Match(T__0);
+				State = 72;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 				while (((((_la - 104)) & ~0x3f) == 0 && ((1L << (_la - 104)) & 3221225473L) != 0)) {
 					{
 					{
-					State = 63;
+					State = 69;
 					declareparam();
 					}
 					}
-					State = 68;
+					State = 74;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 				}
@@ -453,13 +459,13 @@ public partial class CryptoScriptParser : Parser {
 			case 4:
 				EnterOuterAlt(_localctx, 4);
 				{
-				State = 69;
+				State = 75;
 				type();
-				State = 70;
+				State = 76;
 				Match(ID);
-				State = 71;
+				State = 77;
 				Match(T__0);
-				State = 72;
+				State = 78;
 				tr31Header();
 				}
 				break;
@@ -522,116 +528,116 @@ public partial class CryptoScriptParser : Parser {
 		DeclareparamContext _localctx = new DeclareparamContext(Context, State);
 		EnterRule(_localctx, 6, RULE_declareparam);
 		try {
-			State = 106;
+			State = 112;
 			ErrorHandler.Sync(this);
 			switch ( Interpreter.AdaptivePredict(TokenStream,4,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 76;
+				State = 82;
 				Match(P_POLYNOM);
-				State = 77;
+				State = 83;
 				Match(T__1);
-				State = 78;
+				State = 84;
 				polynomialValue();
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 79;
+				State = 85;
 				Match(P_SHAREFORMAT);
-				State = 80;
+				State = 86;
 				Match(T__1);
-				State = 81;
+				State = 87;
 				shareFormatValue();
 				}
 				break;
 			case 3:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 82;
+				State = 88;
 				Match(PARAM_TYPE);
-				State = 83;
+				State = 89;
 				Match(T__1);
-				State = 84;
+				State = 90;
 				Match(MECHANISM);
 				}
 				break;
 			case 4:
 				EnterOuterAlt(_localctx, 4);
 				{
-				State = 85;
+				State = 91;
 				Match(PARAM_TYPE);
-				State = 86;
+				State = 92;
 				Match(T__1);
-				State = 87;
+				State = 93;
 				Match(PADDING);
 				}
 				break;
 			case 5:
 				EnterOuterAlt(_localctx, 5);
 				{
-				State = 88;
+				State = 94;
 				Match(PARAM_TYPE);
-				State = 89;
+				State = 95;
 				Match(T__1);
-				State = 90;
+				State = 96;
 				Match(HEX_STRING);
 				}
 				break;
 			case 6:
 				EnterOuterAlt(_localctx, 6);
 				{
-				State = 91;
+				State = 97;
 				Match(PARAM_TYPE);
-				State = 92;
+				State = 98;
 				Match(T__1);
-				State = 93;
+				State = 99;
 				Match(BASE64_STRING);
 				}
 				break;
 			case 7:
 				EnterOuterAlt(_localctx, 7);
 				{
-				State = 94;
+				State = 100;
 				Match(PARAM_TYPE);
-				State = 95;
+				State = 101;
 				Match(T__1);
-				State = 96;
+				State = 102;
 				Match(ID);
 				}
 				break;
 			case 8:
 				EnterOuterAlt(_localctx, 8);
 				{
-				State = 97;
+				State = 103;
 				Match(PARAM_TYPE);
-				State = 98;
+				State = 104;
 				Match(T__1);
-				State = 99;
+				State = 105;
 				Match(VARIANT_VALUE);
 				}
 				break;
 			case 9:
 				EnterOuterAlt(_localctx, 9);
 				{
-				State = 100;
+				State = 106;
 				Match(PARAM_TYPE);
-				State = 101;
+				State = 107;
 				Match(T__1);
-				State = 102;
+				State = 108;
 				Match(NORMAL_STRING);
 				}
 				break;
 			case 10:
 				EnterOuterAlt(_localctx, 10);
 				{
-				State = 103;
+				State = 109;
 				Match(PARAM_TYPE);
-				State = 104;
+				State = 110;
 				Match(T__1);
-				State = 105;
+				State = 111;
 				Match(INT);
 				}
 				break;
@@ -680,9 +686,9 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 108;
+			State = 114;
 			if (!(TokenStream.LT(1).Text == "\"SHAMIR-GF256-11B\"" || TokenStream.LT(1).Text == "\"SHAMIR-GF256-11D\"")) throw new FailedPredicateException(this, "TokenStream.LT(1).Text == \"\\\"SHAMIR-GF256-11B\\\"\" || TokenStream.LT(1).Text == \"\\\"SHAMIR-GF256-11D\\\"\"");
-			State = 109;
+			State = 115;
 			Match(NORMAL_STRING);
 			}
 		}
@@ -729,9 +735,9 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 111;
+			State = 117;
 			if (!(TokenStream.LT(1).Text == "\"X-Y\"" || TokenStream.LT(1).Text == "\"Y-X\"" || TokenStream.LT(1).Text == "\"SEPARATE-X\"")) throw new FailedPredicateException(this, "TokenStream.LT(1).Text == \"\\\"X-Y\\\"\" || TokenStream.LT(1).Text == \"\\\"Y-X\\\"\" || TokenStream.LT(1).Text == \"\\\"SEPARATE-X\\\"\"");
-			State = 112;
+			State = 118;
 			Match(NORMAL_STRING);
 			}
 		}
@@ -784,7 +790,7 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 114;
+			State = 120;
 			_la = TokenStream.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 64512L) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
@@ -844,23 +850,23 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 116;
+			State = 122;
 			Match(T__2);
-			State = 118;
+			State = 124;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			do {
 				{
 				{
-				State = 117;
+				State = 123;
 				tr31Field();
 				}
 				}
-				State = 120;
+				State = 126;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			} while ( _la==ID || _la==TR31_FIELD_NAME || _la==TR31_OPT_BLOCK_DATA );
-			State = 122;
+			State = 128;
 			Match(T__3);
 			}
 		}
@@ -909,9 +915,9 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 124;
+			State = 130;
 			headerAttribute();
-			State = 125;
+			State = 131;
 			Match(T__4);
 			}
 		}
@@ -971,7 +977,7 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 127;
+			State = 133;
 			_la = TokenStream.LA(1);
 			if ( !(_la==ID || _la==TR31_FIELD_NAME || _la==TR31_OPT_BLOCK_DATA) ) {
 			ErrorHandler.RecoverInline(this);
@@ -980,11 +986,11 @@ public partial class CryptoScriptParser : Parser {
 				ErrorHandler.ReportMatch(this);
 			    Consume();
 			}
-			State = 128;
+			State = 134;
 			Match(T__1);
-			State = 129;
+			State = 135;
 			_la = TokenStream.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 11141632L) != 0) || ((((_la - 139)) & ~0x3f) == 0 && ((1L << (_la - 139)) & 140737488371713L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 11141632L) != 0) || ((((_la - 145)) & ~0x3f) == 0 && ((1L << (_la - 145)) & 140737488371713L) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
 			}
 			else {
@@ -1042,7 +1048,7 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 131;
+			State = 137;
 			_la = TokenStream.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 31523328L) != 0)) ) {
 			ErrorHandler.RecoverInline(this);
@@ -1075,6 +1081,9 @@ public partial class CryptoScriptParser : Parser {
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public LoadArgumentsContext loadArguments() {
 			return GetRuleContext<LoadArgumentsContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public SecureArgumentsContext secureArguments() {
+			return GetRuleContext<SecureArgumentsContext>(0);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ArgumentsContext arguments() {
 			return GetRuleContext<ArgumentsContext>(0);
@@ -1109,45 +1118,53 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 133;
+			State = 139;
 			_localctx._FN = Match(FN);
-			State = 134;
+			State = 140;
 			Match(T__5);
-			State = 142;
+			State = 150;
 			ErrorHandler.Sync(this);
 			switch ( Interpreter.AdaptivePredict(TokenStream,6,Context) ) {
 			case 1:
 				{
-				State = 135;
+				State = 141;
 				if (!((_localctx._FN!=null?_localctx._FN.Text:null) == "CreateHeader")) throw new FailedPredicateException(this, "$FN.text == \"CreateHeader\"");
-				State = 136;
+				State = 142;
 				headerArguments();
 				}
 				break;
 			case 2:
 				{
-				State = 137;
+				State = 143;
 				if (!((_localctx._FN!=null?_localctx._FN.Text:null) == "Info")) throw new FailedPredicateException(this, "$FN.text == \"Info\"");
-				State = 138;
+				State = 144;
 				functionTopic();
 				}
 				break;
 			case 3:
 				{
-				State = 139;
+				State = 145;
 				if (!((_localctx._FN!=null?_localctx._FN.Text:null) == "Load")) throw new FailedPredicateException(this, "$FN.text == \"Load\"");
-				State = 140;
+				State = 146;
 				loadArguments();
 				}
 				break;
 			case 4:
 				{
-				State = 141;
+				State = 147;
+				if (!((_localctx._FN!=null?_localctx._FN.Text:null) == "SecureSave")) throw new FailedPredicateException(this, "$FN.text == \"SecureSave\"");
+				State = 148;
+				secureArguments();
+				}
+				break;
+			case 5:
+				{
+				State = 149;
 				arguments();
 				}
 				break;
 			}
-			State = 144;
+			State = 152;
 			Match(T__6);
 			}
 		}
@@ -1198,16 +1215,16 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 146;
+			State = 154;
 			Match(FN);
-			State = 149;
+			State = 157;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==T__7) {
 				{
-				State = 147;
+				State = 155;
 				Match(T__7);
-				State = 148;
+				State = 156;
 				arguments();
 				}
 			}
@@ -1263,21 +1280,21 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 151;
+			State = 159;
 			loadArgument();
-			State = 156;
+			State = 164;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==T__7) {
 				{
 				{
-				State = 152;
+				State = 160;
 				Match(T__7);
-				State = 153;
+				State = 161;
 				loadArgument();
 				}
 				}
-				State = 158;
+				State = 166;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -1327,20 +1344,20 @@ public partial class CryptoScriptParser : Parser {
 		LoadArgumentContext _localctx = new LoadArgumentContext(Context, State);
 		EnterRule(_localctx, 28, RULE_loadArgument);
 		try {
-			State = 161;
+			State = 169;
 			ErrorHandler.Sync(this);
 			switch ( Interpreter.AdaptivePredict(TokenStream,9,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 159;
+				State = 167;
 				Match(FN);
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 160;
+				State = 168;
 				argument();
 				}
 				break;
@@ -1397,22 +1414,22 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 163;
-			Match(P_ONCONFLICT);
-			State = 164;
-			Match(T__1);
 			State = 171;
+			Match(P_ONCONFLICT);
+			State = 172;
+			Match(T__1);
+			State = 179;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case ID:
 				{
-				State = 165;
+				State = 173;
 				Match(ID);
 				}
 				break;
 			case FN:
 				{
-				State = 166;
+				State = 174;
 				Match(FN);
 				}
 				break;
@@ -1423,25 +1440,25 @@ public partial class CryptoScriptParser : Parser {
 			case NORMAL_STRING:
 			case TR31_STRING:
 				{
-				State = 167;
+				State = 175;
 				expression();
 				}
 				break;
 			case MECHANISM:
 				{
-				State = 168;
+				State = 176;
 				Match(MECHANISM);
 				}
 				break;
 			case PADDING:
 				{
-				State = 169;
+				State = 177;
 				Match(PADDING);
 				}
 				break;
 			case VARIANT_VALUE:
 				{
-				State = 170;
+				State = 178;
 				Match(VARIANT_VALUE);
 				}
 				break;
@@ -1499,21 +1516,21 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 173;
+			State = 181;
 			headerAttribute();
-			State = 178;
+			State = 186;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==T__7) {
 				{
 				{
-				State = 174;
+				State = 182;
 				Match(T__7);
-				State = 175;
+				State = 183;
 				headerAttribute();
 				}
 				}
-				State = 180;
+				State = 188;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -1568,21 +1585,21 @@ public partial class CryptoScriptParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 181;
+			State = 189;
 			argument();
-			State = 186;
+			State = 194;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==T__7) {
 				{
 				{
-				State = 182;
+				State = 190;
 				Match(T__7);
-				State = 183;
+				State = 191;
 				argument();
 				}
 				}
-				State = 188;
+				State = 196;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -1643,20 +1660,20 @@ public partial class CryptoScriptParser : Parser {
 		ArgumentContext _localctx = new ArgumentContext(Context, State);
 		EnterRule(_localctx, 36, RULE_argument);
 		try {
-			State = 196;
+			State = 204;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case MECHANISM:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 189;
+				State = 197;
 				Match(MECHANISM);
 				}
 				break;
 			case P_ONCONFLICT:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 190;
+				State = 198;
 				onConflictParameter();
 				}
 				break;
@@ -1665,21 +1682,21 @@ public partial class CryptoScriptParser : Parser {
 			case P_SHAREFORMAT:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 191;
+				State = 199;
 				declareparam();
 				}
 				break;
 			case ID:
 				EnterOuterAlt(_localctx, 4);
 				{
-				State = 192;
+				State = 200;
 				Match(ID);
 				}
 				break;
 			case FN:
 				EnterOuterAlt(_localctx, 5);
 				{
-				State = 193;
+				State = 201;
 				functionCall();
 				}
 				break;
@@ -1691,19 +1708,278 @@ public partial class CryptoScriptParser : Parser {
 			case TR31_STRING:
 				EnterOuterAlt(_localctx, 6);
 				{
-				State = 194;
+				State = 202;
 				expression();
 				}
 				break;
 			case INFO:
 				EnterOuterAlt(_localctx, 7);
 				{
-				State = 195;
+				State = 203;
 				Match(INFO);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class SecureArgumentsContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public SecureArgumentContext[] secureArgument() {
+			return GetRuleContexts<SecureArgumentContext>();
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public SecureArgumentContext secureArgument(int i) {
+			return GetRuleContext<SecureArgumentContext>(i);
+		}
+		public SecureArgumentsContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_secureArguments; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
+			if (typedListener != null) typedListener.EnterSecureArguments(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
+			if (typedListener != null) typedListener.ExitSecureArguments(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSecureArguments(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public SecureArgumentsContext secureArguments() {
+		SecureArgumentsContext _localctx = new SecureArgumentsContext(Context, State);
+		EnterRule(_localctx, 38, RULE_secureArguments);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 206;
+			secureArgument();
+			State = 211;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			while (_la==T__7) {
+				{
+				{
+				State = 207;
+				Match(T__7);
+				State = 208;
+				secureArgument();
+				}
+				}
+				State = 213;
+				ErrorHandler.Sync(this);
+				_la = TokenStream.LA(1);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class SecureArgumentContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public SecureOptionContext secureOption() {
+			return GetRuleContext<SecureOptionContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode FN() { return GetToken(CryptoScriptParser.FN, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ArgumentContext argument() {
+			return GetRuleContext<ArgumentContext>(0);
+		}
+		public SecureArgumentContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_secureArgument; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
+			if (typedListener != null) typedListener.EnterSecureArgument(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
+			if (typedListener != null) typedListener.ExitSecureArgument(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSecureArgument(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public SecureArgumentContext secureArgument() {
+		SecureArgumentContext _localctx = new SecureArgumentContext(Context, State);
+		EnterRule(_localctx, 40, RULE_secureArgument);
+		try {
+			State = 217;
+			ErrorHandler.Sync(this);
+			switch ( Interpreter.AdaptivePredict(TokenStream,15,Context) ) {
+			case 1:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 214;
+				secureOption();
+				}
+				break;
+			case 2:
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 215;
+				Match(FN);
+				}
+				break;
+			case 3:
+				EnterOuterAlt(_localctx, 3);
+				{
+				State = 216;
+				argument();
+				}
+				break;
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class SecureOptionContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode SOPT_SECUREMODE() { return GetToken(CryptoScriptParser.SOPT_SECUREMODE, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode SOPT_SECUREKDF() { return GetToken(CryptoScriptParser.SOPT_SECUREKDF, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode SOPT_ARGONMEM() { return GetToken(CryptoScriptParser.SOPT_ARGONMEM, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode SOPT_ARGONITER() { return GetToken(CryptoScriptParser.SOPT_ARGONITER, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode SOPT_ARGONLANES() { return GetToken(CryptoScriptParser.SOPT_ARGONLANES, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode SOPT_PBKDFITER() { return GetToken(CryptoScriptParser.SOPT_PBKDFITER, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode ID() { return GetToken(CryptoScriptParser.ID, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode FN() { return GetToken(CryptoScriptParser.FN, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ExpressionContext expression() {
+			return GetRuleContext<ExpressionContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode MECHANISM() { return GetToken(CryptoScriptParser.MECHANISM, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode PADDING() { return GetToken(CryptoScriptParser.PADDING, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode VARIANT_VALUE() { return GetToken(CryptoScriptParser.VARIANT_VALUE, 0); }
+		public SecureOptionContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_secureOption; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
+			if (typedListener != null) typedListener.EnterSecureOption(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			ICryptoScriptListener typedListener = listener as ICryptoScriptListener;
+			if (typedListener != null) typedListener.ExitSecureOption(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			ICryptoScriptVisitor<TResult> typedVisitor = visitor as ICryptoScriptVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitSecureOption(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public SecureOptionContext secureOption() {
+		SecureOptionContext _localctx = new SecureOptionContext(Context, State);
+		EnterRule(_localctx, 42, RULE_secureOption);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 219;
+			_la = TokenStream.LA(1);
+			if ( !(((((_la - 138)) & ~0x3f) == 0 && ((1L << (_la - 138)) & 63L) != 0)) ) {
+			ErrorHandler.RecoverInline(this);
+			}
+			else {
+				ErrorHandler.ReportMatch(this);
+			    Consume();
+			}
+			State = 220;
+			Match(T__1);
+			State = 227;
+			ErrorHandler.Sync(this);
+			switch (TokenStream.LA(1)) {
+			case ID:
+				{
+				State = 221;
+				Match(ID);
+				}
+				break;
+			case FN:
+				{
+				State = 222;
+				Match(FN);
+				}
+				break;
+			case INT:
+			case PATH_VALUE:
+			case HEX_STRING:
+			case BASE64_STRING:
+			case NORMAL_STRING:
+			case TR31_STRING:
+				{
+				State = 223;
+				expression();
+				}
+				break;
+			case MECHANISM:
+				{
+				State = 224;
+				Match(MECHANISM);
+				}
+				break;
+			case PADDING:
+				{
+				State = 225;
+				Match(PADDING);
+				}
+				break;
+			case VARIANT_VALUE:
+				{
+				State = 226;
+				Match(VARIANT_VALUE);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -1742,76 +2018,88 @@ public partial class CryptoScriptParser : Parser {
 		case 2: return (_localctx._FN!=null?_localctx._FN.Text:null) == "CreateHeader";
 		case 3: return (_localctx._FN!=null?_localctx._FN.Text:null) == "Info";
 		case 4: return (_localctx._FN!=null?_localctx._FN.Text:null) == "Load";
+		case 5: return (_localctx._FN!=null?_localctx._FN.Text:null) == "SecureSave";
 		}
 		return true;
 	}
 
 	private static int[] _serializedATN = {
-		4,1,217,199,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+		4,1,223,230,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
 		7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,
-		2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,1,0,5,0,40,8,0,10,0,12,0,43,9,
-		0,1,0,1,0,1,1,1,1,3,1,49,8,1,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,
-		2,1,2,1,2,1,2,5,2,65,8,2,10,2,12,2,68,9,2,1,2,1,2,1,2,1,2,1,2,3,2,75,8,
-		2,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,
-		1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,3,3,107,8,3,1,4,1,
-		4,1,4,1,5,1,5,1,5,1,6,1,6,1,7,1,7,4,7,119,8,7,11,7,12,7,120,1,7,1,7,1,
-		8,1,8,1,8,1,9,1,9,1,9,1,9,1,10,1,10,1,11,1,11,1,11,1,11,1,11,1,11,1,11,
-		1,11,1,11,3,11,143,8,11,1,11,1,11,1,12,1,12,1,12,3,12,150,8,12,1,13,1,
-		13,1,13,5,13,155,8,13,10,13,12,13,158,9,13,1,14,1,14,3,14,162,8,14,1,15,
-		1,15,1,15,1,15,1,15,1,15,1,15,1,15,3,15,172,8,15,1,16,1,16,1,16,5,16,177,
-		8,16,10,16,12,16,180,9,16,1,17,1,17,1,17,5,17,185,8,17,10,17,12,17,188,
-		9,17,1,18,1,18,1,18,1,18,1,18,1,18,1,18,3,18,197,8,18,1,18,0,0,19,0,2,
-		4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,0,4,1,0,10,15,3,0,19,19,
-		138,138,152,152,8,0,9,9,17,17,19,19,21,21,23,23,139,139,153,153,186,186,
-		3,0,9,9,16,16,21,24,215,0,41,1,0,0,0,2,48,1,0,0,0,4,74,1,0,0,0,6,106,1,
-		0,0,0,8,108,1,0,0,0,10,111,1,0,0,0,12,114,1,0,0,0,14,116,1,0,0,0,16,124,
-		1,0,0,0,18,127,1,0,0,0,20,131,1,0,0,0,22,133,1,0,0,0,24,146,1,0,0,0,26,
-		151,1,0,0,0,28,161,1,0,0,0,30,163,1,0,0,0,32,173,1,0,0,0,34,181,1,0,0,
-		0,36,196,1,0,0,0,38,40,3,2,1,0,39,38,1,0,0,0,40,43,1,0,0,0,41,39,1,0,0,
-		0,41,42,1,0,0,0,42,44,1,0,0,0,43,41,1,0,0,0,44,45,5,0,0,1,45,1,1,0,0,0,
-		46,49,3,4,2,0,47,49,3,22,11,0,48,46,1,0,0,0,48,47,1,0,0,0,49,3,1,0,0,0,
-		50,51,3,12,6,0,51,52,5,19,0,0,52,53,5,1,0,0,53,54,3,20,10,0,54,75,1,0,
-		0,0,55,56,3,12,6,0,56,57,5,19,0,0,57,58,5,1,0,0,58,59,3,22,11,0,59,75,
-		1,0,0,0,60,61,3,12,6,0,61,62,5,19,0,0,62,66,5,1,0,0,63,65,3,6,3,0,64,63,
-		1,0,0,0,65,68,1,0,0,0,66,64,1,0,0,0,66,67,1,0,0,0,67,75,1,0,0,0,68,66,
-		1,0,0,0,69,70,3,12,6,0,70,71,5,19,0,0,71,72,5,1,0,0,72,73,3,14,7,0,73,
-		75,1,0,0,0,74,50,1,0,0,0,74,55,1,0,0,0,74,60,1,0,0,0,74,69,1,0,0,0,75,
-		5,1,0,0,0,76,77,5,134,0,0,77,78,5,2,0,0,78,107,3,8,4,0,79,80,5,135,0,0,
-		80,81,5,2,0,0,81,107,3,10,5,0,82,83,5,104,0,0,83,84,5,2,0,0,84,107,5,25,
-		0,0,85,86,5,104,0,0,86,87,5,2,0,0,87,107,5,94,0,0,88,89,5,104,0,0,89,90,
-		5,2,0,0,90,107,5,21,0,0,91,92,5,104,0,0,92,93,5,2,0,0,93,107,5,22,0,0,
-		94,95,5,104,0,0,95,96,5,2,0,0,96,107,5,19,0,0,97,98,5,104,0,0,98,99,5,
-		2,0,0,99,107,5,20,0,0,100,101,5,104,0,0,101,102,5,2,0,0,102,107,5,23,0,
-		0,103,104,5,104,0,0,104,105,5,2,0,0,105,107,5,9,0,0,106,76,1,0,0,0,106,
-		79,1,0,0,0,106,82,1,0,0,0,106,85,1,0,0,0,106,88,1,0,0,0,106,91,1,0,0,0,
-		106,94,1,0,0,0,106,97,1,0,0,0,106,100,1,0,0,0,106,103,1,0,0,0,107,7,1,
-		0,0,0,108,109,4,4,0,0,109,110,5,23,0,0,110,9,1,0,0,0,111,112,4,5,1,0,112,
-		113,5,23,0,0,113,11,1,0,0,0,114,115,7,0,0,0,115,13,1,0,0,0,116,118,5,3,
-		0,0,117,119,3,16,8,0,118,117,1,0,0,0,119,120,1,0,0,0,120,118,1,0,0,0,120,
-		121,1,0,0,0,121,122,1,0,0,0,122,123,5,4,0,0,123,15,1,0,0,0,124,125,3,18,
-		9,0,125,126,5,5,0,0,126,17,1,0,0,0,127,128,7,1,0,0,128,129,5,2,0,0,129,
-		130,7,2,0,0,130,19,1,0,0,0,131,132,7,3,0,0,132,21,1,0,0,0,133,134,5,17,
-		0,0,134,142,5,6,0,0,135,136,4,11,2,1,136,143,3,32,16,0,137,138,4,11,3,
-		1,138,143,3,24,12,0,139,140,4,11,4,1,140,143,3,26,13,0,141,143,3,34,17,
-		0,142,135,1,0,0,0,142,137,1,0,0,0,142,139,1,0,0,0,142,141,1,0,0,0,142,
-		143,1,0,0,0,143,144,1,0,0,0,144,145,5,7,0,0,145,23,1,0,0,0,146,149,5,17,
-		0,0,147,148,5,8,0,0,148,150,3,34,17,0,149,147,1,0,0,0,149,150,1,0,0,0,
-		150,25,1,0,0,0,151,156,3,28,14,0,152,153,5,8,0,0,153,155,3,28,14,0,154,
-		152,1,0,0,0,155,158,1,0,0,0,156,154,1,0,0,0,156,157,1,0,0,0,157,27,1,0,
-		0,0,158,156,1,0,0,0,159,162,5,17,0,0,160,162,3,36,18,0,161,159,1,0,0,0,
-		161,160,1,0,0,0,162,29,1,0,0,0,163,164,5,136,0,0,164,171,5,2,0,0,165,172,
-		5,19,0,0,166,172,5,17,0,0,167,172,3,20,10,0,168,172,5,25,0,0,169,172,5,
-		94,0,0,170,172,5,20,0,0,171,165,1,0,0,0,171,166,1,0,0,0,171,167,1,0,0,
-		0,171,168,1,0,0,0,171,169,1,0,0,0,171,170,1,0,0,0,172,31,1,0,0,0,173,178,
-		3,18,9,0,174,175,5,8,0,0,175,177,3,18,9,0,176,174,1,0,0,0,177,180,1,0,
-		0,0,178,176,1,0,0,0,178,179,1,0,0,0,179,33,1,0,0,0,180,178,1,0,0,0,181,
-		186,3,36,18,0,182,183,5,8,0,0,183,185,3,36,18,0,184,182,1,0,0,0,185,188,
-		1,0,0,0,186,184,1,0,0,0,186,187,1,0,0,0,187,35,1,0,0,0,188,186,1,0,0,0,
-		189,197,5,25,0,0,190,197,3,30,15,0,191,197,3,6,3,0,192,197,5,19,0,0,193,
-		197,3,22,11,0,194,197,3,20,10,0,195,197,5,18,0,0,196,189,1,0,0,0,196,190,
-		1,0,0,0,196,191,1,0,0,0,196,192,1,0,0,0,196,193,1,0,0,0,196,194,1,0,0,
-		0,196,195,1,0,0,0,197,37,1,0,0,0,14,41,48,66,74,106,120,142,149,156,161,
-		171,178,186,196
+		2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,21,
+		1,0,5,0,46,8,0,10,0,12,0,49,9,0,1,0,1,0,1,1,1,1,3,1,55,8,1,1,2,1,2,1,2,
+		1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,5,2,71,8,2,10,2,12,2,74,9,
+		2,1,2,1,2,1,2,1,2,1,2,3,2,81,8,2,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,
+		3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,1,3,
+		1,3,1,3,1,3,3,3,113,8,3,1,4,1,4,1,4,1,5,1,5,1,5,1,6,1,6,1,7,1,7,4,7,125,
+		8,7,11,7,12,7,126,1,7,1,7,1,8,1,8,1,8,1,9,1,9,1,9,1,9,1,10,1,10,1,11,1,
+		11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,3,11,151,8,11,1,11,1,11,
+		1,12,1,12,1,12,3,12,158,8,12,1,13,1,13,1,13,5,13,163,8,13,10,13,12,13,
+		166,9,13,1,14,1,14,3,14,170,8,14,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,
+		15,3,15,180,8,15,1,16,1,16,1,16,5,16,185,8,16,10,16,12,16,188,9,16,1,17,
+		1,17,1,17,5,17,193,8,17,10,17,12,17,196,9,17,1,18,1,18,1,18,1,18,1,18,
+		1,18,1,18,3,18,205,8,18,1,19,1,19,1,19,5,19,210,8,19,10,19,12,19,213,9,
+		19,1,20,1,20,1,20,3,20,218,8,20,1,21,1,21,1,21,1,21,1,21,1,21,1,21,1,21,
+		3,21,228,8,21,1,21,0,0,22,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,
+		34,36,38,40,42,0,5,1,0,10,15,3,0,19,19,144,144,158,158,8,0,9,9,17,17,19,
+		19,21,21,23,23,145,145,159,159,192,192,3,0,9,9,16,16,21,24,1,0,138,143,
+		252,0,47,1,0,0,0,2,54,1,0,0,0,4,80,1,0,0,0,6,112,1,0,0,0,8,114,1,0,0,0,
+		10,117,1,0,0,0,12,120,1,0,0,0,14,122,1,0,0,0,16,130,1,0,0,0,18,133,1,0,
+		0,0,20,137,1,0,0,0,22,139,1,0,0,0,24,154,1,0,0,0,26,159,1,0,0,0,28,169,
+		1,0,0,0,30,171,1,0,0,0,32,181,1,0,0,0,34,189,1,0,0,0,36,204,1,0,0,0,38,
+		206,1,0,0,0,40,217,1,0,0,0,42,219,1,0,0,0,44,46,3,2,1,0,45,44,1,0,0,0,
+		46,49,1,0,0,0,47,45,1,0,0,0,47,48,1,0,0,0,48,50,1,0,0,0,49,47,1,0,0,0,
+		50,51,5,0,0,1,51,1,1,0,0,0,52,55,3,4,2,0,53,55,3,22,11,0,54,52,1,0,0,0,
+		54,53,1,0,0,0,55,3,1,0,0,0,56,57,3,12,6,0,57,58,5,19,0,0,58,59,5,1,0,0,
+		59,60,3,20,10,0,60,81,1,0,0,0,61,62,3,12,6,0,62,63,5,19,0,0,63,64,5,1,
+		0,0,64,65,3,22,11,0,65,81,1,0,0,0,66,67,3,12,6,0,67,68,5,19,0,0,68,72,
+		5,1,0,0,69,71,3,6,3,0,70,69,1,0,0,0,71,74,1,0,0,0,72,70,1,0,0,0,72,73,
+		1,0,0,0,73,81,1,0,0,0,74,72,1,0,0,0,75,76,3,12,6,0,76,77,5,19,0,0,77,78,
+		5,1,0,0,78,79,3,14,7,0,79,81,1,0,0,0,80,56,1,0,0,0,80,61,1,0,0,0,80,66,
+		1,0,0,0,80,75,1,0,0,0,81,5,1,0,0,0,82,83,5,134,0,0,83,84,5,2,0,0,84,113,
+		3,8,4,0,85,86,5,135,0,0,86,87,5,2,0,0,87,113,3,10,5,0,88,89,5,104,0,0,
+		89,90,5,2,0,0,90,113,5,25,0,0,91,92,5,104,0,0,92,93,5,2,0,0,93,113,5,94,
+		0,0,94,95,5,104,0,0,95,96,5,2,0,0,96,113,5,21,0,0,97,98,5,104,0,0,98,99,
+		5,2,0,0,99,113,5,22,0,0,100,101,5,104,0,0,101,102,5,2,0,0,102,113,5,19,
+		0,0,103,104,5,104,0,0,104,105,5,2,0,0,105,113,5,20,0,0,106,107,5,104,0,
+		0,107,108,5,2,0,0,108,113,5,23,0,0,109,110,5,104,0,0,110,111,5,2,0,0,111,
+		113,5,9,0,0,112,82,1,0,0,0,112,85,1,0,0,0,112,88,1,0,0,0,112,91,1,0,0,
+		0,112,94,1,0,0,0,112,97,1,0,0,0,112,100,1,0,0,0,112,103,1,0,0,0,112,106,
+		1,0,0,0,112,109,1,0,0,0,113,7,1,0,0,0,114,115,4,4,0,0,115,116,5,23,0,0,
+		116,9,1,0,0,0,117,118,4,5,1,0,118,119,5,23,0,0,119,11,1,0,0,0,120,121,
+		7,0,0,0,121,13,1,0,0,0,122,124,5,3,0,0,123,125,3,16,8,0,124,123,1,0,0,
+		0,125,126,1,0,0,0,126,124,1,0,0,0,126,127,1,0,0,0,127,128,1,0,0,0,128,
+		129,5,4,0,0,129,15,1,0,0,0,130,131,3,18,9,0,131,132,5,5,0,0,132,17,1,0,
+		0,0,133,134,7,1,0,0,134,135,5,2,0,0,135,136,7,2,0,0,136,19,1,0,0,0,137,
+		138,7,3,0,0,138,21,1,0,0,0,139,140,5,17,0,0,140,150,5,6,0,0,141,142,4,
+		11,2,1,142,151,3,32,16,0,143,144,4,11,3,1,144,151,3,24,12,0,145,146,4,
+		11,4,1,146,151,3,26,13,0,147,148,4,11,5,1,148,151,3,38,19,0,149,151,3,
+		34,17,0,150,141,1,0,0,0,150,143,1,0,0,0,150,145,1,0,0,0,150,147,1,0,0,
+		0,150,149,1,0,0,0,150,151,1,0,0,0,151,152,1,0,0,0,152,153,5,7,0,0,153,
+		23,1,0,0,0,154,157,5,17,0,0,155,156,5,8,0,0,156,158,3,34,17,0,157,155,
+		1,0,0,0,157,158,1,0,0,0,158,25,1,0,0,0,159,164,3,28,14,0,160,161,5,8,0,
+		0,161,163,3,28,14,0,162,160,1,0,0,0,163,166,1,0,0,0,164,162,1,0,0,0,164,
+		165,1,0,0,0,165,27,1,0,0,0,166,164,1,0,0,0,167,170,5,17,0,0,168,170,3,
+		36,18,0,169,167,1,0,0,0,169,168,1,0,0,0,170,29,1,0,0,0,171,172,5,136,0,
+		0,172,179,5,2,0,0,173,180,5,19,0,0,174,180,5,17,0,0,175,180,3,20,10,0,
+		176,180,5,25,0,0,177,180,5,94,0,0,178,180,5,20,0,0,179,173,1,0,0,0,179,
+		174,1,0,0,0,179,175,1,0,0,0,179,176,1,0,0,0,179,177,1,0,0,0,179,178,1,
+		0,0,0,180,31,1,0,0,0,181,186,3,18,9,0,182,183,5,8,0,0,183,185,3,18,9,0,
+		184,182,1,0,0,0,185,188,1,0,0,0,186,184,1,0,0,0,186,187,1,0,0,0,187,33,
+		1,0,0,0,188,186,1,0,0,0,189,194,3,36,18,0,190,191,5,8,0,0,191,193,3,36,
+		18,0,192,190,1,0,0,0,193,196,1,0,0,0,194,192,1,0,0,0,194,195,1,0,0,0,195,
+		35,1,0,0,0,196,194,1,0,0,0,197,205,5,25,0,0,198,205,3,30,15,0,199,205,
+		3,6,3,0,200,205,5,19,0,0,201,205,3,22,11,0,202,205,3,20,10,0,203,205,5,
+		18,0,0,204,197,1,0,0,0,204,198,1,0,0,0,204,199,1,0,0,0,204,200,1,0,0,0,
+		204,201,1,0,0,0,204,202,1,0,0,0,204,203,1,0,0,0,205,37,1,0,0,0,206,211,
+		3,40,20,0,207,208,5,8,0,0,208,210,3,40,20,0,209,207,1,0,0,0,210,213,1,
+		0,0,0,211,209,1,0,0,0,211,212,1,0,0,0,212,39,1,0,0,0,213,211,1,0,0,0,214,
+		218,3,42,21,0,215,218,5,17,0,0,216,218,3,36,18,0,217,214,1,0,0,0,217,215,
+		1,0,0,0,217,216,1,0,0,0,218,41,1,0,0,0,219,220,7,4,0,0,220,227,5,2,0,0,
+		221,228,5,19,0,0,222,228,5,17,0,0,223,228,3,20,10,0,224,228,5,25,0,0,225,
+		228,5,94,0,0,226,228,5,20,0,0,227,221,1,0,0,0,227,222,1,0,0,0,227,223,
+		1,0,0,0,227,224,1,0,0,0,227,225,1,0,0,0,227,226,1,0,0,0,228,43,1,0,0,0,
+		17,47,54,72,80,112,126,150,157,164,169,179,186,194,204,211,217,227
 	};
 
 	public static readonly ATN _ATN =

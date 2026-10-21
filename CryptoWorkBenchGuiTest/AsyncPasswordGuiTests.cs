@@ -32,6 +32,53 @@ public class AsyncPasswordGuiTests
         throw new AssertionException("Password dialog did not open.");
     }
 
+    [TestCase(false)] [TestCase(true)]
+    public async Task ProductiveSecureSaveUsesDialogAndStopsBookOnCancellation(bool cancel)
+    {
+        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        await session.Dispatch(async () =>
+        {
+            string directory = Path.Combine(Path.GetTempPath(), "S05B2-GUI-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            var dictionary = VariableDictionary.Instance(); var previous = dictionary.GetVariables().ToArray();
+            var owner = new Window(); owner.Show();
+            using var host = new PasswordDialogHost(() => owner);
+            var status = new StatusViewModel(); var variables = new VariableViewModel();
+            using var editor = new CryptoScriptEditViewModel(status, variables, new InfoViewModel(),
+                new MainViewModel(), null!, new HistoryService());
+            var runner = new CryptoScriptRunner(); runner.PasswordRequested += host.RequestAsync;
+            try
+            {
+                dictionary.Clear();
+                string destination = Path.Combine(directory, "secure.json");
+                dictionary.Add(new PathVariableDeclaration { Id = "path", Type = new CryptoTypePath(), Value = destination });
+                dictionary.Add(new StringVariableDeclaration { Id = "data", Value = "GUI-CANARY" });
+                var lines = new List<string>();
+                var execution = editor.ExecuteScriptBookAsync(new[] { "SecureSave(path,data,#SECUREKDF:PBKDF2)", "Print(data)", "Info(SecureSave)" },
+                    lines.Add, runnerFactory: () => runner);
+                var dialog = await OpenDialog(owner);
+                Assert.That(editor.IsExecuting,Is.True);
+                bool responsive = false; await Dispatcher.UIThread.InvokeAsync(() => responsive = true);
+                Assert.That(responsive,Is.True);
+                if (cancel) dialog.Close();
+                else { dialog.PasswordInput.Text = "canary"; dialog.ConfirmationInput.Text = "canary"; dialog.Confirm(); }
+                await execution;
+                Assert.That(editor.LastScriptBookSucceeded,Is.EqualTo(!cancel));
+                Assert.That(lines,Has.Count.EqualTo(cancel ? 1 : 3));
+                Assert.That(File.Exists(destination),Is.EqualTo(!cancel));
+                Assert.That(dialog.PasswordInput.Text,Is.Empty);
+                Assert.That(dialog.ConfirmationInput.Text,Is.Empty);
+                if (!cancel) Assert.That(File.ReadAllText(destination),Does.Not.Contain("GUI-CANARY"));
+                return true;
+            }
+            finally
+            {
+                owner.Close(); dictionary.Clear(); foreach (var v in previous) dictionary.Add(v);
+                Directory.Delete(directory,true);
+            }
+        }, CancellationToken.None);
+    }
+
     [TestCase(PasswordPurpose.SecureSave)] [TestCase(PasswordPurpose.SecureLoad)]
     public async Task WorkerRequestOpensResponsiveUiDialogAndClearsInputs(PasswordPurpose purpose)
     {

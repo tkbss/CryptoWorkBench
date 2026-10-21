@@ -263,6 +263,42 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitArgument([NotNull] CryptoScriptParser.ArgumentContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSecureArguments([NotNull] CryptoScriptParser.SecureArgumentsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSecureArguments([NotNull] CryptoScriptParser.SecureArgumentsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSecureArgument([NotNull] CryptoScriptParser.SecureArgumentContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSecureArgument([NotNull] CryptoScriptParser.SecureArgumentContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureOption"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSecureOption([NotNull] CryptoScriptParser.SecureOptionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureOption"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSecureOption([NotNull] CryptoScriptParser.SecureOptionContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

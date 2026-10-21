@@ -135,7 +135,7 @@ internal static class PasswordValidation
             if (confirmation is not null) CryptographicOperations.ZeroMemory(confirmation);
         }
     }
-    private static byte[] Encode(PasswordSecret secret)
+    internal static byte[] Encode(PasswordSecret secret)
     {
         try
         {

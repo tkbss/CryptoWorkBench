@@ -1,3 +1,4 @@
+using static CryptoScript.Serialization.SnapshotByteFilePublisher;
 using System.Security;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -40,12 +41,7 @@ public sealed class VariableSnapshotFileStore
             throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidArgument);
         Guard(() =>
         {
-            string destination = ValidatePath(path);
-            ValidateTarget(destination, mode);
-            string directory = Path.GetDirectoryName(destination)!;
-            // GetAttributes preserves access errors, unlike Directory.Exists.
-            if ((File.GetAttributes(directory) & FileAttributes.Directory) == 0)
-                throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidPath);
+            var destination = SnapshotByteFilePublisher.Prepare(path, mode);
 
             byte[] bytes;
             try
@@ -60,31 +56,8 @@ public sealed class VariableSnapshotFileStore
                 throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidSnapshot);
             }
 
-            string temporaryPath = Path.Combine(directory, $".cryptoscript-{Guid.NewGuid():N}.tmp");
-            bool ownsTemporary = false;
-            try
-            {
-                using (var stream = CreatePrivateFile(temporaryPath))
-                {
-                    ownsTemporary = true;
-                    if (OperatingSystem.IsMacOS()) SnapshotFilePermissions.RemoveInheritedMacAcl(stream);
-                    stream.Write(bytes);
-                    stream.Flush(flushToDisk: true);
-                }
-                ValidateTarget(destination, mode);
-                SnapshotFilePublication.Publish(temporaryPath, destination, mode);
-            }
-            finally
-            {
-                if (ownsTemporary)
-                {
-                    try { File.Delete(temporaryPath); }
-                    catch (Exception error) when (error is IOException or UnauthorizedAccessException or SecurityException)
-                    {
-                        // Best effort. Do not mask the original error or successful publication.
-                    }
-                }
-            }
+            try { SnapshotByteFilePublisher.Write(destination, bytes, MaxFileSizeBytes, mode); }
+            finally { System.Security.Cryptography.CryptographicOperations.ZeroMemory(bytes); }
         }, writing: true);
     }
 
@@ -136,85 +109,4 @@ public sealed class VariableSnapshotFileStore
         return result!;
     }
 
-    private static string ValidatePath(PathVariableDeclaration path)
-    {
-        string? value = path?.Value;
-        if (string.IsNullOrWhiteSpace(value) || value.IndexOf('\0') >= 0 ||
-            Path.EndsInDirectorySeparator(value) || Path.GetFileName(value) is "." or "..")
-            throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidPath);
-        // Fail on unpaired surrogates instead of allowing a native UTF-8 path substitution.
-        try { _ = Utf8.GetByteCount(value); }
-        catch (EncoderFallbackException)
-        {
-            throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidPath);
-        }
-        if (OperatingSystem.IsWindows())
-        {
-            string windows = value.Replace('/', '\\');
-            if (windows.StartsWith(@"\\?\", StringComparison.Ordinal) ||
-                windows.StartsWith(@"\\.\", StringComparison.Ordinal) ||
-                Path.IsPathRooted(value) && !Path.IsPathFullyQualified(value))
-                throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidPath);
-            string rest = windows[Path.GetPathRoot(windows)!.Length..];
-            foreach (string part in rest.Split('\\', StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (part is "." or "..") continue;
-                string stem = part.Split('.')[0].TrimEnd(' ').ToUpperInvariant();
-                if (part.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || part.EndsWith(' ') ||
-                    part.EndsWith('.') || stem is "CON" or "PRN" or "AUX" or "NUL" ||
-                    stem.Length == 4 && (stem.StartsWith("COM") || stem.StartsWith("LPT")) &&
-                    "123456789¹²³".Contains(stem[3]))
-                    throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidPath);
-            }
-        }
-        return Path.GetFullPath(value);
-    }
-
-    private static void ValidateTarget(string path, VariableSnapshotWriteMode? mode)
-    {
-        FileAttributes attributes;
-        try { attributes = File.GetAttributes(path); }
-        catch (FileNotFoundException) { return; }
-        // ReparsePoint also covers dangling symlinks and Windows junctions.
-        if ((attributes & (FileAttributes.ReparsePoint | FileAttributes.Directory)) != 0)
-            throw new VariableSnapshotFileException(VariableSnapshotFileError.InvalidPath);
-        if (mode == VariableSnapshotWriteMode.CreateNew)
-            throw new VariableSnapshotFileException(VariableSnapshotFileError.AlreadyExists);
-    }
-
-    private static FileStream CreatePrivateFile(string path)
-    {
-        if (OperatingSystem.IsWindows())
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            var security = new FileSecurity();
-            security.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
-            security.AddAccessRule(new FileSystemAccessRule(identity.User!,
-                FileSystemRights.FullControl, AccessControlType.Allow));
-            return new FileInfo(path).Create(FileMode.CreateNew, FileSystemRights.Write,
-                FileShare.None, 4096, FileOptions.None, security);
-        }
-        return new FileStream(path, new FileStreamOptions
-        {
-            Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None,
-            UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite
-        });
-    }
-
-    private static void Guard(Action action, bool writing)
-    {
-        try { action(); }
-        catch (VariableSnapshotFileException) { throw; }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or
-            SecurityException or ArgumentException or NotSupportedException)
-        {
-            throw new VariableSnapshotFileException(error switch
-            {
-                PathTooLongException or ArgumentException or NotSupportedException => VariableSnapshotFileError.InvalidPath,
-                FileNotFoundException or DirectoryNotFoundException => VariableSnapshotFileError.NotFound,
-                UnauthorizedAccessException or SecurityException => VariableSnapshotFileError.AccessDenied,
-                _ => writing ? VariableSnapshotFileError.WriteError : VariableSnapshotFileError.ReadError
-            });
-        }
-    }
 }

@@ -145,4 +145,22 @@ public interface ICryptoScriptVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitArgument([NotNull] CryptoScriptParser.ArgumentContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.secureArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSecureArguments([NotNull] CryptoScriptParser.SecureArgumentsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.secureArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSecureArgument([NotNull] CryptoScriptParser.SecureArgumentContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="CryptoScriptParser.secureOption"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSecureOption([NotNull] CryptoScriptParser.SecureOptionContext context);
 }
