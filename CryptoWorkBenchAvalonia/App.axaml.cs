@@ -35,11 +35,19 @@ public partial class App : PrismApplication
 
     protected override AvaloniaObject CreateShell()
     {
-        return Container.Resolve<MainWindow>();
+        var window = Container.Resolve<MainWindow>();
+        window.Closed += (_, _) => Container.Resolve<CryptoScriptEditViewModel>().Dispose();
+        return window;
     }
 
     protected override void OnInitialized()
     {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            desktop.Exit += (_, _) =>
+            {
+                Container.Resolve<CryptoScriptEditViewModel>().Dispose();
+                Container.Resolve<KeyMapViewModel>().Dispose();
+            };
         var regionManager = Container.Resolve<IRegionManager>();
         regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(InfoView));
         regionManager.RegisterViewWithRegion(RegionNames.SidebarRegion, typeof(SidebarView));

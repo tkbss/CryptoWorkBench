@@ -173,7 +173,7 @@ public class CryptoScriptExecutionPresentationTests
     public async Task KeyPrintSurvivesEditorSaveAndScriptBookReload(string newline, int printCount)
     {
         using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
-        await session.Dispatch(() =>
+        await session.Dispatch(async () =>
         {
             var textEditor = new TextEditor();
             editor.TextEditor = textEditor;
@@ -182,28 +182,29 @@ public class CryptoScriptExecutionPresentationTests
             typeof(CryptoScriptEditView).GetField("_textEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, textEditor);
             typeof(CryptoScriptEditView).GetField("_viewModel", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, editor);
             var entering = typeof(CryptoScriptEditView).GetMethod("textEditor_TextArea_TextEntering", BindingFlags.Instance | BindingFlags.NonPublic)!;
-            void Enter(string script)
+            async Task Enter(string script)
             {
                 textEditor.Document.Insert(textEditor.Document.TextLength, script);
                 textEditor.TextArea.Caret.Offset = textEditor.Document.TextLength;
                 entering.Invoke(view, new object[] { textEditor.TextArea, new TextInputEventArgs { Text = newline } });
                 textEditor.Document.Insert(textEditor.Document.TextLength, newline);
+                await view.PendingExecution;
             }
 
             string path = Path.Combine(Path.GetTempPath(), "g01-m1-" + Guid.NewGuid().ToString("N") + ".sbk");
             try
             {
-                Enter("KEY k=GenerateKey(AES-ECB,0x(000102030405060708090A0B0C0D0E0F))");
-                for (int i = 0; i < printCount; i++) Enter("Print(k)");
-                Enter("Print(0x(AB))");
-                Enter("VAR after=0x(CAFE)");
+                await Enter("KEY k=GenerateKey(AES-ECB,0x(000102030405060708090A0B0C0D0E0F))");
+                for (int i = 0; i < printCount; i++) await Enter("Print(k)");
+                await Enter("Print(0x(AB))");
+                await Enter("VAR after=0x(CAFE)");
                 editor.SaveScriptBook(path);
                 string saved = File.ReadAllText(path);
                 // SaveScriptBook normalizes to LF. Also exercise externally supplied CRLF books.
                 if (newline == "\r\n") File.WriteAllText(path, saved.Replace("\n", "\r\n"));
                 VariableDictionary.Instance().Clear();
                 textEditor.Document.Text = string.Empty;
-                editor.OpenScriptBook(path);
+                await editor.OpenScriptBookAsync(path);
 
                 Assert.That(editor.LastScriptBookSucceeded, Is.True, "Saved KEY output must not be parsed as script.");
                 Assert.That(status.Diagnostics, Is.Empty);
@@ -221,6 +222,7 @@ public class CryptoScriptExecutionPresentationTests
                 Assert.That(textEditor.Document.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries), Is.EqualTo(lines));
             }
             finally { if (File.Exists(path)) File.Delete(path); }
+            return true;
         }, CancellationToken.None);
     }
 

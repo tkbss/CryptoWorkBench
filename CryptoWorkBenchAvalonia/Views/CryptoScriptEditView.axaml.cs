@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace CryptoWorkBenchAvalonia;
 
@@ -22,6 +23,7 @@ public partial class CryptoScriptEditView : UserControl
     private InfoCompletionController? _infoCompletionController;
     private TextBlock? _statusTextBlock;
     private CryptoScriptEditViewModel? _viewModel;
+    public Task PendingExecution { get; private set; } = Task.CompletedTask;
     public CryptoScriptEditView()
     {        
         InitializeComponent();      
@@ -83,15 +85,28 @@ public partial class CryptoScriptEditView : UserControl
             string lineText = doc.GetText(line);
             if(_viewModel == null)
                 return; 
-            _viewModel.ParseLine(lineText);
-            if(_viewModel.PrintMessage != string.Empty)
-            {
-                //_viewModel.NavigateToInfoView();    
-                doc.Insert(line.EndOffset, "\n" + _viewModel.PrintMessage);                
-            }            
+            if (_viewModel.IsExecuting) { e.Handled = true; return; }
+            var anchor = doc.CreateAnchor(line.EndOffset);
+            anchor.MovementType = AnchorMovementType.BeforeInsertion;
+            PendingExecution = ExecuteInputAsync(lineText, doc, anchor);
             //var tracker=doc.LineTrackers;
         }
         
+    }
+    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor)
+    {
+        try
+        {
+            await _viewModel!.ParseLineAsync(line);
+            if (!anchor.IsDeleted && ReferenceEquals(document, _textEditor!.Document) &&
+                _viewModel.PrintMessage != string.Empty)
+                document.Insert(anchor.Offset, "\n" + _viewModel.PrintMessage);
+        }
+        catch (Exception)
+        {
+            // Task is tracked; no async-void exception escapes the input event.
+            _viewModel!.Status.StatusString = "Script execution failed.";
+        }
     }
     private void textEditor_TextArea_TextEntered(object sender, TextInputEventArgs e)
     {

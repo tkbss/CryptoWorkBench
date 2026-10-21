@@ -6,7 +6,8 @@ namespace CryptoScript.Model
     public class ParserBuilder
     {
         public static CryptoScriptParser StringBuild(string input) 
-        {          
+        {
+            InterpreterExecution.VerifyAccess();
 
             // Create a CharStream from the input code
             AntlrInputStream stream = new AntlrInputStream(input);
@@ -28,6 +29,7 @@ namespace CryptoScript.Model
         }
         public static CryptoScriptParser FileBuild(string filename) 
         {
+            InterpreterExecution.VerifyAccess();
             using StreamReader reader = File.OpenText(filename);
 
             // Create a CharStream from the input code

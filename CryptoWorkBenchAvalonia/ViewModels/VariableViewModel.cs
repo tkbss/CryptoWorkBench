@@ -8,11 +8,13 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CryptoScript.Model;
 
 namespace CryptoWorkBenchAvalonia.ViewModels
 {
     public class VariableViewModel:ViewModelBase
     {
+        internal Func<bool>? IsExecutionActive { get; set; }
         public VariableViewModel() 
         {
             ModifyVariableCommand = new DelegateCommand<ParameterModel>(OnModifyVariable);
@@ -20,6 +22,11 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         }
         private void OnModifyValue(VariableModel? obj)
         {
+            if (IsExecutionActive?.Invoke() == true) return;
+            IDisposable lease;
+            try { lease = InterpreterExecution.Enter(); }
+            catch (ExecutionBusyException) { return; }
+            using var ownedLease = lease;
             if (obj == null)
                 return;
             if(SelectedVariable == null)
@@ -39,6 +46,11 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         }
         private void OnModifyVariable(ParameterModel? item)
         {
+            if (IsExecutionActive?.Invoke() == true) return;
+            IDisposable lease;
+            try { lease = InterpreterExecution.Enter(); }
+            catch (ExecutionBusyException) { return; }
+            using var ownedLease = lease;
             if (item == null)
                 return;
             var v = VariableDictionary.Instance().GetVariables();
@@ -57,14 +69,25 @@ namespace CryptoWorkBenchAvalonia.ViewModels
 
         public void SetupVariables()
         {
+            using var lease = InterpreterExecution.Enter();
+            ApplyVariables(CaptureVariables());
+        }
 
+        internal void ApplyVariables(IReadOnlyList<VariableModel> snapshot)
+        {
+            if (DataVariables.Count != 0) DataVariables.Clear();
+            foreach (var variable in snapshot) DataVariables.Add(variable);
+        }
+
+        internal static IReadOnlyList<VariableModel> CaptureVariables()
+        {
+            InterpreterExecution.VerifyAccess();
+            var snapshot = new List<VariableModel>();
             foreach (var v in VariableDictionary.Instance().GetVariables())
             {
-                if (DataVariables.Any(x => x.Identifier == v.Id && x.Type == v.Type!.Name))
-                    continue;
                 var dv = new VariableModel()
                 {
-                    Type = v.Type!.Name,
+                    Type = v.Type?.Name ?? string.Empty,
                     Identifier = v.Id,
                     Value = v.Value,
                     ValueFormat = v.ValueFormat
@@ -100,8 +123,9 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                         }
                         break;
                 }
-                DataVariables.Add(dv);
+                snapshot.Add(dv);
             }
+            return snapshot;
         }
         private static string FormatAlgorithm(KeyAlgorithm algorithm) => algorithm switch
         {

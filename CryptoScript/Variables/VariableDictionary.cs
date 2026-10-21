@@ -14,16 +14,19 @@ namespace CryptoScript.Variables
         }
         public void Clear()
         {
+            InterpreterExecution.VerifyAccess();
             variables.Clear();
         }
         public VariableDeclaration Get(string Id)
         {
+            InterpreterExecution.VerifyAccess();
             VariableDeclaration? value=null;
             variables.TryGetValue(Id, out  value);
             return value;
         }
         public void Add(VariableDeclaration v)
         {
+            InterpreterExecution.VerifyAccess();
             if (variables.ContainsKey(v.Id))
             {
                 variables.Remove(v.Id);
@@ -32,6 +35,7 @@ namespace CryptoScript.Variables
         }
         public void Update(VariableDeclaration v)
         {
+            InterpreterExecution.VerifyAccess();
             if(variables.ContainsKey(v.Id))
                 variables[v.Id]=v;
         }
@@ -40,11 +44,13 @@ namespace CryptoScript.Variables
         // No callbacks or fallible work follow publication in the synchronous interpreter.
         internal void PublishBatch(IEnumerable<VariableDeclaration> state)
         {
+            InterpreterExecution.VerifyAccess();
             var prepared = state.ToDictionary(variable => variable.Id, StringComparer.Ordinal);
             variables = prepared;
         }
         public bool Contains(string Id)
         {
+            InterpreterExecution.VerifyAccess();
             return variables.ContainsKey(Id);
         }
        
@@ -54,6 +60,7 @@ namespace CryptoScript.Variables
         }
         public IEnumerable<VariableDeclaration> GetVariables()
         {
+            InterpreterExecution.VerifyAccess();
             return variables.Values;
         }
 

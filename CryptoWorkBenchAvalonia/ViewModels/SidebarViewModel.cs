@@ -23,8 +23,8 @@ public class SidebarViewModel : ViewModelBase
 
     ////private readonly IRegionNavigationJournal? _journal;
     private readonly IRegionManager _regionManager;
-    public DelegateCommand OpenScriptBookCommand { get; }
-    public DelegateCommand SaveScriptBookCommand { get; }
+    public AsyncDelegateCommand OpenScriptBookCommand { get; }
+    public AsyncDelegateCommand SaveScriptBookCommand { get; }
     public DelegateCommand ShowVariableViewCommand { get; }
     public DelegateCommand ShowInfoViewCommand { get; }
     public DelegateCommand CmdFlyoutMenu => new(() =>
@@ -48,8 +48,8 @@ public class SidebarViewModel : ViewModelBase
         Title = "Navigation";
         FlyoutWidth = Collapsed;
         _windowIcon = new WindowIcon("./Assets/avalonia-logo.ico");
-        OpenScriptBookCommand = new DelegateCommand(async () => await OpenScriptBook());
-        SaveScriptBookCommand = new DelegateCommand(async () => await SaveScriptBook());
+        OpenScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(OpenScriptBook));
+        SaveScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(SaveScriptBook));
         ShowVariableViewCommand = new DelegateCommand(ShowVariableView);
         ShowInfoViewCommand = new DelegateCommand(ShowInfoView);
     }
@@ -68,6 +68,7 @@ public class SidebarViewModel : ViewModelBase
 
     private async Task SaveScriptBook() 
     {
+        if (_cseVm.IsExecuting) return;
         
         var docPath= await _window!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         // Create the CryptoScript folder path
@@ -126,6 +127,7 @@ public class SidebarViewModel : ViewModelBase
 
     private async Task OpenScriptBook()
     {
+        if (_cseVm.IsExecuting) return;
         var options = new FilePickerOpenOptions
         {
             Title = "Select a file",
@@ -140,6 +142,7 @@ public class SidebarViewModel : ViewModelBase
         var result = await _window.StorageProvider.OpenFilePickerAsync(options);
         if (result.Count > 0)
         {
+            bool clear = false;
             if (_cseVm.IsTextEditorEmpty() == false)
             {
                 var p = new MessageBoxCustomParams
@@ -159,13 +162,12 @@ public class SidebarViewModel : ViewModelBase
                 var r = await messageBoxStandardWindow.ShowAsync();
                 if (r == "Yes")
                 {
-                    _cseVm.TextEditor!.Document.Text = string.Empty;
-                    VariableDictionary.Instance().Clear();
+                    clear = true;
                 }
             }
             try
             {
-                _cseVm.OpenScriptBook(result[0].Path.LocalPath);
+                await _cseVm.OpenScriptBookAsync(result[0].Path.LocalPath, clear);
             }
             catch (SemanticErrorException ex)
             {
@@ -182,6 +184,12 @@ public class SidebarViewModel : ViewModelBase
     {
         if (_cseVm.LastScriptBookSucceeded)
             _cseVm.Status.StatusString = "Script book loaded and all lines successfull parsed";
+    }
+
+    private async Task GuardAsync(System.Func<Task> operation)
+    {
+        try { await operation(); }
+        catch (System.Exception) { _cseVm.Status.StatusString = "Script book operation failed."; }
     }
 
   public int FlyoutWidth { get => _flyoutWidth; set => SetProperty(ref _flyoutWidth, value); }
