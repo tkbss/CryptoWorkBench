@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <CweMacNativeLibrary>$([System.IO.Path]::GetFullPath('$(BaseIntermediateOutputPath)', '$(MSBuildProjectDirectory)'))/native/$(Configuration)/libCryptoScript.FileSystem.dylib</CweMacNativeLibrary>
+  </PropertyGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <!-- Content propagation also covers ProjectReference test/GUI outputs and publish. -->
+    <None Include="$(CweMacNativeLibrary)" Link="libCryptoScript.FileSystem.dylib"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="RequireMacNativeBuildHost" BeforeTargets="PrepareForBuild"
+          Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-')) And !$([MSBuild]::IsOSPlatform('OSX'))">
+    <Error Text="macOS publishing requires a macOS build host with the Xcode command line tools to build the CWE native shim." />
+  </Target>
+  <Target Name="BuildCweMacNativeLibrary" BeforeTargets="PrepareForBuild"
+          Condition="$([MSBuild]::IsOSPlatform('OSX'))"
+          Inputs="$(MSBuildThisFileDirectory)file_publication.c;$(MSBuildThisFileFullPath)"
+          Outputs="$(CweMacNativeLibrary)">
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(CweMacNativeLibrary)'))" />
+    <Exec Command="xcrun --sdk macosx clang -std=c11 -O2 -Wall -Wextra -Werror -fvisibility=hidden -arch x86_64 -arch arm64 -mmacosx-version-min=11.0 -dynamiclib -Wl,-install_name,@rpath/libCryptoScript.FileSystem.dylib &quot;$(MSBuildThisFileDirectory)file_publication.c&quot; -o &quot;$(CweMacNativeLibrary).tmp&quot;" />
+    <Exec Command="codesign --force --sign - &quot;$(CweMacNativeLibrary).tmp&quot;" />
+    <!-- A failed compile/sign must never leave an apparently up-to-date final output. -->
+    <Move SourceFiles="$(CweMacNativeLibrary).tmp" DestinationFiles="$(CweMacNativeLibrary)" />
+  </Target>
+  <Target Name="TrackCweMacNativeLibrary" AfterTargets="BuildCweMacNativeLibrary" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <ItemGroup><FileWrites Include="$(CweMacNativeLibrary)" /></ItemGroup>
+  </Target>
+</Project>

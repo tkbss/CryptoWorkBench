@@ -277,4 +277,5 @@
   </ItemGroup>
 
   <ItemGroup><None Update="InfoDocs\Info.Func.SecureSave.md;InfoDocs\Info.Func.SecureLoad.md;InfoDocs\Info.Func.Delete.md" CopyToOutputDirectory="Always" /></ItemGroup>
+  <Import Project="Native/FilePublication.targets" />
 </Project>

@@ -106,7 +106,7 @@ internal sealed class FilePublication : IDisposable
             return new DirectoryInfo("/proc/self/fd/" + DirectoryFd).ResolveLinkTarget(true)?.FullName
                 ?? throw new IOException("CWE directory is no longer reachable.");
         byte[] path = new byte[4096];
-        if (GetPath(DirectoryFd, 50, path) != 0) throw NativeError(); // Darwin F_GETPATH
+        if (GetPath(DirectoryFd, path, path.Length) != 0) throw NativeError(); // Darwin F_GETPATH
         int end = Array.IndexOf(path, (byte)0);
         if (end < 1) throw new IOException("CWE directory is no longer reachable.");
         return new UTF8Encoding(false, true).GetString(path, 0, end);
@@ -173,7 +173,14 @@ internal sealed class FilePublication : IDisposable
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool SetFileInformationByHandle(SafeFileHandle handle, int infoClass, byte[] info, uint size);
     [DllImport("libc", EntryPoint = "openat", SetLastError = true)]
-    private static extern int OpenAt(int fd, [MarshalAs(UnmanagedType.LPUTF8Str)] string path, int flags, uint mode);
+    private static extern int OpenAtLibc(int fd, [MarshalAs(UnmanagedType.LPUTF8Str)] string path, int flags, uint mode);
+    // Darwin ARM64 passes variadic arguments on the stack. Let the C compiler call
+    // openat/fcntl with their real prototypes; never emulate varargs with register padding.
+    private static int OpenAt(int fd, string path, int flags, uint mode) => OperatingSystem.IsMacOS()
+        ? OpenAtMac(fd, path, flags, mode) : OpenAtLibc(fd, path, flags, mode);
+    [DllImport("libCryptoScript.FileSystem.dylib", EntryPoint = "cwe_openat", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+    private static extern int OpenAtMac(int fd, [MarshalAs(UnmanagedType.LPUTF8Str)] string path, int flags, uint mode);
     [DllImport("libc", EntryPoint = "fstat", SetLastError = true)]
     private static extern int FStatNative(SafeFileHandle fd, [Out] byte[] stat);
     [DllImport("libc", EntryPoint = "fstatat", SetLastError = true)]
@@ -186,8 +193,9 @@ internal sealed class FilePublication : IDisposable
     private static extern int FStatMacIntel(SafeFileHandle fd, [Out] byte[] stat);
     [DllImport("libc", EntryPoint = "fstatat$INODE64", SetLastError = true)]
     private static extern int FStatAtMacIntel(int fd, [MarshalAs(UnmanagedType.LPUTF8Str)] string name, [Out] byte[] stat, int flags);
-    [DllImport("libc", EntryPoint = "fcntl", SetLastError = true)]
-    private static extern int GetPath(int fd, int command, [Out] byte[] path);
+    [DllImport("libCryptoScript.FileSystem.dylib", EntryPoint = "cwe_getpath", SetLastError = true, CallingConvention = CallingConvention.Cdecl)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+    private static extern int GetPath(int fd, [Out] byte[] path, int capacity);
     [DllImport("libc", EntryPoint = "linkat", SetLastError = true)]
     private static extern int LinkAt(int from, [MarshalAs(UnmanagedType.LPUTF8Str)] string source, int to,
         [MarshalAs(UnmanagedType.LPUTF8Str)] string destination, int flags);

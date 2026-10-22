@@ -13,6 +13,7 @@ jobs:
   build-test-publish:
     name: Build, test and publish (${{ matrix.rid }})
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -69,20 +70,27 @@ jobs:
           dotnet build CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj --configuration Release --no-restore
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Test F01 native operations before complete suites
+        id: f01-native
+        timeout-minutes: 5
+        run: ./.github/scripts/Test-F01Native.ps1 -RequireMacArm64:('${{ matrix.rid }}' -eq 'osx-arm64')
+
       - name: Test CryptoScript (complete suite)
         run: >-
           dotnet test CryptoScriptUnitTest/CryptoScriptUnitTest.csproj
           --configuration Release --no-build --no-restore --verbosity normal
           --logger "trx;LogFileName=CryptoScriptUnitTest.trx"
           --results-directory artifacts/test-results
+          --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type mini
 
       - name: Test GUI and historical Console integration (complete suite)
-        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.f01-native.outcome == 'success' }}
         run: >-
           dotnet test CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj
           --configuration Release --no-build --no-restore --verbosity normal
           --logger "trx;LogFileName=CryptoWorkBenchGuiTest.trx"
           --results-directory artifacts/test-results
+          --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type mini
 
       # A test failure still allows publish diagnostics; the job stays failed.
       # RID-specific publishing deliberately restores its own runtime assets.
@@ -107,5 +115,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.rid }}
-          path: artifacts/test-results/*.trx
+          path: |
+            artifacts/test-results/
+            artifacts/f01-native/
           if-no-files-found: error

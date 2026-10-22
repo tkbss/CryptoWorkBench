@@ -78,6 +78,34 @@ foreach ($library in $deps.targets[$targetName].Values) {
 }
 if ($nativeCount -eq 0) { throw 'No platform-native dependencies were validated.' }
 
+if ($RuntimeIdentifier.StartsWith('osx-', [StringComparison]::Ordinal)) {
+    # Project content is intentionally not a NuGet native asset in deps.json.
+    $shimName = 'libCryptoScript.FileSystem.dylib'
+    Assert-PublishedFile $shimName
+    $shimPath = Join-Path $publishRoot $shimName
+    & xcrun lipo -verify_arch x86_64 arm64 $shimPath
+    if ($LASTEXITCODE -ne 0) { throw 'CWE shim must contain both macOS architectures.' }
+    & codesign --verify --strict $shimPath
+    if ($LASTEXITCODE -ne 0) { throw 'CWE shim code signature is invalid.' }
+    $linkedLibraries = & xcrun otool -L $shimPath
+    if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect CWE shim dependencies.' }
+    $dependencyNames = @($linkedLibraries | Where-Object { $_ -match '\(compatibility version' } |
+        ForEach-Object { ($_.Trim() -split '\s+')[0] } | Sort-Object -Unique)
+    if ($dependencyNames.Count -ne 2 -or
+        '@rpath/libCryptoScript.FileSystem.dylib' -notin $dependencyNames -or
+        '/usr/lib/libSystem.B.dylib' -notin $dependencyNames) {
+        throw "Unexpected CWE native dependencies: $dependencyNames"
+    }
+    # Absolute-path load from the deployed directory, plus both required exports.
+    $shimHandle = [Runtime.InteropServices.NativeLibrary]::Load($shimPath)
+    try {
+        [void] [Runtime.InteropServices.NativeLibrary]::GetExport($shimHandle, 'cwe_openat')
+        [void] [Runtime.InteropServices.NativeLibrary]::GetExport($shimHandle, 'cwe_getpath')
+    }
+    finally { [Runtime.InteropServices.NativeLibrary]::Free($shimHandle) }
+    $nativeCount++
+}
+
 $sourceDocs = @(Get-ChildItem -LiteralPath $sourceDocsRoot -File -Recurse)
 if ($sourceDocs.Count -eq 0) { throw 'Source InfoDocs directory is empty.' }
 foreach ($source in $sourceDocs) {
