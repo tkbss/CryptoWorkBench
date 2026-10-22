@@ -29,6 +29,7 @@ public class InfoDocumentationProviderTests
     private readonly IInfoDocumentationProvider _sut = new FileInfoDocumentationProvider();
 
     [TestCase("mechanisms", "Info.Mechanisms.md")]
+    [TestCase("Encrypt", "Info.Func.Encrypt.md")]
     [TestCase("functions", "Info.Functions.md")]
     [TestCase("parameters", "Info.Parameters.md")]
     [TestCase("types", "Info.Types.md")]
@@ -256,7 +257,7 @@ public class InfoDocumentationProviderTests
     {
         InfoDocumentId[] documentIds =
         {
-            InfoDocumentId.CreateFunction("Encrypt"),
+            InfoDocumentId.CreateFunction("Decrypt"),
             InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC"),
             InfoDocumentId.CreateMechanismParameter("AES-CBC", "IV")
         };

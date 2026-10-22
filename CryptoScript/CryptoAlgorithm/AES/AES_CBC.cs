@@ -6,6 +6,50 @@ namespace CryptoScript.CryptoAlgorithm
 {
     public class AES_CBC : EncryptionMode
     {
+        internal static Aes CreateCipher(KeyVariableDeclaration key, byte[] iv)
+        {
+            var aes = Aes.Create();
+            byte[]? bytes = null;
+            try
+            {
+                bytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
+                aes.Mode = CipherMode.CBC; aes.Key = bytes; aes.IV = iv; return aes;
+            }
+            catch { aes.Dispose(); throw; }
+            finally { if (bytes is not null) CryptographicOperations.ZeroMemory(bytes); }
+        }
+
+        internal static void EncryptStream(Stream source, Stream destination,
+            Aes aes, ParameterVariableDeclaration parameter, CancellationToken token)
+        {
+            string padding = parameter.GetParameter("PAD").ToUpperInvariant();
+            if (padding is not ("PKCS-7" or "NONE"))
+                throw new ArgumentException("Encrypt(PATH) supports only PKCS-7 and NONE padding.");
+            long expected = source.Length, count = 0;
+            ValidateNoPaddingBlockLength(parameter, expected, 16, "plaintext");
+            _ = new AES_CBC().Pad(parameter, out var mode, Array.Empty<byte>(), "Encrypt");
+            aes.Padding = mode;
+            using var transform = aes.CreateEncryptor();
+            using var crypto = new CryptoStream(destination, transform, CryptoStreamMode.Write, leaveOpen: true);
+            byte[] buffer = new byte[65536];
+            try
+            {
+                while (count < expected)
+                {
+                    token.ThrowIfCancellationRequested();
+                    int read = source.Read(buffer, 0, (int)Math.Min(buffer.Length, expected - count));
+                    if (read == 0) throw new IOException("CWE source changed during encryption.");
+                    crypto.Write(buffer, 0, read);
+                    count += read;
+                }
+                token.ThrowIfCancellationRequested();
+                if (source.ReadByte() != -1 || source.Length != expected)
+                    throw new IOException("CWE source changed during encryption.");
+                crypto.FlushFinalBlock();
+            }
+            finally { CryptographicOperations.ZeroMemory(buffer); }
+        }
+
         internal static byte[] ValidateAndDecodeIv(string iv)
         {
             string format = FormatConversions.ParseString(iv);
@@ -120,16 +164,8 @@ namespace CryptoScript.CryptoAlgorithm
         {
             byte[] encrypted;
             //using aes in cbc mode with external key and iv
-            using (Aes aesAlg = Aes.Create())
+            using (Aes aesAlg = CreateCipher(key, ValidateAndDecodeIv(parameter.GetParameter("IV"))))
             {
-                //cbc mode 
-                aesAlg.Mode = CipherMode.CBC;
-                //set key
-                byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
-                aesAlg.Key = keyBytes;
-                byte[] iv = ValidateAndDecodeIv(parameter.GetParameter("IV"));
-                //set iv
-                aesAlg.IV = iv;
                 PaddingMode padding;
                 byte[] dataBytes = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
                 ValidateNoPaddingBlockInput(parameter, dataBytes, 16, "plaintext");

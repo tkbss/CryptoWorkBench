@@ -12,12 +12,14 @@ internal sealed class SemanticDiagnosticExecution
     private int operationId;
 
     internal SemanticDiagnosticExecution(Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation = null,
-        Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory = null)
+        Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory = null, CancellationToken cancellationToken = default)
     {
         this.beforeOperation = beforeOperation;
         this.algorithmFactory = algorithmFactory;
+        CancellationToken = cancellationToken;
     }
 
+    internal CancellationToken CancellationToken { get; }
     internal Guid ExecutionId { get; } = Guid.NewGuid();
     internal IReadOnlyList<SemanticError> GetSnapshot() => sink.GetSnapshot();
 

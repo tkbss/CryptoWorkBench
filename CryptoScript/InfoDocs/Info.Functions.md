@@ -7,6 +7,7 @@ Possible Parameters are given in overlay window during typing.
 
 ## Built-in Functions
 - Encrypt a message: **VAR e = Encrypt(parameters, key, data)**
+- Encrypt a binary file: **[PATH e = Encrypt(parameters, key, sourcePath)](cryptoscript-info://function/Encrypt)** (AES-CBC, PKCS-7/NONE)
 - Decrypt a message: **VAR d = Decrypt(parameters, key, data)**
 - Compute a message authentication code (MAC): **VAR m = Mac(parameters, key, data)**
 - Compute an unkeyed message digest: **VAR h = Hash(parameters, data)**

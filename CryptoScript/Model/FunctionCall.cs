@@ -39,7 +39,7 @@ namespace CryptoScript.Model
                     Mechanism = Arguments.OfType<ArgumentMechanism>().FirstOrDefault()?.Mechanism?.Value
                 };
             Invocation = new OperationInvocation(Arguments.Select(ResolveArgument),
-                execution?.CreateSink(Location!));
+                execution?.CreateSink(Location!), execution?.CancellationToken ?? default);
             execution?.BeforeOperation(this);
             var function = execution is null ? OperationFactory.CreateInvocationOperation(Name)
                 : execution.CreateOperation(Name);

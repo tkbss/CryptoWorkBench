@@ -145,6 +145,7 @@ namespace CryptoScript.Model
                 execution?.Report(se, fc.Location!, SemanticDiagnosticCode.UnknownFunction);
                 throw new SemanticErrorException() { SemanticError=se};
             }
+            FileEncryption.FileEncryptionContract.Validate(call, semanticErrors);
             ValidateArgumentContracts(call, semanticErrors);
             if (SecureSaveOperations.IsSecureSave(functionName) || SecureLoadOperations.IsSecureLoad(functionName))
             {
@@ -176,6 +177,7 @@ namespace CryptoScript.Model
                     fc.Call(execution);
                     return fc;
                 }
+                catch (OperationCanceledException) { throw; }
                 catch (KeyCheckValueSearchException e)
                 {
                     if (!semanticErrors.Contains(e.SemanticError!)) semanticErrors.Add(e.SemanticError!);
@@ -209,6 +211,7 @@ namespace CryptoScript.Model
                 fc.Call(execution);
                 return fc;
             }
+            catch (OperationCanceledException) { throw; }
             catch (KeyCheckValueSearchException e)
             {
                 if (!semanticErrors.Contains(e.SemanticError!)) semanticErrors.Add(e.SemanticError!);

@@ -55,7 +55,12 @@ public sealed class OperationInvocation
     }
 
     public OperationInvocation(IEnumerable<ResolvedCallArgument> arguments,
-        ISemanticDiagnosticSink? diagnosticSink)
+        ISemanticDiagnosticSink? diagnosticSink) : this(arguments, diagnosticSink, default)
+    {
+    }
+
+    public OperationInvocation(IEnumerable<ResolvedCallArgument> arguments,
+        ISemanticDiagnosticSink? diagnosticSink, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         ResolvedCallArgument[] copiedArguments = arguments.ToArray();
@@ -64,11 +69,13 @@ public sealed class OperationInvocation
 
         this.arguments = Array.AsReadOnly(copiedArguments);
         DiagnosticSink = diagnosticSink;
+        CancellationToken = cancellationToken;
     }
 
     public IReadOnlyList<ResolvedCallArgument> Arguments => arguments;
 
     public ISemanticDiagnosticSink? DiagnosticSink { get; }
+    public CancellationToken CancellationToken { get; }
 
     // Compatibility projection for operations and algorithms that still use the legacy string[] contract.
     public string[] Values => arguments.Select(argument => argument.Value!).ToArray();

@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="InfoDocs\Info.Func.Encrypt.md" CopyToOutputDirectory="Always" />
     <None Update="InfoDocs\Info.Func.Save.md" CopyToOutputDirectory="Always" />
     <None Update="InfoDocs\Info.Func.Load.md" CopyToOutputDirectory="Always" />
     <None Update="InfoDocs\Info.TR31.md;InfoDocs\Info.TR31Attributes.md;InfoDocs\Info.Func.CreateHeader.md" CopyToOutputDirectory="Always" />

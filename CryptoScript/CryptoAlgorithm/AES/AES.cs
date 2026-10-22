@@ -92,6 +92,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
             foreach (var p in parameters)
             {
                 param.SetParameter(p);
+                param.RecordExplicitParameter(p.Split(':', 2)[0]);
                 
             }
             SetDefaultParameterValues(param);

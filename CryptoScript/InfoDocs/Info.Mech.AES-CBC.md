@@ -34,6 +34,18 @@ These parameters are used with the AES-CBC mechanism:
 - **#PAD**: Padding scheme to ensure input data is a multiple of the block size.
     - NONE: No padding if input must is a multiple of block size.
     - PKCS-7: Default padding scheme for AES-CBC. Any other padding scheme defined in CRYPTO-SCRIPT can be used.
+
+### Binary file encryption
+
+`PATH encrypted = Encrypt(p, k, source)` selects file processing when `source`
+is a declared PATH. It returns the absolute name of a completed `.cwe` container.
+The source and existing outputs remain unchanged; repeated calls use `.1.cwe`,
+`.2.cwe`, etc., choosing the first free number. Only PKCS-7 and NONE are supported
+for files; NONE requires a nonzero multiple of 16 bytes. A supplied #IV is preserved;
+an automatically generated IV is refreshed for every file without mutating PARAM.
+The actual IV is stored in the versioned header. CBC provides confidentiality only:
+the header and ciphertext have **no integrity protection or authentication**.
+See [Encrypt](cryptoscript-info://function/Encrypt) for contracts and error behavior.
     
 ---
 ## Example Usage  

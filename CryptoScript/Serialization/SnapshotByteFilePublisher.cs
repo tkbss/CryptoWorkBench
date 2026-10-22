@@ -112,7 +112,7 @@ internal static class SnapshotByteFilePublisher
             throw new VariableSnapshotFileException(VariableSnapshotFileError.AlreadyExists);
     }
 
-    internal static FileStream CreatePrivateFile(string path)
+    internal static FileStream CreatePrivateFile(string path, bool forHandlePublication = false)
     {
         if (OperatingSystem.IsWindows())
         {
@@ -121,7 +121,7 @@ internal static class SnapshotByteFilePublisher
             security.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
             security.AddAccessRule(new FileSystemAccessRule(identity.User!,
                 FileSystemRights.FullControl, AccessControlType.Allow));
-            return new FileInfo(path).Create(FileMode.CreateNew, FileSystemRights.Write,
+            return new FileInfo(path).Create(FileMode.CreateNew, FileSystemRights.Write | (forHandlePublication ? FileSystemRights.Delete : 0),
                 FileShare.None, 4096, FileOptions.None, security);
         }
         return new FileStream(path, new FileStreamOptions

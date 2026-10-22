@@ -57,8 +57,14 @@ namespace CryptoScript.CryptoAlgorithm
             int blockSize,
             string inputName)
         {
+            ValidateNoPaddingBlockLength(parameter, input.LongLength, blockSize, inputName);
+        }
+
+        protected static void ValidateNoPaddingBlockLength(ParameterVariableDeclaration parameter,
+            long length, int blockSize, string inputName)
+        {
             if (parameter.GetParameter("PAD").Equals("NONE", StringComparison.OrdinalIgnoreCase) &&
-                (input.Length == 0 || input.Length % blockSize != 0))
+                (length == 0 || length % blockSize != 0))
             {
                 string mechanism = parameter.GetParameter("MECH").ToUpperInvariant();
                 throw new ArgumentException(

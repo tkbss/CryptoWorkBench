@@ -93,6 +93,8 @@ namespace CryptoScript.Model
             var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments, CryptoScriptFunction.Encrypt);
             MechanismParameterContractValidator.Validate(
                 parameters.Mechanism, CryptoScriptFunction.Encrypt, parameters);
+            if (invocation.Arguments[2].SourceVariable is PathVariableDeclaration path)
+                return FileEncryption.FileEncryptCoordinator.Encrypt(resolvedArguments, path, invocation.CancellationToken);
             return algorithm.Encrypt(resolvedArguments);
         }
         public VariableDeclaration Decrypt(OperationInvocation invocation)

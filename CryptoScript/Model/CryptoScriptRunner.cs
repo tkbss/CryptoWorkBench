@@ -82,7 +82,7 @@ namespace CryptoScript.Model
         private async Task<CryptoScriptProgram> ExecuteAsyncCore(IEnumerable<StatementNode?> statements,
             CancellationToken token)
         {
-            var execution = new SemanticDiagnosticExecution(beforeOperation, algorithmFactory);
+            var execution = new SemanticDiagnosticExecution(beforeOperation, algorithmFactory, token);
             var parentExecution = activeExecution;
             activeExecution = execution;
             try
