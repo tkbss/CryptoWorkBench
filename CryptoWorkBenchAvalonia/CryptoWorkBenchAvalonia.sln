@@ -21,6 +21,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScriptBooks", "ScriptBooks"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBenchConsole", "..\CryptoWorkBenchConsole\CryptoWorkBenchConsole.csproj", "{BA7242A3-3540-4A9D-83FC-E44B5B214AD9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Automation.Abstractions", "..\CryptoWorkBench.Automation.Abstractions\CryptoWorkBench.Automation.Abstractions.csproj", "{F0440564-C35F-4AF8-A067-D7A9995EFF8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Mcp", "..\CryptoWorkBench.Mcp\CryptoWorkBench.Mcp.csproj", "{7FA4B914-5723-4146-83F5-4D46DC153091}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Mcp.Tests", "..\CryptoWorkBench.Mcp.Tests\CryptoWorkBench.Mcp.Tests.csproj", "{D22517C7-F243-4CF9-8A3A-D379B14D3632}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +53,18 @@ Global
 		{BA7242A3-3540-4A9D-83FC-E44B5B214AD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA7242A3-3540-4A9D-83FC-E44B5B214AD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA7242A3-3540-4A9D-83FC-E44B5B214AD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0440564-C35F-4AF8-A067-D7A9995EFF8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0440564-C35F-4AF8-A067-D7A9995EFF8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0440564-C35F-4AF8-A067-D7A9995EFF8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0440564-C35F-4AF8-A067-D7A9995EFF8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FA4B914-5723-4146-83F5-4D46DC153091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FA4B914-5723-4146-83F5-4D46DC153091}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FA4B914-5723-4146-83F5-4D46DC153091}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FA4B914-5723-4146-83F5-4D46DC153091}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D22517C7-F243-4CF9-8A3A-D379B14D3632}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D22517C7-F243-4CF9-8A3A-D379B14D3632}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D22517C7-F243-4CF9-8A3A-D379B14D3632}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D22517C7-F243-4CF9-8A3A-D379B14D3632}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

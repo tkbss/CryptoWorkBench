@@ -9,6 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoWorkBenchConsole", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoScriptUnitTest", "CryptoScriptUnitTest\CryptoScriptUnitTest.csproj", "{9E484244-661D-4432-82E1-8C6D69F17299}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Automation.Abstractions", "CryptoWorkBench.Automation.Abstractions\CryptoWorkBench.Automation.Abstractions.csproj", "{D443CF04-43F3-41AF-8347-E601E3661F3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Mcp", "CryptoWorkBench.Mcp\CryptoWorkBench.Mcp.csproj", "{73E4562F-3294-4996-9FF4-88D94863B38D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Mcp.Tests", "CryptoWorkBench.Mcp.Tests\CryptoWorkBench.Mcp.Tests.csproj", "{C3E83A27-B592-43D5-A986-55FB936D6836}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,18 @@ Global
 		{9E484244-661D-4432-82E1-8C6D69F17299}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E484244-661D-4432-82E1-8C6D69F17299}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E484244-661D-4432-82E1-8C6D69F17299}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D443CF04-43F3-41AF-8347-E601E3661F3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D443CF04-43F3-41AF-8347-E601E3661F3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D443CF04-43F3-41AF-8347-E601E3661F3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D443CF04-43F3-41AF-8347-E601E3661F3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73E4562F-3294-4996-9FF4-88D94863B38D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73E4562F-3294-4996-9FF4-88D94863B38D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73E4562F-3294-4996-9FF4-88D94863B38D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73E4562F-3294-4996-9FF4-88D94863B38D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3E83A27-B592-43D5-A986-55FB936D6836}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3E83A27-B592-43D5-A986-55FB936D6836}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3E83A27-B592-43D5-A986-55FB936D6836}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3E83A27-B592-43D5-A986-55FB936D6836}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

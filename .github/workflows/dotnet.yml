@@ -40,7 +40,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      # These three roots cover every production/test project. The GUI test
+      # These four roots cover every production/test project. The GUI test
       # graph also restores the existing historical Console dependency.
       - name: Restore desktop and test dependencies
         run: |
@@ -50,6 +50,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Restore MCP contract and transport tests
+        run: dotnet restore CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj
 
       - name: Build CryptoScript
         run: dotnet build CryptoScript/CryptoScript.csproj --configuration Release --no-restore
@@ -61,13 +64,23 @@ jobs:
         id: desktop
         run: dotnet build CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj --configuration Release --no-restore
 
-      - name: Build both test projects
+      - name: Build test projects
         id: test-build
         run: |
           dotnet build CryptoScriptUnitTest/CryptoScriptUnitTest.csproj --configuration Release --no-restore
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj --configuration Release --no-restore
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build MCP contract and transport tests
+        run: dotnet build CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj --configuration Release --no-restore
+
+      - name: Test MCP contracts and isolated transport
+        run: >-
+          dotnet test CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj
+          --configuration Release --no-build --no-restore --verbosity normal
+          --logger "trx;LogFileName=CryptoWorkBench.Mcp.Tests.trx"
+          --results-directory artifacts/test-results
 
       - name: Test CryptoScript (complete suite)
         run: >-
