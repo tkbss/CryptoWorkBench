@@ -65,9 +65,18 @@ namespace CryptoScript.Model
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
+            if (invocation.Arguments[2].SourceVariable is PathVariableDeclaration &&
+                invocation.Arguments[0].SourceVariable is not ParameterVariableDeclaration)
+                throw new ArgumentException("Mac(PATH) requires a PARAM variable reference.");
             var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments, CryptoScriptFunction.Mac);
             MechanismParameterContractValidator.Validate(
                 parameters.Mechanism, CryptoScriptFunction.Mac, parameters);
+            if (invocation.Arguments[2].SourceVariable is PathVariableDeclaration path)
+            {
+                if (invocation.Arguments.Any(a => a.Kind == ResolvedCallArgumentKind.NestedFunctionCall))
+                    throw new ArgumentException("Mac(PATH) requires a direct call with no nested arguments.");
+                return FileEncryption.FileMacCoordinator.Mac(resolvedArguments, path, invocation.CancellationToken);
+            }
             return algorithm.Mac(resolvedArguments);
         }
         public VariableDeclaration Hash(OperationInvocation invocation)

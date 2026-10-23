@@ -146,6 +146,7 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException() { SemanticError=se};
             }
             FileEncryption.FileEncryptionContract.Validate(call, semanticErrors);
+            FileEncryption.FileMacContract.Validate(call, semanticErrors);
             ValidateArgumentContracts(call, semanticErrors);
             if (SecureSaveOperations.IsSecureSave(functionName) || SecureLoadOperations.IsSecureLoad(functionName))
             {

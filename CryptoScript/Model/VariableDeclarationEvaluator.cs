@@ -21,7 +21,10 @@ namespace CryptoScript.Model
             string Id = declaration.Identifier;
             string TypeName = declaration.TypeName;
             if (declaration.Initializer is FunctionCallExpressionNode fileCall)
+            {
                 FileEncryption.FileEncryptionContract.Validate(fileCall, semanticErrors, TypeName);
+                FileEncryption.FileMacContract.Validate(fileCall, semanticErrors, TypeName);
+            }
             if (declaration.Initializer is FunctionCallExpressionNode snapshot &&
                 (Operations.SecureSaveOperations.IsVoidSnapshot(snapshot.Name) || Operations.DeleteOperations.IsDelete(snapshot.Name)))
             {
