@@ -46,6 +46,19 @@ an automatically generated IV is refreshed for every file without mutating PARAM
 The actual IV is stored in the versioned header. CBC provides confidentiality only:
 the header and ciphertext have **no integrity protection or authentication**.
 See [Encrypt](cryptoscript-info://function/Encrypt) for contracts and error behavior.
+
+### Binary file decryption
+
+`PATH cleartext = Decrypt(p, k, encrypted)` streams CryptoWorkBenchEncryptedFile
+1.0 containers with AES-128/192/256-CBC and PKCS-7 or NONE. The header supplies IV
+and padding; explicit PARAM values must agree, while generated/default values are
+ignored. PARAM is unchanged. A final `.cwe` is removed from the output name;
+existing outputs cause the first free numeric suffix to be used. The container
+is preserved. Invalid containers, padding, cancellation and I/O errors publish no
+partial plaintext. CBC cannot authenticate the header or ciphertext, and a wrong
+key with NONE can silently produce incorrect plaintext. See
+[Decrypt](cryptoscript-info://function/Decrypt) for names, contracts and filesystem
+security boundaries.
     
 ---
 ## Example Usage  

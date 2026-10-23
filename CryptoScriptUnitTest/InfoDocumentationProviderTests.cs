@@ -30,6 +30,7 @@ public class InfoDocumentationProviderTests
 
     [TestCase("mechanisms", "Info.Mechanisms.md")]
     [TestCase("Encrypt", "Info.Func.Encrypt.md")]
+    [TestCase("Decrypt", "Info.Func.Decrypt.md")]
     [TestCase("functions", "Info.Functions.md")]
     [TestCase("parameters", "Info.Parameters.md")]
     [TestCase("types", "Info.Types.md")]
@@ -257,7 +258,6 @@ public class InfoDocumentationProviderTests
     {
         InfoDocumentId[] documentIds =
         {
-            InfoDocumentId.CreateFunction("Decrypt"),
             InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC"),
             InfoDocumentId.CreateMechanismParameter("AES-CBC", "IV")
         };

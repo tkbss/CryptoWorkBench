@@ -50,6 +50,62 @@ namespace CryptoScript.CryptoAlgorithm
             finally { CryptographicOperations.ZeroMemory(buffer); }
         }
 
+        internal static void ValidateCiphertextLength(long length)
+        {
+            if (length < 16 || length % 16 != 0)
+                throw new InvalidDataException("CWE ciphertext length must be a non-zero multiple of 16 bytes.");
+        }
+
+        internal static void DecryptStream(Stream source, Stream destination,
+            Aes aes, ParameterVariableDeclaration parameter, CancellationToken token)
+        {
+            string padding = parameter.GetParameter("PAD").ToUpperInvariant();
+            if (padding is not ("PKCS-7" or "NONE"))
+                throw new ArgumentException("Decrypt(PATH) supports only PKCS-7 and NONE padding.");
+            long expectedEnd = source.Length;
+            long expected = expectedEnd - source.Position, count = 0;
+            ValidateCiphertextLength(expected);
+            _ = new AES_CBC().Pad(parameter, out var mode, Array.Empty<byte>(), "Decrypt");
+            aes.Padding = mode;
+            using var transform = aes.CreateDecryptor();
+            byte[] input = new byte[65536], output = new byte[65552];
+            byte[]? final = null;
+            try
+            {
+                // Fill each chunk across short reads to keep transform inputs block-aligned.
+                while (count < expected)
+                {
+                    token.ThrowIfCancellationRequested();
+                    int size = (int)Math.Min(input.Length, expected - count);
+                    int filled = 0;
+                    while (filled < size)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        int read = source.Read(input, filled, size - filled);
+                        if (read == 0) throw new IOException("CWE source changed during decryption.");
+                        filled += read;
+                    }
+                    token.ThrowIfCancellationRequested();
+                    int written = transform.TransformBlock(input, 0, size, output, 0);
+                    destination.Write(output, 0, written);
+                    CryptographicOperations.ZeroMemory(output);
+                    count += size;
+                }
+                token.ThrowIfCancellationRequested();
+                if (source.ReadByte() != -1 || source.Length != expectedEnd)
+                    throw new IOException("CWE source changed during decryption.");
+                final = transform.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                token.ThrowIfCancellationRequested();
+                destination.Write(final);
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(input);
+                CryptographicOperations.ZeroMemory(output);
+                if (final is not null) CryptographicOperations.ZeroMemory(final);
+            }
+        }
+
         internal static byte[] ValidateAndDecodeIv(string iv)
         {
             string format = FormatConversions.ParseString(iv);

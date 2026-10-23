@@ -52,5 +52,6 @@ stable source handle but cannot prevent another process from modifying its bytes
 observed length changes fail, while same-length writes cannot reliably be detected.
 Linux requires procfs and hard-link support. On macOS publication retains the
 existing snapshot trust boundary: hostile writers to the target directory are
-not supported. Failures have no copying fallback. Decrypt(PATH) and Mac(PATH) are
-not implemented in this release.
+not supported. Failures have no copying fallback. Use
+[Decrypt(PATH)](cryptoscript-info://function/Decrypt) to decrypt completed containers.
+Mac(PATH) is not implemented in this release.
