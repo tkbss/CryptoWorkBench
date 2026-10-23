@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CryptoWorkBench.Automation.Abstractions;
 
 namespace CryptoWorkBenchAvalonia.Services.Automation;
 
@@ -21,6 +22,7 @@ internal sealed record ExecutionPresentation(bool Succeeded, string Status,
     internal string PresentationStatus => CaptureFailed
         ? Status + " Variable state capture failed; displayed variables are stale."
         : Status;
+    internal ExecutionState Outcome { get; init; }
 }
 internal sealed record ExecutionOutput(string Kind, string Text);
 internal sealed record SyntaxDiagnostic(string Line, string Column, string Symbol, string Message);
@@ -28,10 +30,20 @@ internal sealed record SyntaxDiagnostic(string Line, string Column, string Symbo
 /// <summary>Runs one parse unit within an already admitted host operation.</summary>
 internal sealed class WorkbenchExecutionPipeline
 {
+    internal CancellationToken ExecutionToken { get; init; }
+    internal Action<ExecutionPresentation>? Publish { get; init; }
+    internal Action<bool>? WaitingForUser { get; init; }
+    internal Action<CancellationReason>? CancellationObserved { get; init; }
+    internal Action? BeforeRunnerStart { get; set; }
     internal async Task<ExecutionPresentation> ExecuteAsync(string text, PasswordRequestHandler passwordHost,
         CancellationToken token, CryptoScriptRunner? testRunner = null,
         IEnumerable<StatementNode?>? testStatements = null)
     {
+        if (Publish is not null) token = ExecutionToken;
+        if (token.IsCancellationRequested)
+            return Finish(FinalizePresentation(false, "Script execution cancelled.", null,
+                Array.Empty<SemanticError>(), null, Array.Empty<ExecutionOutput>(),
+                Array.Empty<SyntaxDiagnostic>(), false) with { Outcome = ExecutionState.Cancelled });
         string? syntax = null;
         IReadOnlyList<SyntaxDiagnostic> syntaxDiagnostics = Array.Empty<SyntaxDiagnostic>();
         var context = InterpreterExecution.AccessState(() =>
@@ -54,16 +66,23 @@ internal sealed class WorkbenchExecutionPipeline
             return parsed;
         });
         if (syntax is not null)
-            return FinalizePresentation(false, syntax, null, Array.Empty<SemanticError>(), null,
-                Array.Empty<ExecutionOutput>(), syntaxDiagnostics);
+            return Finish(FinalizePresentation(false, syntax, null, Array.Empty<SemanticError>(), null,
+                Array.Empty<ExecutionOutput>(), syntaxDiagnostics, false) with { Outcome = ExecutionState.SyntaxError });
 
         var runner = testRunner ?? new CryptoScriptRunner();
+        var previousExecution = runner.ExecutionId;
         var pending = new List<Task<PasswordResponse>>();
         Task<PasswordResponse> Request(object sender, PasswordRequestEventArgs request)
         {
-            var task = passwordHost(sender, request);
-            if (task is not null) pending.Add(task);
-            return task!;
+            WaitingForUser?.Invoke(true);
+            async Task<PasswordResponse> AwaitResponse()
+            {
+                try { return await passwordHost(sender, request).ConfigureAwait(false); }
+                finally { WaitingForUser?.Invoke(false); }
+            }
+            var task = AwaitResponse();
+            pending.Add(task);
+            return task;
         }
         var output = new List<ExecutionOutput>();
         void Print(string text) { lock (output) output.Add(new("print", text)); }
@@ -72,23 +91,31 @@ internal sealed class WorkbenchExecutionPipeline
         OutputOperations.PrintEvent += Print;
         OutputOperations.InfoEvent += Info;
         bool succeeded = false;
+        ExecutionState outcome = ExecutionState.Failed;
         string status;
         SemanticError? error = null;
         try
         {
             try
             {
+                BeforeRunnerStart?.Invoke();
                 if (testStatements is null) await runner.ExecuteAsync(context, token).ConfigureAwait(false);
                 else await runner.ExecuteAsync(testStatements, token).ConfigureAwait(false);
                 succeeded = true;
+                outcome = ExecutionState.Completed;
                 status = "Line successfull parsed";
             }
-            catch (SecurePasswordCancelledException) { status = "Script execution cancelled by user."; }
-            catch (OperationCanceledException) when (token.IsCancellationRequested) { status = "Script execution cancelled."; }
+            catch (SecurePasswordCancelledException)
+            {
+                CancellationObserved?.Invoke(CancellationReason.User);
+                outcome = ExecutionState.Cancelled; status = "Script execution cancelled by user.";
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { outcome = ExecutionState.Cancelled; status = "Script execution cancelled."; }
             catch (Exception failure)
             {
                 status = failure is SemanticErrorException ? "Script execution aborted (semantic error)." : "Script execution failed.";
                 error = (failure as SemanticErrorException)?.SemanticError;
+                outcome = failure is SemanticErrorException ? ExecutionState.Aborted : ExecutionState.Failed;
             }
         }
         finally
@@ -102,6 +129,7 @@ internal sealed class WorkbenchExecutionPipeline
                 catch { /* Observe faults without retaining host exception text. */ }
             }
             runner.PasswordRequested -= Request;
+            WaitingForUser?.Invoke(false);
             OutputOperations.PrintEvent -= Print;
             OutputOperations.InfoEvent -= Info;
         }
@@ -112,13 +140,15 @@ internal sealed class WorkbenchExecutionPipeline
             int index = runner.Diagnostics.ToList().FindIndex(item => ReferenceEquals(item, error));
             if (index >= 0) errorCopy = diagnostics[index];
         }
-        return FinalizePresentation(succeeded, status, runner.RunnerId, Array.AsReadOnly(diagnostics), errorCopy,
-            output.AsReadOnly(), syntaxDiagnostics);
+        return Finish(FinalizePresentation(succeeded, status, runner.RunnerId, Array.AsReadOnly(diagnostics), errorCopy,
+            output.AsReadOnly(), syntaxDiagnostics, runner.ExecutionId != previousExecution) with { Outcome = outcome });
     }
+
+    private ExecutionPresentation Finish(ExecutionPresentation result) { Publish?.Invoke(result); return result; }
 
     private static ExecutionPresentation FinalizePresentation(bool succeeded, string status, Guid? runnerId,
         IReadOnlyList<SemanticError> diagnostics, SemanticError? error,
-        IReadOnlyList<ExecutionOutput> output, IReadOnlyList<SyntaxDiagnostic> syntaxDiagnostics)
+        IReadOnlyList<ExecutionOutput> output, IReadOnlyList<SyntaxDiagnostic> syntaxDiagnostics, bool executionStarted)
     {
         IReadOnlyList<VariableModel> variables = Array.Empty<VariableModel>();
         bool captureFailed = false;
@@ -130,7 +160,7 @@ internal sealed class WorkbenchExecutionPipeline
             captureFailed = true;
         }
         return new(succeeded, status, runnerId, diagnostics, error, variables, output, syntaxDiagnostics,
-            captureFailed, EffectsPossible: runnerId.HasValue);
+            captureFailed, EffectsPossible: executionStarted);
     }
 
     private static SemanticError Copy(SemanticError source) => new()

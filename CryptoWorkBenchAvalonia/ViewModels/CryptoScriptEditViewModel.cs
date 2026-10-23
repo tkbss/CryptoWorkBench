@@ -10,6 +10,7 @@ using CryptoWorkBenchAvalonia.Services;
 using Prism.Navigation.Regions;
 using System;
 using System.IO;
+using System.Linq;
 
 using System.Text;
 using System.Collections.Generic;
@@ -184,12 +185,12 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 {
                     await OnUiAsync(() => BeginLine(line));
                     var result = await pipeline.ExecuteAsync(line, passwordHandler ?? _passwordHost.RequestAsync,
-                        linked.Token, runner, testStatements).ConfigureAwait(false);
+                        pipeline.ExecutionToken, runner, testStatements).ConfigureAwait(false);
                     bool succeeded = false;
                     // Background priority drains already posted Print/Info before presentation.
                     await OnUiAsync(() => succeeded = Present(result, scriptBookLine));
                     return succeeded;
-                }, linked.Token);
+                }, linked.Token, "guiLine\0" + line);
             }
             catch (OperationCanceledException) when (linked.IsCancellationRequested)
             { _statusViewModel.StatusString = "Script execution cancelled."; return false; }
@@ -210,7 +211,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             {
                 await _automation.RunAsync(async pipeline =>
                 {
-                    var lines = await File.ReadAllLinesAsync(filePath, linked.Token).ConfigureAwait(false);
+                    var lines = await File.ReadAllLinesAsync(filePath, pipeline.ExecutionToken).ConfigureAwait(false);
                     if (clear)
                     {
                         var variables = WorkbenchAutomationService.ClearAdmitted();
@@ -221,10 +222,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                         });
                     }
                     bool success = await ExecuteBookAdmittedAsync(pipeline, lines, line =>
-                        _textEditor!.Document.Insert(_textEditor.Document.TextLength, line + "\n"), linked.Token);
+                        _textEditor!.Document.Insert(_textEditor.Document.TextLength, line + "\n"), pipeline.ExecutionToken);
                     await OnUiAsync(() => { LastScriptBookSucceeded = success; _textEditor!.IsModified = true; });
                     return success;
-                }, linked.Token);
+                }, linked.Token, "scriptBookFile\0" + filePath + "\0" + clear);
             }
             finally { bookActive = false; }
         }
@@ -241,9 +242,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, cancellationToken);
             try
             {
+                var acceptedLines = lines.ToArray();
                 LastScriptBookSucceeded = await _automation.RunAsync(pipeline =>
-                    ExecuteBookAdmittedAsync(pipeline, lines, appendLine, linked.Token, runnerFactory,
-                        testStatements, passwordHandler), linked.Token);
+                    ExecuteBookAdmittedAsync(pipeline, acceptedLines, appendLine, pipeline.ExecutionToken, runnerFactory,
+                        testStatements, passwordHandler), linked.Token, "scriptBook\0" + string.Join("\n", acceptedLines));
             }
             finally { bookActive = false; }
         }

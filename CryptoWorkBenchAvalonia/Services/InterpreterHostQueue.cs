@@ -12,9 +12,10 @@ internal static class InterpreterHostQueue
     private static readonly AsyncLocal<bool> WithinJob = new();
     internal static bool IsBusy => Queue.CurrentCount == 0 || InterpreterExecution.IsBusy;
 
-    private static IDisposable Reserve()
+    internal static IDisposable Reserve()
     {
         if (WithinJob.Value || !Queue.Wait(0)) throw new ExecutionBusyException();
+        if (InterpreterExecution.IsBusy) { Queue.Release(); throw new ExecutionBusyException(); }
         return new Reservation();
     }
 
@@ -26,6 +27,23 @@ internal static class InterpreterHostQueue
         try
         {
             return await Task.Run(() => InterpreterExecution.RunAsync(job, token), token).ConfigureAwait(false);
+        }
+        finally { WithinJob.Value = false; }
+    }
+
+    // Reservation was acquired atomically with the service registry entry.
+    // Never schedule an accepted task with a cancellable Task.Run token.
+    internal static async Task<T> RunAdmittedAsync<T>(Func<Task<T>> job)
+    {
+        // The service owns the reservation through registry/resource finalization.
+        WithinJob.Value = true;
+        try
+        {
+            Task<T> execution;
+            // Accepted jobs do not retain caller AsyncLocals (including future HTTP scopes).
+            using (ExecutionContext.SuppressFlow())
+                execution = Task.Run(() => InterpreterExecution.RunAsync(job, CancellationToken.None));
+            return await execution.ConfigureAwait(false);
         }
         finally { WithinJob.Value = false; }
     }

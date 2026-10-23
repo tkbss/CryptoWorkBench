@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CryptoScript\CryptoScript.csproj" />
+    <ProjectReference Include="..\CryptoWorkBench.Automation.Abstractions\CryptoWorkBench.Automation.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

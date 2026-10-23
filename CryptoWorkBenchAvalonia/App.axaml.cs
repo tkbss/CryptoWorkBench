@@ -65,6 +65,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IInfoDocumentationProvider, FileInfoDocumentationProvider>();
 
         containerRegistry.RegisterInstance(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
+        containerRegistry.RegisterInstance<CryptoWorkBench.Automation.Abstractions.IWorkbenchAutomationService>(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
         containerRegistry.RegisterSingleton<MainViewModel>();
         containerRegistry.RegisterSingleton<InfoViewModel>();
         containerRegistry.RegisterSingleton<VariableViewModel>();

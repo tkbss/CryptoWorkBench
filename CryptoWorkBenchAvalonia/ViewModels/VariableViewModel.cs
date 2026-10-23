@@ -56,7 +56,7 @@ public class VariableViewModel : ViewModelBase
     public DelegateCommand<ParameterModel> ModifyVariableCommand { get; }
     public DelegateCommand<VariableModel> ModifyValueCommand { get; }
 
-    public void SetupVariables() => WorkbenchAutomationService.Shared.Mutate(() => { }, ApplyVariables);
+    public void SetupVariables() => WorkbenchAutomationService.Shared.Refresh(ApplyVariables);
 
     private bool isSnapshotStale;
     public bool IsSnapshotStale
