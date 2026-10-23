@@ -39,7 +39,10 @@ namespace CryptoScript.Model
         {
             string output = "out: " + args[0];
             if (PrintEvent != null)
+            {
+                using var callback = InterpreterExecution.HostOutputCallback();
                 PrintEvent?.Invoke(output);
+            }
             Console.WriteLine(output);
             return new VariableDeclaration();
         }
@@ -51,7 +54,10 @@ namespace CryptoScript.Model
                 Console.WriteLine("No info available");
 
             if (InfoEvent != null)
+            {
+                using var callback = InterpreterExecution.HostOutputCallback();
                 InfoEvent?.Invoke(output);
+            }
             Console.WriteLine(output);
             return new VariableDeclaration();
         }
