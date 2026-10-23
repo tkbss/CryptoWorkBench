@@ -49,3 +49,33 @@ PARAM p1       = Parameters(#MECH:DES3-RETAIL, #PAD:ISO-9797-M2,#MACLEN:"4")
 VAR macshort   = Mac(p1, k1, 0x(0011223344556677))  
 
 ---
+
+### Streaming Retail-MAC reference calculation
+
+This example requires the repository binary fixture at the stated path.
+
+```text
+KEY k = GenerateKey(DES3-RETAIL,0x(000102030405060708090A0B0C0D0E0F))
+PARAM p = Parameters(DES3-RETAIL,#PAD:ISO-9797-M2,#MACLEN:"8")
+PATH source = "docs/F03.2-reference/records.bin"
+VAR tag = Mac(p,k,source)
+```
+
+Mac(PATH) processes the same raw bytes as Mac(VAR), with no text conversion.
+DES-CBC under K1 starts from zero. After the final padded block the state is
+DES-decrypted with K2 and DES-encrypted with K3 (or K1 for a 16-byte key).
+The leftmost 4–8 bytes are returned. There is no external IV. Only M1 and M2 are
+accepted, with padding applied once for the complete stream: M1 maps empty input
+to a zero block and adds no block to aligned nonempty data; M2 appends 0x80 and
+zeroes, always adding a block when aligned. Key-quality checks remain active.
+
+See `docs/F03.2-reference/` for full reproducible configurations, binary files and
+independently computed expected tags. POS/HP-NonStop systems must provide the same
+bytes including NUL, CR/LF and record framing. No ASCII/EBCDIC conversion, automatic
+record extension or truncation occurs. Published keys are test material only.
+
+Retail-MAC is supplied for legacy reference and interoperability work. Its DES
+block size, key strength and truncated tags constrain security; it is not a
+general recommendation for new protocols. Mac(PATH) returns VAR and writes no
+files or containers. Future F04 MacPack/MacVerify are separate container operations
+and are not implemented here.

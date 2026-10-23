@@ -59,3 +59,37 @@ PARAM p1       = Parameters(#MECH:DES3-CBC, #PAD:ISO-9797-M2,#MACLEN:"4")
 VAR macshort   = Mac(p1, k1, 0x(0011223344556677))  
 
 ---
+
+### Streaming CBC-MAC reference calculation
+
+This example requires the repository binary fixture at the stated path.
+
+```text
+KEY k = GenerateKey(DES3-CBC,0x(000102030405060708090A0B0C0D0E0F))
+PARAM p = Parameters(DES3-CBC,#PAD:ISO-9797-M3,#MACLEN:"8")
+PATH source = "docs/F03.2-reference/records.bin"
+VAR tag = Mac(p,k,source)
+```
+
+Mac(PATH) authenticates raw file bytes with the same definition as Mac(VAR).
+The MAC always uses a zero IV, ignoring the encryption IV; Encrypt/Decrypt are
+unchanged. Keys contain 16 or 24 bytes, MAC length is 4–8 leftmost bytes, block
+size is 8 bytes. All eight deterministic paddings described above are supported;
+ISO-10126 is rejected for MAC. Padding is applied only once at the end of the
+whole message. Missing/invalid padding is rejected. NONE requires nonempty aligned
+input. M1 adds no block to aligned nonempty data but maps empty input to a zero
+block; M2 and the other length/marker paddings append a block when aligned.
+
+M3 first processes the original bit length as an 8-byte big-endian block, then
+zero-padded data (one zero data block for empty input). It obtains length from the
+opened source handle and rejects overflow, unavailable length, observed size
+changes and early EOF. Use stable files; concurrent same-size edits are not
+excluded on every platform. Key quality diagnostics remain active.
+
+`docs/F03.2-reference/` contains independently calculated expected tags and binary
+fixtures. Transfer unchanged bytes, including NUL, CR/LF and record framing; no
+ASCII/EBCDIC conversion or record padding/truncation occurs. DES3/CBC-MAC is a
+legacy reference/interoperability mechanism, not a general recommendation for
+new protocols. Variable-length CBC-MAC and truncated tags need specific security
+analysis. Mac returns VAR without producing a file; future F04 MacPack/MacVerify
+are separate, not implemented container operations.

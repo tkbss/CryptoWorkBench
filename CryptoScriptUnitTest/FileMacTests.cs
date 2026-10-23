@@ -30,7 +30,10 @@ public class FileMacTests
     private (ParameterVariableDeclaration P, KeyVariableDeclaration K, PathVariableDeclaration S) Inputs(string mechanism = "AES-CMAC")
     {
         var algorithm = AlgorithmFactory.Create(mechanism);
-        var p = algorithm.GenerateParameters(mechanism); p.Id = "p";
+        var p = mechanism == "AES-GMAC"
+            ? algorithm.GenerateParameters(mechanism, ["#NONCE:0x(000102030405060708090A0B)"])
+            : algorithm.GenerateParameters(mechanism);
+        p.Id = "p";
         var k = algorithm.GenerateKey(mechanism, "0x(0123456789ABCDEFFEDCBA9876543210)"); k.Id = "k";
         var s = new PathVariableDeclaration { Id = "source", Type = new CryptoTypePath(), Value = Path.Combine(directory, "input.bin") };
         foreach (var v in new VariableDeclaration[] { p, k, s }) VariableDictionary.Instance().Add(v);
@@ -112,6 +115,12 @@ public class FileMacTests
         Assert.That(Directory.GetFiles(directory).Length, Is.EqualTo(2));
     }
     [TestCase("AES-GMAC")] [TestCase("AES-CBC-MAC")] [TestCase("DES3-CBC")] [TestCase("DES3-RETAIL")]
+    public void F032MechanismsNowSupportFiles(string mechanism)
+    {
+        var (p,k,s) = Inputs(mechanism); File.WriteAllBytes(s.Value, [0, 1, 0]);
+        Assert.That(FileMacCoordinator.Mac(Args(p,k,s),s).Type, Is.TypeOf<CryptoTypeVar>());
+        Assert.That(Directory.GetFiles(directory), Is.EqualTo(new[] { s.Value }));
+    }
     [TestCase("EP2-MESSAGE-MAC")] [TestCase("MAC-EMV-AC")]
     public void OutOfScopeMechanismsRejected(string mechanism)
     {

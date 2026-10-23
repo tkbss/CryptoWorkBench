@@ -37,4 +37,5 @@
 
   <ItemGroup><None Update="Fixtures\SecureSave\*.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
   <ItemGroup><None Include="..\docs\F01-reference.hex" Link="Fixtures\F01-reference.hex" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup><None Include="..\docs\F03.2-reference\*.json;..\docs\F03.2-reference\*.bin" Link="Fixtures\F03.2\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
 </Project>

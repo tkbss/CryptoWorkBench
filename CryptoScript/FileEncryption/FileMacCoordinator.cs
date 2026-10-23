@@ -8,6 +8,7 @@ using CryptoScript.Variables;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Macs;
+using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 
 namespace CryptoScript.FileEncryption;
@@ -15,7 +16,8 @@ namespace CryptoScript.FileEncryption;
 internal static class FileMacCoordinator
 {
     internal static bool Supports(MechanismRegistryEntry entry) => entry.Supports(CryptoScriptFunction.Mac) &&
-        (entry.GeneratedKeyAlgorithm == KeyAlgorithm.Hmac || entry.CanonicalName is "AES-CMAC" or "DES3-CMAC");
+        (entry.GeneratedKeyAlgorithm == KeyAlgorithm.Hmac || entry.CanonicalName is
+            "AES-CMAC" or "DES3-CMAC" or "AES-GMAC" or "AES-CBC-MAC" or "DES3-CBC" or "DES3-RETAIL");
 
     internal static StringVariableDeclaration Mac(AlgorithmCallArguments arguments,
         PathVariableDeclaration path, CancellationToken token = default)
@@ -25,7 +27,7 @@ internal static class FileMacCoordinator
         string sourcePath = SnapshotByteFilePublisher.ValidatePath(path);
         using var publication = new FilePublication(Path.GetDirectoryName(sourcePath)!);
         using var source = publication.OpenSource(Path.GetFileName(sourcePath));
-        return Read(source, macState.Mac, token);
+        return Read(source, macState, token);
     }
 
     // Stream seam tests failures and cancellation without replacing secure production opening.
@@ -34,7 +36,7 @@ internal static class FileMacCoordinator
     {
         token.ThrowIfCancellationRequested();
         using var state = Prepare(arguments);
-        return Read(source, state.Mac, token);
+        return Read(source, state, token);
     }
 
     private static MacState Prepare(AlgorithmCallArguments arguments)
@@ -58,6 +60,20 @@ internal static class FileMacCoordinator
                 DES3.ValidateUsableKey(bytes);
             }
             if (algorithm == KeyAlgorithm.Aes) AES_ECB.ValidateKeyLength(bytes);
+            if (entry.CanonicalName is "AES-CBC-MAC" or "DES3-CBC" or "DES3-RETAIL")
+                return new MacState(new StreamingBlockMac(parameters, bytes));
+            if (entry.CanonicalName == "AES-GMAC")
+            {
+                string value = parameters.GetParameter("NONCE");
+                byte[] nonce = FormatConversions.ToByteArray(value, FormatConversions.ParseString(value));
+                try
+                {
+                    var gmac = new GMac(new GcmBlockCipher(new AesEngine()));
+                    gmac.Init(new ParametersWithIV(new KeyParameter(bytes), nonce));
+                    return new MacState(gmac);
+                }
+                finally { CryptographicOperations.ZeroMemory(nonce); }
+            }
             IMac mac = algorithm switch
             {
                 KeyAlgorithm.Aes => new CMac(new AesEngine()),
@@ -70,21 +86,24 @@ internal static class FileMacCoordinator
         finally { CryptographicOperations.ZeroMemory(bytes); }
     }
 
-    private static StringVariableDeclaration Read(Stream source, IMac mac, CancellationToken token)
+    private static StringVariableDeclaration Read(Stream source, MacState mac, CancellationToken token)
     {
         byte[] buffer = new byte[65536];
-        byte[] result = new byte[mac.GetMacSize()];
+        byte[] result = new byte[mac.Size];
         try
         {
+            mac.Begin(source);
             while (true)
             {
                 token.ThrowIfCancellationRequested();
                 int count = source.Read(buffer, 0, buffer.Length);
                 token.ThrowIfCancellationRequested();
-                if (count == 0) break;
-                mac.BlockUpdate(buffer, 0, count);
+                if (count == 0) { mac.CheckLength(source, true); break; }
+                mac.Update(buffer, count);
+                mac.CheckLength(source, false);
             }
-            mac.DoFinal(result, 0);
+            mac.Finish(result);
+            mac.CheckLength(source, true);
             token.ThrowIfCancellationRequested();
             string value = FormatConversions.ByteArrayToHexString(result);
             return new StringVariableDeclaration { Value = value,
@@ -98,9 +117,23 @@ internal static class FileMacCoordinator
     }
 
     // Bouncy Castle does not expose key schedule erasure; Reset is not an erasure guarantee.
-    private sealed class MacState(IMac mac) : IDisposable
+    private sealed class MacState : IDisposable
     {
-        internal IMac Mac { get; } = mac;
-        public void Dispose() => Mac.Reset();
+        private readonly IMac? mac;
+        private readonly StreamingBlockMac? block;
+        internal MacState(IMac mac) => this.mac = mac;
+        internal MacState(StreamingBlockMac block) => this.block = block;
+        internal int Size => mac?.GetMacSize() ?? block!.MacSize;
+        internal void Begin(Stream source) => block?.Begin(source);
+        internal void CheckLength(Stream source, bool end) => block?.CheckLength(source, end);
+        internal void Update(byte[] bytes, int count)
+        {
+            if (mac is not null) mac.BlockUpdate(bytes, 0, count); else block!.Update(bytes, count);
+        }
+        internal void Finish(byte[] result)
+        {
+            if (mac is not null) mac.DoFinal(result, 0); else block!.Finish(result);
+        }
+        public void Dispose() { mac?.Reset(); block?.Dispose(); }
     }
 }

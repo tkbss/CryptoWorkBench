@@ -92,3 +92,19 @@ shared check value again is ambiguous. Short prefixes can also match unrelated k
 See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
 
 `TR31H header = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)` creates a reusable definition. Pass it as `#BLKH:header`; Wrap computes KBLEN without modifying the definition. For WRAP-DES3-TR31 use A/B/C and ALGO:T.
+
+## MAC over a binary file
+
+`VAR tag = Mac(p,k,source)` accepts a declared `PATH source` and authenticates the
+raw file bytes incrementally, using a fixed 64-KiB read buffer. The complete file
+is not converted to hexadecimal. `Mac(VAR)` continues to authenticate decoded
+in-memory data. A VAR or string literal containing a filename is data, not a PATH.
+Only direct PATH calls returning VAR are allowed; nested calls and nested argument
+calls are rejected. No output file or CWE container is created. Future F04
+MacPack/MacVerify container operations are separate and are not implemented here.
+
+For external POS/HP-NonStop comparisons, transfer files in binary mode. Do not
+convert ASCII/EBCDIC, translate CR/LF, strip NUL bytes or record delimiters, or
+pad/truncate records. Both systems must authenticate the identical byte stream,
+including any record-framing bytes. Reproducible fixtures and complete key,
+parameter and expected-tag records are in `docs/F03.2-reference/`.

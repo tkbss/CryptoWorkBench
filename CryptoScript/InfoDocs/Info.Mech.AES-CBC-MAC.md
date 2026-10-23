@@ -77,3 +77,37 @@ The fixed zero IV is part of the CBC-MAC construction and must not be replaced b
 - NIST SP 800-38B, Recommendation for Block Cipher Modes of Operation: The CMAC Mode for Authentication: CMAC security context and truncation guidance.
 
 ---
+
+### Streaming reference calculation: Mac(PATH)
+
+This example requires the repository binary fixture at the stated path.
+
+```text
+KEY k = GenerateKey(AES-CBC-MAC,0x(000102030405060708090A0B0C0D0E0F))
+PARAM p = Parameters(AES-CBC-MAC,#PAD:ISO-9797-M3,#MACLEN:"16")
+PATH source = "docs/F03.2-reference/records.bin"
+VAR tag = Mac(p,k,source)
+```
+
+Mac(PATH) reads raw file bytes; Mac(VAR) uses in-memory bytes. Both return the
+same hexadecimal VAR, without producing files or containers. The fixed zero IV,
+AES-128/192/256 key validation and leftmost 8–16-byte truncation are identical.
+Padding is applied once to the complete message, never once per read buffer.
+All eight deterministic paddings listed above are supported; ISO-10126 is rejected.
+Missing or invalid padding in a manually constructed PARAM is rejected.
+
+For M1, aligned data receives no extra block; empty data becomes one zero block.
+M2/ISO-7816, PKCS-7, ANSI-X923 and TLS-CBC always append padding, including a full
+block for aligned input. M3 prepends a 16-byte big-endian bit-length block (length
+in its rightmost 64 bits) and zero-pads data; empty data includes one zero data
+block. Its length comes from the securely opened file handle. Unavailable lengths,
+bit-length overflow, observed size changes and early EOF fail without an output.
+Concurrent same-size edits cannot be excluded on all operating systems; use stable
+reference files.
+
+The fixture above and its expected tag are in `docs/F03.2-reference/`. Preserve
+all binary bytes, NULs, CR/LF and record framing when exchanging data with POS or
+host systems; no ASCII/EBCDIC conversion occurs. This reference implementation
+is not a recommendation to use CBC-MAC for new protocols: arbitrary variable-length
+messages and truncation require protocol-specific security analysis.
+Future F04 MacPack/MacVerify container operations are separate and not implemented.
