@@ -1,0 +1,17 @@
+<Project>
+  <ItemGroup>
+    <CweVerifiedSource Include="src/AvaloniaHeadlessPlatform.cs" ExpectedHash="982c126a7a76f03863d8045b9d8cefdf89514ba8885ac6c0186e2b102a252bc5" />
+    <CweVerifiedSource Include="src/AvaloniaTestApplicationAttribute.cs" ExpectedHash="60e1bdb0230e08c26a840038f1cbd0a58044cb532670de0092c768ee0b40cef5" />
+    <CweVerifiedSource Include="src/HeadlessPlatformRenderInterface.cs" ExpectedHash="ef8ebf12be05c0e4e6bdc2cf4dc3de64d6180a358f235ca814db0575378c3ade" />
+    <CweVerifiedSource Include="src/HeadlessPlatformStubs.cs" ExpectedHash="5aef68e7b1b7564c7a4f6e6cb6c619c3d70a25e24c247bc64007408d14527e7a" />
+    <CweVerifiedSource Include="src/HeadlessUnitTestIsolationAttribute.cs" ExpectedHash="25d3796a15f43fd46782c134c3c1a19c5fda1d30afb825d7d49901bd1644e593" />
+    <CweVerifiedSource Include="src/HeadlessUnitTestSession.cs" ExpectedHash="7ed2f48e76735e173fa816681c121b0b1aecf29cfb795957447fa8bb0346ef6f" />
+    <CweVerifiedSource Include="src/HeadlessWindowExtensions.cs" ExpectedHash="228612a8a8be32be7351bc59af3c1d95d6231a5f20aa6834fb20059160dd1494" />
+    <CweVerifiedSource Include="src/HeadlessWindowImpl.cs" ExpectedHash="19810053d5f607058a3408927be0bc2a84613c11e037da3dc2ee50658db29b30" />
+    <CweVerifiedSource Include="src/IHeadlessWindow.cs" ExpectedHash="d86f98144688f43b87215c2a185a15683c2d4b1117254f14a50d5a660b5d8d48" />
+    <CweVerifiedMetadata Include="Avalonia.public.snk" ExpectedHash="34d062cd8b0bbdf600f86c7857ec9c1a776bea9be9b94665ef9b6a939de4f518" />
+    <CweVerifiedMetadata Include="LICENSE.md" ExpectedHash="213814d306090074d234d760239ff0f67eb9b8d20eefb4d5631bb39dbe0b769b" />
+    <CweVerifiedMetadata Include="backport.patch" ExpectedHash="8095f56dc2d9e8d1e923c18c9216c3b9df8aac8c7362bb4c6243c9a2c963961e" />
+    <CweVerifiedMetadata Include="upstream-files.json" ExpectedHash="8c8dcedc3fac4517c8d3b1ce2e17dd5ab3bbe739bceffbf49a938367fdb6c00e" />
+  </ItemGroup>
+</Project>

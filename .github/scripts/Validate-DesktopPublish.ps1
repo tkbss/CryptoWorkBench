@@ -83,24 +83,32 @@ if ($RuntimeIdentifier.StartsWith('osx-', [StringComparison]::Ordinal)) {
     $shimName = 'libCryptoScript.FileSystem.dylib'
     Assert-PublishedFile $shimName
     $shimPath = Join-Path $publishRoot $shimName
-    & xcrun lipo -verify_arch x86_64 arm64 $shimPath
+    # -verify_arch consumes every remaining argument as an architecture name.
+    & xcrun lipo $shimPath -verify_arch x86_64 arm64
     if ($LASTEXITCODE -ne 0) { throw 'CWE shim must contain both macOS architectures.' }
+    Write-Host 'Validated CWE shim architectures: x86_64, arm64.'
     & codesign --verify --strict $shimPath
     if ($LASTEXITCODE -ne 0) { throw 'CWE shim code signature is invalid.' }
-    $linkedLibraries = & xcrun otool -L $shimPath
-    if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect CWE shim dependencies.' }
-    $dependencyNames = @($linkedLibraries | Where-Object { $_ -match '\(compatibility version' } |
-        ForEach-Object { ($_.Trim() -split '\s+')[0] } | Sort-Object -Unique)
-    if ($dependencyNames.Count -ne 2 -or
-        '@rpath/libCryptoScript.FileSystem.dylib' -notin $dependencyNames -or
-        '/usr/lib/libSystem.B.dylib' -notin $dependencyNames) {
-        throw "Unexpected CWE native dependencies: $dependencyNames"
+    Write-Host 'Validated CWE shim code signature.'
+    # otool defaults to the host slice. Validate the allowlist on each slice.
+    foreach ($architecture in @('x86_64', 'arm64')) {
+        $linkedLibraries = & xcrun otool -arch $architecture -L $shimPath
+        if ($LASTEXITCODE -ne 0) { throw "Cannot inspect CWE shim dependencies ($architecture)." }
+        $dependencyNames = @($linkedLibraries | Where-Object { $_ -match '\(compatibility version' } |
+            ForEach-Object { ($_.Trim() -split '\s+')[0] } | Sort-Object -Unique)
+        if ($dependencyNames.Count -ne 2 -or
+            '@rpath/libCryptoScript.FileSystem.dylib' -notin $dependencyNames -or
+            '/usr/lib/libSystem.B.dylib' -notin $dependencyNames) {
+            throw "Unexpected CWE native dependencies ($architecture): $dependencyNames"
+        }
+        Write-Host "Validated CWE shim dependencies ($architecture): $dependencyNames"
     }
     # Absolute-path load from the deployed directory, plus both required exports.
     $shimHandle = [Runtime.InteropServices.NativeLibrary]::Load($shimPath)
     try {
         [void] [Runtime.InteropServices.NativeLibrary]::GetExport($shimHandle, 'cwe_openat')
         [void] [Runtime.InteropServices.NativeLibrary]::GetExport($shimHandle, 'cwe_getpath')
+        Write-Host 'Loaded CWE shim from publish directory; both native exports resolved.'
     }
     finally { [Runtime.InteropServices.NativeLibrary]::Free($shimHandle) }
     $nativeCount++

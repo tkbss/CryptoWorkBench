@@ -1,0 +1,64 @@
+{
+  "repository": "https://github.com/AvaloniaUI/Avalonia",
+  "tag": "11.3.20",
+  "commit": "984c3b833f29806eb159fb7f12a6132e936b75df",
+  "upstreamPullRequest": 22222,
+  "upstreamMergeCommit": "52bbf7571f291a3515a7cc9f2cbd6ae865b37e30",
+  "backportIdentity": "11.3.20-cwb.1",
+  "files": [
+    {
+      "file": "src/AvaloniaHeadlessPlatform.cs",
+      "upstreamGitBlob": "ce4a366e75e28e96fce2434408646649c0a74ad1",
+      "upstreamSha256": "982c126a7a76f03863d8045b9d8cefdf89514ba8885ac6c0186e2b102a252bc5",
+      "patchedSha256": "982c126a7a76f03863d8045b9d8cefdf89514ba8885ac6c0186e2b102a252bc5"
+    },
+    {
+      "file": "src/AvaloniaTestApplicationAttribute.cs",
+      "upstreamGitBlob": "c303ea33fa3b4cff6f35064a30efa42a5abb4191",
+      "upstreamSha256": "60e1bdb0230e08c26a840038f1cbd0a58044cb532670de0092c768ee0b40cef5",
+      "patchedSha256": "60e1bdb0230e08c26a840038f1cbd0a58044cb532670de0092c768ee0b40cef5"
+    },
+    {
+      "file": "src/HeadlessPlatformRenderInterface.cs",
+      "upstreamGitBlob": "d018ef491fa3aba3449d856a892b58995ab99154",
+      "upstreamSha256": "ef8ebf12be05c0e4e6bdc2cf4dc3de64d6180a358f235ca814db0575378c3ade",
+      "patchedSha256": "ef8ebf12be05c0e4e6bdc2cf4dc3de64d6180a358f235ca814db0575378c3ade"
+    },
+    {
+      "file": "src/HeadlessPlatformStubs.cs",
+      "upstreamGitBlob": "eaf0dac909ff368bea31d2c74bd8662b9602c491",
+      "upstreamSha256": "5aef68e7b1b7564c7a4f6e6cb6c619c3d70a25e24c247bc64007408d14527e7a",
+      "patchedSha256": "5aef68e7b1b7564c7a4f6e6cb6c619c3d70a25e24c247bc64007408d14527e7a"
+    },
+    {
+      "file": "src/HeadlessUnitTestIsolationAttribute.cs",
+      "upstreamGitBlob": "0a816b98d665aa6b537c4416be245a64527359ef",
+      "upstreamSha256": "25d3796a15f43fd46782c134c3c1a19c5fda1d30afb825d7d49901bd1644e593",
+      "patchedSha256": "25d3796a15f43fd46782c134c3c1a19c5fda1d30afb825d7d49901bd1644e593"
+    },
+    {
+      "file": "src/HeadlessUnitTestSession.cs",
+      "upstreamGitBlob": "65f648b98c1c5b35164e47d9f888fbd5c30c16db",
+      "upstreamSha256": "156ad6595b69ccdc7381fa737bef23da1045a025cfac1e358f6158b1b814ff2d",
+      "patchedSha256": "7ed2f48e76735e173fa816681c121b0b1aecf29cfb795957447fa8bb0346ef6f"
+    },
+    {
+      "file": "src/HeadlessWindowExtensions.cs",
+      "upstreamGitBlob": "b17a1150fcbb3c1b0b8af75bda7ba6d52fabe183",
+      "upstreamSha256": "228612a8a8be32be7351bc59af3c1d95d6231a5f20aa6834fb20059160dd1494",
+      "patchedSha256": "228612a8a8be32be7351bc59af3c1d95d6231a5f20aa6834fb20059160dd1494"
+    },
+    {
+      "file": "src/HeadlessWindowImpl.cs",
+      "upstreamGitBlob": "3bbab3c854009fdd3500f4392aab9362a67b8078",
+      "upstreamSha256": "19810053d5f607058a3408927be0bc2a84613c11e037da3dc2ee50658db29b30",
+      "patchedSha256": "19810053d5f607058a3408927be0bc2a84613c11e037da3dc2ee50658db29b30"
+    },
+    {
+      "file": "src/IHeadlessWindow.cs",
+      "upstreamGitBlob": "2fe11df2ca00be01a5d953ae0ec9e6b57f1ec4f7",
+      "upstreamSha256": "d86f98144688f43b87215c2a185a15683c2d4b1117254f14a50d5a660b5d8d48",
+      "patchedSha256": "d86f98144688f43b87215c2a185a15683c2d4b1117254f14a50d5a660b5d8d48"
+    }
+  ]
+}

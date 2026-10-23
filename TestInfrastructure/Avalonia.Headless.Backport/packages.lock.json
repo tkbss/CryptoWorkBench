@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "Avalonia": {
+        "type": "Direct",
+        "requested": "[11.3.20, 11.3.20]",
+        "resolved": "11.3.20",
+        "contentHash": "nbT+swxCTTvtXxNZC7ZOBGq6GKE5G8PpQ9rDw4+fKvzpbUqPgVVoUfnTGUY+Y+THvuAQN0Xyk/R7flyKYADX0w==",
+        "dependencies": {
+          "Avalonia.BuildServices": "11.3.2",
+          "Avalonia.Remote.Protocol": "11.3.20",
+          "MicroCom.Runtime": "0.11.0"
+        }
+      },
+      "Avalonia.BuildServices": {
+        "type": "Transitive",
+        "resolved": "11.3.2",
+        "contentHash": "qHDToxto1e3hci5YqbG9n0Ty8mlp3zBUN5wT66wKqaDVzXyQ0do3EnRILd4Ke9jpvsktaPpgE0YjEk7hornryQ=="
+      },
+      "Avalonia.Remote.Protocol": {
+        "type": "Transitive",
+        "resolved": "11.3.20",
+        "contentHash": "ZOKQmS0qetctZjK001FNAq8zxH7D3jZk9MkJP3cx7/Z6Ch4C3g0iAzGM/ND7/l6ki2sV/qEHzGvQZ02zB2GYOw=="
+      },
+      "MicroCom.Runtime": {
+        "type": "Transitive",
+        "resolved": "0.11.0",
+        "contentHash": "MEnrZ3UIiH40hjzMDsxrTyi8dtqB5ziv3iBeeU4bXsL/7NLSal9F1lZKpK+tfBRnUoDSdtcW3KufE4yhATOMCA=="
+      }
+    }
+  }
+}
