@@ -15,6 +15,12 @@ namespace CryptoWorkBenchAvalonia.Models
     {
         public  Dictionary<string, List<(string header, string description)>> functionOverloads = new Dictionary<string, List<(string header, string description)>> 
         {
+            { "MacPack", new List<(string, string)> {
+                ("MacPack(parameters, key, source)", "Returns PATH to a new CWM container with a streaming file MAC and HKDF/HMAC-SHA256 authenticated JCS metadata. Requires PARAM, KEY, PATH references.")
+            }},
+            { "MacVerify", new List<(string, string)> {
+                ("MacVerify(parameters, key, container)", "Returns VAL true/false after metadata and file authentication. Requires PARAM, KEY, PATH references; metadata is authenticated before opening the file.")
+            }},
             { "CreateHeader", new List<(string, string)> {
                 ("CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)",
                  "Returns TR31H. Optional KEYVN:00, KEYCTX:0 and repeated OPTID/OPTBD pairs. Wrap computes KBLEN. See Info(tr31attributes).")

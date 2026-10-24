@@ -73,5 +73,4 @@ performed. See `docs/F03.2-reference/vectors.json` for the expected result and
 `README.md` in that directory for external-system instructions and NIST sources.
 
 Mac(VAR) processes in-memory bytes; Mac(PATH) processes raw file bytes with the
-same GMAC definition. Future F04 MacPack/MacVerify are separate container
-operations, not part of this function.
+same GMAC definition. MacPack/MacVerify additionally support authenticated CWM containers; see Info(MacPack).

@@ -77,5 +77,4 @@ record extension or truncation occurs. Published keys are test material only.
 Retail-MAC is supplied for legacy reference and interoperability work. Its DES
 block size, key strength and truncated tags constrain security; it is not a
 general recommendation for new protocols. Mac(PATH) returns VAR and writes no
-files or containers. Future F04 MacPack/MacVerify are separate container operations
-and are not implemented here.
+files or containers. MacPack/MacVerify additionally support authenticated CWM containers; see Info(MacPack).

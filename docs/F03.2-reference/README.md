@@ -90,8 +90,9 @@ management. The generator uses a different explicit nonce per synthetic message.
 CBC-MAC and Retail-MAC are legacy/reference tools, not a recommendation for new
 security protocols. CBC-MAC on variable-length messages, DES's small block size
 and short tags have security limitations. Padding alone does not provide CMAC's
-security properties. Future F04 MacPack/MacVerify are separate container features
-and are not implemented; these calls return hexadecimal VAR only and create no files.
+security properties. The Mac calls documented here return hexadecimal VAR only
+and create no files. MacPack/MacVerify additionally provide authenticated CWM
+containers; see [the F04 report](../F04-implementation-report.md).
 - AES-GMAC: `1142b3e96979a5f1d46c49638acc5fc9`
 - AES-CBC-MAC: `fab4e74f6aecdc77338632f65ea253cf`
 - DES3-CBC: `9538e8ad8ee90eab`

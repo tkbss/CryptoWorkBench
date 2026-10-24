@@ -54,4 +54,5 @@ Linux requires procfs and hard-link support. On macOS publication retains the
 existing snapshot trust boundary: hostile writers to the target directory are
 not supported. Failures have no copying fallback. Use
 [Decrypt(PATH)](cryptoscript-info://function/Decrypt) to decrypt completed containers.
-Mac(PATH) is not implemented in this release.
+Mac(PATH) streams a raw file MAC. MacPack/MacVerify additionally provide
+authenticated CWM containers; see [MacPack](cryptoscript-info://function/MacPack).

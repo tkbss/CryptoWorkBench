@@ -407,6 +407,15 @@ namespace CryptoScript.Model
             FunctionCall functionCall,
             List<SemanticError> semanticErrors)
         {
+            if (call.Name.Equals("MacPack", StringComparison.OrdinalIgnoreCase) ||
+                call.Name.Equals("MacVerify", StringComparison.OrdinalIgnoreCase))
+            {
+                var cwmError = new SemanticError { Type = "FunctionCall", FunctionName = call.Name,
+                    FunctionCall = call.Name + "(<redacted>)", Message = call.Name + " failed.",
+                    DiagnosticCode = SemanticDiagnosticCode.FunctionExecutionFailed };
+                semanticErrors.Add(cwmError);
+                return new SemanticErrorException { SemanticError = cwmError };
+            }
             if (SnapshotOperations.IsSnapshot(call.Name) || DeleteOperations.IsDelete(call.Name))
             {
                 string name = DeleteOperations.IsDelete(call.Name) ? "Delete" : SnapshotOperations.CanonicalName(call.Name);

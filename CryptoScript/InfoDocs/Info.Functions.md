@@ -100,8 +100,7 @@ raw file bytes incrementally, using a fixed 64-KiB read buffer. The complete fil
 is not converted to hexadecimal. `Mac(VAR)` continues to authenticate decoded
 in-memory data. A VAR or string literal containing a filename is data, not a PATH.
 Only direct PATH calls returning VAR are allowed; nested calls and nested argument
-calls are rejected. No output file or CWE container is created. Future F04
-MacPack/MacVerify container operations are separate and are not implemented here.
+calls are rejected. No output file or CWE container is created. For authenticated CWM containers use [MacPack](cryptoscript-info://function/MacPack) and [MacVerify](cryptoscript-info://function/MacVerify): `PATH container = MacPack(p,k,source)` and `VAL valid = MacVerify(p,k,container)`.
 
 For external POS/HP-NonStop comparisons, transfer files in binary mode. Do not
 convert ASCII/EBCDIC, translate CR/LF, strip NUL bytes or record delimiters, or

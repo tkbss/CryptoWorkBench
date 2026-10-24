@@ -39,7 +39,24 @@ internal static class FileMacCoordinator
         return Read(source, state, token);
     }
 
-    private static MacState Prepare(AlgorithmCallArguments arguments)
+    internal static int Validate(AlgorithmCallArguments arguments, bool verify = false)
+    {
+        using var state = Prepare(arguments, verify);
+        return state.Size;
+    }
+
+    internal static (StringVariableDeclaration Mac, long Size) MacOpened(AlgorithmCallArguments arguments,
+        Stream source, CancellationToken token, bool verify = false)
+    {
+        using var state = Prepare(arguments, verify);
+        long length = source.Length;
+        var result = Read(source, state, token);
+        if (source.Position != length || source.Length != length)
+            throw new IOException("MAC source length changed during processing.");
+        return (result, length);
+    }
+
+    private static MacState Prepare(AlgorithmCallArguments arguments, bool verify = false)
     {
         if (arguments.Arguments[0].SourceVariable is not ParameterVariableDeclaration parameters)
             throw new ArgumentException("Mac(PATH) requires a PARAM variable reference.");
@@ -52,8 +69,8 @@ internal static class FileMacCoordinator
         {
             var algorithm = entry!.GeneratedKeyAlgorithm!.Value;
             if (algorithm == KeyAlgorithm.Tdea) DES3.ValidateKeyLength(bytes);
-            KeyMetadataValidator.Validate(key, algorithm, KeyUsage.MacGenerate,
-                "Mac", parameters.Mechanism, arguments.DiagnosticSink);
+            KeyMetadataValidator.Validate(key, algorithm, verify ? KeyUsage.MacVerify : KeyUsage.MacGenerate,
+                verify ? "MacVerify" : "Mac", parameters.Mechanism, arguments.DiagnosticSink);
             if (algorithm == KeyAlgorithm.Tdea)
             {
                 Des3KeyQuality.Report(bytes, key.Id, "Mac", parameters.Mechanism, arguments.DiagnosticSink);

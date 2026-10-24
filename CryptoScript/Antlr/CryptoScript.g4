@@ -29,6 +29,7 @@ declareparam  :  P_POLYNOM ':' polynomialValue
 polynomialValue : {TokenStream.LT(1).Text == "\"SHAMIR-GF256-11B\"" || TokenStream.LT(1).Text == "\"SHAMIR-GF256-11D\""}? NORMAL_STRING;
 shareFormatValue : {TokenStream.LT(1).Text == "\"X-Y\"" || TokenStream.LT(1).Text == "\"Y-X\"" || TokenStream.LT(1).Text == "\"SEPARATE-X\""}? NORMAL_STRING;
 type          : T_SECRET
+              | T_VAL
               | T_KEY
               | T_VAR
               | T_PARAMETER

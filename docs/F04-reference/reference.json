@@ -1,0 +1,23 @@
+{
+  "keyHex": "0123456789ABCDEFFEDCBA9876543210",
+  "sourceHex": "00010080FF0D0A",
+  "canonical": "{\"file\":\"input.bin\",\"mac\":\"EAFD97308ADA075ABAFE430A50F7F7951CAAAEA15CF4E287822B80B15550F4FC\",\"mechanism\":\"HMAC-SHA256\",\"parameters\":{},\"size\":7}",
+  "derivedKeyHex": "2C809233956A961FF13E540A758B0D0CEEC18D7A25BEFCB345F9A3C023D3EA36",
+  "container": {
+    "format": "CWM",
+    "version": 1,
+    "fileMac": {
+      "file": "input.bin",
+      "size": 7,
+      "mechanism": "HMAC-SHA256",
+      "parameters": {},
+      "mac": "EAFD97308ADA075ABAFE430A50F7F7951CAAAEA15CF4E287822B80B15550F4FC"
+    },
+    "metadataAuth": {
+      "mechanism": "HMAC-SHA256",
+      "canonicalization": "RFC8785-JCS",
+      "keyDerivation": "HKDF-SHA256",
+      "mac": "92224F80F8F5232A62BA72765F6B09B7196C69A98BC3878376110D5531F54243"
+    }
+  }
+}

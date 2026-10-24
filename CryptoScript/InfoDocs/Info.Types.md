@@ -5,6 +5,10 @@ List of all types used in CRYPTO-SCRIPT. Upper case lettersfor every type is man
 ---
 
 ## Built-in Types
+- **VAL**: Boolean result of MacVerify, displayed as lowercase true or false. Distinct from VAR.
+  VAL declarations require a Boolean function result; arbitrary literals (including
+  quoted strings) are rejected. Runtime and GUI edits accept only `true` or `false`.
+  VAL is not supported by the existing snapshot formats.
 - **VAR**   : Variable type used to store data such as messages, signatures, ciphertexts, etc.
     - FORMATS: A VAR type can have the following formats:
         - **STRING** : Text format for storing plain text data: "TEXT"

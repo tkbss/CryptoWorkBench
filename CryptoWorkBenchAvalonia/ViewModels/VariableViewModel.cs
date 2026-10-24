@@ -35,6 +35,12 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             var p = v.FirstOrDefault(x => x.Id == SelectedVariable!.Identifier && x.Type!.Name == SelectedVariable.Type);
             if (p != null)
             {
+                if (p is ValVariableDeclaration && SelectedVariable.Value is not ("true" or "false"))
+                {
+                    // Reject the edit without changing the runtime result or throwing on the UI thread.
+                    SelectedVariable.Value = p.Value;
+                    return;
+                }
                 p.Value = SelectedVariable.Value;
                 if(p is ParameterVariableDeclaration pv)
                 {

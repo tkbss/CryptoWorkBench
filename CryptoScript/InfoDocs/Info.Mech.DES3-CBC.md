@@ -91,5 +91,4 @@ fixtures. Transfer unchanged bytes, including NUL, CR/LF and record framing; no
 ASCII/EBCDIC conversion or record padding/truncation occurs. DES3/CBC-MAC is a
 legacy reference/interoperability mechanism, not a general recommendation for
 new protocols. Variable-length CBC-MAC and truncated tags need specific security
-analysis. Mac returns VAR without producing a file; future F04 MacPack/MacVerify
-are separate, not implemented container operations.
+analysis. Mac returns VAR without producing a file; MacPack/MacVerify additionally support authenticated CWM containers; see Info(MacPack).

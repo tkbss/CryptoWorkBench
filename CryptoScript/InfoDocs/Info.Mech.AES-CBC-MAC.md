@@ -110,4 +110,4 @@ all binary bytes, NULs, CR/LF and record framing when exchanging data with POS o
 host systems; no ASCII/EBCDIC conversion occurs. This reference implementation
 is not a recommendation to use CBC-MAC for new protocols: arbitrary variable-length
 messages and truncation require protocol-specific security analysis.
-Future F04 MacPack/MacVerify container operations are separate and not implemented.
+MacPack/MacVerify additionally support authenticated CWM containers; see Info(MacPack).

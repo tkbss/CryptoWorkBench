@@ -20,6 +20,7 @@ namespace CryptoScript.Model
             "Encrypt",
             "Decrypt",
             "Mac",
+            "MacPack", "MacVerify",
             "Wrap",
             "Unwrap",
             "PinBlockTranslate",

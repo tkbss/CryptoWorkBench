@@ -29,6 +29,8 @@ namespace CryptoScript.Model
             if (operation == "load") return SnapshotOperations.Load;
             if (operation == "createheader") return HeaderOperations.CreateHeader;
             var op = algorithmFactory is null ? new CryptoOperations() : new CryptoOperations(algorithmFactory);
+            if (operation == "macpack") return invocation => FileEncryption.CwmCoordinator.Execute(invocation, false);
+            if (operation == "macverify") return invocation => FileEncryption.CwmCoordinator.Execute(invocation, true);
             if (operation == "share") return SecretOperations.Share;
             if (operation == "secret") return SecretOperations.Secret;
             if (operation == "restore") return SecretOperations.Restore;
@@ -72,6 +74,7 @@ namespace CryptoScript.Model
         public static Func<string[], VariableDeclaration> CreateOperation(string operation)
         { 
             operation = operation.ToLower();
+            if (operation is "macpack" or "macverify") return _ => throw new ArgumentException("CWM functions require typed references.");
             if (operation == "secureload") return _ => throw new Serialization.SecureLoadException("AsyncExecutionRequired");
             if (operation == "securesave") return _ => throw new Serialization.SecureSaveException("AsyncExecutionRequired");
             if (operation == "delete") return _ => throw new ArgumentException("Delete requires typed variable references.");

@@ -5,6 +5,7 @@ import TR31Lexer;
 T_KEY         : 'KEY';
 T_SECRET      : 'SECRET';
 T_VAR         : 'VAR';
+T_VAL         : 'VAL';
 T_PARAMETER   : 'PARAM';
 T_PATH        : 'PATH';
 T_TR31H       : 'TR31H';

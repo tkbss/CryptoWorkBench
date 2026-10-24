@@ -28,6 +28,8 @@ namespace CryptoScript.Model
                     return new CryptoTypeTR31Header();
                 case "var":
                     return new CryptoTypeVar();
+                case "val":
+                    return new CryptoTypeVal();
                 case "key":
                     return new CryptoTypeKey();
                 case "secret":
@@ -39,6 +41,11 @@ namespace CryptoScript.Model
                 default: throw new Exception();
             }
         }
+    }
+    public sealed class CryptoTypeVal : CryptoType
+    {
+        public override string Name => "VAL";
+        public CryptoTypeVal() { Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_VAL); }
     }
     public sealed class CryptoTypeSecret : CryptoType
     {

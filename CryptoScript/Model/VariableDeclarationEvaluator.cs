@@ -50,6 +50,14 @@ namespace CryptoScript.Model
                 throw new SemanticErrorException { SemanticError = error };
             }
             var type = CryptoType.Parse(TypeName);
+            if (type is CryptoTypeVal && declaration.Initializer is not FunctionCallExpressionNode)
+            {
+                var error = new SemanticError { Type = "Declaration", Identifier = TypeName,
+                    DiagnosticCode = SemanticDiagnosticCode.InvalidDeclaration,
+                    Message = "VAL requires a Boolean function result (true or false)." };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
             if (type is CryptoTypeKey && declaration.Initializer is null &&
                 declaration.Tr31Header is null && declaration.Parameters.Items.Count == 0)
                 throw InvalidKeyLiteral(semanticErrors);

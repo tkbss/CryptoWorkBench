@@ -141,7 +141,7 @@ public class InfoCompletionProviderTests
         Assert.That(items, Is.SupersetOf(MechanismList.Instance.Mechanisms));
         Assert.That(
             items.Except(new[] { "types", "functions", "mechanisms", "parameters", "pintranslations",
-                "tr31", "CreateHeader", "tr31attributes" }),
+                "tr31", "CreateHeader", "tr31attributes", "MacPack", "MacVerify" }),
             Is.EqualTo(MechanismList.Instance.Mechanisms));
     }
 
