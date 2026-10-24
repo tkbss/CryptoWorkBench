@@ -452,3 +452,7 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Local Codex configuration stays private; commit only the portable template.
+.codex/*
+!.codex/config.toml.example

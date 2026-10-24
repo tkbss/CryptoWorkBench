@@ -1,0 +1,6 @@
+# Example configuration for the local JetBrains Rider MCP server.
+# Copy to .codex/config.toml, then set the port shown by Rider.
+# The localhost endpoint is machine/session-specific; no credentials belong here.
+
+[mcp_servers.rider]
+url = "http://127.0.0.1:64482/stream"
