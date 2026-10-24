@@ -19,6 +19,10 @@ namespace CryptoScript.Variables
 
         internal IReadOnlyList<string> ExplicitParameterNames => explicitParameterNames;
 
+        // Some legacy AES factories normalize explicit padding. File operations must
+        // still reject an invalid declaration without changing existing VAR behavior.
+        internal string? OriginalExplicitPadding { get; set; }
+
         // Snapshot restoration deliberately bypasses setters and BuildValue: those paths
         // rebuild text, change provenance and may add parameters.
         internal static ParameterVariableDeclaration FromSnapshot(string mechanism,

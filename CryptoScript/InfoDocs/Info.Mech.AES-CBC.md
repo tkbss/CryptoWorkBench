@@ -40,7 +40,7 @@ These parameters are used with the AES-CBC mechanism:
 `PATH encrypted = Encrypt(p, k, source)` selects file processing when `source`
 is a declared PATH. It returns the absolute name of a completed `.cwe` container.
 The source and existing outputs remain unchanged; repeated calls use `.1.cwe`,
-`.2.cwe`, etc., choosing the first free number. Only PKCS-7 and NONE are supported
+`.2.cwe`, etc., choosing the first free number. All nine CryptoScript paddings are supported
 for files; NONE requires a nonzero multiple of 16 bytes. A supplied #IV is preserved;
 an automatically generated IV is refreshed for every file without mutating PARAM.
 The actual IV is stored in the versioned header. CBC provides confidentiality only:
@@ -50,7 +50,7 @@ See [Encrypt](cryptoscript-info://function/Encrypt) for contracts and error beha
 ### Binary file decryption
 
 `PATH cleartext = Decrypt(p, k, encrypted)` streams CryptoWorkBenchEncryptedFile
-1.0 containers with AES-128/192/256-CBC and PKCS-7 or NONE. The header supplies IV
+1.0 containers with AES-128/192/256-CBC and all nine paddings. The header supplies IV
 and padding; explicit PARAM values must agree, while generated/default values are
 ignored. PARAM is unchanged. A final `.cwe` is removed from the output name;
 existing outputs cause the first free numeric suffix to be used. The container
@@ -61,6 +61,14 @@ key with NONE can silently produce incorrect plaintext. See
 security boundaries.
     
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+This mechanism does not authenticate file contents or metadata. It is provided
+for reference/legacy analysis, not as a preferred modern file encryption choice.
+
 ## Example Usage  
 ### AES-CBC Encryption and Decryption
 KEY k0         = GenerateKey(AES-CBC, 256)  

@@ -36,6 +36,15 @@ These parameters are used with the AES-CTR mechanism:
 - **Decryption**: Use the same key, nonce and starting counter as for encryption.
 
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+This mechanism does not authenticate file contents or metadata. It is provided
+for reference/legacy analysis, not as a preferred modern file encryption choice.
+File CTR rejects counter wrap; the existing VAR behavior is unchanged.
+
 ## Example Usage
 ### AES-CTR Encryption and Decryption
 KEY k0         = GenerateKey(AES-CTR, 256)  

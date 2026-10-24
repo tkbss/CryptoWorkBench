@@ -15,10 +15,10 @@ PATH encrypted = Encrypt(p, k, source)
 Print(encrypted)
 ```
 
-The file mode currently supports AES-128/192/256-CBC and PKCS-7 or NONE only.
-PKCS-7 accepts empty files and every byte length. NONE requires a nonempty multiple
-of 16 bytes, matching the in-memory mode. Other mechanisms and padding schemes
-remain available in the VAR mode.
+File mode supports AES-CBC and DES3-CBC/ECB with all nine CryptoScript paddings,
+AES-ECB with NONE, and AES-CTR/GCM/CCM without padding. AES keys are 128/192/256
+bits; DES3 keys are 128/192 bits. CBC/DES3 NONE requires a positive block multiple.
+AES-ECB allows an empty file. All other valid combinations accept empty plaintext.
 
 The result is the absolute path of the completed file. The declaration must be
 PATH; a mismatched declaration fails before opening files. File calls cannot be
@@ -32,13 +32,22 @@ version history. At most 1,000,000 candidates are attempted; invalid or overlong
 names fail without truncation.
 
 Each `.cwe` contains a CryptoWorkBenchEncryptedFile 1.0 binary frame, a UTF-8 JSON
-header and binary ciphertext. The header stores the mechanism, padding and actual
-IV, but no key or original path. An explicitly supplied #IV is used exactly.
-When #IV was generated automatically, each file gets a fresh random IV without
-changing PARAM. Reusing an explicit IV is the caller's responsibility.
+header, binary ciphertext and (for GCM/CCM) a separate 16-byte binary tag.
+IV/nonce/counter and optional associated data are stored, never keys or source paths.
+Each operation gets a fresh automatic IV/nonce without changing PARAM. Explicit
+values are preserved; preventing unsafe IV/nonce reuse is the caller's responsibility.
+CTR uses a 12-byte nonce and a four-byte big-endian counter and rejects overflow.
+CCM with the default 12-byte nonce accepts at most 16,777,215 plaintext bytes;
+explicit nonces of 7–13 bytes select the corresponding CCM limit.
 
-**AES-CBC has no integrity protection. Neither metadata nor ciphertext is
-authenticated.** The container does not detect malicious modification.
+GCM/CCM authenticate the exact binary frame and JSON header as AAD, including
+Base64-encoded #ADATA. Their tags therefore differ from VAR tags with only the
+original #ADATA. Block/CTR ciphertext and padding retain VAR semantics. ISO-10126
+contains random filler. M1 stores the original length for lossless PATH restoration.
+
+**CBC, ECB, CTR and DES3 have no integrity protection.** They are reference and
+legacy mechanisms, not preferred modern file encryption. GCM/CCM provide integrity
+but still require appropriate key handling and nonce uniqueness.
 
 Failed processing does not register the result variable or publish partial output.
 Temporary files are removed where permitted. ExecuteAsync cancellation is checked

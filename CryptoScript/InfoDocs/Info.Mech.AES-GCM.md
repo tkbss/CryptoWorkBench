@@ -36,6 +36,14 @@ These parameters are used with the AES-GCM mechanism:
 - **Authentication Tag**: Fixed at 16 bytes (128 bits), appended to the ciphertext. #MACLEN does not change it. Pass the complete ciphertext and tag to Decrypt; input shorter than the tag or an invalid tag is rejected.
 
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+The exact binary CWE header is AAD; #ADATA is stored inside that authenticated
+header. A separate 16-byte tag is verified before plaintext publication.
+
 ## Example Usage
 ### AES-GCM Encryption and Decryption
 KEY k0         = GenerateKey(AES-GCM, 256)  

@@ -43,6 +43,14 @@ These parameters are used with the DES3-ECB mechanism:
 - **Empty Input**: Encrypt rejects an empty string with NONE. ISO-9797-M1 and the other listed padding schemes produce at least one ciphertext block. Decrypt requires non-empty ciphertext whose length is a multiple of 8 bytes.
 
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+This mechanism does not authenticate file contents or metadata. It is provided
+for reference/legacy analysis, not as a preferred modern file encryption choice.
+
 ## Example Usage
 ### DES3-ECB Encryption and Decryption
 KEY k0         = GenerateKey(DES3-ECB, 192)  

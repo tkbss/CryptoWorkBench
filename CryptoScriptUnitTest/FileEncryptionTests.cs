@@ -147,7 +147,8 @@ public class FileEncryptionTests
     }
     [Test] public void UnsupportedPaddingAndMechanismFailWithoutOutput()
     {
-        var source = Source([1]); var (p, k) = Parameters(padding: "ISO-7816");
+        var source = Source([1]); var (p, k) = Parameters();
+        p.SetParameter("PAD", "INVALID");
         Assert.Throws<ArgumentException>(() => FileEncryptCoordinator.Encrypt(Arguments(p, k, source), source));
         p.Mechanism = "AES-GCM";
         Assert.Throws<ArgumentException>(() => FileEncryptCoordinator.Encrypt(Arguments(p, k, source), source)); NoOutput();

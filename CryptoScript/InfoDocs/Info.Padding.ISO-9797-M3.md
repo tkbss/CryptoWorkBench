@@ -172,3 +172,9 @@ ISO/IEC 9797-1:2011/Amd 1:2023 exists and is listed as a published amendment in 
 - ISO/IEC 9797-1:2011, Section 6.3.4, *Padding Method 3*
 - [ISO catalogue: ISO/IEC 9797-1:2011](https://www.iso.org/standard/50375.html)
 - [ISO catalogue: ISO/IEC 9797-1:2011/Amd 1:2023](https://www.iso.org/standard/78748.html)
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.
+PATH validates the full prefix bit-length block and trailing zero padding.

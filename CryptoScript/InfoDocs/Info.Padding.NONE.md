@@ -59,3 +59,10 @@ The resulting ciphertext is `0x(7649ABAC8119B246CEE98E9B12E9197D)`, and `decrypt
 ## References
 
 - [NIST SP 800-38A](https://doi.org/10.6028/NIST.SP.800-38A) specifies the general complete-block requirements of CBC and ECB. It does not define a padding scheme named `NONE`.
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.
+AES-ECB also supports NONE and permits empty input. CBC/DES3 NONE requires a
+positive block multiple; CTR/GCM/CCM use no padding.

@@ -5,7 +5,9 @@ using System.Text.Json;
 namespace CryptoScript.FileEncryption;
 
 internal sealed record EncryptedFileHeader(string Mechanism, string Padding, string Iv,
-    string PayloadEncoding = "binary", string Authentication = "none", int TagLength = 0);
+    string PayloadEncoding = "binary", string Authentication = "none", int TagLength = 0,
+    string? Nonce = null, string? Counter = null, string? CounterEncoding = null,
+    string? AssociatedData = null, string? PlaintextLength = null);
 
 /// <summary>Version 1.0 framing only. No encryption, key material or source paths.</summary>
 internal static class EncryptedFileCodec
@@ -13,7 +15,8 @@ internal static class EncryptedFileCodec
     internal const int MaximumHeaderLength = 4096;
     private static readonly byte[] Magic = "CWBENC\0\0"u8.ToArray();
     private static readonly string[] Fields = ["format", "mechanism", "padding", "iv",
-        "payloadEncoding", "authentication", "tagLength"];
+        "payloadEncoding", "authentication", "tagLength", "nonce", "counter", "counterEncoding",
+        "associatedData", "plaintextLength"];
 
     internal static byte[] Encode(EncryptedFileHeader header)
     {
@@ -30,6 +33,11 @@ internal static class EncryptedFileCodec
             json.WriteString("payloadEncoding", header.PayloadEncoding);
             json.WriteString("authentication", header.Authentication);
             json.WriteNumber("tagLength", header.TagLength);
+            if (header.Nonce is not null) json.WriteString("nonce", header.Nonce);
+            if (header.Counter is not null) json.WriteString("counter", header.Counter);
+            if (header.CounterEncoding is not null) json.WriteString("counterEncoding", header.CounterEncoding);
+            if (header.AssociatedData is not null) json.WriteString("associatedData", header.AssociatedData);
+            if (header.PlaintextLength is not null) json.WriteString("plaintextLength", header.PlaintextLength);
             json.WriteEndObject();
         }
         if (metadata.Length > MaximumHeaderLength) throw new InvalidDataException("CWE header too large.");
@@ -63,32 +71,81 @@ internal static class EncryptedFileCodec
             var root = json.RootElement;
             if (root.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Invalid CWE metadata.");
             var names = root.EnumerateObject().Select(p => p.Name).ToArray();
-            if (names.Length != Fields.Length || names.Distinct(StringComparer.Ordinal).Count() != Fields.Length ||
+            if (names.Length < 7 || names.Distinct(StringComparer.Ordinal).Count() != names.Length ||
                 names.Except(Fields, StringComparer.Ordinal).Any() ||
+                Fields.Take(7).Except(names, StringComparer.Ordinal).Any() ||
                 root.GetProperty("format").GetString() != "CryptoWorkBenchEncryptedFile")
                 throw new InvalidDataException("Invalid CWE metadata fields.");
             var header = new EncryptedFileHeader(root.GetProperty("mechanism").GetString()!,
                 root.GetProperty("padding").GetString()!, root.GetProperty("iv").GetString()!,
                 root.GetProperty("payloadEncoding").GetString()!, root.GetProperty("authentication").GetString()!,
-                root.GetProperty("tagLength").GetInt32());
+                root.GetProperty("tagLength").GetInt32(), Optional("nonce"), Optional("counter"),
+                Optional("counterEncoding"), Optional("associatedData"), Optional("plaintextLength"));
             Validate(header);
             return (header, frame);
+            string? Optional(string name) => root.TryGetProperty(name, out var value)
+                ? value.ValueKind == JsonValueKind.String ? value.GetString()! : throw new InvalidDataException("Expected string.")
+                : null;
         }
         catch (Exception error) when (error is JsonException or DecoderFallbackException or
             InvalidOperationException or FormatException or OverflowException or ArgumentException)
         { throw new InvalidDataException("Invalid CWE metadata.", error); }
     }
 
-    private static void Validate(EncryptedFileHeader header)
+    internal static void Validate(EncryptedFileHeader header)
     {
-        if (header.Mechanism != "AES-CBC" || header.Padding is not ("PKCS-7" or "NONE") ||
-            header.PayloadEncoding != "binary" || header.Authentication != "none" || header.TagLength != 0)
+        if (header.Mechanism is null || header.Padding is null)
+            throw new InvalidDataException("CWE string fields cannot be null.");
+        string m = header.Mechanism;
+        bool cbc = m is "AES-CBC" or "DES3-CBC", des = m.StartsWith("DES3-", StringComparison.Ordinal);
+        bool aead = m is "AES-GCM" or "AES-CCM", ctr = m == "AES-CTR";
+        if (m is not ("AES-CBC" or "AES-ECB" or "AES-CTR" or "AES-GCM" or "AES-CCM" or "DES3-CBC" or "DES3-ECB") ||
+            !CryptoScript.Model.PaddingRegistry.TryGet(header.Padding, out _) ||
+            (!(cbc || des) && header.Padding != "NONE") || header.PayloadEncoding != "binary" ||
+            header.Authentication != (aead ? m[4..] : "none") || header.TagLength != (aead ? 16 : 0))
             throw new InvalidDataException("Unsupported CWE metadata.");
-        byte[] iv;
-        try { iv = Convert.FromBase64String(header.Iv); }
+        int ivLength = Binary(header.Iv).Length;
+        if (ivLength != (cbc ? des ? 8 : 16 : 0)) throw new InvalidDataException("Invalid CWE IV length.");
+        if (aead || ctr)
+        {
+            int n = Binary(header.Nonce).Length;
+            if (ctr && n != 12 || m == "AES-CCM" && (n < 7 || n > 13) || m == "AES-GCM" && n < 1)
+                throw new InvalidDataException("Invalid CWE nonce length.");
+        }
+        else if (header.Nonce is not null) throw new InvalidDataException("Unexpected nonce.");
+        if (ctr)
+        {
+            if (Binary(header.Counter).Length != 4 || header.CounterEncoding != "uint32-be")
+                throw new InvalidDataException("Invalid CWE counter.");
+        }
+        else if (header.Counter is not null || header.CounterEncoding is not null) throw new InvalidDataException("Unexpected counter.");
+        if (header.AssociatedData is not null)
+        {
+            if (!aead) throw new InvalidDataException("Unexpected associated data.");
+            _ = Binary(header.AssociatedData);
+        }
+        if (header.Padding == "ISO-9797-M1") _ = OriginalLength(header);
+        else if (header.PlaintextLength is not null) throw new InvalidDataException("Unexpected plaintext length.");
+    }
+
+    internal static long OriginalLength(EncryptedFileHeader header)
+    {
+        if (!long.TryParse(header.PlaintextLength, System.Globalization.NumberStyles.None,
+            System.Globalization.CultureInfo.InvariantCulture, out long value) || value < 0 ||
+            value.ToString(System.Globalization.CultureInfo.InvariantCulture) != header.PlaintextLength)
+            throw new InvalidDataException("Invalid CWE plaintext length.");
+        return value;
+    }
+
+    private static byte[] Binary(string? text)
+    {
+        try
+        {
+            byte[] bytes = Convert.FromBase64String(text!);
+            if (Convert.ToBase64String(bytes) != text) throw new InvalidDataException("Noncanonical CWE Base64.");
+            return bytes;
+        }
         catch (Exception e) when (e is FormatException or ArgumentNullException)
-        { throw new InvalidDataException("Invalid CWE IV.", e); }
-        if (iv.Length != 16 || Convert.ToBase64String(iv) != header.Iv)
-            throw new InvalidDataException("CWE IV must be canonical padded Base64 of 16 bytes.");
+        { throw new InvalidDataException("Invalid CWE binary field.", e); }
     }
 }

@@ -33,6 +33,14 @@ These parameters are used with the AES-ECB mechanism:
 - **#PAD**: Always NONE. Parameters replaces a supplied padding with NONE, and Encrypt and Decrypt do not apply or remove padding even with directly declared parameters. Non-aligned input is rejected.
 
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+This mechanism does not authenticate file contents or metadata. It is provided
+for reference/legacy analysis, not as a preferred modern file encryption choice.
+
 ## Example Usage
 ### AES-ECB Encryption and Decryption
 KEY k0         = GenerateKey(AES-ECB, 256)  

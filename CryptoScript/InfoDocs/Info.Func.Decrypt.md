@@ -15,16 +15,21 @@ Print(cleartext)
 
 ## Container and parameters
 
-Only CryptoWorkBenchEncryptedFile 1.0 containers are supported: `CWBENC\0\0`
-magic, version 1.0, at most 4096 bytes of strict UTF-8 JSON metadata, AES-CBC,
-binary ciphertext and no authentication tag. Key lengths are 128, 192 or 256 bits.
-Ciphertext must contain at least one complete 16-byte block. PKCS-7 supports empty
-plaintext; NONE retains every plaintext byte and requires complete blocks.
+CryptoWorkBenchEncryptedFile 1.0 supports AES-CBC (all nine paddings), AES-ECB
+(NONE), AES-CTR/GCM/CCM (no padding), and DES3-CBC/ECB (all nine paddings).
+AES keys are 128/192/256 bits; DES3 keys are 128/192 bits. Metadata is strict UTF-8
+JSON, at most 4096 bytes. GCM/CCM have a separate 16-byte tag and authenticate the
+original complete binary header as AAD. #ADATA is embedded in that header.
 
-The stored mechanism, IV and padding describe the file. PARAM must select AES-CBC.
-Explicit #IV and #PAD must match the stored values; IV comparison uses decoded
-bytes. Automatically generated IVs and padding defaults do not cause conflicts.
-The caller's PARAM values and provenance are unchanged.
+PARAM must select the stored mechanism. Explicit #IV, #NONCE, #COUNTER, #ADATA
+and #PAD must match stored values; binary values compare decoded bytes. Automatic
+defaults cause no conflicts. PARAM values and provenance remain unchanged.
+Unsupported parameter/padding combinations are rejected.
+
+M1 uses its stored original length and validates removed zero bytes, preserving
+original trailing zeros; VAR M1 decryption still retains all padded bytes. M3
+validates its full length block and zero suffix. AES-ECB permits empty ciphertext;
+CBC/DES3 require a positive block multiple. AEAD empty plaintext still requires a tag.
 
 ## File names and contracts
 
@@ -46,7 +51,11 @@ permissions and are removed on failure where the filesystem permits.
 
 ## Security boundaries
 
-**AES-CBC has no integrity protection. Header and ciphertext are unauthenticated.**
+GCM/CCM reject altered metadata, ciphertext and tags and wrong keys before publication.
+Unverified plaintext is confined to a private temporary file, removed on failure.
+
+**CBC, ECB, CTR and DES3 have no integrity protection. Header and ciphertext are
+unauthenticated.** These are reference/legacy mechanisms, not preferred modern file encryption.
 Successful padding validation does not establish authenticity or a correct key.
 In particular, NONE can accept a wrong key and produce unusable plaintext without
 an error. Do not treat decryption success as tamper detection.

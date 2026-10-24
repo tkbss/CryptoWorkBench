@@ -46,6 +46,14 @@ These parameters are used with the DES3-CBC mechanism:
 - **CBC-MAC**: Use Mac with #MECH:DES3-CBC. DES3-CBC-MAC is not a separate mechanism name. The listed paddings except ISO-10126 also apply to Mac; ISO-10126 is supported only by Encrypt and Decrypt and is explicitly rejected by CBC-MAC. Empty input is rejected with NONE because no block is produced; ISO-9797-M1 and the other supported padding schemes that produce a block accept empty input.
 
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+This mechanism does not authenticate file contents or metadata. It is provided
+for reference/legacy analysis, not as a preferred modern file encryption choice.
+
 ## Example Usage
 ### DES3-CBC Encryption and Decryption
 KEY k0         = GenerateKey(DES3-CBC, 192)  

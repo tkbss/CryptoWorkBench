@@ -227,3 +227,8 @@ Padding validation alone does not establish authenticity or integrity. Classic T
 - [RFC 4346, TLS 1.1, Section 6.2.3.2](https://www.rfc-editor.org/rfc/rfc4346.html#section-6.2.3.2)
 - [RFC 5246, TLS 1.2, Section 6.2.3.2](https://www.rfc-editor.org/rfc/rfc5246.html#section-6.2.3.2)
 - [RFC 8446, TLS 1.3, Section 5.2](https://www.rfc-editor.org/rfc/rfc8446.html#section-5.2)
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.

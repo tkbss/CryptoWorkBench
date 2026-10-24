@@ -37,6 +37,16 @@ These parameters are used with the AES-CCM mechanism:
 - **Message Length**: CCM uses a length field of 15 minus the nonce length in bytes. With a 13-byte nonce, plaintext must be shorter than 65,536 bytes; with 12 bytes, shorter than 16,777,216 bytes. Input is also limited by the in-memory byte arrays used by CryptoScript.
 
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+The exact binary CWE header is AAD; #ADATA is stored inside that authenticated
+header. A separate 16-byte tag is verified before plaintext publication.
+File CCM uses bounded, length-aware processing. A 12-byte nonce limits plaintext
+to 16,777,215 bytes; explicit 7–13 byte nonces select the CCM length bound.
+
 ## Example Usage
 ### AES-CCM Encryption and Decryption
 KEY k0         = GenerateKey(AES-CCM, 256)  

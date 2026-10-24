@@ -95,6 +95,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 param.RecordExplicitParameter(p.Split(':', 2)[0]);
                 
             }
+            if (param.ExplicitParameterNames.Contains("#PAD", StringComparer.OrdinalIgnoreCase))
+                param.OriginalExplicitPadding = param.GetParameter("PAD");
             SetDefaultParameterValues(param);
             if (param.Mechanism.Equals("AES-CBC", StringComparison.OrdinalIgnoreCase))
                 AES_CBC.ValidateAndDecodeIv(param.GetParameter("IV"));

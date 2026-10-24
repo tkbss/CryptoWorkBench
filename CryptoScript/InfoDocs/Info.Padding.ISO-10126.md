@@ -103,3 +103,10 @@ The foreword of ISO 10126-2:1991 records a historical relationship with ANSI X9.
 - [Microsoft .NET `PaddingMode` documentation](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.paddingmode?view=net-10.0)
 - [.NET `SymmetricPadding` source code](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Security.Cryptography/src/System/Security/Cryptography/SymmetricPadding.cs)
 - [Microsoft .NET `RandomNumberGenerator.Fill` documentation](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.randomnumbergenerator.fill?view=net-10.0)
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.
+Random filler prevents deterministic ciphertext comparisons; one-byte padding
+contains only the length octet and is deterministic.
