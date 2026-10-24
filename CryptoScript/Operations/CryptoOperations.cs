@@ -81,6 +81,15 @@ namespace CryptoScript.Model
         }
         public VariableDeclaration Hash(OperationInvocation invocation)
         {
+            if (invocation.Arguments.Count != 2)
+                throw new ArgumentException("wrong number of arguments");
+            if (invocation.Arguments[1].SourceVariable is PathVariableDeclaration path)
+            {
+                if (invocation.Arguments[0].SourceVariable is not ParameterVariableDeclaration fileParameters ||
+                    invocation.Arguments.Any(a => a.Kind == ResolvedCallArgumentKind.NestedFunctionCall))
+                    throw new ArgumentException("Hash(PATH) requires PARAM, PATH references and no nested arguments.");
+                return FileEncryption.FileHashCoordinator.Hash(fileParameters, path, invocation.CancellationToken);
+            }
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration parameters)
                 MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
                     parameters.Mechanism, parameters, CryptoScriptFunction.Hash);

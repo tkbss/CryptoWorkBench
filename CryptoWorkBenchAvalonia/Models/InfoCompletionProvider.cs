@@ -18,6 +18,7 @@ public sealed class InfoCompletionProvider
     {
         ("tr31", "TR-31 key blocks, versions and transport."),
         ("CreateHeader", "Builds a typed TR31H header with automatic total length."),
+        ("Hash", "Hashes memory data or a binary PATH; returns a complete unkeyed digest."),
         ("MacPack", "Creates an authenticated CWM file MAC container."),
         ("MacVerify", "Verifies CWM metadata and original file; returns VAL."),
         ("tr31attributes", "TR-31 fixed fields and Optional Block reference."),

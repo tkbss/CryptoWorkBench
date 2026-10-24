@@ -147,6 +147,7 @@ namespace CryptoScript.Model
             }
             FileEncryption.FileEncryptionContract.Validate(call, semanticErrors);
             FileEncryption.FileMacContract.Validate(call, semanticErrors);
+            FileEncryption.FileHashContract.Validate(call, semanticErrors);
             ValidateArgumentContracts(call, semanticErrors);
             if (SecureSaveOperations.IsSecureSave(functionName) || SecureLoadOperations.IsSecureLoad(functionName))
             {

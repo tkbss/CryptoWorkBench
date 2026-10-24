@@ -24,6 +24,7 @@ namespace CryptoScript.Model
             {
                 FileEncryption.FileEncryptionContract.Validate(fileCall, semanticErrors, TypeName);
                 FileEncryption.FileMacContract.Validate(fileCall, semanticErrors, TypeName);
+                FileEncryption.FileHashContract.Validate(fileCall, semanticErrors, TypeName);
             }
             if (declaration.Initializer is FunctionCallExpressionNode snapshot &&
                 (Operations.SecureSaveOperations.IsVoidSnapshot(snapshot.Name) || Operations.DeleteOperations.IsDelete(snapshot.Name)))

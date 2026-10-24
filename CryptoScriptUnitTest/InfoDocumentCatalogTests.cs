@@ -79,7 +79,7 @@ public class InfoDocumentCatalogTests
             mechanismDocuments.Select(entry => entry.DocumentId.Mechanism)
                 .Should().Equal(MechanismRegistry.Entries.Select(entry => entry.CanonicalName));
             InfoDocumentCatalog.Entries.Should().HaveCount(
-                MechanismRegistry.Entries.Count + PaddingRegistry.Entries.Count + 4 + 28 + 15 + 5);
+                MechanismRegistry.Entries.Count + PaddingRegistry.Entries.Count + 4 + 28 + 16 + 5);
         });
 
         foreach (MechanismRegistryEntry mechanism in MechanismRegistry.Entries)

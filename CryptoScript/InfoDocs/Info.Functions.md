@@ -11,7 +11,8 @@ Possible Parameters are given in overlay window during typing.
 - Decrypt a message: **VAR d = Decrypt(parameters, key, data)**
 - Decrypt a binary container: **[PATH d = Decrypt(parameters, key, containerPath)](cryptoscript-info://function/Decrypt)** (AES-CBC, PKCS-7/NONE)
 - Compute a message authentication code (MAC): **VAR m = Mac(parameters, key, data)**
-- Compute an unkeyed message digest: **VAR h = Hash(parameters, data)**
+- Compute an unkeyed message digest: **[VAR h = Hash(parameters, data)](cryptoscript-info://function/Hash)**
+- Hash a binary file: **[VAR h = Hash(parameters, sourcePath)](cryptoscript-info://function/Hash)** (direct PARAM, PATH references; all eleven HASH mechanisms)
 - Derive generic keying material: **KEY k = Derive(parameters, key, data)**
 - Generate a key: **KEY k = GenerateKey(mechanism, length)**
 - Find an existing key by check value: **KEY k = Check(value, method)** (method optional)

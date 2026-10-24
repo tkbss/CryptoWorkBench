@@ -280,4 +280,5 @@
   <ItemGroup><None Update="InfoDocs\Info.Func.SecureSave.md;InfoDocs\Info.Func.SecureLoad.md;InfoDocs\Info.Func.Delete.md" CopyToOutputDirectory="Always" /></ItemGroup>
   <Import Project="Native/FilePublication.targets" />
   <ItemGroup><None Update="InfoDocs\Info.Func.MacPack.md;InfoDocs\Info.Func.MacVerify.md" CopyToOutputDirectory="Always" /></ItemGroup>
+  <ItemGroup><None Update="InfoDocs\Info.Func.Hash.md" CopyToOutputDirectory="Always" /></ItemGroup>
 </Project>

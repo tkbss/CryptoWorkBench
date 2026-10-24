@@ -68,6 +68,25 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
+        public void FileHashHelpIsDeployedAndAccessibleThroughInfo()
+        {
+            string document = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", "Info.Func.Hash.md"));
+            string? displayed = null;
+            void Capture(string text) => displayed = text;
+            OutputOperations.InfoEvent += Capture;
+            try { Execute("Info(Hash)"); }
+            finally { OutputOperations.InfoEvent -= Capture; }
+            Assert.That(displayed, Is.EqualTo(document));
+            Assert.That(document, Does.Contain("65,536").And.Contain("Same-length writes"));
+            foreach (object[] entry in Mechanisms)
+            {
+                Assert.That(document, Does.Contain((string)entry[0]));
+                string mechanismDoc = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "InfoDocs", $"Info.Mech.{entry[0]}.md"));
+                Assert.That(mechanismDoc, Does.Contain("cryptoscript-info://function/Hash").And.Contain("PATH reference"));
+            }
+        }
+
+        [Test]
         public void CentralDocumentation_ContainsEveryHashMechanismAndHashFunction()
         {
             string mechanisms = File.ReadAllText(Path.Combine(

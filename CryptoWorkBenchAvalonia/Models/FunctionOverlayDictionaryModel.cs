@@ -15,6 +15,10 @@ namespace CryptoWorkBenchAvalonia.Models
     {
         public  Dictionary<string, List<(string header, string description)>> functionOverloads = new Dictionary<string, List<(string header, string description)>> 
         {
+            { "Hash", new List<(string, string)> {
+                ("Hash(parameters, data)", "Returns VAR with the complete HEX digest of memory data."),
+                ("Hash(parameters, sourcePath)", "Streams a binary file in 65,536-byte blocks. Requires direct PARAM and PATH references; returns VAR. Unkeyed: does not authenticate the source.")
+            }},
             { "MacPack", new List<(string, string)> {
                 ("MacPack(parameters, key, source)", "Returns PATH to a new CWM container with a streaming file MAC and HKDF/HMAC-SHA256 authenticated JCS metadata. Requires PARAM, KEY, PATH references.")
             }},
