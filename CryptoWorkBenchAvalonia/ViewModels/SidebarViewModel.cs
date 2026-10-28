@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
@@ -66,9 +66,10 @@ public class SidebarViewModel : ViewModelBase
     }
 
 
-    private async Task SaveScriptBook() 
+    private Task SaveScriptBook() => _cseVm.SaveScriptBookAsync(SelectSaveTargetAsync);
+
+    private async Task<CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.SaveTarget?> SelectSaveTargetAsync()
     {
-        if (_cseVm.IsExecuting) return;
         
         var docPath= await _window!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         // Create the CryptoScript folder path
@@ -86,7 +87,9 @@ public class SidebarViewModel : ViewModelBase
         if (result != null)
         {
             var filePath = result.Path.LocalPath;
-            if (File.Exists(filePath))
+            bool overwrite = File.Exists(filePath);
+            bool confirmed = false;
+            if (overwrite)
             {
                 var p=new MessageBoxCustomParams
                 {
@@ -106,22 +109,22 @@ public class SidebarViewModel : ViewModelBase
                     
                 var r = await messageBoxStandardWindow.ShowAsync();
 
-                if (r == "No")
+                if (r != "Yes")
                 {
                     _cseVm.Status.StatusString = "Save operation canceled by the user.";
-                    return;
+                    return null;
                 }
                 else
                 {                    
-                    await result.DeleteAsync();
+                    confirmed = true;
                 }
             }
-            _cseVm.SaveScriptBook(filePath);
-            _cseVm.Status.StatusString = "Script book saved in: "+ filePath;
+            return new(filePath, confirmed, overwrite ? () => result.DeleteAsync() : null);
         }
         else
         {
             _cseVm.Status.StatusString = "Script book not saving canceld";
+            return null;
         }
     }
 

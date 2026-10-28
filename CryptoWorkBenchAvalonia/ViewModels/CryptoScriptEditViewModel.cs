@@ -22,7 +22,7 @@ using Avalonia.Threading;
 
 namespace CryptoWorkBenchAvalonia.ViewModels
 {
-    public class CryptoScriptEditViewModel : ViewModelBase, IDisposable
+    public class CryptoScriptEditViewModel : ViewModelBase, IDisposable, IEditorExecutionPresentation
     {
         StatusViewModel _statusViewModel;
         VariableViewModel _variableViewModel;
@@ -39,6 +39,52 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public bool IsExecuting => lineActive || bookActive || _automation.IsBusy;
         private readonly WorkbenchAutomationService _automation;
 
+        internal long EditorLifecycle { get; private set; }
+        private EditorBridge.Registration? _registration;
+        internal void AttachEditor()
+        {
+            if (_textEditor is null) return;
+            _registration = _automation.AttachEditor(_textEditor, this);
+            EditorLifecycle++;
+        }
+        internal void DetachEditor(TextEditor? expectedEditor = null)
+        {
+            if (expectedEditor is not null && !ReferenceEquals(_textEditor, expectedEditor)) return;
+            if (_textEditor is CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor { IdentityLocked: true } guarded)
+            {
+                guarded.AfterIdentity(() => DetachEditor(expectedEditor));
+                return;
+            }
+            if (_registration is not null) _automation.DetachEditor(_registration);
+            _registration = null;
+            EditorLifecycle++;
+            TextEditor = null;
+        }
+        internal WorkbenchAutomationService.SaveIntent? CaptureSaveIntent() => _automation.CaptureSaveIntent();
+        internal Task<CryptoWorkBench.Automation.Abstractions.AutomationErrorCode?> CommitSaveAsync(
+            WorkbenchAutomationService.SaveIntent intent, WorkbenchAutomationService.SaveTarget target) =>
+            _automation.CommitSaveAsync(intent, target, _lifetime.Token);
+        internal async Task SaveScriptBookAsync(Func<Task<WorkbenchAutomationService.SaveTarget?>> selectTarget)
+        {
+            // Capture occurs synchronously before invoking the picker, hence
+            // before the GUI save command's first await anywhere in its chain.
+            var intent = CaptureSaveIntent();
+            if (intent is null) { Status.StatusString = "Script book save unavailable or busy."; return; }
+            var target = await selectTarget();
+            if (target is null) return;
+            var error = await CommitSaveAsync(intent, target);
+            Status.StatusString = error.HasValue ? "Script book save aborted: " + error.Value
+                : "Script book saved in: " + target.Path;
+        }
+        void IEditorExecutionPresentation.BeginExecution()
+        {
+            _statusViewModel.ClearDiagnostics();
+            _statusViewModel.StatusString = "Script book execution started.";
+        }
+        void IEditorExecutionPresentation.Begin(string line) => BeginLine(line);
+        bool IEditorExecutionPresentation.Present(ExecutionPresentation result, int number) => Present(result, number);
+        string IEditorExecutionPresentation.Output => _printMessage;
+
         public StatusViewModel Status { get => _statusViewModel; }
         public TextEditor? TextEditor
         {
@@ -47,7 +93,16 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 return _textEditor;
             }
 
-            set => SetProperty(ref _textEditor, value);
+            set
+            {
+                if (ReferenceEquals(_textEditor, value)) return;
+                if (_textEditor is CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor guarded &&
+                    (guarded.IdentityLocked || (guarded.MutationLocked && value is not null)))
+                    throw new ExecutionBusyException();
+                if (_registration is not null) { _automation.DetachEditor(_registration); _registration = null; }
+                EditorLifecycle++;
+                SetProperty(ref _textEditor, value);
+            }
         }
         public string PrintMessage
         {
@@ -71,7 +126,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         }
         private void OnHistoryChanged(object? sender, string entry)
         {
-            if (IsExecuting) return;
+            if (IsExecuting || _textEditor is null) return;
             TextDocument doc = _textEditor!.Document;
             // letzte Zeile holen
             DocumentLine line = doc.Lines[doc.Lines.Count - 1];
@@ -84,7 +139,11 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private void OnPrintEvent(string message)
         {
             if (Avalonia.Application.Current is not null && !Dispatcher.UIThread.CheckAccess())
-            { Dispatcher.UIThread.Post(() => OnPrintEvent(message)); return; }
+            {
+                long lifecycle = EditorLifecycle;
+                Dispatcher.UIThread.Post(() => { if (EditorLifecycle == lifecycle) OnPrintEvent(message); });
+                return;
+            }
             // Handle the event (e.g., update the status view model)
             _printMessage = IsExecuting && _printMessage.Length != 0
                 ? _printMessage + Environment.NewLine + message : message;
@@ -101,30 +160,11 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         }
 
 
-        public void SaveScriptBook(string filePath)
-        {
+        public void SaveScriptBook(string filePath) => _automation.SaveScriptBook(_textEditor!, filePath);
 
-            using (FileStream fs = System.IO.File.Open(filePath, System.IO.FileMode.Append))
-            {
-                TextDocument doc = _textEditor!.Document;
-                foreach (DocumentLine line in doc.Lines)
-                {
-                    string lineText = doc.GetText(line);
-                    string trimmedLine = lineText;
-                    if (string.IsNullOrEmpty(trimmedLine.Trim()) == true)
-                        continue;
-                    if (lineText != string.Empty)
-                    {
-                        byte[] lineBytes = Encoding.ASCII.GetBytes(lineText);
-                        fs.Write(lineBytes, 0, lineBytes.Length);
-                        fs.WriteByte((byte)'\n');
-                    }
-                }
-            }
-        }
         public bool IsTextEditorEmpty()
         {
-            if (_textEditor!.Document.Text.Length == 0)
+            if (_textEditor is null || _textEditor.Document.Text.Length == 0)
                 return true;
             return false;
         }
@@ -204,6 +244,11 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             Dispatcher.UIThread.VerifyAccess();
             if (IsExecuting) throw new ExecutionBusyException();
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, cancellationToken);
+            var targetEditor = _textEditor;
+            var targetDocument = targetEditor?.Document;
+            long targetLifecycle = EditorLifecycle;
+            bool IsCurrentEditor() => targetEditor is not null && ReferenceEquals(_textEditor, targetEditor) &&
+                ReferenceEquals(targetEditor.Document, targetDocument) && EditorLifecycle == targetLifecycle;
             bookActive = true;
             _statusViewModel.ClearDiagnostics();
             LastScriptBookSucceeded = false;
@@ -217,13 +262,15 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                         var variables = WorkbenchAutomationService.ClearAdmitted();
                         await OnUiAsync(() =>
                         {
-                            _textEditor!.Document.Text = string.Empty;
+                            if (IsCurrentEditor()) targetDocument!.Text = string.Empty;
                             _variableViewModel.ApplyVariables(variables);
                         });
                     }
                     bool success = await ExecuteBookAdmittedAsync(pipeline, lines, line =>
-                        _textEditor!.Document.Insert(_textEditor.Document.TextLength, line + "\n"), pipeline.ExecutionToken);
-                    await OnUiAsync(() => { LastScriptBookSucceeded = success; _textEditor!.IsModified = true; });
+                    {
+                        if (IsCurrentEditor()) targetDocument!.Insert(targetDocument.TextLength, line + "\n");
+                    }, pipeline.ExecutionToken);
+                    await OnUiAsync(() => { LastScriptBookSucceeded = success; if (IsCurrentEditor()) targetEditor!.IsModified = true; });
                     return success;
                 }, linked.Token, "scriptBookFile\0" + filePath + "\0" + clear);
             }
@@ -270,6 +317,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
 
         public void Dispose()
         {
+            if (_registration is not null) DetachEditor();
             _lifetime.Cancel();
             _passwordHost.Dispose();
             _historyService.LineHistoryChanged -= OnHistoryChanged;

@@ -45,7 +45,8 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
 
     internal static AutomationCaller LocalCaller { get; } = new("local-gui", CallerSource.Gui,
         ImmutableHashSet.Create(AutomationPermissions.StatusRead, AutomationPermissions.VariablesMetadataRead,
-            AutomationPermissions.ExecutionRead, AutomationPermissions.ExecutionRun), Guid.Empty);
+            AutomationPermissions.ExecutionRead, AutomationPermissions.ExecutionRun, AutomationPermissions.EditorRead,
+            AutomationPermissions.EditorWrite), Guid.Empty);
 
     private sealed class Job
     {
@@ -106,7 +107,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 ? WorkbenchExecutionState.CancellationRequested : active.Result.State == ExecutionState.WaitingForUser
                 ? WorkbenchExecutionState.WaitingForUser : WorkbenchExecutionState.Running;
             return Task.FromResult(Ok(new WorkbenchStatus(stopping ? Lifecycle.Stopping : faulted ? Lifecycle.Faulted : Lifecycle.Ready,
-                epoch.HasValue, false, state, active?.Id, IsBusy, Version, last,
+                epoch.HasValue, editorBridge.Available, state, active?.Id, IsBusy, Version, last,
                 [AutomationPermissions.StatusRead, AutomationPermissions.VariablesMetadataRead, AutomationPermissions.ExecutionRead])));
         }
     }
@@ -580,12 +581,15 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     }
     public Task DrainAsync(CancellationToken ct = default)
     {
-        lock (sync) return (active?.Task ?? Task.CompletedTask).WaitAsync(ct);
+        lock (sync) return Task.WhenAll(active?.Task ?? Task.CompletedTask, saveCompletion?.Task ?? Task.CompletedTask).WaitAsync(ct);
     }
     public async ValueTask DisposeAsync()
     {
         BeginShutdown();
         await DrainAsync().ConfigureAwait(false);
+        // No control access under the register lock or from a worker thread.
+        if (editorBridge.Registered)
+            await OnEditorUiAsync(() => { editorBridge.DetachCurrent(); return true; }).ConfigureAwait(false);
         lock (sync)
             foreach (var job in jobs.Values.ToArray()) Expire(job);
     }
@@ -611,13 +615,4 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         }
     }
 
-    private Task<Reply<T>> EditorUnavailable<T>(AutomationCaller caller, string permission, CancellationToken ct) where T : class
-    {
-        ct.ThrowIfCancellationRequested();
-        lock (sync) return Task.FromResult(Fail<T>(Authorized(caller, permission) ? AutomationErrorCode.EditorUnavailable : AutomationErrorCode.Forbidden));
-    }
-    public Task<Reply<EditorSnapshot>> GetEditorAsync(AutomationCaller caller, CancellationToken ct) => EditorUnavailable<EditorSnapshot>(caller, AutomationPermissions.EditorRead, ct);
-    public Task<Reply<EditorMutation>> UpdateEditorAsync(AutomationCaller caller, EditorEdit request, CancellationToken ct) => EditorUnavailable<EditorMutation>(caller, AutomationPermissions.EditorWrite, ct);
-    public Task<Reply<ExecutionResult>> ExecuteEditorAsync(AutomationCaller caller, EditorExecution request, CancellationToken requestCancellation) =>
-        EditorUnavailable<ExecutionResult>(caller, AutomationPermissions.ExecutionRun, requestCancellation);
 }

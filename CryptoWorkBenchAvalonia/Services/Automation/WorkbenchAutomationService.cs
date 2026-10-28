@@ -45,6 +45,14 @@ public sealed partial class WorkbenchAutomationService
             {
                 lock (sync) if (current.Value is { } unit) unit.SourceLineOffset = number - 1;
                 await beforeLine(line, number).ConfigureAwait(false);
+                // A UI/lifecycle callback can invalidate an accepted editor
+                // before its parse unit starts. Observe the service-owned token
+                // here, not only at the top of the next physical-line loop.
+                if (admittedPipeline.ExecutionToken.IsCancellationRequested || token.IsCancellationRequested)
+                {
+                    lock (sync) if (current.Value is { } cancelled) cancelled.Outcome = CryptoWorkBench.Automation.Abstractions.ExecutionState.Cancelled;
+                    return false;
+                }
                 result = await admittedPipeline.ExecuteAsync(line, password, token,
                     testRunnerFactory?.Invoke(), testStatements).ConfigureAwait(false);
             }
