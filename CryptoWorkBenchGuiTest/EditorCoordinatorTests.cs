@@ -48,7 +48,28 @@ public class EditorCoordinatorTests
             Assert.That(Editor.TextArea.Focus(), Is.True, "fixture must deliver real routed input to the TextArea");
             Editor.CaretOffset = 4;
         }
-        internal void Key(Key key) { Window.KeyPress(key, RawInputModifiers.Control, Enum.Parse<PhysicalKey>(key.ToString()), key.ToString().ToLowerInvariant()); Window.KeyRelease(key, RawInputModifiers.Control, Enum.Parse<PhysicalKey>(key.ToString()), key.ToString().ToLowerInvariant()); }
+        internal void Key(Key key)
+        {
+            var command = key switch
+            {
+                Avalonia.Input.Key.Z => ApplicationCommands.Undo,
+                Avalonia.Input.Key.Y => ApplicationCommands.Redo,
+                Avalonia.Input.Key.C => ApplicationCommands.Copy,
+                Avalonia.Input.Key.X => ApplicationCommands.Cut,
+                Avalonia.Input.Key.V => ApplicationCommands.Paste,
+                _ => throw new ArgumentOutOfRangeException(nameof(key), key, "Unsupported fixture command")
+            };
+            var gesture = command.Gesture;
+            var modifiers = RawInputModifiers.None;
+            if (gesture.KeyModifiers.HasFlag(KeyModifiers.Control)) modifiers |= RawInputModifiers.Control;
+            if (gesture.KeyModifiers.HasFlag(KeyModifiers.Meta)) modifiers |= RawInputModifiers.Meta;
+            if (gesture.KeyModifiers.HasFlag(KeyModifiers.Shift)) modifiers |= RawInputModifiers.Shift;
+            if (gesture.KeyModifiers.HasFlag(KeyModifiers.Alt)) modifiers |= RawInputModifiers.Alt;
+            var physicalKey = Enum.Parse<PhysicalKey>(gesture.Key.ToString());
+            var symbol = gesture.Key.ToString().ToLowerInvariant();
+            Window.KeyPress(gesture.Key, modifiers, physicalKey, symbol);
+            Window.KeyRelease(gesture.Key, modifiers, physicalKey, symbol);
+        }
         public async ValueTask DisposeAsync() { await Service.DisposeAsync(); Window.Close(); }
     }
 
