@@ -157,6 +157,7 @@ public class SidebarViewModel : ViewModelBase
                     {
                         new ButtonDefinition { Name = "Yes", },
                         new ButtonDefinition { Name = "No", },
+                        new ButtonDefinition { Name = "Cancel", IsCancel = true },
                     },
                     WindowIcon = _windowIcon,
                     ContentTitle = "EDITOR WINDOW CLEARENCE",
@@ -168,10 +169,9 @@ public class SidebarViewModel : ViewModelBase
                 var r = _window is Window owner
                     ? await messageBoxStandardWindow.ShowWindowDialogAsync(owner)
                     : await messageBoxStandardWindow.ShowAsync();
-                if (r == "Yes")
-                {
-                    clear = true;
-                }
+                // Closing the dialog (including Escape) is not consent to import.
+                if (r is not ("Yes" or "No")) return;
+                clear = r == "Yes";
             }
             try
             {
