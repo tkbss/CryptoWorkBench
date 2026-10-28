@@ -183,7 +183,7 @@ public class WorkbenchReviewRegressionTests
     [TestCase("lexer")]
     public async Task GuiKeepsOriginalStatusAndDiagnosticsAndMarksUnchangedVariablesStale(string scenario)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(AsyncPasswordGuiTests.TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var test = Case(scenario);
@@ -260,7 +260,7 @@ public class WorkbenchReviewRegressionTests
     [Test]
     public async Task BookDoesNotClaimCompleteSuccessOrRunNextLineAfterCaptureFailure()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(AsyncPasswordGuiTests.TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var status = new StatusViewModel(); var variables = new VariableViewModel();
@@ -317,7 +317,7 @@ public class WorkbenchReviewRegressionTests
     [Test]
     public async Task KeyMapReportsCaptureFailureWithoutLosingItsScriptStatus()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(AsyncPasswordGuiTests.TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             Dictionary.Add(new CaptureFault { Id = "captureFault" });

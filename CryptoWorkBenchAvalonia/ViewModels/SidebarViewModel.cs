@@ -47,7 +47,8 @@ public class SidebarViewModel : ViewModelBase
         _container = container;
         Title = "Navigation";
         FlyoutWidth = Collapsed;
-        _windowIcon = new WindowIcon("./Assets/avalonia-logo.ico");
+        using (var icon = Avalonia.Platform.AssetLoader.Open(new System.Uri("avares://CryptoWorkBenchAvalonia/Assets/avalonia-logo.ico")))
+            _windowIcon = new WindowIcon(icon);
         OpenScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(OpenScriptBook));
         SaveScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(SaveScriptBook));
         ShowVariableViewCommand = new DelegateCommand(ShowVariableView);
@@ -107,7 +108,9 @@ public class SidebarViewModel : ViewModelBase
                 // Prompt the user for confirmation
                 var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);   
                     
-                var r = await messageBoxStandardWindow.ShowAsync();
+                var r = _window is Window owner
+                    ? await messageBoxStandardWindow.ShowWindowDialogAsync(owner)
+                    : await messageBoxStandardWindow.ShowAsync();
 
                 if (r != "Yes")
                 {
@@ -162,7 +165,9 @@ public class SidebarViewModel : ViewModelBase
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 };
                 var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);
-                var r = await messageBoxStandardWindow.ShowAsync();
+                var r = _window is Window owner
+                    ? await messageBoxStandardWindow.ShowWindowDialogAsync(owner)
+                    : await messageBoxStandardWindow.ShowAsync();
                 if (r == "Yes")
                 {
                     clear = true;

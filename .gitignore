@@ -452,3 +452,11 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Temporary official Prism checkout (prepared by eng/prism/Prepare-Prism.ps1)
+/.deps/
+# Configuration lockfiles are source inputs, not build outputs.
+!/eng/prism/locks/Debug/
+!/eng/prism/locks/Debug/*.json
+!/eng/prism/locks/Release/
+!/eng/prism/locks/Release/*.json

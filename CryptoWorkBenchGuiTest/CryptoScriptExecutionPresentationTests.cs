@@ -80,7 +80,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task CheckErrorsContinueAndKeyPrintReachesExistingGuiOutput()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             await editor.ParseLineAsync("KEY missing=Check(0x(AA)) VAR continued=0x(01)");
@@ -100,7 +100,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task SecretPrintUsesExistingGuiEventAndScriptBookOutputPaths()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             await ExecuteBook([
@@ -134,7 +134,7 @@ public class CryptoScriptExecutionPresentationTests
     [TestCase("0x(01AABBCC),0x(02DDEEFF")]
     public async Task SecretImportSyntaxErrorsReachGuiWithoutShareMaterial(string arguments)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             await editor.ParseLineAsync("SECRET s=Secret(p," + arguments + ")");
@@ -151,7 +151,7 @@ public class CryptoScriptExecutionPresentationTests
     [TestCase("VAR v=\"bad\\z Print(Secret(p,\n0x(01AABBCC) 0x(02DDEEFF)))")]
     public async Task LexerRecoverySecretErrorsAreRedactedInGui(string script)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             await editor.ParseLineAsync(script);
@@ -171,7 +171,7 @@ public class CryptoScriptExecutionPresentationTests
     [TestCase("\r\n", 21)]
     public async Task LaterLexerFailureCannotCopyEarlierSharesIntoGuiDiagnostics(string newline, int column)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             await editor.ParseLineAsync("PARAM p=Parameters(SECRET_SHAMIR,#PARTS:2,#MINPARTS:2)");
@@ -199,7 +199,7 @@ public class CryptoScriptExecutionPresentationTests
     [TestCase("\r\n", 2)]
     public async Task KeyPrintSurvivesEditorSaveAndScriptBookReload(string newline, int printCount)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var textEditor = new TextEditor();
@@ -256,7 +256,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task SuccessfulInteractiveExecutionClearsOldDiagnosticsAndUpdatesVariables()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             status.AppendDiagnostics(new[] { Warning("old") });
@@ -275,7 +275,7 @@ public class CryptoScriptExecutionPresentationTests
     [TestCase(2)]
     public async Task SuccessfulWarningsRemainOrderedAndDoNotSetErrorFlag(int count)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var reported = Enumerable.Range(1, count).Select(i => Warning("warning " + i)).ToArray();
@@ -296,7 +296,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task WarningBeforeErrorUsesRunnerSnapshotWithoutDuplicateAndRefreshesPartialState()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var warning = Warning("warning before failure");
@@ -328,7 +328,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task SyntaxErrorClearsOldWarningsAndDoesNotExecute()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             status.AppendDiagnostics(new[] { Warning("old") });
@@ -345,7 +345,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task VariableRefreshFailureDoesNotAppendSuccessfulDiagnosticsAgain()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var warning = Warning("successful script warning");
@@ -376,7 +376,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task MissingScriptBookClearsOldDiagnosticsBeforePropagatingFileError()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             status.AppendDiagnostics(new[] { Warning("old") });
@@ -399,7 +399,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task ScriptBookProcessingDoesNotResetItsAlreadyStartedPresentation()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             status.AppendDiagnostics(new[] { Warning("already collected") });
@@ -423,7 +423,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task ScriptBookAppendsWarningsKeepsRealBookLinesAndSkipsOutputLines()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             status.AppendDiagnostics(new[] { Warning("old") });
@@ -446,7 +446,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task ScriptBookStopsAfterErrorAndSidebarDoesNotOverwriteAbortedStatus()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var lines = new[] { "Compare(0x(AB),0x(AB))", "Print(missing)", "VAR after=0x(CD)" };
@@ -483,7 +483,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task NestedOperationsKeepTheirContextsInPresentation()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var reported = new List<SemanticError>();
@@ -511,7 +511,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task PrintOutputIsUnchanged()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var original = Console.Out;
@@ -533,7 +533,7 @@ public class CryptoScriptExecutionPresentationTests
     [Test]
     public async Task KeyMapEmptyResultPreservesForeignDiagnostics()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             // Detach the editor's info handler: this test concerns KeyMap, not region navigation.

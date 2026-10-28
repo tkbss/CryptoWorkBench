@@ -1,6 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core.Plugins;
+
 using Avalonia.Markup.Xaml;
 using CryptoScript.Documentation;
 using CryptoWorkBenchAvalonia.Services;
@@ -26,8 +26,8 @@ public partial class App : PrismApplication
 
     public override void OnFrameworkInitializationCompleted()
     {
-        // Avalonia-Validierung entfernen (wie bisher)
-        BindingPlugins.DataValidators.RemoveAt(0);
+
+        // Avalonia 12 disables data-annotations validation by default.
 
         // Prism kümmert sich jetzt um das Erzeugen der Shell (CreateShell)
         base.OnFrameworkInitializationCompleted();

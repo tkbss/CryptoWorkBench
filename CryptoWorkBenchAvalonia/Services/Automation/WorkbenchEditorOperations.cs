@@ -21,7 +21,7 @@ public sealed partial class WorkbenchAutomationService
     internal IEditorReplaceConfirmation ReplaceConfirmation { get; set; } = new EditorReplaceConfirmation();
 
     private static async Task<T> OnEditorUiAsync<T>(Func<T> action) =>
-        Dispatcher.UIThread.CheckAccess() ? action() : await Dispatcher.UIThread.InvokeAsync(action);
+        Dispatcher.UIThread.CheckAccess() ? action() : await UiDispatch.InvokeAsync(action);
 
     internal EditorBridge.Registration? AttachEditor(TextEditor editor, IEditorExecutionPresentation presentation)
     {

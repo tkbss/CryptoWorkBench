@@ -29,7 +29,7 @@ public class EditorReviewCorrectionTests
     private static TaskCompletionSource Signal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
     private static async Task Ui(Func<Task> test)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () => { await test(); return true; }, CancellationToken.None);
     }
 

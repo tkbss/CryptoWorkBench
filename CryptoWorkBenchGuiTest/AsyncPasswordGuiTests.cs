@@ -35,7 +35,7 @@ public class AsyncPasswordGuiTests
     [TestCase(false)] [TestCase(true)]
     public async Task ProductiveSecureSaveUsesDialogAndStopsBookOnCancellation(bool cancel)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             string directory = Path.Combine(Path.GetTempPath(), "S05B2-GUI-" + Guid.NewGuid().ToString("N"));
@@ -82,7 +82,7 @@ public class AsyncPasswordGuiTests
     [TestCase("success")] [TestCase("wrong")] [TestCase("cancel")]
     public async Task ProductiveSecureLoadDialogUpdatesVariablesAndStopsBookOnFailure(string outcome)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             string directory = Path.Combine(Path.GetTempPath(), "S06-GUI-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(directory);
@@ -135,7 +135,7 @@ public class AsyncPasswordGuiTests
     [TestCase(PasswordPurpose.SecureSave)] [TestCase(PasswordPurpose.SecureLoad)]
     public async Task WorkerRequestOpensResponsiveUiDialogAndClearsInputs(PasswordPurpose purpose)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var owner = new Window(); owner.Show();
@@ -174,7 +174,7 @@ public class AsyncPasswordGuiTests
     [TestCase("close")] [TestCase("token")] [TestCase("owner")]
     public async Task DialogCloseCancellationAndOwnerLifetimeAbort(string kind)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var owner = new Window(); owner.Show();
@@ -204,7 +204,7 @@ public class AsyncPasswordGuiTests
     [Test]
     public async Task ScriptBookStopsAtUserCancellationAndNeverStoresPassword()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var history = new HistoryService();
@@ -228,7 +228,7 @@ public class AsyncPasswordGuiTests
     [Test]
     public async Task PendingRequestRejectsBookClearAndVariableCommands()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var variables = new VariableViewModel();
@@ -260,7 +260,7 @@ public class AsyncPasswordGuiTests
     [Test]
     public async Task AsyncEditorPreservesOutputOrderAndDetachedVariableEditing()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var previous = VariableDictionary.Instance().GetVariables().ToArray();

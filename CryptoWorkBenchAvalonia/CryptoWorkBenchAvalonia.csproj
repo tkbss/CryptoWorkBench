@@ -1,8 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <!-- Preserve Avalonia 11 reflection-binding semantics during the framework migration. -->
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
   
@@ -19,20 +21,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.3.20" />
-    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.4.1" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.12" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.20" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.20" />
-    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.1.1" />
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <!-- Keep the runtime loader aligned with the application Avalonia version. -->
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="12.1.4" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="12.0.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" Condition="'$(Configuration)' == 'Debug'" />
 
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Include="FluentIcons.Avalonia" Version="2.0.319" />
-	<PackageReference Include="Markdown.Avalonia" Version="11.0.3" />
-    <PackageReference Include="MessageBox.Avalonia" Version="3.3.1.1" />
-    <PackageReference Include="Prism.Avalonia" Version="9.0.537.11130" />
-    <PackageReference Include="Prism.DryIoc.Avalonia" Version="9.0.537.11130" />
-    <PackageReference Include="UVtools.AvaloniaControls" Version="4.1.0" />
+
+    <PackageReference Include="FluentIcons.Avalonia" Version="2.1.344" />
+	<PackageReference Include="Markdown.Avalonia" Version="12.0.2" />
+    <PackageReference Include="MessageBox.Avalonia" Version="12.0.0" />
+    <!-- MessageBox's minimum is a nightly; select the compatible stable release. -->
+    <PackageReference Include="DialogHost.Avalonia" Version="0.12.3" />
+    <ProjectReference Include="../.deps/prism/src/Avalonia/Prism.Avalonia/Prism.Avalonia.csproj" />
+    <ProjectReference Include="../.deps/prism/src/Avalonia/Prism.DryIoc.Avalonia/Prism.DryIoc.Avalonia.csproj" />
+    <PackageReference Include="UVtools.AvaloniaControls" Version="5.2.0" />
   </ItemGroup>
 
   <ItemGroup>

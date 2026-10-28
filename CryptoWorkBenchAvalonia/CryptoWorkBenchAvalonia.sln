@@ -27,6 +27,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Mcp", "..\C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Mcp.Tests", "..\CryptoWorkBench.Mcp.Tests\CryptoWorkBench.Mcp.Tests.csproj", "{D22517C7-F243-4CF9-8A3A-D379B14D3632}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TemporaryPrism", "TemporaryPrism", "{0C009314-E795-D81F-DAC5-6B0BAFD9DB2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.Avalonia", "..\.deps\prism\src\Avalonia\Prism.Avalonia\Prism.Avalonia.csproj", "{429C1B3E-86A7-4E42-A45B-6C0D1328BDAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.Core", "..\.deps\prism\src\Prism.Core\Prism.Core.csproj", "{901D5E98-F143-4644-9233-77669905015E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.Events", "..\.deps\prism\src\Prism.Events\Prism.Events.csproj", "{5C64BB5D-2E98-4206-9DCA-8F9C4C126815}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prism.DryIoc.Avalonia", "..\.deps\prism\src\Avalonia\Prism.DryIoc.Avalonia\Prism.DryIoc.Avalonia.csproj", "{FCBC429B-8C90-4C9A-BF83-9915F9D389D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,9 +75,31 @@ Global
 		{D22517C7-F243-4CF9-8A3A-D379B14D3632}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D22517C7-F243-4CF9-8A3A-D379B14D3632}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D22517C7-F243-4CF9-8A3A-D379B14D3632}.Release|Any CPU.Build.0 = Release|Any CPU
+		{429C1B3E-86A7-4E42-A45B-6C0D1328BDAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429C1B3E-86A7-4E42-A45B-6C0D1328BDAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429C1B3E-86A7-4E42-A45B-6C0D1328BDAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{429C1B3E-86A7-4E42-A45B-6C0D1328BDAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{901D5E98-F143-4644-9233-77669905015E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{901D5E98-F143-4644-9233-77669905015E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{901D5E98-F143-4644-9233-77669905015E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{901D5E98-F143-4644-9233-77669905015E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C64BB5D-2E98-4206-9DCA-8F9C4C126815}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C64BB5D-2E98-4206-9DCA-8F9C4C126815}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C64BB5D-2E98-4206-9DCA-8F9C4C126815}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C64BB5D-2E98-4206-9DCA-8F9C4C126815}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCBC429B-8C90-4C9A-BF83-9915F9D389D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCBC429B-8C90-4C9A-BF83-9915F9D389D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCBC429B-8C90-4C9A-BF83-9915F9D389D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCBC429B-8C90-4C9A-BF83-9915F9D389D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{429C1B3E-86A7-4E42-A45B-6C0D1328BDAD} = {0C009314-E795-D81F-DAC5-6B0BAFD9DB2C}
+		{901D5E98-F143-4644-9233-77669905015E} = {0C009314-E795-D81F-DAC5-6B0BAFD9DB2C}
+		{5C64BB5D-2E98-4206-9DCA-8F9C4C126815} = {0C009314-E795-D81F-DAC5-6B0BAFD9DB2C}
+		{FCBC429B-8C90-4C9A-BF83-9915F9D389D5} = {0C009314-E795-D81F-DAC5-6B0BAFD9DB2C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6CF3CE7E-4600-4596-943D-6AB7BCCD9205}

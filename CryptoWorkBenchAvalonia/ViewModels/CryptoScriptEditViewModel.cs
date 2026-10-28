@@ -141,7 +141,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             if (Avalonia.Application.Current is not null && !Dispatcher.UIThread.CheckAccess())
             {
                 long lifecycle = EditorLifecycle;
-                Dispatcher.UIThread.Post(() => { if (EditorLifecycle == lifecycle) OnPrintEvent(message); });
+                UiDispatch.Post(() => { if (EditorLifecycle == lifecycle) OnPrintEvent(message); });
                 return;
             }
             // Handle the event (e.g., update the status view model)
@@ -151,7 +151,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private void OnInfoEvent(string message)
         {
             if (Avalonia.Application.Current is not null && !Dispatcher.UIThread.CheckAccess())
-            { Dispatcher.UIThread.Post(() => OnInfoEvent(message)); return; }
+            { UiDispatch.Post(() => OnInfoEvent(message)); return; }
             if (message.Contains("Gesture="))
                 return;
             _infoViewModel.SetInfoText(message);
@@ -173,7 +173,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private static async Task OnUiAsync(Action action)
         {
             if (Avalonia.Application.Current is null) action();
-            else await Dispatcher.UIThread.InvokeAsync(action, DispatcherPriority.Background);
+            else await UiDispatch.InvokeAsync(action, DispatcherPriority.Background);
         }
 
         private void BeginLine(string line)

@@ -189,7 +189,7 @@ public class WorkbenchAutomationTests
     [Test]
     public async Task CompetingGuiRequestsAndDetachedVariableEditAreImmediatelyBusy()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(AsyncPasswordGuiTests.TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             using var first = new CryptoScriptEditViewModel(new(), new(), new(), new(), null!, new HistoryService());

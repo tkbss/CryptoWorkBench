@@ -30,7 +30,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private void OnInfoEvent(string message)
         {
             if (Avalonia.Application.Current is not null && !Dispatcher.UIThread.CheckAccess())
-            { Dispatcher.UIThread.Post(() => OnInfoEvent(message)); return; }
+            { UiDispatch.Post(() => OnInfoEvent(message)); return; }
             if (message.Contains("Gesture="))
                 InfoText = message;
         }
@@ -41,7 +41,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                 using var password = new PasswordDialogHost();
                 var result = await Services.Automation.WorkbenchAutomationService.Shared.ExecuteSubmissionAsync(
                     "Info(keymap)", password.RequestAsync, lifetime.Token, testRunner);
-                await Dispatcher.UIThread.InvokeAsync(() =>
+                await UiDispatch.InvokeAsync(() =>
                 {
                     status.AppendDiagnostics(result.Diagnostics, result.Error);
                     if (!result.HostSucceeded) status.StatusString = result.CaptureFailed
@@ -50,7 +50,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             }
             catch (Exception)
             {
-                await Dispatcher.UIThread.InvokeAsync(() => status.StatusString = "Error in loading KeyMap information.");
+                await UiDispatch.InvokeAsync(() => status.StatusString = "Error in loading KeyMap information.");
             }
         }
         public void Dispose() { lifetime.Cancel(); OutputOperations.InfoEvent -= OnInfoEvent; }

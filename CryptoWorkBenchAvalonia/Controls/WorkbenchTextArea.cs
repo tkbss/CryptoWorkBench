@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
@@ -137,7 +138,7 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
             try
             {
                 string? text;
-                if (command == ApplicationCommands.Paste) text = await clipboard.GetTextAsync();
+                if (command == ApplicationCommands.Paste) text = await clipboard.TryGetTextAsync();
                 else
                 {
                     text = wholeLine ? document.GetText(lineOffset, lineLength) : selection.GetText();

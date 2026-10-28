@@ -29,7 +29,7 @@ public class EditorCoordinatorTests
     }
     private static async Task Ui(Func<Task> test)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () => { await test(); return true; }, CancellationToken.None);
     }
     private sealed class Host : IAsyncDisposable
@@ -48,7 +48,7 @@ public class EditorCoordinatorTests
             Assert.That(Editor.TextArea.Focus(), Is.True, "fixture must deliver real routed input to the TextArea");
             Editor.CaretOffset = 4;
         }
-        internal void Key(Key key) { Window.KeyPress(key, RawInputModifiers.Control); Window.KeyRelease(key, RawInputModifiers.Control); }
+        internal void Key(Key key) { Window.KeyPress(key, RawInputModifiers.Control, Enum.Parse<PhysicalKey>(key.ToString()), key.ToString().ToLowerInvariant()); Window.KeyRelease(key, RawInputModifiers.Control, Enum.Parse<PhysicalKey>(key.ToString()), key.ToString().ToLowerInvariant()); }
         public async ValueTask DisposeAsync() { await Service.DisposeAsync(); Window.Close(); }
     }
 
@@ -278,7 +278,7 @@ public class EditorCoordinatorTests
         h.Key(Key.Y); h.Editor.Select(4, h.Editor.Text.Length - 4);
         h.Key(Key.X); await h.Area.PendingClipboard;
         Assert.That(h.Editor.Text, Is.EqualTo("base"));
-        Assert.That(await h.Window.Clipboard.GetTextAsync(), Is.EqualTo("ä e\u0301 日本語 😀"));
+        Assert.That(await h.Window.Clipboard!.TryGetTextAsync(), Is.EqualTo("ä e\u0301 日本語 😀"));
         h.Key(Key.Z); Assert.That(h.Editor.Text, Does.EndWith("😀"));
     });
 
@@ -289,9 +289,19 @@ public class EditorCoordinatorTests
         public Task<string?>? DelayedRead;
         protected override object? Invoke(MethodInfo? method, object?[]? args)
         {
-            if (method!.Name == "GetTextAsync" && DelayedRead is not null) return DelayedRead;
+            if (method!.Name == "TryGetDataAsync" && DelayedRead is not null) return ReadDelayedAsync(DelayedRead);
             try { return method.Invoke(Inner, args); }
             catch (TargetInvocationException error) { throw error.InnerException!; }
+        }
+        // Avalonia 12 retrieves a disposable transfer rather than calling GetTextAsync.
+        // Keep the original delayed text source and all successor/drain assertions.
+        private static async Task<IAsyncDataTransfer?> ReadDelayedAsync(Task<string?> read)
+        {
+            var text = await read;
+            if (text is null) return null;
+            var transfer = new DataTransfer();
+            transfer.Add(DataTransferItem.Create(DataFormat.Text, text));
+            return transfer;
         }
         internal static void Bind(IClipboard value)
         {

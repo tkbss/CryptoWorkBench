@@ -21,7 +21,7 @@ internal sealed class EditorReplaceConfirmation : IEditorReplaceConfirmation
     public async Task<bool?> ConfirmAsync(TextEditor editor, EditorReplaceApproval approval, CancellationToken ct)
     {
         Task<bool?>? result = null;
-        await Dispatcher.UIThread.InvokeAsync(() =>
+        await UiDispatch.InvokeAsync(() =>
         {
             ct.ThrowIfCancellationRequested();
             if (TopLevel.GetTopLevel(editor) is not Window owner) return;
@@ -47,7 +47,7 @@ internal sealed class EditorReplaceConfirmation : IEditorReplaceConfirmation
 
     private static async Task<bool?> AwaitDialog(Window dialog, Window owner, CancellationToken ct)
     {
-        using var cancellation = ct.Register(() => Dispatcher.UIThread.Post(() => dialog.Close(false)));
+        using var cancellation = ct.Register(() => UiDispatch.Post(() => dialog.Close(false)));
         bool accepted = await dialog.ShowDialog<bool>(owner);
         ct.ThrowIfCancellationRequested();
         return accepted;

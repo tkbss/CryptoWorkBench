@@ -21,7 +21,7 @@ public class PinTranslationInfoTests
     [NonParallelizable]
     public async Task RenderedMatrixLinkAndBackNavigateThroughActualView(int source, int target)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(CryptoScriptExecutionPresentationTests.ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(() =>
         {
             var model = new InfoViewModel(null, new FileInfoDocumentationProvider());
