@@ -4,7 +4,7 @@ This adapter is only for CryptoWorkBench until the official Prism release with A
 
 ## Prepare and build
 
-Prerequisites: Git, PowerShell 7 (`pwsh`) on PATH, and the .NET SDK selected by the existing `global.json` (10.0.401 with latestPatch roll-forward). From the repository root:
+Prerequisites: Git, PowerShell 7 (`pwsh`) on PATH, and .NET SDK `10.0.401`, as required by `global.json` with `rollForward: disable` and `allowPrerelease: false`. The Prism CI wrapper verifies the exact SDK version. SDK updates must be coordinated with `global.json`, the workflow SDK installation and the wrapper verification. From the repository root:
 
 ```powershell
 pwsh -NoProfile ./eng/prism/Build.ps1 -Configuration Release
