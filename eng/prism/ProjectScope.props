@@ -1,0 +1,15 @@
+<Project>
+  <!-- Exact repository-relative identities after normalization; never select by filename alone. -->
+  <PropertyGroup>
+    <_CwbRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '../..'))</_CwbRoot>
+    <_CwbProject>$([MSBuild]::MakeRelative('$(_CwbRoot)', $([MSBuild]::NormalizePath('$(MSBuildProjectFullPath)'))))</_CwbProject>
+    <_CwbProject>$(_CwbProject.Replace('\', '/'))</_CwbProject>
+    <_CwbProjects>|CryptoScript/CryptoScript.csproj|CryptoScriptUnitTest/CryptoScriptUnitTest.csproj|CryptoWorkBench.Automation.Abstractions/CryptoWorkBench.Automation.Abstractions.csproj|CryptoWorkBench.Mcp/CryptoWorkBench.Mcp.csproj|CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj|CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj|CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj|CryptoWorkBenchConsole/CryptoWorkBenchConsole.csproj|CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj|.deps/prism/src/Prism.Core/Prism.Core.csproj|.deps/prism/src/Prism.Events/Prism.Events.csproj|.deps/prism/src/Avalonia/Prism.Avalonia/Prism.Avalonia.csproj|.deps/prism/src/Avalonia/Prism.DryIoc.Avalonia/Prism.DryIoc.Avalonia.csproj|</_CwbProjects>
+    <_CwbPrismProjects>|.deps/prism/src/Prism.Core/Prism.Core.csproj|.deps/prism/src/Prism.Events/Prism.Events.csproj|.deps/prism/src/Avalonia/Prism.Avalonia/Prism.Avalonia.csproj|.deps/prism/src/Avalonia/Prism.DryIoc.Avalonia/Prism.DryIoc.Avalonia.csproj|</_CwbPrismProjects>
+    <_CwbProject Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_CwbProject.ToUpperInvariant())</_CwbProject>
+    <_CwbProjects Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_CwbProjects.ToUpperInvariant())</_CwbProjects>
+    <_CwbPrismProjects Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_CwbPrismProjects.ToUpperInvariant())</_CwbPrismProjects>
+    <_CwbScopedProject>$(_CwbProjects.Contains('|$(_CwbProject)|'))</_CwbScopedProject>
+    <_CwbPrismProject>$(_CwbPrismProjects.Contains('|$(_CwbProject)|'))</_CwbPrismProject>
+  </PropertyGroup>
+</Project>

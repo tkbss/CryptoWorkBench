@@ -1,0 +1,35 @@
+<Project>
+  <!-- External host policy. No official Prism file is patched. -->
+  <Import Project="$(MSBuildThisFileDirectory)ProjectScope.props" Condition="'$(_CwbRoot)' == ''" />
+  <PropertyGroup Condition="'$(_CwbScopedProject)' == 'true'">
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <CwbTemporaryPrismSecurityPolicy>true</CwbTemporaryPrismSecurityPolicy>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(_CwbPrismProject)' == 'true'">
+    <PackageReference Include="Microsoft.Build.Tasks.Git" VersionOverride="[10.0.303]" PrivateAssets="all" />
+  </ItemGroup>
+  <Target Name="ValidateTemporaryPrismLock" BeforeTargets="CollectPackageReferences;PrepareForBuild"
+          Condition="'$(_CwbScopedProject)' == 'true'">
+    <PropertyGroup>
+      <_CwbExpectedLock>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)locks/$(Configuration)/$(MSBuildProjectName).lock.json'))</_CwbExpectedLock>
+      <_CwbActualLock>$([MSBuild]::NormalizePath('$(NuGetLockFilePath)'))</_CwbActualLock>
+    </PropertyGroup>
+    <Error Condition="'$(Configuration)' != 'Debug' And '$(Configuration)' != 'Release'"
+           Text="Temporary Prism supports only Debug and Release lockfiles." />
+    <Error Condition="'$(CwbTemporaryPrismPolicy)' != 'true'"
+           Text="Temporary Prism requires Enter-Prism.ps1 and its early Lock.props hook." />
+    <Error Condition="!Exists('$(NuGetLockFilePath)')"
+           Text="Required temporary Prism lockfile is missing: $(NuGetLockFilePath). Restore the reviewed lockfile; restore must not create it implicitly." />
+    <Error Condition="'$(_CwbActualLock)' != '$(_CwbExpectedLock)'"
+           Text="Temporary Prism lockfile does not match the selected project/configuration: $(NuGetLockFilePath)." />
+  </Target>
+  <Target Name="VerifyTemporaryPrismCompileInputs" BeforeTargets="CoreCompile"
+          Condition="'$(_CwbPrismProject)' == 'true' And '$(DesignTimeBuild)' != 'true'">
+    <WriteLinesToFile File="$(IntermediateOutputPath)cwb-prism-compile-inputs.txt" Lines="@(Compile->'%(FullPath)')" Overwrite="true" />
+    <WriteLinesToFile File="$(IntermediateOutputPath)cwb-prism-generated-inputs.txt"
+                      Lines="$(GeneratedAssemblyInfoFile);$(GeneratedGlobalUsingsFile);$(TargetFrameworkMonikerAssemblyAttributesPath)" Overwrite="true" />
+    <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildThisFileDirectory)Prepare-Prism.ps1&quot; -VerifyOnly -CompileInputsFile &quot;$(MSBuildProjectDirectory)/$(IntermediateOutputPath)cwb-prism-compile-inputs.txt&quot; -GeneratedInputsFile &quot;$(MSBuildProjectDirectory)/$(IntermediateOutputPath)cwb-prism-generated-inputs.txt&quot; -ProjectDirectory &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+</Project>
+
+

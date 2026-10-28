@@ -40,18 +40,31 @@ public partial class CryptoScriptEditView : UserControl
         }
         _statusTextBlock = this.Find<TextBlock>("StatusText");
         EnsureInfoCompletionController();
-        AttachedToVisualTree += (sender, args) => EnsureInfoCompletionController();
+        AttachedToVisualTree += (sender, args) =>
+        {
+            _viewModel!.TextEditor = _textEditor;
+            _viewModel.AttachEditor();
+            EnsureInfoCompletionController();
+        };
         DetachedFromVisualTree += (sender, args) =>
         {
+            _viewModel!.DetachEditor(_textEditor);
             _infoCompletionController?.Dispose();
             _infoCompletionController = null;
         };
         _textEditor!.TextArea.TextEntering += this.textEditor_TextArea_TextEntering!;
-        _textEditor.TextArea.TextEntered += this.textEditor_TextArea_TextEntered!;
-        _textEditor.TextArea.Caret.PositionChanged += Caret_PositionChanged!;
+        _textEditor.TextArea.TextEntered += (sender, args) => ObserveEditor(() => textEditor_TextArea_TextEntered(sender!, args));
+        _textEditor.TextArea.Caret.PositionChanged += (sender, args) => ObserveEditor(() => Caret_PositionChanged(sender!, args));
         
 
     }
+    private void ObserveEditor(Action callback)
+    {
+        if (_textEditor is CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor { Coordinator: { } coordinator })
+            coordinator.Observe(callback);
+        else callback();
+    }
+
     private void EnsureInfoCompletionController()
     {
         if (_infoCompletionController == null && _textEditor != null)
@@ -64,7 +77,7 @@ public partial class CryptoScriptEditView : UserControl
     private void textEditor_TextArea_TextEntering(object sender, TextInputEventArgs e)
     {
         
-        if (e == null || e.Text==null)
+        if (e == null || e.Text==null || e.Handled)
             return;
 
         _infoCompletionController?.HandleTextEntering(e.Text);
@@ -88,17 +101,17 @@ public partial class CryptoScriptEditView : UserControl
             if (_viewModel.IsExecuting) { e.Handled = true; return; }
             var anchor = doc.CreateAnchor(line.EndOffset);
             anchor.MovementType = AnchorMovementType.BeforeInsertion;
-            PendingExecution = ExecuteInputAsync(lineText, doc, anchor);
+            PendingExecution = ExecuteInputAsync(lineText, doc, anchor, _viewModel.EditorLifecycle);
             //var tracker=doc.LineTrackers;
         }
         
     }
-    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor)
+    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor, long lifecycle)
     {
         try
         {
             await _viewModel!.ParseLineAsync(line);
-            if (!anchor.IsDeleted && ReferenceEquals(document, _textEditor!.Document) &&
+            if (_viewModel.EditorLifecycle == lifecycle && !anchor.IsDeleted && ReferenceEquals(document, _textEditor!.Document) &&
                 _viewModel.PrintMessage != string.Empty)
                 document.Insert(anchor.Offset, "\n" + _viewModel.PrintMessage);
         }

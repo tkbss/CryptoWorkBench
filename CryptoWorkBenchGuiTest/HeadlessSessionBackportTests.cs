@@ -8,33 +8,45 @@ using NUnit.Framework;
 namespace CryptoWorkBenchGuiTest;
 
 [NonParallelizable]
-public class HeadlessSessionBackportTests
+public class HeadlessSessionTests
 {
     private static HeadlessUnitTestSession Start() =>
         HeadlessUnitTestSession.StartNew(typeof(AsyncPasswordGuiTests.TestApp));
 
     [Test]
-    public void TesthostLoadsExactlyTheVerifiedSourceBuild()
+    public void TesthostLoadsExactlyTheOfficialAvalonia12Package()
     {
         var assembly = typeof(HeadlessUnitTestSession).Assembly;
         Assert.That(assembly.FullName, Is.EqualTo(
-            "Avalonia.Headless, Version=11.3.20.0, Culture=neutral, PublicKeyToken=c8d484a7012f9a8b"));
+            "Avalonia.Headless, Version=12.1.4.0, Culture=neutral, PublicKeyToken=c8d484a7012f9a8b"));
         Assert.That(assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion,
-            Is.EqualTo("11.3.20-cwb.1+upstream.984c3b833f29806eb159fb7f12a6132e936b75df.pr22222"));
+            Is.EqualTo("12.1.4+2d79ba55fae1b1e71c69f93a668080c9029e6a31"));
         Assert.That(AppDomain.CurrentDomain.GetAssemblies().Count(a => a.GetName().Name == "Avalonia.Headless"), Is.EqualTo(1));
         string path = Path.Combine(AppContext.BaseDirectory, "Avalonia.Headless.dll");
         Assert.That(Path.GetFullPath(assembly.Location), Is.EqualTo(Path.GetFullPath(path)));
         string actualHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
-        Assert.That(actualHash, Is.EqualTo(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
-            "Avalonia.Headless.Backport.sha256")).Trim()).IgnoreCase);
+        // SHA-256 of the official 12.1.4 package lib/net10.0 asset; independent of build output.
+        Assert.That(actualHash, Is.EqualTo("29CBFA10E0A4631AE9C762EB718D72A82419656419FB513A9D77F1741E8F70DE"));
         using var deps = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
             "CryptoWorkBenchGuiTest.deps.json")));
         var entries = deps.RootElement.GetProperty("libraries").EnumerateObject()
             .Where(p => p.Name.Contains("Avalonia.Headless", StringComparison.Ordinal)).ToArray();
         Assert.That(entries, Has.Length.EqualTo(1));
-        Assert.That(entries[0].Name, Is.EqualTo("Avalonia.Headless.Backport/11.3.20-cwb.1"));
-        Assert.That(entries[0].Value.GetProperty("type").GetString(), Is.EqualTo("project"));
-        TestContext.Progress.WriteLine($"Verified loaded backport: {assembly.FullName}; SHA256={actualHash}");
+        Assert.That(entries[0].Name, Is.EqualTo("Avalonia.Headless/12.1.4"));
+        Assert.That(entries[0].Value.GetProperty("type").GetString(), Is.EqualTo("package"));
+        Assert.That(entries[0].Value.GetProperty("sha512").GetString(), Is.EqualTo(
+            "sha512-XsVJaOc2OXDAMJ66eSnclm3YvfuVdiPay0zJUP0+fqoGoFv4XgPxvM2pMbwwt5VRVDyTSHHDpT0YGdg61ZCk/g=="));
+        string runtimeTarget = deps.RootElement.GetProperty("runtimeTarget").GetProperty("name").GetString()!;
+        var runtimeEntries = deps.RootElement.GetProperty("targets").GetProperty(runtimeTarget).EnumerateObject()
+            .Where(p => p.Name.Contains("Avalonia.Headless", StringComparison.Ordinal)).ToArray();
+        Assert.That(runtimeEntries, Has.Length.EqualTo(1));
+        Assert.That(runtimeEntries[0].Name, Is.EqualTo("Avalonia.Headless/12.1.4"));
+        var assets = runtimeEntries[0].Value.GetProperty("runtime").EnumerateObject().ToArray();
+        Assert.That(assets, Has.Length.EqualTo(1));
+        Assert.That(assets[0].Name, Is.EqualTo("lib/net10.0/Avalonia.Headless.dll"));
+        Assert.That(assets[0].Value.GetProperty("assemblyVersion").GetString(), Is.EqualTo("12.1.4.0"));
+        Assert.That(assets[0].Value.GetProperty("fileVersion").GetString(), Is.EqualTo("12.1.4.0"));
+        TestContext.Progress.WriteLine($"Verified official package: {assembly.FullName}; SHA256={actualHash}");
     }
 
     [Test]
@@ -51,8 +63,8 @@ public class HeadlessSessionBackportTests
     [Test]
     public void DisposePropagatesAWorkerFaultDuringShutdown()
     {
-        // Fault injection only: the backport adds no public API for test hooks.
-        // These private-field contracts are pinned to the vendored 11.3.20 source.
+        // Fault injection only: no additional public API is required.
+        // These private-field contracts are checked against the pinned official 12.1.4 assembly.
         var session = Start();
         var queue = Field<BlockingCollection<(Action, ExecutionContext?)>>(session, "_queue");
         var cancellation = Field<CancellationTokenSource>(session, "_cancellationTokenSource");
@@ -96,5 +108,5 @@ public class HeadlessSessionBackportTests
 
     private static T Field<T>(HeadlessUnitTestSession session, string name) where T : class =>
         typeof(HeadlessUnitTestSession).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(session) as T
-        ?? throw new AssertionException($"Pinned 11.3.20 field missing or incompatible: {name}");
+        ?? throw new AssertionException($"Pinned 12.1.4 field missing or incompatible: {name}");
 }

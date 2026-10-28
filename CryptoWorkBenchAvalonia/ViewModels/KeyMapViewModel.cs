@@ -11,8 +11,8 @@ using CryptoWorkBenchAvalonia.Services;
 
 namespace CryptoWorkBenchAvalonia.ViewModels
 {
-	public class KeyMapViewModel : BindableBase, IDisposable
-	{
+    public class KeyMapViewModel : BindableBase, IDisposable
+    {
         private string _infoText = string.Empty;
         private readonly CancellationTokenSource lifetime = new();
         public Task Initialization { get; }
@@ -22,60 +22,35 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             private set => SetProperty(ref _infoText, value);
         }
         public KeyMapViewModel(StatusViewModel statusViewModel)
-		{
-            OutputOperations.InfoEvent += OnInfoEvent;
-            if (Avalonia.Application.Current is null)
-            {
-                LoadInfo(statusViewModel, new CryptoScriptRunner());
-                Initialization = Task.CompletedTask;
-            }
-            else Initialization = LoadInfoAsync(statusViewModel);
-        }
-
-        private void LoadInfo(StatusViewModel statusViewModel, CryptoScriptRunner prog)
         {
-            using var lease = InterpreterExecution.Enter();
-            string infoCmd = "Info(keymap)";            
-            try
-            {
-                CryptoScriptParser parser = ParserBuilder.StringBuild(infoCmd);
-                CryptoScriptParser.ProgramContext context = parser.program();
-                var res = prog.Execute(context);
-                statusViewModel.AppendDiagnostics(res.Diagnostics);
-                
-            }
-            catch (Exception e)
-            {
-                statusViewModel.AppendDiagnostics(prog.Diagnostics, (e as SemanticErrorException)?.SemanticError);
-                statusViewModel.StatusString="Error in loading KeyMap information";
-                InfoText = e is SemanticErrorException
-                    ? "Error in loading KeyMap information (semantic error)."
-                    : "Error in loading KeyMap information: " + e.Message;
-
-            }
+            OutputOperations.InfoEvent += OnInfoEvent;
+            Initialization = LoadInfoAsync(statusViewModel);
         }
+
         private void OnInfoEvent(string message)
         {
             if (Avalonia.Application.Current is not null && !Dispatcher.UIThread.CheckAccess())
-            { Dispatcher.UIThread.Post(() => OnInfoEvent(message)); return; }
+            { UiDispatch.Post(() => OnInfoEvent(message)); return; }
             if (message.Contains("Gesture="))
                 InfoText = message;
         }
-        private async Task LoadInfoAsync(StatusViewModel status)
+        internal async Task LoadInfoAsync(StatusViewModel status, CryptoScriptRunner? testRunner = null)
         {
             try
             {
-                var diagnostics = await InterpreterHostQueue.RunAsync(async () =>
+                using var password = new PasswordDialogHost();
+                var result = await Services.Automation.WorkbenchAutomationService.Shared.ExecuteSubmissionAsync(
+                    "Info(keymap)", password.RequestAsync, lifetime.Token, testRunner);
+                await UiDispatch.InvokeAsync(() =>
                 {
-                    var runner = new CryptoScriptRunner();
-                    var context = InterpreterExecution.AccessState(() => ParserBuilder.StringBuild("Info(keymap)").program());
-                    return (await runner.ExecuteAsync(context, lifetime.Token).ConfigureAwait(false)).Diagnostics;
-                }, lifetime.Token);
-                await Dispatcher.UIThread.InvokeAsync(() => status.AppendDiagnostics(diagnostics));
+                    status.AppendDiagnostics(result.Diagnostics, result.Error);
+                    if (!result.HostSucceeded) status.StatusString = result.CaptureFailed
+                        ? result.PresentationStatus : "Error in loading KeyMap information.";
+                });
             }
             catch (Exception)
             {
-                await Dispatcher.UIThread.InvokeAsync(() => status.StatusString = "Error in loading KeyMap information.");
+                await UiDispatch.InvokeAsync(() => status.StatusString = "Error in loading KeyMap information.");
             }
         }
         public void Dispose() { lifetime.Cancel(); OutputOperations.InfoEvent -= OnInfoEvent; }

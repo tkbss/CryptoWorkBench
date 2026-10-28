@@ -1,158 +1,102 @@
-﻿using CryptoScript.Variables;
+using CryptoScript.Model;
+using CryptoScript.Variables;
 using CryptoWorkBenchAvalonia.Models;
+using CryptoWorkBenchAvalonia.Services.Automation;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CryptoScript.Model;
 
-namespace CryptoWorkBenchAvalonia.ViewModels
+namespace CryptoWorkBenchAvalonia.ViewModels;
+
+public class VariableViewModel : ViewModelBase
 {
-    public class VariableViewModel:ViewModelBase
+    internal Func<bool>? IsExecutionActive { get; set; }
+    public VariableViewModel()
     {
-        internal Func<bool>? IsExecutionActive { get; set; }
-        public VariableViewModel() 
-        {
-            ModifyVariableCommand = new DelegateCommand<ParameterModel>(OnModifyVariable);
-            ModifyValueCommand = new DelegateCommand<VariableModel>(OnModifyValue);
-        }
-        private void OnModifyValue(VariableModel? obj)
-        {
-            if (IsExecutionActive?.Invoke() == true) return;
-            IDisposable lease;
-            try { lease = InterpreterExecution.Enter(); }
-            catch (ExecutionBusyException) { return; }
-            using var ownedLease = lease;
-            if (obj == null)
-                return;
-            if(SelectedVariable == null)
-                return;
-            var v = VariableDictionary.Instance().GetVariables();
-            var p = v.FirstOrDefault(x => x.Id == SelectedVariable!.Identifier && x.Type!.Name == SelectedVariable.Type);
-            if (p != null)
-            {
-                if (p is ValVariableDeclaration && SelectedVariable.Value is not ("true" or "false"))
-                {
-                    // Reject the edit without changing the runtime result or throwing on the UI thread.
-                    SelectedVariable.Value = p.Value;
-                    return;
-                }
-                p.Value = SelectedVariable.Value;
-                if(p is ParameterVariableDeclaration pv)
-                {
-                    pv.ParseToDictionary(p.Value);
-                }
-                DataVariables = new ObservableCollection<VariableModel>();
-                SetupVariables();                    
-            }
-        }
-        private void OnModifyVariable(ParameterModel? item)
-        {
-            if (IsExecutionActive?.Invoke() == true) return;
-            IDisposable lease;
-            try { lease = InterpreterExecution.Enter(); }
-            catch (ExecutionBusyException) { return; }
-            using var ownedLease = lease;
-            if (item == null)
-                return;
-            var v = VariableDictionary.Instance().GetVariables();
-            var p = v.FirstOrDefault(x => x.Id == SelectedVariable!.Identifier && x.Type!.Name == SelectedVariable.Type);
-            if(p != null && p is ParameterVariableDeclaration pv)
-            {
-                pv.SetParameter(item.Parameter, item.Value);
-                VariableDictionary.Instance().Update(pv);
-                DataVariables = new ObservableCollection<VariableModel>();
-                SetupVariables();
-                
-            }
-        }
-        public DelegateCommand<ParameterModel> ModifyVariableCommand { get; }
-        public DelegateCommand<VariableModel> ModifyValueCommand { get; }
+        ModifyVariableCommand = new DelegateCommand<ParameterModel>(OnModifyVariable);
+        ModifyValueCommand = new DelegateCommand<VariableModel>(OnModifyValue);
+    }
 
-        public void SetupVariables()
+    private void OnModifyValue(VariableModel? item)
+    {
+        if (item is null || SelectedVariable is null) return;
+        Mutate(() =>
         {
-            using var lease = InterpreterExecution.Enter();
-            ApplyVariables(CaptureVariables());
-        }
+            var variable = FindSelected();
+            if (variable is null) return;
+            if (variable is ValVariableDeclaration && SelectedVariable.Value is not ("true" or "false"))
+            {
+                // Preserve master's validation inside the MCP admission/lease boundary.
+                SelectedVariable.Value = variable.Value;
+                return;
+            }
+            variable.Value = SelectedVariable.Value;
+            if (variable is ParameterVariableDeclaration parameters)
+                parameters.ParseToDictionary(variable.Value);
+        });
+    }
 
-        internal void ApplyVariables(IReadOnlyList<VariableModel> snapshot)
+    private void OnModifyVariable(ParameterModel? item)
+    {
+        if (item is null || SelectedVariable is null) return;
+        Mutate(() =>
+        {
+            if (FindSelected() is not ParameterVariableDeclaration parameters) return;
+            parameters.SetParameter(item.Parameter, item.Value);
+            VariableDictionary.Instance().Update(parameters);
+        });
+    }
+
+    private VariableDeclaration? FindSelected() => VariableDictionary.Instance().GetVariables()
+        .FirstOrDefault(v => v.Id == SelectedVariable!.Identifier && v.Type?.Name == SelectedVariable.Type);
+
+    private void Mutate(Action mutation)
+    {
+        if (IsExecutionActive?.Invoke() == true) return;
+        try { WorkbenchAutomationService.Shared.Mutate(mutation, ApplyVariables); }
+        catch (ExecutionBusyException) { /* Fail fast, including detached variable views. */ }
+    }
+
+    public DelegateCommand<ParameterModel> ModifyVariableCommand { get; }
+    public DelegateCommand<VariableModel> ModifyValueCommand { get; }
+
+    public void SetupVariables() => WorkbenchAutomationService.Shared.Refresh(ApplyVariables);
+
+    private bool isSnapshotStale;
+    public bool IsSnapshotStale
+    {
+        get => isSnapshotStale;
+        internal set => SetProperty(ref isSnapshotStale, value);
+    }
+
+    internal void ApplyVariables(IReadOnlyList<VariableModel> snapshot)
+    {
+        try
         {
             if (DataVariables.Count != 0) DataVariables.Clear();
             foreach (var variable in snapshot) DataVariables.Add(variable);
+            IsSnapshotStale = false;
         }
+        catch
+        {
+            IsSnapshotStale = true;
+            throw;
+        }
+    }
 
-        internal static IReadOnlyList<VariableModel> CaptureVariables()
-        {
-            InterpreterExecution.VerifyAccess();
-            var snapshot = new List<VariableModel>();
-            foreach (var v in VariableDictionary.Instance().GetVariables())
-            {
-                var dv = new VariableModel()
-                {
-                    Type = v.Type?.Name ?? string.Empty,
-                    Identifier = v.Id,
-                    Value = v.Value,
-                    ValueFormat = v.ValueFormat
-                };
-                switch (v)
-                {
-                    case KeyVariableDeclaration a:
-                        dv.IsKey = true;
-                        dv.Algorithm = FormatAlgorithm(a.KeyType.Algorithm);
-                        dv.Material = a.KeyType.MaterialKind.ToString();
-                        dv.HasKeySize = a.KeySizeInBits.IsKnown;
-                        dv.KeySize = a.KeySizeInBits.IsKnown
-                            ? a.KeySizeInBits.Bits.ToString(CultureInfo.InvariantCulture)
-                            : string.Empty;
-                        dv.Derivation = a.DerivationMechanism;
-                        dv.HasDerivation = !string.IsNullOrWhiteSpace(a.DerivationMechanism);
-                        break;
-                    case StringVariableDeclaration b:                       
-                        dv.GMAC = b.GMAC;
-                        break;
-                     case ParameterVariableDeclaration c:
-                        dv.IsParameter = true;
-                        dv.Mechanism = c.Mechanism;
-                        var parameters = c.GetParameters();
-                        foreach (var param in parameters)
-                        { 
-                            
-                            dv.Parameters.Add(new ParameterModel
-                            {
-                                Parameter = param.Key,
-                                Value = param.Value
-                            });
-                        }
-                        break;
-                }
-                snapshot.Add(dv);
-            }
-            return snapshot;
-        }
-        private static string FormatAlgorithm(KeyAlgorithm algorithm) => algorithm switch
-        {
-            KeyAlgorithm.Aes => "AES",
-            KeyAlgorithm.Tdea => "TDEA",
-            KeyAlgorithm.Hmac => "HMAC",
-            KeyAlgorithm.Rsa => "RSA",
-            KeyAlgorithm.Ec => "EC",
-            _ => "Unknown"
-        };
-        ObservableCollection<VariableModel> _dataVariables = new ObservableCollection<VariableModel>();
-        public ObservableCollection<VariableModel> DataVariables
-        {
-            get => _dataVariables;
-            set => SetProperty(ref _dataVariables, value);
-        }
-        private VariableModel? _selectedVariable;
-        public VariableModel? SelectedVariable
-        {
-            get => _selectedVariable;
-            set => SetProperty(ref _selectedVariable, value);
-        }
+    private ObservableCollection<VariableModel> dataVariables = new();
+    public ObservableCollection<VariableModel> DataVariables
+    {
+        get => dataVariables;
+        set => SetProperty(ref dataVariables, value);
+    }
+
+    private VariableModel? selectedVariable;
+    public VariableModel? SelectedVariable
+    {
+        get => selectedVariable;
+        set => SetProperty(ref selectedVariable, value);
     }
 }

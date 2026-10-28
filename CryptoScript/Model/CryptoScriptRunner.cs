@@ -12,6 +12,9 @@ namespace CryptoScript.Model
         private readonly Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory;
         private int passwordRequestActive;
         public Guid RunnerId { get; } = Guid.NewGuid();
+        /// <summary>Identity of the execution actually entered, including a finished or aborted run.
+        /// Remains unchanged when cancellation prevents entry into the runner.</summary>
+        public Guid? ExecutionId => (activeExecution ?? lastExecution)?.ExecutionId;
         public event PasswordRequestHandler? PasswordRequested;
 
         public CryptoScriptRunner() { }
