@@ -4,7 +4,7 @@ This is the entry point for the architecture recovery documentation. It describe
 
 | Metadata | Value |
 | --- | --- |
-| Documentation status | Initial draft for review; Chapter 1 completed |
+| Documentation status | Draft for review; Chapter 1 completed; Chapter 9 partial-state contract documented |
 | Analysis baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
 | Analysis date | 2026-10-13 |
 | Evidence method | Static inspection of files at the baseline commit |
@@ -12,11 +12,11 @@ This is the entry point for the architecture recovery documentation. It describe
 | Source formats | Markdown for text; Mermaid for diagrams |
 | Language | English for all documentation and diagram content |
 
-See the [baseline and evidence index](evidence/01-introduction-baseline.md) for sources and analysis limitations.
+See the [baseline and evidence index](evidence/01-introduction-baseline.md) for the original sources and analysis limitations. Chapter 9 records its later implementation baseline separately; it does not revise the Chapter 1 baseline.
 
 ## Table of Contents
 
-The chapter order and titles follow the approved structure. Only completed chapters have navigation links. Planned source paths reserve filenames without creating unanalyzed chapter files.
+The chapter order and titles follow the approved structure. Only chapters with documented content have navigation links; their status identifies partial coverage. Planned source paths reserve filenames without creating unanalyzed chapter files.
 
 | Chapter | Title | Source | Status |
 | --- | --- | --- | --- |
@@ -28,7 +28,7 @@ The chapter order and titles follow the approved structure. Only completed chapt
 | 6 | Cryptographic Architecture | `chapters/06-cryptographic-architecture.md` | Not yet analyzed |
 | 7 | Diagnostics and Error Handling | `chapters/07-diagnostics-and-error-handling.md` | Not yet analyzed |
 | 8 | Interfaces and Integration | `chapters/08-interfaces-and-integration.md` | Not yet analyzed |
-| 9 | Data Flows and Execution Sequences | `chapters/09-data-flows-and-execution-sequences.md` | Not yet analyzed |
+| 9 | [Data Flows and Execution Sequences](chapters/09-data-flows-and-execution-sequences.md) | `chapters/09-data-flows-and-execution-sequences.md` | Partial-state contract documented; remaining flows not yet analyzed |
 | 10 | GUI Architecture | `chapters/10-gui-architecture.md` | Not yet analyzed |
 | 11 | Testing and Quality Assurance | `chapters/11-testing-and-quality-assurance.md` | Not yet analyzed |
 | 12 | Architecture Assessment | `chapters/12-architecture-assessment.md` | Not yet analyzed |
@@ -38,7 +38,7 @@ The chapter order and titles follow the approved structure. Only completed chapt
 
 | Area | Purpose | Initial state |
 | --- | --- | --- |
-| `chapters/` | Numbered architecture chapters in Markdown | Chapter 1 available |
+| `chapters/` | Numbered architecture chapters in Markdown | Chapter 1 and scoped Chapter 9 available |
 | `diagrams/` | Mermaid sources, accompanied by evidence and a legend | [Project reference overview](diagrams/01-project-references.mmd) available |
 | `decisions/` | Architecture decision records with context, status and consequences | Reserved; create when a decision is documented |
 | `evidence/` | Baselines, source references, verification notes and analysis limitations | [Introduction evidence](evidence/01-introduction-baseline.md) available |
