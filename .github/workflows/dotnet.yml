@@ -1,14 +1,11 @@
 name: .NET
-
 on:
   push:
-    branches: [ "master" ]
+    branches: [master]
   pull_request:
-    branches: [ "master" ]
-
+    branches: [master]
 permissions:
   contents: read
-
 jobs:
   build-test-publish:
     name: Build, test and publish (${{ matrix.rid }})
@@ -29,106 +26,59 @@ jobs:
     defaults:
       run:
         shell: pwsh
-
     steps:
       - name: Check out source
         uses: actions/checkout@v7
         with:
           persist-credentials: false
-
-      - name: Set up .NET SDK from global.json
+      - name: Set up exact .NET SDK
         uses: actions/setup-dotnet@v6
         with:
-          global-json-file: global.json
-
-      # These four roots cover every production/test project. The GUI test
-      # graph also restores the existing historical Console dependency.
-      - name: Restore desktop and test dependencies
-        run: |
-          dotnet restore CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet restore CryptoScriptUnitTest/CryptoScriptUnitTest.csproj
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet restore CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Restore MCP contract and transport tests
-        run: dotnet restore CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj
-
-      - name: Build CryptoScript
-        run: dotnet build CryptoScript/CryptoScript.csproj --configuration Release --no-restore
-
-      - name: Build Avalonia GUI
-        run: dotnet build CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj --configuration Release --no-restore
-
-      - name: Build Desktop Host
-        id: desktop
-        run: dotnet build CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj --configuration Release --no-restore
-
-      - name: Build test projects
+          dotnet-version: 10.0.401
+      - name: Build both solutions Debug with locked restore
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Build -Configuration Debug
+      - name: Build both solutions Release with locked restore
         id: test-build
-        run: |
-          dotnet build CryptoScriptUnitTest/CryptoScriptUnitTest.csproj --configuration Release --no-restore
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          dotnet build CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj --configuration Release --no-restore
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Test F01 native operations before complete suites
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Build -Configuration Release
+      - name: Preserve native file publication gate from master
         id: f01-native
-        timeout-minutes: 5
-        run: ./.github/scripts/Test-F01Native.ps1 -RequireMacArm64:('${{ matrix.rid }}' -eq 'osx-arm64')
-
-      - name: Build MCP contract and transport tests
-        run: dotnet build CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj --configuration Release --no-restore
-
-      - name: Test MCP contracts and isolated transport
-        run: >-
-          dotnet test CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj
-          --configuration Release --no-build --no-restore --verbosity normal
-          --logger "trx;LogFileName=CryptoWorkBench.Mcp.Tests.trx"
-          --results-directory artifacts/test-results
-
-      - name: Test CryptoScript (complete suite)
-        run: >-
-          dotnet test CryptoScriptUnitTest/CryptoScriptUnitTest.csproj
-          --configuration Release --no-build --no-restore --verbosity normal
-          --logger "trx;LogFileName=CryptoScriptUnitTest.trx"
-          --results-directory artifacts/test-results
-          --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type mini
-
-      - name: Test GUI and historical Console integration (complete suite)
-        if: ${{ !cancelled() && steps.f01-native.outcome == 'success' }}
-        run: >-
-          dotnet test CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj
-          --configuration Release --no-build --no-restore --verbosity normal
-          --logger "trx;LogFileName=CryptoWorkBenchGuiTest.trx"
-          --results-directory artifacts/test-results
-          --blame-hang --blame-hang-timeout 2m --blame-hang-dump-type mini
-
-      # A test failure still allows publish diagnostics; the job stays failed.
-      # RID-specific publishing deliberately restores its own runtime assets.
-      - name: Publish framework-dependent Desktop Host
-        id: publish
-        if: ${{ !cancelled() && steps.desktop.outcome == 'success' }}
-        run: >-
-          dotnet publish CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj
-          --configuration Release --runtime ${{ matrix.rid }}
-          --self-contained false -p:UseAppHost=true
-          --output artifacts/publish/${{ matrix.rid }}
-
-      - name: Validate desktop publish layout and documentation
-        if: ${{ !cancelled() && steps.publish.outcome == 'success' }}
-        run: >-
-          ./.github/scripts/Validate-DesktopPublish.ps1
-          -RuntimeIdentifier ${{ matrix.rid }}
-          -PublishDirectory artifacts/publish/${{ matrix.rid }}
-
-      - name: Upload test results
         if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        timeout-minutes: 5
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Native -RuntimeIdentifier ${{ matrix.rid }}
+      # Each suite still runs for diagnostics after another test gate fails.
+      # No continue-on-error: every failure keeps the job failed.
+      - name: Test Core complete
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Suite -Suite Core
+      - name: Test GUI complete
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Suite -Suite Gui
+      - name: Test EditorCoordinator
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Suite -Suite Coordinator
+      - name: Test F1 import cancellation
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Suite -Suite F1
+      - name: Test C1 diagnostics
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Suite -Suite C1
+      - name: Test MCP complete
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Suite -Suite Mcp
+      - name: Publish framework-dependent Desktop Host with reviewed RID locks
+        id: publish
+        if: ${{ !cancelled() && steps.test-build.outcome == 'success' }}
+        run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Publish -RuntimeIdentifier ${{ matrix.rid }}
+      - name: Validate layout, native assets and InfoDocs
+        if: ${{ !cancelled() && steps.publish.outcome == 'success' }}
+        run: ./.github/scripts/Validate-DesktopPublish.ps1 -RuntimeIdentifier ${{ matrix.rid }} -PublishDirectory artifacts/publish/${{ matrix.rid }}
+      - name: Upload build, test and publish diagnostics
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.rid }}
           path: |
+            artifacts/ci-logs/
             artifacts/test-results/
             artifacts/f01-native/
           if-no-files-found: error

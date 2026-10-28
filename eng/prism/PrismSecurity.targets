@@ -12,8 +12,11 @@
           Condition="'$(_CwbScopedProject)' == 'true'">
     <PropertyGroup>
       <_CwbExpectedLock>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)locks/$(Configuration)/$(MSBuildProjectName).lock.json'))</_CwbExpectedLock>
+      <_CwbExpectedLock Condition="'$(CwbPublishRid)' != ''">$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)locks/$(Configuration)/rid/$(CwbPublishRid)/$(MSBuildProjectName).lock.json'))</_CwbExpectedLock>
       <_CwbActualLock>$([MSBuild]::NormalizePath('$(NuGetLockFilePath)'))</_CwbActualLock>
     </PropertyGroup>
+    <Error Condition="'$(CwbPublishRid)' != '' And '$(CwbPublishRid)' != 'win-x64' And '$(CwbPublishRid)' != 'linux-x64' And '$(CwbPublishRid)' != 'osx-x64' And '$(CwbPublishRid)' != 'osx-arm64'" Text="Unsupported publish RID." />
+    <Error Condition="'$(CwbPublishRid)' != '' And ('$(Configuration)' != 'Release' Or ('$(RuntimeIdentifier)' != '' And '$(RuntimeIdentifier)' != '$(CwbPublishRid)'))" Text="RID locks require Release and matching RuntimeIdentifier." />
     <Error Condition="'$(Configuration)' != 'Debug' And '$(Configuration)' != 'Release'"
            Text="Temporary Prism supports only Debug and Release lockfiles." />
     <Error Condition="'$(CwbTemporaryPrismPolicy)' != 'true'"
@@ -31,5 +34,3 @@
     <Exec Command="pwsh -NoProfile -File &quot;$(MSBuildThisFileDirectory)Prepare-Prism.ps1&quot; -VerifyOnly -CompileInputsFile &quot;$(MSBuildProjectDirectory)/$(IntermediateOutputPath)cwb-prism-compile-inputs.txt&quot; -GeneratedInputsFile &quot;$(MSBuildProjectDirectory)/$(IntermediateOutputPath)cwb-prism-generated-inputs.txt&quot; -ProjectDirectory &quot;$(MSBuildProjectDirectory)&quot;" />
   </Target>
 </Project>
-
-

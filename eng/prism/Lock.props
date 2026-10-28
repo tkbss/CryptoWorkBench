@@ -12,6 +12,6 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(RestoreLockedMode)' == ''">true</RestoreLockedMode>
     <NuGetLockFilePath>$(MSBuildThisFileDirectory)locks/$(Configuration)/$(MSBuildProjectName).lock.json</NuGetLockFilePath>
+    <NuGetLockFilePath Condition="'$(CwbPublishRid)' != ''">$(MSBuildThisFileDirectory)locks/$(Configuration)/rid/$(CwbPublishRid)/$(MSBuildProjectName).lock.json</NuGetLockFilePath>
   </PropertyGroup>
 </Project>
-
