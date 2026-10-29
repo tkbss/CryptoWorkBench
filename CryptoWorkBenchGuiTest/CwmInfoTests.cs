@@ -13,14 +13,18 @@ public class CwmInfoTests
     [NonParallelizable]
     public void ValEditingPreservesBooleanDomain(string edit, string expected)
     {
-        using var lease = InterpreterExecution.Enter();
         var dictionary = CryptoScript.Variables.VariableDictionary.Instance();
-        var previous = dictionary.GetVariables().ToArray();
+        CryptoScript.Variables.VariableDeclaration[] previous;
+        using (InterpreterExecution.Enter())
+            previous = dictionary.GetVariables().ToArray();
         try
         {
-            dictionary.Clear();
             var value = new CryptoScript.Variables.ValVariableDeclaration(true) { Id = "valid" };
-            dictionary.Add(value);
+            using (InterpreterExecution.Enter())
+            {
+                dictionary.Clear();
+                dictionary.Add(value);
+            } // Release setup capability before the host acquires admission.
             var vm = new VariableViewModel(); vm.SetupVariables();
             vm.SelectedVariable = vm.DataVariables.Single();
             vm.SelectedVariable.Value = edit;
@@ -30,6 +34,7 @@ public class CwmInfoTests
         }
         finally
         {
+            using var cleanupLease = InterpreterExecution.Enter();
             dictionary.Clear();
             foreach (var value in previous) dictionary.Add(value);
         }

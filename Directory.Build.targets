@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <_CwbGuardApplicationPath>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj'))</_CwbGuardApplicationPath>
+  </PropertyGroup>
+  <Target Name="RequireTemporaryPrismEnvironment" BeforeTargets="CollectPackageReferences;PrepareForBuild"
+          Condition="'$(MSBuildProjectFullPath)' == '$(_CwbGuardApplicationPath)'">
+    <Error Condition="'$(CwbTemporaryPrismPolicy)' != 'true' Or '$(CwbTemporaryPrismSecurityPolicy)' != 'true'"
+           Text="Temporary Prism requires the prepared build environment. Run pwsh ./eng/prism/Build.ps1, or dot-source ./eng/prism/Enter-Prism.ps1 before launching your IDE. See eng/prism/README.md." />
+  </Target>
+</Project>

@@ -43,7 +43,7 @@ public class CryptoScriptExecutionPresentationTests
     [TearDown]
     public void TearDown()
     {
-        OutputOperations.PrintEvent -= Handler(editor, "OnPrintEvent");
+        editor.Dispose();
         OutputOperations.InfoEvent -= Handler(editor, "OnInfoEvent");
         VariableDictionary.Instance().Clear();
         foreach (var variable in previous) VariableDictionary.Instance().Add(variable);
@@ -61,60 +61,69 @@ public class CryptoScriptExecutionPresentationTests
         (CryptoScriptRunner)Activator.CreateInstance(typeof(CryptoScriptRunner),
             BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { action }, null)!;
 
-    private bool ExecuteLine(string script, CryptoScriptRunner? runner = null) =>
-        (bool)typeof(CryptoScriptEditViewModel).GetMethod("ExecuteLine", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(editor, new object?[] { script, null, runner })!;
+    private Task<bool> ExecuteLine(string script, CryptoScriptRunner? runner = null) =>
+        editor.ExecuteLineAsync(script, runner: runner);
 
-    private List<string> ExecuteBook(string[] lines, Func<CryptoScriptRunner>? factory = null)
+    private async Task<List<string>> ExecuteBook(string[] lines, Func<CryptoScriptRunner>? factory = null)
     {
-        // Model OpenScriptBook's reset; ExecuteScriptBook itself must not reset the presentation.
         status.ClearDiagnostics();
         var appended = new List<string>();
-        typeof(CryptoScriptEditViewModel).GetMethod("ExecuteScriptBook", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(editor, new object?[] { lines, (Action<string>)appended.Add, factory });
+        await editor.ExecuteScriptBookAsync(lines, appended.Add, runnerFactory: factory);
         return appended;
     }
-
     private static SemanticError Warning(string message) => new()
     {
-        Severity = SemanticDiagnosticSeverity.Warning, Message = message
+        Severity = SemanticDiagnosticSeverity.Warning,
+        Message = message
     };
 
     [Test]
-    public void CheckErrorsContinueAndKeyPrintReachesExistingGuiOutput()
+    public async Task CheckErrorsContinueAndKeyPrintReachesExistingGuiOutput()
     {
-        editor.ParseLine("KEY missing=Check(0x(AA)) VAR continued=0x(01)");
-        Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
-        Assert.That(status.Diagnostics[0].Text, Does.Contain("KeyCheckValueNotFound"));
-        Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("continued"));
-        Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Not.Contain("missing"));
-        editor.ParseLine("KEY key=GenerateKey(AES-ECB,0x(000102030405060708090A0B0C0D0E0F)) Print(key)");
-        Assert.That(editor.PrintMessage, Does.Contain("KCV: 0x(c6a13b37878f5b826f4f8162a1c8d879)"));
-        Assert.That(editor.PrintMessage, Does.Contain("KCVC: 0x(be7ed6ae787dd5544c5561c7dcd06abb)"));
-        Assert.That(editor.PrintMessage, Does.Contain("KCVK: 0x(0a940bb5416ef045f1c39458c653ea5a)"));
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            await editor.ParseLineAsync("KEY missing=Check(0x(AA)) VAR continued=0x(01)");
+            Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
+            Assert.That(status.Diagnostics[0].Text, Does.Contain("KeyCheckValueNotFound"));
+            Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("continued"));
+            Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Not.Contain("missing"));
+            await editor.ParseLineAsync("KEY key=GenerateKey(AES-ECB,0x(000102030405060708090A0B0C0D0E0F)) Print(key)");
+            Assert.That(editor.PrintMessage, Does.Contain("KCV: 0x(c6a13b37878f5b826f4f8162a1c8d879)"));
+            Assert.That(editor.PrintMessage, Does.Contain("KCVC: 0x(be7ed6ae787dd5544c5561c7dcd06abb)"));
+            Assert.That(editor.PrintMessage, Does.Contain("KCVK: 0x(0a940bb5416ef045f1c39458c653ea5a)"));
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [Test]
-    public void SecretPrintUsesExistingGuiEventAndScriptBookOutputPaths()
+    public async Task SecretPrintUsesExistingGuiEventAndScriptBookOutputPaths()
     {
-        ExecuteBook([
-            "KEY k=GenerateKey(AES-ECB,128)",
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            await ExecuteBook([
+                "KEY k=GenerateKey(AES-ECB,128)",
             "PARAM p=Parameters(SECRET_SHAMIR,#PARTS:3,#MINPARTS:2,#SHAREFORMAT:\"Y-X\")",
             "SECRET s=Share(p,k)", "KEY r=Restore(s)", "Print(s)"
-        ]);
-        Assert.That(status.Diagnostics, Is.Empty);
-        Assert.That(editor.LastScriptBookSucceeded, Is.True);
-        Assert.That(editor.PrintMessage, Does.Contain("ShareFormat: Y-X").And.Contain("AvailableShares: 3"));
-        Assert.That(variables.DataVariables.Any(v => v.Identifier == "s" && v.Type == "SECRET"), Is.True);
-        var set = ((SecretVariableDeclaration)VariableDictionary.Instance().Get("s")).SecretSet;
-        foreach (var share in set.Shares)
-            Assert.That(editor.PrintMessage, Does.Contain(Convert.ToHexString(share.Value)));
-        Assert.That(editor.PrintMessage, Does.Contain("out: SECRET importedSecret = Secret("));
-        ExecuteBook(editor.PrintMessage.Split(Environment.NewLine).Append("KEY replay=Restore(s)").ToArray());
-        Assert.That(editor.LastScriptBookSucceeded, Is.True);
-        Assert.That(VariableDictionary.Instance().Contains("replay"), Is.True);
-        Assert.That(VariableDictionary.Instance().Get("r").Value,
-            Is.EqualTo(VariableDictionary.Instance().Get("k").Value).IgnoreCase);
+            ]);
+            Assert.That(status.Diagnostics, Is.Empty);
+            Assert.That(editor.LastScriptBookSucceeded, Is.True);
+            Assert.That(editor.PrintMessage, Does.Contain("ShareFormat: Y-X").And.Contain("AvailableShares: 3"));
+            Assert.That(variables.DataVariables.Any(v => v.Identifier == "s" && v.Type == "SECRET"), Is.True);
+            var set = ((SecretVariableDeclaration)VariableDictionary.Instance().Get("s")).SecretSet;
+            foreach (var share in set.Shares)
+                Assert.That(editor.PrintMessage, Does.Contain(Convert.ToHexString(share.Value)));
+            Assert.That(editor.PrintMessage, Does.Contain("out: SECRET importedSecret = Secret("));
+            await ExecuteBook(editor.PrintMessage.Split(Environment.NewLine).Append("KEY replay=Restore(s)").ToArray());
+            Assert.That(editor.LastScriptBookSucceeded, Is.True);
+            Assert.That(VariableDictionary.Instance().Contains("replay"), Is.True);
+            Assert.That(VariableDictionary.Instance().Get("r").Value,
+                Is.EqualTo(VariableDictionary.Instance().Get("k").Value).IgnoreCase);
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [TestCase("0x(01AABBCC) 0x(02DDEEFF)")]
@@ -123,41 +132,59 @@ public class CryptoScriptExecutionPresentationTests
     [TestCase("0x(01AABBCC),0x(02DDEEFFGG)")]
     [TestCase("0x(01AABBCC),0x(02DDEEFF@)")]
     [TestCase("0x(01AABBCC),0x(02DDEEFF")]
-    public void SecretImportSyntaxErrorsReachGuiWithoutShareMaterial(string arguments)
+    public async Task SecretImportSyntaxErrorsReachGuiWithoutShareMaterial(string arguments)
     {
-        editor.ParseLine("SECRET s=Secret(p," + arguments + ")");
-        Assert.That(status.StatusString, Does.Contain("Secret import").And.Contain("line 1").And.Contain("column"));
-        Assert.That(status.StatusString, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
-        Assert.That(status.Diagnostics, Is.Empty); // No semantic evaluation after lexical/syntax failure.
-        Assert.That(VariableDictionary.Instance().Contains("s"), Is.False);
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            await editor.ParseLineAsync("SECRET s=Secret(p," + arguments + ")");
+            Assert.That(status.StatusString, Does.Contain("Secret import").And.Contain("line 1").And.Contain("column"));
+            Assert.That(status.StatusString, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+            Assert.That(status.Diagnostics, Is.Empty); // No semantic evaluation after lexical/syntax failure.
+            Assert.That(VariableDictionary.Instance().Contains("s"), Is.False);
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [TestCase("VAR v=\"bad\\q SECRET s=Secret(p,0x(01AABBCC) 0x(02DDEEFF))")]
     [TestCase("VAR v=\"bad\\z Print(Secret(p,\n0x(01AABBCC) 0x(02DDEEFF)))")]
-    public void LexerRecoverySecretErrorsAreRedactedInGui(string script)
+    public async Task LexerRecoverySecretErrorsAreRedactedInGui(string script)
     {
-        editor.ParseLine(script);
-        Assert.That(status.StatusString, Does.Contain("Secret import"));
-        Assert.That(status.StatusString, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
-        foreach (var error in SyntaxErrorList.Instance())
-            Assert.That(error.Symbol + error.Message, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
-        Assert.That(SyntaxErrorListner.ErrorMessage.ToString(), Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            await editor.ParseLineAsync(script);
+            Assert.That(status.StatusString, Does.Contain("Secret import"));
+            Assert.That(status.StatusString, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+            foreach (var error in SyntaxErrorList.Instance())
+                Assert.That(error.Symbol + error.Message, Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+            Assert.That(SyntaxErrorListner.ErrorMessage.ToString(), Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [TestCase("\n", 0)]
     [TestCase("\n", 21)]
     [TestCase("\r\n", 0)]
     [TestCase("\r\n", 21)]
-    public void LaterLexerFailureCannotCopyEarlierSharesIntoGuiDiagnostics(string newline, int column)
+    public async Task LaterLexerFailureCannotCopyEarlierSharesIntoGuiDiagnostics(string newline, int column)
     {
-        editor.ParseLine("PARAM p=Parameters(SECRET_SHAMIR,#PARTS:2,#MINPARTS:2)");
-        editor.ParseLine("SECRET s=Secret(p,0x(01AABBCC),0x(02DDEEFF))" + newline + new string(' ', column) + "@");
-        var error = SyntaxErrorList.Instance().OfType<LexerError>().Single();
-        Assert.That(error.Symbol, Is.EqualTo("@"));
-        Assert.That(error.Line, Is.EqualTo("2"));
-        Assert.That(error.Column, Is.EqualTo(column.ToString()));
-        Assert.That(status.StatusString + SyntaxErrorListner.ErrorMessage,
-            Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            await editor.ParseLineAsync("PARAM p=Parameters(SECRET_SHAMIR,#PARTS:2,#MINPARTS:2)");
+            await editor.ParseLineAsync("SECRET s=Secret(p,0x(01AABBCC),0x(02DDEEFF))" + newline + new string(' ', column) + "@");
+            var error = SyntaxErrorList.Instance().OfType<LexerError>().Single();
+            Assert.That(error.Symbol, Is.EqualTo("@"));
+            Assert.That(error.Line, Is.EqualTo("2"));
+            Assert.That(error.Column, Is.EqualTo(column.ToString()));
+            Assert.That(status.StatusString + SyntaxErrorListner.ErrorMessage,
+                Does.Not.Contain("AABBCC").And.Not.Contain("DDEEFF"));
+
+            return true;
+        }, CancellationToken.None);
     }
 
     public sealed class ScriptBookTestApp
@@ -172,7 +199,7 @@ public class CryptoScriptExecutionPresentationTests
     [TestCase("\r\n", 2)]
     public async Task KeyPrintSurvivesEditorSaveAndScriptBookReload(string newline, int printCount)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(ScriptBookTestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var textEditor = new TextEditor();
@@ -227,164 +254,221 @@ public class CryptoScriptExecutionPresentationTests
     }
 
     [Test]
-    public void SuccessfulInteractiveExecutionClearsOldDiagnosticsAndUpdatesVariables()
+    public async Task SuccessfulInteractiveExecutionClearsOldDiagnosticsAndUpdatesVariables()
     {
-        status.AppendDiagnostics(new[] { Warning("old") });
-        editor.ParseLine("VAR result=0x(AB)");
-        Assert.That(status.Diagnostics, Is.Empty);
-        Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("result"));
-        editor.ParseLine("VAR next=0x(CD)");
-        Assert.That(status.Diagnostics, Is.Empty);
-        Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("next"));
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            status.AppendDiagnostics(new[] { Warning("old") });
+            await editor.ParseLineAsync("VAR result=0x(AB)");
+            Assert.That(status.Diagnostics, Is.Empty);
+            Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("result"));
+            await editor.ParseLineAsync("VAR next=0x(CD)");
+            Assert.That(status.Diagnostics, Is.Empty);
+            Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("next"));
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [TestCase(1)]
     [TestCase(2)]
-    public void SuccessfulWarningsRemainOrderedAndDoNotSetErrorFlag(int count)
+    public async Task SuccessfulWarningsRemainOrderedAndDoNotSetErrorFlag(int count)
     {
-        var reported = Enumerable.Range(1, count).Select(i => Warning("warning " + i)).ToArray();
-        var runner = ControlledRunner((_, sink) => { foreach (var warning in reported) sink.Report(warning); });
-        Assert.That(ExecuteLine("VAR result=Compare(0x(AB),0x(AB))", runner), Is.True);
-        Assert.That(status.Diagnostics.Select(item => item.Text),
-            Is.EqualTo(reported.Select(SemanticDiagnosticFormatter.Format)));
-        Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("result"));
-        Assert.That(typeof(CryptoScriptEditViewModel).GetField("_syntaxErrorOccured", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(editor), Is.False);
-        editor.ParseLine("VAR next=0x(CD)");
-        Assert.That(status.Diagnostics, Is.Empty);
-    }
-
-    [Test]
-    public void WarningBeforeErrorUsesRunnerSnapshotWithoutDuplicateOrVariableRefresh()
-    {
-        var warning = Warning("warning before failure");
-        var error = new SemanticError { Message = "controlled failure", Type = "FunctionContract",
-            ErrorCode = FunctionContractError.UnsupportedFunction };
-        var runner = ControlledRunner((_, sink) =>
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
         {
-            sink.Report(warning);
-            sink.Report(error);
-            throw new SemanticErrorException { SemanticError = error };
-        });
-        Assert.That(ExecuteLine("VAR before=0x(AB) Compare(0x(AB),0x(AB)) VAR after=0x(CD)", runner), Is.False);
-        Assert.That(status.Diagnostics.Select(item => item.Text),
-            Is.EqualTo(runner.Diagnostics.Select(SemanticDiagnosticFormatter.Format)));
-        Assert.That(status.Diagnostics, Has.Count.EqualTo(2));
-        Assert.That(variables.DataVariables, Is.Empty);
-        Assert.That(VariableDictionary.Instance().GetVariables().Select(item => item.Id), Does.Contain("before"));
-        Assert.That(VariableDictionary.Instance().GetVariables().Select(item => item.Id), Does.Not.Contain("after"));
-        Assert.That(status.StatusString, Does.Not.Contain(error.Message));
-    }
-
-    [Test]
-    public void SyntaxErrorClearsOldWarningsAndDoesNotExecute()
-    {
-        status.AppendDiagnostics(new[] { Warning("old") });
-        editor.ParseLine("VAR =");
-        Assert.That(status.Diagnostics, Is.Empty);
-        Assert.That(status.StatusString, Does.Contain("SYNTAX ERROR"));
-        Assert.That(variables.DataVariables, Is.Empty);
-        Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
-    }
-
-    [Test]
-    public void VariableRefreshFailureDoesNotAppendSuccessfulDiagnosticsAgain()
-    {
-        var warning = Warning("successful script warning");
-        var runner = ControlledRunner((_, sink) => sink.Report(warning));
-        int refreshAttempts = 0;
-        variables.DataVariables.CollectionChanged += (_, _) =>
-        {
-            ++refreshAttempts;
-            throw new InvalidOperationException("controlled variable refresh failure");
-        };
-
-        Assert.That(ExecuteLine("VAR result=Compare(0x(AB),0x(AB))", runner), Is.False);
-        Assert.Multiple(() =>
-        {
-            Assert.That(refreshAttempts, Is.EqualTo(1));
-            Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
-            Assert.That(status.Diagnostics[0].Text, Is.EqualTo(SemanticDiagnosticFormatter.Format(warning)));
-            Assert.That(status.StatusString, Is.EqualTo("Semantic controlled variable refresh failure"));
+            var reported = Enumerable.Range(1, count).Select(i => Warning("warning " + i)).ToArray();
+            var runner = ControlledRunner((_, sink) => { foreach (var warning in reported) sink.Report(warning); });
+            Assert.That(await ExecuteLine("VAR result=Compare(0x(AB),0x(AB))", runner), Is.True);
+            Assert.That(status.Diagnostics.Select(item => item.Text),
+                Is.EqualTo(reported.Select(SemanticDiagnosticFormatter.Format)));
+            Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("result"));
             Assert.That(typeof(CryptoScriptEditViewModel).GetField("_syntaxErrorOccured", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(editor), Is.True);
-            Assert.That(VariableDictionary.Instance().GetVariables().Select(item => item.Id), Does.Contain("result"));
-        });
+                .GetValue(editor), Is.False);
+            await editor.ParseLineAsync("VAR next=0x(CD)");
+            Assert.That(status.Diagnostics, Is.Empty);
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [Test]
-    public void MissingScriptBookClearsOldDiagnosticsBeforePropagatingFileError()
+    public async Task WarningBeforeErrorUsesRunnerSnapshotWithoutDuplicateAndRefreshesPartialState()
     {
-        status.AppendDiagnostics(new[] { Warning("old") });
-        int resets = 0;
-        ((System.Collections.Specialized.INotifyCollectionChanged)status.Diagnostics).CollectionChanged += (_, args) =>
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
         {
-            if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) ++resets;
-        };
-        var missingFile = Path.Combine(Path.GetTempPath(), "missing-scriptbook-" + Guid.NewGuid().ToString("N") + ".sbk");
+            var warning = Warning("warning before failure");
+            var error = new SemanticError
+            {
+                Message = "controlled failure",
+                Type = "FunctionContract",
+                ErrorCode = FunctionContractError.UnsupportedFunction
+            };
+            var runner = ControlledRunner((_, sink) =>
+            {
+                sink.Report(warning);
+                sink.Report(error);
+                throw new SemanticErrorException { SemanticError = error };
+            });
+            Assert.That(await ExecuteLine("VAR before=0x(AB) Compare(0x(AB),0x(AB)) VAR after=0x(CD)", runner), Is.False);
+            Assert.That(status.Diagnostics.Select(item => item.Text),
+                Is.EqualTo(runner.Diagnostics.Select(SemanticDiagnosticFormatter.Format)));
+            Assert.That(status.Diagnostics, Has.Count.EqualTo(2));
+            Assert.That(variables.DataVariables.Select(item => item.Identifier), Does.Contain("before"));
+            Assert.That(VariableDictionary.Instance().GetVariables().Select(item => item.Id), Does.Contain("before"));
+            Assert.That(VariableDictionary.Instance().GetVariables().Select(item => item.Id), Does.Not.Contain("after"));
+            Assert.That(status.StatusString, Does.Not.Contain(error.Message));
 
-        Assert.Throws<FileNotFoundException>(() => editor.OpenScriptBook(missingFile));
-        Assert.That(status.Diagnostics, Is.Empty);
-        Assert.That(resets, Is.EqualTo(1));
-        Assert.That(editor.LastScriptBookSucceeded, Is.False);
+            return true;
+        }, CancellationToken.None);
     }
 
     [Test]
-    public void ScriptBookProcessingDoesNotResetItsAlreadyStartedPresentation()
+    public async Task SyntaxErrorClearsOldWarningsAndDoesNotExecute()
     {
-        status.AppendDiagnostics(new[] { Warning("already collected") });
-        var prior = status.Diagnostics[0];
-        int resets = 0;
-        ((System.Collections.Specialized.INotifyCollectionChanged)status.Diagnostics).CollectionChanged += (_, args) =>
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
         {
-            if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) ++resets;
-        };
-        typeof(CryptoScriptEditViewModel).GetMethod("ExecuteScriptBook", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(editor, new object?[] { new[] { "Compare(0x(AB),0x(AB))" }, (Action<string>)(_ => { }), null });
+            status.AppendDiagnostics(new[] { Warning("old") });
+            await editor.ParseLineAsync("VAR =");
+            Assert.That(status.Diagnostics, Is.Empty);
+            Assert.That(status.StatusString, Does.Contain("SYNTAX ERROR"));
+            Assert.That(variables.DataVariables, Is.Empty);
+            Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
 
-        Assert.That(resets, Is.Zero);
-        Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
-        Assert.That(status.Diagnostics[0], Is.SameAs(prior));
-        Assert.That(editor.LastScriptBookSucceeded, Is.True);
+            return true;
+        }, CancellationToken.None);
     }
 
     [Test]
-    public void ScriptBookAppendsWarningsKeepsRealBookLinesAndSkipsOutputLines()
+    public async Task VariableRefreshFailureDoesNotAppendSuccessfulDiagnosticsAgain()
     {
-        status.AppendDiagnostics(new[] { Warning("old") });
-        int runs = 0;
-        var lines = new[] { "Compare(0x(AB),0x(AB))", "out: ignored", "Compare(0x(CD),0x(CD))" };
-        var appended = ExecuteBook(lines, () => ControlledRunner((_, sink) => sink.Report(Warning("run " + ++runs))));
-        Assert.That(appended, Is.EqualTo(lines));
-        Assert.That(editor.LastScriptBookSucceeded, Is.True);
-        Assert.That(runs, Is.EqualTo(2));
-        Assert.That(status.Diagnostics.Select(item => item.ScriptBookLine), Is.EqualTo(new int?[] { 1, 3 }));
-        Assert.That(status.Diagnostics[0].Text, Does.Contain("Statement=1"));
-        Assert.That(status.Diagnostics[1].Text, Does.Contain("Statement=1"));
-        Assert.That(status.Diagnostics[0].Text, Does.Contain("run 1"));
-        Assert.That(status.Diagnostics[1].Text, Does.Contain("run 2"));
-    }
-
-    [Test]
-    public void ScriptBookStopsAfterErrorAndSidebarDoesNotOverwriteAbortedStatus()
-    {
-        var lines = new[] { "Compare(0x(AB),0x(AB))", "Print(missing)", "VAR after=0x(CD)" };
-        var appended = ExecuteBook(lines, () => ControlledRunner((call, sink) =>
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
         {
-            if (call.Location?.FunctionName == "Compare") sink.Report(Warning("first warning"));
-        }));
-        Assert.That(appended, Is.EqualTo(lines.Take(2)));
-        Assert.That(editor.LastScriptBookSucceeded, Is.False);
-        Assert.That(status.Diagnostics[0].Severity, Is.EqualTo(SemanticDiagnosticSeverity.Warning));
-        Assert.That(status.Diagnostics[1].Severity, Is.EqualTo(SemanticDiagnosticSeverity.Error));
-        Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
-        var originalStatus = status.StatusString;
-        UpdateSidebarStatus();
-        Assert.That(status.StatusString, Is.EqualTo(originalStatus));
-        ExecuteBook(new[] { "VAR success=0x(AB)" });
-        UpdateSidebarStatus();
-        Assert.That(status.StatusString, Is.EqualTo("Script book loaded and all lines successfull parsed"));
-        Assert.That(status.Diagnostics, Is.Empty);
+            var warning = Warning("successful script warning");
+            var runner = ControlledRunner((_, sink) => sink.Report(warning));
+            int refreshAttempts = 0;
+            variables.DataVariables.CollectionChanged += (_, _) =>
+            {
+                ++refreshAttempts;
+                throw new InvalidOperationException("controlled variable refresh failure");
+            };
+
+            Assert.That(await ExecuteLine("VAR result=Compare(0x(AB),0x(AB))", runner), Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(refreshAttempts, Is.EqualTo(1));
+                Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
+                Assert.That(status.Diagnostics[0].Text, Is.EqualTo(SemanticDiagnosticFormatter.Format(warning)));
+                Assert.That(status.StatusString, Is.EqualTo("Variable presentation failed."));
+                Assert.That(typeof(CryptoScriptEditViewModel).GetField("_syntaxErrorOccured", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .GetValue(editor), Is.True);
+                Assert.That(VariableDictionary.Instance().GetVariables().Select(item => item.Id), Does.Contain("result"));
+            });
+
+            return true;
+        }, CancellationToken.None);
+    }
+
+    [Test]
+    public async Task MissingScriptBookClearsOldDiagnosticsBeforePropagatingFileError()
+    {
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            status.AppendDiagnostics(new[] { Warning("old") });
+            int resets = 0;
+            ((System.Collections.Specialized.INotifyCollectionChanged)status.Diagnostics).CollectionChanged += (_, args) =>
+            {
+                if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) ++resets;
+            };
+            var missingFile = Path.Combine(Path.GetTempPath(), "missing-scriptbook-" + Guid.NewGuid().ToString("N") + ".sbk");
+
+            await Assert.ThatAsync(() => editor.OpenScriptBookAsync(missingFile), Throws.TypeOf<FileNotFoundException>());
+            Assert.That(status.Diagnostics, Is.Empty);
+            Assert.That(resets, Is.EqualTo(1));
+            Assert.That(editor.LastScriptBookSucceeded, Is.False);
+
+            return true;
+        }, CancellationToken.None);
+    }
+
+    [Test]
+    public async Task ScriptBookProcessingDoesNotResetItsAlreadyStartedPresentation()
+    {
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            status.AppendDiagnostics(new[] { Warning("already collected") });
+            var prior = status.Diagnostics[0];
+            int resets = 0;
+            ((System.Collections.Specialized.INotifyCollectionChanged)status.Diagnostics).CollectionChanged += (_, args) =>
+            {
+                if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) ++resets;
+            };
+            await editor.ExecuteScriptBookAsync(new[] { "Compare(0x(AB),0x(AB))" }, _ => { });
+
+            Assert.That(resets, Is.Zero);
+            Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
+            Assert.That(status.Diagnostics[0], Is.SameAs(prior));
+            Assert.That(editor.LastScriptBookSucceeded, Is.True);
+
+            return true;
+        }, CancellationToken.None);
+    }
+
+    [Test]
+    public async Task ScriptBookAppendsWarningsKeepsRealBookLinesAndSkipsOutputLines()
+    {
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            status.AppendDiagnostics(new[] { Warning("old") });
+            int runs = 0;
+            var lines = new[] { "Compare(0x(AB),0x(AB))", "out: ignored", "Compare(0x(CD),0x(CD))" };
+            var appended = await ExecuteBook(lines, () => ControlledRunner((_, sink) => sink.Report(Warning("run " + ++runs))));
+            Assert.That(appended, Is.EqualTo(lines));
+            Assert.That(editor.LastScriptBookSucceeded, Is.True);
+            Assert.That(runs, Is.EqualTo(2));
+            Assert.That(status.Diagnostics.Select(item => item.ScriptBookLine), Is.EqualTo(new int?[] { 1, 3 }));
+            Assert.That(status.Diagnostics[0].Text, Does.Contain("Statement=1"));
+            Assert.That(status.Diagnostics[1].Text, Does.Contain("Statement=1"));
+            Assert.That(status.Diagnostics[0].Text, Does.Contain("run 1"));
+            Assert.That(status.Diagnostics[1].Text, Does.Contain("run 2"));
+
+            return true;
+        }, CancellationToken.None);
+    }
+
+    [Test]
+    public async Task ScriptBookStopsAfterErrorAndSidebarDoesNotOverwriteAbortedStatus()
+    {
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
+        {
+            var lines = new[] { "Compare(0x(AB),0x(AB))", "Print(missing)", "VAR after=0x(CD)" };
+            var appended = await ExecuteBook(lines, () => ControlledRunner((call, sink) =>
+            {
+                if (call.Location?.FunctionName == "Compare") sink.Report(Warning("first warning"));
+            }));
+            Assert.That(appended, Is.EqualTo(lines.Take(2)));
+            Assert.That(editor.LastScriptBookSucceeded, Is.False);
+            Assert.That(status.Diagnostics[0].Severity, Is.EqualTo(SemanticDiagnosticSeverity.Warning));
+            Assert.That(status.Diagnostics[1].Severity, Is.EqualTo(SemanticDiagnosticSeverity.Error));
+            Assert.That(VariableDictionary.Instance().GetVariables(), Is.Empty);
+            var originalStatus = status.StatusString;
+            UpdateSidebarStatus();
+            Assert.That(status.StatusString, Is.EqualTo(originalStatus));
+            await ExecuteBook(new[] { "VAR success=0x(AB)" });
+            UpdateSidebarStatus();
+            Assert.That(status.StatusString, Is.EqualTo("Script book loaded and all lines successfull parsed"));
+            Assert.That(status.Diagnostics, Is.Empty);
+
+            return true;
+        }, CancellationToken.None);
     }
 
     private void UpdateSidebarStatus()
@@ -397,61 +481,79 @@ public class CryptoScriptExecutionPresentationTests
     }
 
     [Test]
-    public void NestedOperationsKeepTheirContextsInPresentation()
+    public async Task NestedOperationsKeepTheirContextsInPresentation()
     {
-        var reported = new List<SemanticError>();
-        var runner = ControlledRunner((_, sink) =>
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
         {
-            var warning = Warning("nested");
-            reported.Add(warning);
-            sink.Report(warning);
-        });
-        Assert.That(ExecuteLine("Print(Compare(0x(AB),0x(AB)))", runner), Is.True);
-        Assert.That(status.Diagnostics.Select(item => item.Text),
-            Is.EqualTo(reported.Select(SemanticDiagnosticFormatter.Format)));
-        Assert.That(reported, Has.Count.EqualTo(2));
-        // BeforeOperation runs when the call executes: arguments execute first, IDs are still outer-first.
-        Assert.That(reported[0].Location!.FunctionName, Is.EqualTo("Compare"));
-        Assert.That(reported[0].Location!.OperationId, Is.EqualTo(2));
-        Assert.That(reported[0].Location!.ParentOperationId, Is.EqualTo(1));
-        Assert.That(reported[1].Location!.FunctionName, Is.EqualTo("Print"));
-        Assert.That(reported[1].Location!.OperationId, Is.EqualTo(1));
+            var reported = new List<SemanticError>();
+            var runner = ControlledRunner((_, sink) =>
+            {
+                var warning = Warning("nested");
+                reported.Add(warning);
+                sink.Report(warning);
+            });
+            Assert.That(await ExecuteLine("Print(Compare(0x(AB),0x(AB)))", runner), Is.True);
+            Assert.That(status.Diagnostics.Select(item => item.Text),
+                Is.EqualTo(reported.Select(SemanticDiagnosticFormatter.Format)));
+            Assert.That(reported, Has.Count.EqualTo(2));
+            // BeforeOperation runs when the call executes: arguments execute first, IDs are still outer-first.
+            Assert.That(reported[0].Location!.FunctionName, Is.EqualTo("Compare"));
+            Assert.That(reported[0].Location!.OperationId, Is.EqualTo(2));
+            Assert.That(reported[0].Location!.ParentOperationId, Is.EqualTo(1));
+            Assert.That(reported[1].Location!.FunctionName, Is.EqualTo("Print"));
+            Assert.That(reported[1].Location!.OperationId, Is.EqualTo(1));
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [Test]
-    public void PrintOutputIsUnchanged()
+    public async Task PrintOutputIsUnchanged()
     {
-        var original = Console.Out;
-        using var output = new StringWriter();
-        try
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
         {
-            Console.SetOut(output);
-            editor.ParseLine("Print(0x(AB))");
-            Assert.That(output.ToString(), Is.EqualTo(editor.PrintMessage + Environment.NewLine));
-            Assert.That(editor.PrintMessage, Does.StartWith("out: "));
-            Assert.That(status.Diagnostics, Is.Empty);
-        }
-        finally { Console.SetOut(original); }
+            var original = Console.Out;
+            using var output = new StringWriter();
+            try
+            {
+                Console.SetOut(output);
+                await editor.ParseLineAsync("Print(0x(AB))");
+                Assert.That(output.ToString(), Is.EqualTo(editor.PrintMessage + Environment.NewLine));
+                Assert.That(editor.PrintMessage, Does.StartWith("out: "));
+                Assert.That(status.Diagnostics, Is.Empty);
+            }
+            finally { Console.SetOut(original); }
+
+            return true;
+        }, CancellationToken.None);
     }
 
     [Test]
-    public void KeyMapEmptyResultPreservesForeignDiagnostics()
+    public async Task KeyMapEmptyResultPreservesForeignDiagnostics()
     {
-        // Detach the editor's info handler: this test concerns KeyMap, not region navigation.
-        OutputOperations.InfoEvent -= Handler(editor, "OnInfoEvent");
-        status.AppendDiagnostics(new[] { Warning("interactive warning") });
-        var prior = status.Diagnostics[0];
-        var keyMap = new KeyMapViewModel(status);
-        try
+        var session = GuiTestSession.Session;
+        await session.Dispatch(async () =>
         {
-            Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
-            Assert.That(status.Diagnostics[0], Is.SameAs(prior));
-            var warning = Warning("keymap warning");
-            typeof(KeyMapViewModel).GetMethod("LoadInfo", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .Invoke(keyMap, new object[] { status, ControlledRunner((_, sink) => sink.Report(warning)) });
-            Assert.That(status.Diagnostics, Has.Count.EqualTo(2));
-            Assert.That(status.Diagnostics[1].Text, Is.EqualTo(SemanticDiagnosticFormatter.Format(warning)));
-        }
-        finally { OutputOperations.InfoEvent -= Handler(keyMap, "OnInfoEvent"); }
+            // Detach the editor's info handler: this test concerns KeyMap, not region navigation.
+            OutputOperations.InfoEvent -= Handler(editor, "OnInfoEvent");
+            status.AppendDiagnostics(new[] { Warning("interactive warning") });
+            var prior = status.Diagnostics[0];
+            var keyMap = new KeyMapViewModel(status);
+            await keyMap.Initialization;
+            try
+            {
+                Assert.That(status.Diagnostics, Has.Count.EqualTo(1));
+                Assert.That(status.Diagnostics[0], Is.SameAs(prior));
+                var warning = Warning("keymap warning");
+                await keyMap.LoadInfoAsync(status, ControlledRunner((_, sink) => sink.Report(warning)));
+                Assert.That(status.Diagnostics, Has.Count.EqualTo(2));
+                Assert.That(status.Diagnostics[1].Text, Is.EqualTo(SemanticDiagnosticFormatter.Format(warning)));
+            }
+            finally { OutputOperations.InfoEvent -= Handler(keyMap, "OnInfoEvent"); }
+
+            return true;
+        }, CancellationToken.None);
     }
 }

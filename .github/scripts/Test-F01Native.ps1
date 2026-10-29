@@ -12,6 +12,8 @@ $previousArchitectureRequirement = $env:CWE_REQUIRE_MAC_ARM64
 Push-Location $repositoryRoot
 try {
     $env:CWE_REQUIRE_MAC_ARM64 = if ($RequireMacArm64) { '1' } else { '0' }
+    $resultPath = Join-Path $repositoryRoot 'artifacts/f01-native/F01-native.trx'
+    if (Test-Path -LiteralPath $resultPath) { Remove-Item -LiteralPath $resultPath }
     # Includes native operations, numbering, failure cleanup, symlinks and the exact container vector.
     # Blame records the started-test sequence and captures a dump if a test stops progressing.
     dotnet test CryptoScriptUnitTest/CryptoScriptUnitTest.csproj --configuration Release --no-build --no-restore `
@@ -21,7 +23,7 @@ try {
         --blame-hang --blame-hang-timeout 60s --blame-hang-dump-type mini `
         -- NUnit.InternalTraceLevel=Verbose
     if ($LASTEXITCODE -ne 0) { throw "F01 native gate failed: exit $LASTEXITCODE" }
-    [xml] $results = Get-Content -LiteralPath artifacts/f01-native/F01-native.trx -Raw
+    [xml] $results = Get-Content -LiteralPath $resultPath -Raw
     $cases = @($results.TestRun.Results.UnitTestResult)
     if (-not ($cases | Where-Object { $_.testName -eq 'NistVectorProducesExactContainer' -and $_.outcome -eq 'Passed' })) {
         throw 'The container reference vector did not pass (or was not discovered).'

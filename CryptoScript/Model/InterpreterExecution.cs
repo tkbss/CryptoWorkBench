@@ -70,6 +70,11 @@ public static class InterpreterExecution
         finally { lock (Gate) scope.RunnerActive = false; }
     }
 
+    // Preserve synchronous same-thread Core reentrancy. Async hosts must not
+    // grant their temporary state access to output event subscribers.
+    internal static IDisposable HostOutputCallback() =>
+        Ambient.Value is null ? new Release(() => { }) : HostCallback();
+
     internal static IDisposable HostCallback()
     {
         bool previous = InHostCallback.Value;

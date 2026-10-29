@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
@@ -47,7 +47,8 @@ public class SidebarViewModel : ViewModelBase
         _container = container;
         Title = "Navigation";
         FlyoutWidth = Collapsed;
-        _windowIcon = new WindowIcon("./Assets/avalonia-logo.ico");
+        using (var icon = Avalonia.Platform.AssetLoader.Open(new System.Uri("avares://CryptoWorkBenchAvalonia/Assets/avalonia-logo.ico")))
+            _windowIcon = new WindowIcon(icon);
         OpenScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(OpenScriptBook));
         SaveScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(SaveScriptBook));
         ShowVariableViewCommand = new DelegateCommand(ShowVariableView);
@@ -66,9 +67,10 @@ public class SidebarViewModel : ViewModelBase
     }
 
 
-    private async Task SaveScriptBook() 
+    private Task SaveScriptBook() => _cseVm.SaveScriptBookAsync(SelectSaveTargetAsync);
+
+    private async Task<CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.SaveTarget?> SelectSaveTargetAsync()
     {
-        if (_cseVm.IsExecuting) return;
         
         var docPath= await _window!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         // Create the CryptoScript folder path
@@ -86,7 +88,9 @@ public class SidebarViewModel : ViewModelBase
         if (result != null)
         {
             var filePath = result.Path.LocalPath;
-            if (File.Exists(filePath))
+            bool overwrite = File.Exists(filePath);
+            bool confirmed = false;
+            if (overwrite)
             {
                 var p=new MessageBoxCustomParams
                 {
@@ -104,24 +108,26 @@ public class SidebarViewModel : ViewModelBase
                 // Prompt the user for confirmation
                 var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);   
                     
-                var r = await messageBoxStandardWindow.ShowAsync();
+                var r = _window is Window owner
+                    ? await messageBoxStandardWindow.ShowWindowDialogAsync(owner)
+                    : await messageBoxStandardWindow.ShowAsync();
 
-                if (r == "No")
+                if (r != "Yes")
                 {
                     _cseVm.Status.StatusString = "Save operation canceled by the user.";
-                    return;
+                    return null;
                 }
                 else
                 {                    
-                    await result.DeleteAsync();
+                    confirmed = true;
                 }
             }
-            _cseVm.SaveScriptBook(filePath);
-            _cseVm.Status.StatusString = "Script book saved in: "+ filePath;
+            return new(filePath, confirmed, overwrite ? () => result.DeleteAsync() : null);
         }
         else
         {
             _cseVm.Status.StatusString = "Script book not saving canceld";
+            return null;
         }
     }
 
@@ -151,6 +157,7 @@ public class SidebarViewModel : ViewModelBase
                     {
                         new ButtonDefinition { Name = "Yes", },
                         new ButtonDefinition { Name = "No", },
+                        new ButtonDefinition { Name = "Cancel", IsCancel = true },
                     },
                     WindowIcon = _windowIcon,
                     ContentTitle = "EDITOR WINDOW CLEARENCE",
@@ -159,11 +166,12 @@ public class SidebarViewModel : ViewModelBase
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 };
                 var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);
-                var r = await messageBoxStandardWindow.ShowAsync();
-                if (r == "Yes")
-                {
-                    clear = true;
-                }
+                var r = _window is Window owner
+                    ? await messageBoxStandardWindow.ShowWindowDialogAsync(owner)
+                    : await messageBoxStandardWindow.ShowAsync();
+                // Closing the dialog (including Escape) is not consent to import.
+                if (r is not ("Yes" or "No")) return;
+                clear = r == "Yes";
             }
             try
             {

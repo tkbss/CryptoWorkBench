@@ -35,7 +35,7 @@ public class AsyncPasswordGuiTests
     [TestCase(false)] [TestCase(true)]
     public async Task ProductiveSecureSaveUsesDialogAndStopsBookOnCancellation(bool cancel)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             string directory = Path.Combine(Path.GetTempPath(), "S05B2-GUI-" + Guid.NewGuid().ToString("N"));
@@ -46,7 +46,7 @@ public class AsyncPasswordGuiTests
             var status = new StatusViewModel(); var variables = new VariableViewModel();
             using var editor = new CryptoScriptEditViewModel(status, variables, new InfoViewModel(),
                 new MainViewModel(), null!, new HistoryService());
-            var runner = new CryptoScriptRunner(); runner.PasswordRequested += host.RequestAsync;
+            var runner = new CryptoScriptRunner();
             try
             {
                 dictionary.Clear();
@@ -55,7 +55,7 @@ public class AsyncPasswordGuiTests
                 dictionary.Add(new StringVariableDeclaration { Id = "data", Value = "GUI-CANARY" });
                 var lines = new List<string>();
                 var execution = editor.ExecuteScriptBookAsync(new[] { "SecureSave(path,data,#SECUREKDF:PBKDF2)", "Print(data)", "Info(SecureSave)" },
-                    lines.Add, runnerFactory: () => runner);
+                    lines.Add, passwordHandler: host.RequestAsync);
                 var dialog = await OpenDialog(owner);
                 Assert.That(editor.IsExecuting,Is.True);
                 bool responsive = false; await Dispatcher.UIThread.InvokeAsync(() => responsive = true);
@@ -82,7 +82,7 @@ public class AsyncPasswordGuiTests
     [TestCase("success")] [TestCase("wrong")] [TestCase("cancel")]
     public async Task ProductiveSecureLoadDialogUpdatesVariablesAndStopsBookOnFailure(string outcome)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             string directory = Path.Combine(Path.GetTempPath(), "S06-GUI-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(directory);
@@ -100,9 +100,9 @@ public class AsyncPasswordGuiTests
                     PasswordSecret.TakeOwnership("canary".ToCharArray()),PasswordSecret.TakeOwnership("canary".ToCharArray())));
                 await Task.Run(() => save.ExecuteAsync(CryptoScript.Model.ParserBuilder.StringBuild("SecureSave(path,data,#SECUREKDF:PBKDF2)").program()));
                 dictionary.Clear(); dictionary.Add(path);
-                var runner = new CryptoScriptRunner(); runner.PasswordRequested += host.RequestAsync;
+                var runner = new CryptoScriptRunner();
                 var lines = new List<string>();
-                var execution = editor.ExecuteScriptBookAsync(new[] {"SecureLoad(path)","Print(data)","Info(SecureLoad)"}, lines.Add, runnerFactory:()=>runner);
+                var execution = editor.ExecuteScriptBookAsync(new[] {"SecureLoad(path)","Print(data)","Info(SecureLoad)"}, lines.Add, passwordHandler: host.RequestAsync);
                 activeExecution = execution;
                 var dialog = await OpenDialog(owner);
                 Assert.That(dialog.ConfirmationInput.Parent,Is.Null);
@@ -135,7 +135,7 @@ public class AsyncPasswordGuiTests
     [TestCase(PasswordPurpose.SecureSave)] [TestCase(PasswordPurpose.SecureLoad)]
     public async Task WorkerRequestOpensResponsiveUiDialogAndClearsInputs(PasswordPurpose purpose)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var owner = new Window(); owner.Show();
@@ -174,7 +174,7 @@ public class AsyncPasswordGuiTests
     [TestCase("close")] [TestCase("token")] [TestCase("owner")]
     public async Task DialogCloseCancellationAndOwnerLifetimeAbort(string kind)
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var owner = new Window(); owner.Show();
@@ -204,7 +204,7 @@ public class AsyncPasswordGuiTests
     [Test]
     public async Task ScriptBookStopsAtUserCancellationAndNeverStoresPassword()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var history = new HistoryService();
@@ -212,10 +212,10 @@ public class AsyncPasswordGuiTests
             using var editor = new CryptoScriptEditViewModel(status, new VariableViewModel(), new InfoViewModel(),
                 new MainViewModel(), null!, history);
             var runner = new CryptoScriptRunner();
-            runner.PasswordRequested += (_, request) => Task.FromResult(PasswordResponse.UserCancelled(request.RequestId));
+            PasswordRequestHandler password = (_, request) => Task.FromResult(PasswordResponse.UserCancelled(request.RequestId));
             var lines = new List<string>();
             await editor.ExecuteScriptBookAsync(new[] { "Print(0x(01))", "Print(0x(02))" }, lines.Add,
-                runnerFactory: () => runner, testStatements: new[] { new AsyncInfrastructureStatement(async context =>
+                passwordHandler: password, testStatements: new[] { new AsyncInfrastructureStatement(async context =>
                 { using var response = await context.RequestPasswordAsync(PasswordPurpose.SecureLoad); }) });
             Assert.That(lines, Has.Count.EqualTo(1));
             Assert.That(editor.LastScriptBookSucceeded, Is.False);
@@ -228,7 +228,7 @@ public class AsyncPasswordGuiTests
     [Test]
     public async Task PendingRequestRejectsBookClearAndVariableCommands()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var variables = new VariableViewModel();
@@ -237,8 +237,8 @@ public class AsyncPasswordGuiTests
             var requested = new TaskCompletionSource<PasswordRequestEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
             var response = new TaskCompletionSource<PasswordResponse>(TaskCreationOptions.RunContinuationsAsynchronously);
             var runner = new CryptoScriptRunner();
-            runner.PasswordRequested += (_, request) => { requested.SetResult(request); return response.Task; };
-            var execution = editor.ExecuteLineAsync("Print(0x(01))", runner: runner,
+            PasswordRequestHandler password = (_, request) => { requested.SetResult(request); return response.Task; };
+            var execution = editor.ExecuteLineAsync("Print(0x(01))", passwordHandler: password,
                 testStatements: new[] { new AsyncInfrastructureStatement(async context =>
                 { using var answer = await context.RequestPasswordAsync(PasswordPurpose.SecureLoad); }) });
             var request = await requested.Task;
@@ -260,7 +260,7 @@ public class AsyncPasswordGuiTests
     [Test]
     public async Task AsyncEditorPreservesOutputOrderAndDetachedVariableEditing()
     {
-        using var session = HeadlessUnitTestSession.StartNew(typeof(TestApp));
+        var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
             var previous = VariableDictionary.Instance().GetVariables().ToArray();

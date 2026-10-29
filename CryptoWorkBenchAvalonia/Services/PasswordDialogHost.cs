@@ -19,7 +19,7 @@ internal sealed class PasswordDialogHost : IDisposable
 
     internal async Task<PasswordResponse> RequestAsync(object sender, PasswordRequestEventArgs request)
     {
-        return await Dispatcher.UIThread.InvokeAsync(() => ShowAsync(request));
+        return await UiDispatch.InvokeAsync(() => ShowAsync(request));
     }
 
     private async Task<PasswordResponse> ShowAsync(PasswordRequestEventArgs request)
@@ -31,7 +31,7 @@ internal sealed class PasswordDialogHost : IDisposable
         var dialog = new PasswordDialog(request);
         void OwnerClosed(object? sender, EventArgs args) => linked.Cancel();
         owner.Closed += OwnerClosed;
-        using var cancellation = linked.Token.Register(() => Dispatcher.UIThread.Post(() => dialog.Close()));
+        using var cancellation = linked.Token.Register(() => UiDispatch.Post(() => dialog.Close()));
         PasswordResponse? response = null;
         try
         {
