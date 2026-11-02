@@ -30,6 +30,8 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         MainViewModel _mainViewModel;
         IRegionManager _regions;
         IHistoryService _historyService;
+        private readonly IDisposable? _historyBinding;
+        private bool disposed;
         string _printMessage = string.Empty;
         private TextEditor? _textEditor;
         bool _syntaxErrorOccured = false;
@@ -114,7 +116,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         {
             _automation = automation ?? WorkbenchAutomationService.Shared;
             _historyService = historyService;
-            _historyService.LineHistoryChanged += OnHistoryChanged;
+            if (historyService is HistoryService history)
+                _historyBinding = history.BindLineNavigation(NavigateHistory);
+            try
+            {
             _statusViewModel = statusViewModel;
             _variableViewModel = variableViewModel;
             _variableViewModel.IsExecutionActive = () => IsExecuting;
@@ -123,18 +128,35 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             _regions = regions;
             _infoViewModel = info;
             _mainViewModel = mvm;
+            }
+            catch
+            {
+                _historyBinding?.Dispose();
+                OutputOperations.PrintEvent -= OnPrintEvent;
+                OutputOperations.InfoEvent -= OnInfoEvent;
+                throw;
+            }
         }
-        private void OnHistoryChanged(object? sender, string entry)
+        private bool NavigateHistory(string entry, Action advanceIndex)
         {
-            if (IsExecuting || _textEditor is null) return;
-            TextDocument doc = _textEditor!.Document;
-            // letzte Zeile holen
-            DocumentLine line = doc.Lines[doc.Lines.Count - 1];
-            doc.Remove(line.Offset, line.Length);
-            // neuen Text am Zeilenanfang einsetzen
-            doc.Insert(line.Offset, entry);
-            _textEditor.Document = doc;
-            _textEditor.IsModified = true;
+            Dispatcher.UIThread.VerifyAccess();
+            if (IsExecuting || _registration is null ||
+                _textEditor is not CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor editor ||
+                !_automation.IsEditorLive(_registration, _registration.Id)) return false;
+            var coordinator = _automation.EditorCoordinator;
+                return coordinator.RunHistory(capability =>
+                {
+                    using var identity = editor.LockIdentity();
+                    advanceIndex();
+                    var doc = capability.Document;
+                    var line = doc.Lines[doc.Lines.Count - 1];
+                    if (doc.GetText(line) != entry)
+                    {
+                        editor.ReplaceHistoryLine(doc, line.Offset, line.Length, entry, capability);
+                        coordinator.Observe(() => editor.IsModified = true);
+                    }
+                    coordinator.Observe(() => ((HistoryService)_historyService).PublishLine(entry));
+                });
         }
         private void OnPrintEvent(string message)
         {
@@ -317,12 +339,22 @@ namespace CryptoWorkBenchAvalonia.ViewModels
 
         public void Dispose()
         {
-            if (_registration is not null) DetachEditor();
-            _lifetime.Cancel();
-            _passwordHost.Dispose();
-            _historyService.LineHistoryChanged -= OnHistoryChanged;
-            OutputOperations.PrintEvent -= OnPrintEvent;
-            OutputOperations.InfoEvent -= OnInfoEvent;
+            if (disposed) return;
+            disposed = true;
+            var failures = new List<Exception>();
+            void Cleanup(Action action)
+            {
+                try { action(); }
+                catch (Exception error) { failures.Add(error); }
+            }
+            Cleanup(() => { if (_registration is not null) DetachEditor(); });
+            Cleanup(() => _lifetime.Cancel());
+            Cleanup(() => _passwordHost.Dispose());
+            Cleanup(() => _historyBinding?.Dispose());
+            Cleanup(() => OutputOperations.PrintEvent -= OnPrintEvent);
+            Cleanup(() => OutputOperations.InfoEvent -= OnInfoEvent);
+            if (failures.Count == 1) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(failures[0]).Throw();
+            if (failures.Count > 1) throw new AggregateException(failures);
         }
     }
 }

@@ -144,6 +144,56 @@ internal sealed class EditorCoordinator
         return Commit(ticket, action, historyCommand, expectedText);
     }
 
+    // Validation only: never creates or upgrades an operation's authority.
+    internal bool IsActiveGuiOperation(OperationTicket ticket)
+    {
+        Verify();
+        return ReferenceEquals(active, ticket) && ObserverDepth == 0 && IsCurrent(ticket);
+    }
+
+    // A separate admission entry, never an upgrade of an ambient Active ticket.
+    internal bool RunHistory(Action<HistoryCapability> action) => HistoryCapability.Run(this, action);
+
+    internal sealed class HistoryCapability
+    {
+        private readonly OperationTicket operation;
+        private bool valid = true;
+        private bool consumed;
+        private HistoryCapability(OperationTicket operation) => this.operation = operation;
+        internal TextDocument Document => operation.Document;
+
+        internal static bool Run(EditorCoordinator owner, Action<HistoryCapability> action)
+        {
+            Verify();
+            using var ticket = owner.TryBegin();
+            if (ticket is null) return false;
+            IDisposable reservation;
+            try { reservation = InterpreterHostQueue.Reserve(); }
+            catch (ExecutionBusyException) { return false; }
+            using (reservation)
+                return owner.Commit(ticket, () =>
+                {
+                    var capability = new HistoryCapability(ticket);
+                    try { action(capability); }
+                    finally { capability.valid = false; }
+                });
+        }
+
+        internal void Consume(WorkbenchTextEditor editor, TextDocument document)
+        {
+            Verify();
+            var owner = operation.Owner;
+            if (!valid || consumed || !ReferenceEquals(owner.active, operation) ||
+                owner.ObserverDepth != 0 || !owner.IsCurrent(operation) ||
+                !ReferenceEquals(editor.Coordinator, owner) ||
+                !ReferenceEquals(operation.Registration.Editor, editor) ||
+                !ReferenceEquals(Document, document) || !ReferenceEquals(editor.Document, document))
+                throw new ExecutionBusyException();
+            // Burn before RunUpdate can publish even its first native callback.
+            consumed = true;
+        }
+    }
+
     internal bool Commit(OperationTicket ticket, Action action, bool historyCommand = false, string? expectedText = null)
     {
         Verify();

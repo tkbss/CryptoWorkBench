@@ -22,6 +22,7 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
     internal Task PendingClipboard { get; private set; } = Task.CompletedTask;
     private bool nativeDispatch;
     private bool nativeTextDispatch;
+    private Action<TextInputEventArgs>? enterContinuation;
     protected override Type StyleKeyOverride => typeof(TextArea);
 
     static WorkbenchTextArea()
@@ -70,6 +71,12 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
                     e.Handled = true;
                     if (!Allowed) return;
                     var coordinator = Host?.Coordinator;
+                    if (coordinator is not null && (binding.Command == EditingCommands.EnterParagraphBreak ||
+                        binding.Command == EditingCommands.EnterLineBreak))
+                    {
+                        ExecuteEnter(coordinator);
+                        return;
+                    }
                     if (coordinator is not null && (binding.Command == ApplicationCommands.Paste ||
                         binding.Command == ApplicationCommands.Cut || binding.Command == ApplicationCommands.Copy))
                     {
@@ -95,6 +102,13 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
 
     protected override void OnTextEntering(TextInputEventArgs e)
     {
+        if (enterContinuation is { } continuation)
+        {
+            // Consume before *any* TextEntering subscriber sees the event.
+            enterContinuation = null;
+            continuation(e);
+            return;
+        }
         // Also covers public PerformTextInput, which bypasses OnTextInput.
         // Re-dispatch once inside the admission scope; suppress only the outer call.
         if (nativeTextDispatch) { nativeTextDispatch = false; base.OnTextEntering(e); return; }
@@ -107,6 +121,47 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
             finally { nativeTextDispatch = false; }
         });
         e.Handled = true;
+    }
+
+    private void ExecuteEnter(EditorCoordinator coordinator)
+    {
+        using var ticket = coordinator.TryBegin();
+        if (ticket is null) return;
+        coordinator.Commit(ticket, () =>
+        {
+            // AvaloniaEdit 12 OnEnter (both Enter commands) does exactly this
+            // focus check followed by PerformTextInput("\n"). Delegate that
+            // native call directly: re-raising Command.Execute here would expose
+            // an unconsumed permission to arbitrary routed-command callbacks.
+            if (!IsFocused) return;
+            var editor = Host;
+            var document = Document;
+            var input = new TextInputEventArgs { Text = "\n", RoutedEvent = TextInputEvent };
+            bool valid = true;
+            bool IsOriginal() => coordinator.IsActiveGuiOperation(ticket) &&
+                ReferenceEquals(Host, editor) && ReferenceEquals(editor?.Coordinator, coordinator) &&
+                ReferenceEquals(ticket.Registration.Editor, editor) &&
+                ReferenceEquals(Document, document) && ReferenceEquals(ticket.Document, document) &&
+                editor is { MutationLocked: false, IdentityLocked: false };
+            enterContinuation = actual =>
+            {
+                bool admitted = valid && ReferenceEquals(actual, input) && actual.Text == "\n" &&
+                    !actual.Handled && IsOriginal();
+                valid = false;
+                if (!admitted) { actual.Handled = true; return; }
+                base.OnTextEntering(actual);
+                // A callback may invalidate/detach the original registration.
+                // Never continue native insertion on its successor or generation.
+                if (actual.Text != "\n" || !IsOriginal()) actual.Handled = true;
+            };
+            try
+            {
+                // No routed command, observer or mutation is called between
+                // installing the event-bound delegation and this native entry.
+                base.PerformTextInput(input);
+            }
+            finally { valid = false; enterContinuation = null; }
+        });
     }
 
     protected override void OnKeyDown(KeyEventArgs e)

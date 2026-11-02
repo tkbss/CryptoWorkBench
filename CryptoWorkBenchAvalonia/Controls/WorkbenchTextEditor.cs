@@ -48,6 +48,7 @@ public sealed class WorkbenchTextEditor : TextEditor
     private TextDocument? guardedDocument;
     private bool editChangeSeen;
     private bool editWriteAllowed;
+    private bool historyStepsActive;
     private List<Action>? afterIdentity;
     private bool previousReadOnly;
 
@@ -100,6 +101,36 @@ public sealed class WorkbenchTextEditor : TextEditor
         if (!IdentityLocked || editChangeSeen) throw new ExecutionBusyException();
         // Called only after the outer BeginUpdate and its observers returned.
         editWriteAllowed = true;
+    }
+
+    // Exactly the two native history steps, never a callback-supplied delegate.
+    // Each permission is consumed by BeforeChange before native observers run.
+    internal void ReplaceHistoryLine(TextDocument original, int offset, int length, string text,
+        CryptoWorkBenchAvalonia.Services.Automation.EditorCoordinator.HistoryCapability? capability = null)
+    {
+        VerifyAccess();
+        if (historyStepsActive || !IdentityLocked || editChangeSeen || !ReferenceEquals(Document, original) ||
+            Coordinator is not { Active: true, ObserverDepth: 0 }) throw new ExecutionBusyException();
+        if (capability is null) throw new ExecutionBusyException();
+        capability.Consume(this, original);
+        historyStepsActive = true;
+        try
+        {
+        using (original.RunUpdate())
+        {
+            try
+            {
+                AllowSingleEditChange();
+                original.Remove(offset, length);
+                // Only reached after Remove and all its synchronous callbacks return.
+                editChangeSeen = false;
+                editWriteAllowed = true;
+                original.Insert(offset, text);
+            }
+            finally { editWriteAllowed = false; editChangeSeen = true; }
+        }
+        }
+        finally { historyStepsActive = false; }
     }
 
     internal void AfterIdentity(Action action)
