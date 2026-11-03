@@ -16,6 +16,7 @@ internal static class VariablePresentationCapture
         {
             var dv = new VariableModel()
             {
+                Origin = new(v),
                 Type = v.Type?.Name ?? string.Empty,
                 Identifier = v.Id,
                 Value = v.Value,

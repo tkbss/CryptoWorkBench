@@ -45,7 +45,8 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private EditorBridge.Registration? _registration;
         internal void AttachEditor()
         {
-            if (_textEditor is null) return;
+            if (disposed || _textEditor is null) return;
+            if (_registration is { Attached: true } && ReferenceEquals(_registration.Editor, _textEditor)) return;
             _registration = _automation.AttachEditor(_textEditor, this);
             EditorLifecycle++;
         }
@@ -115,6 +116,8 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public CryptoScriptEditViewModel(StatusViewModel statusViewModel, VariableViewModel variableViewModel, InfoViewModel info, MainViewModel mvm, IRegionManager regions, IHistoryService historyService, WorkbenchAutomationService? automation = null)
         {
             _automation = automation ?? WorkbenchAutomationService.Shared;
+            Automation = _automation;
+            statusViewModel.Automation = variableViewModel.Automation = info.Automation = mvm.Automation = _automation;
             _historyService = historyService;
             if (historyService is HistoryService history)
                 _historyBinding = history.BindLineNavigation(NavigateHistory);
@@ -224,18 +227,25 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             return result.Succeeded;
         }
 
-        public async Task ParseLineAsync(string line, CancellationToken cancellationToken = default)
+        public Task ParseLineAsync(string line, CancellationToken cancellationToken = default) =>
+            ParseInputLineAsync(line, null, cancellationToken);
+
+        internal async Task<bool> ParseInputLineAsync(string line, Func<bool>? isCurrent, CancellationToken cancellationToken = default)
         {
             Dispatcher.UIThread.VerifyAccess();
-            if (IsExecuting) { _statusViewModel.StatusString = "Interpreter execution is busy."; return; }
+            if (IsExecuting) { _statusViewModel.StatusString = "Interpreter execution is busy."; return false; }
             _statusViewModel.ClearDiagnostics();
-            await ExecuteLineAsync(line, cancellationToken: cancellationToken);
+            if (isCurrent != null && !isCurrent()) return false;
+            bool admitted = false;
+            await ExecuteLineAsync(line, cancellationToken: cancellationToken,
+                validateIntent: isCurrent, onAdmitted: () => admitted = true);
+            return admitted;
         }
 
         internal async Task<bool> ExecuteLineAsync(string line, int? scriptBookLine = null,
             CryptoScriptRunner? runner = null, CancellationToken cancellationToken = default,
             IEnumerable<CryptoScript.Model.Ast.StatementNode?>? testStatements = null,
-            PasswordRequestHandler? passwordHandler = null)
+            PasswordRequestHandler? passwordHandler = null, Func<bool>? validateIntent = null, Action? onAdmitted = null)
         {
             Dispatcher.UIThread.VerifyAccess();
             if (IsExecuting) throw new ExecutionBusyException();
@@ -243,7 +253,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             lineActive = true;
             try
             {
-                return await _automation.RunAsync(async pipeline =>
+                var work = _automation.RunAsync(async pipeline =>
                 {
                     await OnUiAsync(() => BeginLine(line));
                     var result = await pipeline.ExecuteAsync(line, passwordHandler ?? _passwordHost.RequestAsync,
@@ -252,7 +262,9 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                     // Background priority drains already posted Print/Info before presentation.
                     await OnUiAsync(() => succeeded = Present(result, scriptBookLine));
                     return succeeded;
-                }, linked.Token, "guiLine\0" + line);
+                }, linked.Token, "guiLine\0" + line, validateIntent);
+                onAdmitted?.Invoke();
+                return await work;
             }
             catch (OperationCanceledException) when (linked.IsCancellationRequested)
             { _statusViewModel.StatusString = "Script execution cancelled."; return false; }
@@ -281,7 +293,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                     var lines = await File.ReadAllLinesAsync(filePath, pipeline.ExecutionToken).ConfigureAwait(false);
                     if (clear)
                     {
-                        var variables = WorkbenchAutomationService.ClearAdmitted();
+                        var variables = _automation.ClearAdmittedState();
                         await OnUiAsync(() =>
                         {
                             if (IsCurrentEditor()) targetDocument!.Text = string.Empty;

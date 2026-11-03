@@ -1,10 +1,13 @@
 using Avalonia.Input;
+using CryptoWorkBenchAvalonia.Controls;
+using CryptoWorkBenchAvalonia.Services.Automation;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
+using AvaloniaEdit.Utils;
 using CryptoWorkBenchAvalonia.Models;
 using System;
 using System.Collections.Generic;
@@ -20,6 +23,19 @@ public sealed class InfoCompletionController : IDisposable
     private TextDocument? _document;
     private CompletionWindow? _window;
     private CompletionSession? _session;
+    private bool _disposed;
+    private CompletionSession? _latestSession;
+    private Action? _unsubscribeWindow;
+    private long _reopenGeneration;
+    private EditorCoordinator? Owner => (_editor as WorkbenchTextEditor)?.Coordinator;
+
+    private void Observe(Action action)
+    {
+        if (_disposed) return;
+        if (Owner is { } owner) owner.Observe(action);
+        else action();
+    }
+
     private bool _hasPendingChange;
     private bool _pendingChangeIsDeletion;
     private int _pendingChangeOffset;
@@ -56,18 +72,20 @@ public sealed class InfoCompletionController : IDisposable
 
     public void Dispose()
     {
-        CloseWindow();
-        AttachDocument(null);
-        _reopenPolicy.Dispose();
+        if (_disposed) return;
+        _disposed = true;
         _editor.TextArea.Caret.PositionChanged -= Caret_PositionChanged;
         _editor.TextArea.DocumentChanged -= TextArea_DocumentChanged;
         _editor.TextArea.RemoveHandler(InputElement.KeyDownEvent, TextArea_KeyDown);
+        _reopenPolicy.Dispose();
+        try { CloseWindow(); }
+        finally { AttachDocument(null); }
     }
 
     private bool OpenOrUpdateForCurrentContext()
     {
         TextDocument? document = _editor.Document;
-        if (document == null || !ReferenceEquals(document, _document))
+        if (_disposed || document == null || !ReferenceEquals(document, _document))
         {
             CloseWindow();
             return false;
@@ -103,7 +121,9 @@ public sealed class InfoCompletionController : IDisposable
                 context.CaretOffset)
             .ToArray();
         var completionData = allItems
-            .Select(item => new InfoCompletionData(
+            .Select(item => _editor is WorkbenchTextEditor
+                ? InfoCompletionData.ForWindow(item, _provider.GetDescription(item))
+                : new InfoCompletionData(
                 item,
                 _provider.GetDescription(item),
                 () => MarkCurrentContextAccepted(document)))
@@ -121,10 +141,162 @@ public sealed class InfoCompletionController : IDisposable
             document,
             CreateInvocationAnchor(document, context.InvocationStartOffset),
             completionData);
-        window.Closed += Window_Closed;
+        var session = _latestSession = _session;
+        var owner = Owner;
+        long generation = owner?.Generation ?? 0;
+        ITextSourceVersion? closedVersion = null;
+        int start = 0, length = 0;
+        InfoCompletionData? chosen = null;
 
-        ApplyMatches(window, _session, context.Prefix);
-        window.Show();
+        // The native handler closes first. Removing our handler during Closed
+        // leaves it in the invocation list of this insertion request only.
+        void Closed(object? sender, EventArgs args) => Observe(() =>
+        {
+            if (!ReferenceEquals(_session, session)) return;
+            closedVersion = document.Version;
+            start = window.StartOffset;
+            length = window.EndOffset - start;
+            chosen = window.CompletionList.SelectedItem as InfoCompletionData;
+            Unsubscribe();
+            _session = null;
+            _window = null;
+            // Native code looks up SelectedItem after Hide and would construct
+            // an AnchorSegment on whatever document a later Closed handler installed.
+            if (owner != null) window.CompletionList.SelectedItem = null;
+        });
+
+        void Insert(object? sender, EventArgs args)
+        {
+            if (chosen == null || owner == null || _editor is not WorkbenchTextEditor editor) return;
+            bool SessionLive() => !_disposed && _window == null && ReferenceEquals(session, _latestSession) &&
+                ReferenceEquals(owner, Owner) && owner.Generation == generation && owner.Targets(editor) &&
+                !editor.IsReadOnly && ReferenceEquals(editor.Document, document) && !session.InvocationStart.IsDeleted;
+            bool RangeCurrent() => SessionLive() && ReferenceEquals(document.Version, closedVersion) &&
+                _provider.TryGetContext(document.Text, editor.CaretOffset, out var current) &&
+                current.ArgumentStartOffset == start && current.ArgumentEndOffset == start + length &&
+                current.InvocationStartOffset == session.InvocationStart.Offset;
+            if (!RangeCurrent()) return;
+            var caret = editor.TextArea.Caret.Position;
+            var selection = editor.TextArea.Selection;
+            var provider = editor.TextArea.ReadOnlySectionProvider;
+            bool Current() => RangeCurrent() && editor.TextArea.Caret.Position.Equals(caret) &&
+                ReferenceEquals(editor.TextArea.Selection, selection) && ReferenceEquals(editor.TextArea.ReadOnlySectionProvider, provider);
+            var item = chosen;
+            chosen = null;
+            if (!session.AllItems.Contains(item)) return;
+            using var ticket = owner.TryBegin();
+            if (ticket == null) return;
+            bool writable = false;
+            long? permissionRevision = null;
+            owner.Observe(() =>
+            {
+                permissionRevision = editor.PermissionRevision(provider);
+                writable = editor.CanReplaceSegment(new SimpleSegment(start, length), item.Text);
+            });
+            if (!writable || !permissionRevision.HasValue || !Current()) return;
+            bool CanApply()
+            {
+                bool permitted = false;
+                owner.Observe(() => permitted = editor.PermissionRevision(provider) == permissionRevision);
+                return permitted && Current() && owner.IsActiveGuiOperation(ticket);
+            }
+            owner.Commit(ticket, editor, original =>
+            {
+                if (original.GetText(start, length) != item.Text)
+                {
+                    if (!ReplaceCurrentCompletion(editor.TextArea, ticket, CanApply, start, length, item.Text))
+                        return;
+                }
+                if (SessionLive()) owner.Observe(() => MarkCurrentContextAccepted(document));
+            });
+        }
+
+        // Avalonia's selection list handles the pointer. Keep keyboard focus on
+        // the editor so selecting its own suggestion cannot invalidate the session.
+        void KeepEditorFocus(object? sender, FocusChangingEventArgs args)
+        {
+            if (ReferenceEquals(args.OldFocusedElement, _editor.TextArea)) args.TryCancel();
+        }
+
+        void Unsubscribe()
+        {
+            window.CompletionList.GettingFocus -= KeepEditorFocus;
+            window.Closed -= Closed;
+            window.CompletionList.InsertionRequested -= Insert;
+            _unsubscribeWindow = null;
+        }
+
+        _unsubscribeWindow = Unsubscribe;
+        window.CompletionList.GettingFocus += KeepEditorFocus;
+        window.Closed += Closed;
+        window.CompletionList.InsertionRequested += Insert;
+
+        try
+        {
+            ApplyMatches(window, session, context.Prefix);
+            window.Show();
+        }
+        catch { CloseWindow(); throw; }
+    }
+
+    private static bool ReplaceCurrentCompletion(TextArea area, EditorCoordinator.OperationTicket ticket, Func<bool> current,
+        int start, int length, string text)
+    {
+        var document = ticket.Document;
+        var history = document.UndoStack;
+        if (!history.CanRedo)
+        {
+            using (document.RunUpdate())
+            {
+                if (!current()) return false;
+                document.Replace(start, length, text);
+            }
+            return true;
+        }
+
+        // The pinned TextArea pushes an optional caret action in UpdateStarted.
+        // That clears executable redo even if no text changes. An outer undo
+        // group defers native size enforcement while optional recording is off.
+        // Restore the limit before validating and before ending either group.
+        var caretHistory = new CompletionCaret(area, area.Caret.Position, area.Selection);
+        int limit = history.SizeLimit;
+        history.StartUndoGroup();
+        IDisposable? update = null;
+        try
+        {
+            try
+            {
+                ticket.TemporaryHistoryLimit = true;
+                history.SizeLimit = 0;
+                update = document.RunUpdate();
+            }
+            finally
+            {
+                try { history.SizeLimit = limit; }
+                finally { ticket.TemporaryHistoryLimit = false; }
+            }
+            if (!current()) return false;
+            history.PushOptional(caretHistory);
+            document.Replace(start, length, text);
+            return true;
+        }
+        finally
+        {
+            try { update?.Dispose(); }
+            finally { history.EndUndoGroup(); }
+        }
+    }
+
+    private sealed class CompletionCaret(TextArea area, TextViewPosition position, Selection selection) : IUndoableOperation
+    {
+        private readonly WeakReference<TextArea> target = new(area);
+        public void Undo()
+        {
+            if (!target.TryGetTarget(out var editor)) return;
+            editor.Caret.Position = position;
+            editor.Selection = selection;
+        }
+        public void Redo() => Undo();
     }
 
     private void UpdateWindow(InfoCompletionContext context)
@@ -171,17 +343,18 @@ public sealed class InfoCompletionController : IDisposable
         if (_window == null)
             return;
 
-        UpdateOrCloseActiveWindow();
+        Observe(UpdateOrCloseActiveWindow);
     }
 
     private void TextArea_KeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.Escape)
-            CancelAndClose();
+            Observe(CancelAndClose);
     }
 
     private void Document_UpdateStarted(object? sender, EventArgs e)
     {
+        if (_disposed || !ReferenceEquals(sender, _document)) return;
         _hasPendingChange = false;
         _pendingChangeIsDeletion = true;
         _pendingChangeOffset = int.MaxValue;
@@ -191,6 +364,7 @@ public sealed class InfoCompletionController : IDisposable
 
     private void Document_Changed(object? sender, DocumentChangeEventArgs e)
     {
+        if (_disposed || !ReferenceEquals(sender, _document)) return;
         _hasPendingChange = true;
         _pendingChangeIsDeletion &=
             e.RemovalLength > 0 && e.InsertionLength == 0;
@@ -199,9 +373,11 @@ public sealed class InfoCompletionController : IDisposable
         _pendingInsertionLength += e.InsertionLength;
     }
 
-    private void Document_UpdateFinished(object? sender, EventArgs e)
+    private void Document_UpdateFinished(object? sender, EventArgs e) => Observe(() => FinishChange(sender));
+
+    private void FinishChange(object? sender)
     {
-        if (!_hasPendingChange)
+        if (!_hasPendingChange || !ReferenceEquals(sender, _document))
             return;
 
         bool isDeletion = _pendingChangeIsDeletion;
@@ -225,7 +401,7 @@ public sealed class InfoCompletionController : IDisposable
             return;
         }
 
-        if (!isDeletion)
+        if (!isDeletion || (Owner?.Generation ?? 0) != _reopenGeneration)
             return;
 
         if (!_provider.TryGetContext(
@@ -248,7 +424,7 @@ public sealed class InfoCompletionController : IDisposable
     }
 
     private void TextArea_DocumentChanged(object? sender, DocumentChangedEventArgs e) =>
-        AttachDocument(_editor.Document);
+        Observe(() => AttachDocument(_editor.Document));
 
     private void AttachDocument(TextDocument? document)
     {
@@ -286,20 +462,12 @@ public sealed class InfoCompletionController : IDisposable
         CompletionWindow? window = _window;
         _window = null;
         _session = null;
+        _latestSession = null;
         if (window == null)
             return;
 
-        window.Closed -= Window_Closed;
+        _unsubscribeWindow?.Invoke();
         window.Hide();
-    }
-
-    private void Window_Closed(object? sender, EventArgs e)
-    {
-        if (ReferenceEquals(_window, sender))
-        {
-            _window = null;
-            _session = null;
-        }
     }
 
     private void UpdateOrCloseActiveWindow()
@@ -361,6 +529,7 @@ public sealed class InfoCompletionController : IDisposable
             return;
         }
 
+        _reopenGeneration = Owner?.Generation ?? 0;
         _reopenPolicy.MarkAccepted(
             document,
             context.InvocationStartOffset,
@@ -376,6 +545,9 @@ public sealed class InfoCompletionController : IDisposable
 public sealed class InfoCompletionData : ICompletionData
 {
     private readonly Action? _completed;
+    private bool RequestOwned { get; init; }
+    internal static InfoCompletionData ForWindow(string text, string description) =>
+        new(text, description) { RequestOwned = true };
 
     public InfoCompletionData(
         string text,
@@ -402,6 +574,8 @@ public sealed class InfoCompletionData : ICompletionData
         ISegment completionSegment,
         EventArgs insertionRequestEventArgs)
     {
+        // Workbench insertion is finalized by the original request's session handler.
+        if (RequestOwned || textArea is WorkbenchTextArea) return;
         textArea.Document.Replace(completionSegment, Text);
         _completed?.Invoke();
     }

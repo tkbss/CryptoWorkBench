@@ -11,7 +11,7 @@ using CryptoWorkBenchAvalonia.Services;
 
 namespace CryptoWorkBenchAvalonia.ViewModels
 {
-    public class KeyMapViewModel : BindableBase, IDisposable
+    public class KeyMapViewModel : WorkbenchBindable, IDisposable
     {
         private string _infoText = string.Empty;
         private readonly CancellationTokenSource lifetime = new();
@@ -21,8 +21,9 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             get => _infoText;
             private set => SetProperty(ref _infoText, value);
         }
-        public KeyMapViewModel(StatusViewModel statusViewModel)
+        public KeyMapViewModel(StatusViewModel statusViewModel, Services.Automation.WorkbenchAutomationService? automation = null)
         {
+            Automation = automation ?? statusViewModel.Automation;
             OutputOperations.InfoEvent += OnInfoEvent;
             Initialization = LoadInfoAsync(statusViewModel);
         }
@@ -39,7 +40,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             try
             {
                 using var password = new PasswordDialogHost();
-                var result = await Services.Automation.WorkbenchAutomationService.Shared.ExecuteSubmissionAsync(
+                var result = await Automation.ExecuteSubmissionAsync(
                     "Info(keymap)", password.RequestAsync, lifetime.Token, testRunner);
                 await UiDispatch.InvokeAsync(() =>
                 {

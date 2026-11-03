@@ -1,6 +1,8 @@
 using CryptoScript.Model;
 using System;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Threading;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
@@ -52,9 +54,11 @@ internal sealed class EditorBridge
 
     internal EditorCoordinator? Coordinator { get; set; }
     private Registration? current;
+    private readonly Dictionary<TextEditor, Registration> open = new();
+    private int openCount;
     // Published availability only: never dereference a control off the dispatcher.
     internal bool Available => System.Threading.Volatile.Read(ref current) is { Attached: true, HasDocument: true };
-    internal bool Registered => System.Threading.Volatile.Read(ref current) is not null;
+    internal bool Registered => System.Threading.Volatile.Read(ref openCount) != 0;
     internal Registration? Current
     {
         get
@@ -62,46 +66,85 @@ internal sealed class EditorBridge
             Dispatcher.UIThread.VerifyAccess();
             // Earlier subscribers may reenter a read from DocumentChanged/Changed
             // before our event handler runs. Observe the actual document/version.
-            ObserveDocument();
+            ObserveDocument(current);
             if (current is not { HasDocument: true }) return null;
             current.ObserveText();
             return current;
         }
     }
 
-    internal Registration Attach(TextEditor editor, IEditorExecutionPresentation? presentation)
+    internal Registration Attach(TextEditor editor, IEditorExecutionPresentation? presentation, bool retainCurrent = false)
     {
         Dispatcher.UIThread.VerifyAccess();
+        if (open.TryGetValue(editor, out var known))
+        {
+            Activate(known);
+            if (!Owns(known)) throw new ExecutionBusyException();
+            return known;
+        }
+        if (editor.Document is { } documentToAttach && UsedByAnotherEditor(editor, documentToAttach))
+            throw new ExecutionBusyException();
         if (current is { } existing)
         {
-            if (ReferenceEquals(existing.Editor, editor)) return existing;
-            if (existing.Editor is WorkbenchTextEditor { IdentityLocked: true }) throw new ExecutionBusyException();
-            Coordinator?.BeforeAttach(editor);
-            Detach(existing);
+            if (existing.Editor is WorkbenchTextEditor { IdentityLocked: true } ||
+                (retainCurrent && existing.Editor is WorkbenchTextEditor { MutationLocked: true })) throw new ExecutionBusyException();
+            Coordinator?.BeforeAttach(editor, retainCurrent);
+            if (!retainCurrent) Detach(existing);
         }
-        Coordinator?.BeforeAttach(editor);
+        Coordinator?.BeforeAttach(editor, retainCurrent);
+        if (open.ContainsKey(editor) || editor.Document is { } live && UsedByAnotherEditor(editor, live))
+            throw new ExecutionBusyException();
         var registration = new Registration(editor, presentation);
+        open.Add(editor, registration);
+        System.Threading.Volatile.Write(ref openCount, open.Count);
         current = registration;
         editor.DocumentChanged += DocumentChanged;
         if (registration.RawDocument is { } document) document.Changed += TextChanged;
         Coordinator?.Attach(registration);
+        if (!Owns(registration)) throw new ExecutionBusyException();
         return registration;
     }
+
+    internal void Activate(Registration registration)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (!open.TryGetValue(registration.Editor, out var known) || !ReferenceEquals(known, registration))
+            throw new ExecutionBusyException();
+        if (ReferenceEquals(current, registration)) return;
+        Coordinator?.SelectView(registration);
+        current = registration;
+        Coordinator?.NotifyWorkspaceChanged();
+    }
+
+    internal bool Owns(Registration registration) =>
+        open.TryGetValue(registration.Editor, out var known) && ReferenceEquals(known, registration);
+    internal bool Contains(TextEditor editor) => open.ContainsKey(editor);
+    internal bool UsedByAnotherEditor(TextEditor editor, TextDocument document) =>
+        open.Values.Any(r => !ReferenceEquals(r.Editor, editor) && ReferenceEquals(r.Editor.Document, document));
 
     internal void Detach(Registration registration)
     {
         Dispatcher.UIThread.VerifyAccess();
-        if (!registration.Attached) return;
+        if (!open.TryGetValue(registration.Editor, out var known) || !ReferenceEquals(known, registration)) return;
         if (registration.Editor is WorkbenchTextEditor { IdentityLocked: true } guarded)
         {
             guarded.AfterIdentity(() => Detach(registration));
             return;
         }
+        bool selected = ReferenceEquals(current, registration);
         Coordinator?.Detached(registration);
+        if (!selected && registration.Editor is WorkbenchTextEditor editor && ReferenceEquals(editor.Coordinator, Coordinator))
+            editor.Coordinator = null;
         registration.Attached = false;
+        open.Remove(registration.Editor);
+        System.Threading.Volatile.Write(ref openCount, open.Count);
         registration.Editor.DocumentChanged -= DocumentChanged;
         if (registration.RawDocument is { } document) document.Changed -= TextChanged;
-        if (ReferenceEquals(current, registration)) current = null;
+        if (selected)
+        {
+            current = null;
+            Coordinator?.RetireDetachedRegistration();
+        }
         // An outstanding save's independent mutation lease remains alive until
         // its finally. Detach never unlocks a document during DeleteAsync.
     }
@@ -110,16 +153,17 @@ internal sealed class EditorBridge
     {
         // An earlier subscriber may already have swapped/detached the document
         // while the old event's invocation list is still being dispatched.
-        if (current is { HasDocument: true } registration && ReferenceEquals(sender, registration.RawDocument))
-            registration.ObserveText();
+        foreach (var registration in open.Values)
+            if (ReferenceEquals(sender, registration.RawDocument)) registration.ObserveText();
     }
 
     private void DocumentChanged(object? sender, DocumentChangedEventArgs args)
-        => ObserveDocument();
-
-    private void ObserveDocument()
     {
-        var registration = current;
+        if (sender is TextEditor editor && open.TryGetValue(editor, out var registration)) ObserveDocument(registration);
+    }
+
+    private void ObserveDocument(Registration? registration)
+    {
         if (registration is null || ReferenceEquals(registration.RawDocument, registration.Editor.Document)) return;
         if (registration.RawDocument is { } previous) previous.Changed -= TextChanged;
         registration.RawDocument = registration.Editor.Document;
@@ -133,7 +177,7 @@ internal sealed class EditorBridge
     internal void DetachCurrent()
     {
         Dispatcher.UIThread.VerifyAccess();
-        if (current is { } registration) Detach(registration);
+        foreach (var registration in open.Values.ToArray()) Detach(registration);
     }
 
     internal bool Matches(Registration registration, EditorSnapshot snapshot) =>

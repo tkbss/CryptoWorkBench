@@ -10,11 +10,20 @@ internal static class InterpreterHostQueue
 {
     private static readonly SemaphoreSlim Queue = new(1, 1);
     private static readonly AsyncLocal<bool> WithinJob = new();
+    [ThreadStatic] private static int observerDepth;
+    internal static bool InObservation => observerDepth != 0;
+    internal static void EnterObserver() => observerDepth++;
+    internal static void ExitObserver() => observerDepth--;
+
+    private static long stateRevision;
+    internal static long StateRevision => Interlocked.Read(ref stateRevision);
+    internal static void AdvanceStateRevision() => Interlocked.Increment(ref stateRevision);
+
     internal static bool IsBusy => Queue.CurrentCount == 0 || InterpreterExecution.IsBusy;
 
     internal static IDisposable Reserve()
     {
-        if (WithinJob.Value || !Queue.Wait(0)) throw new ExecutionBusyException();
+        if (InObservation || WithinJob.Value || !Queue.Wait(0)) throw new ExecutionBusyException();
         if (InterpreterExecution.IsBusy) { Queue.Release(); throw new ExecutionBusyException(); }
         return new Reservation();
     }

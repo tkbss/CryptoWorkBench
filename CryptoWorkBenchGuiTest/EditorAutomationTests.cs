@@ -142,7 +142,8 @@ public class EditorAutomationTests
         h.Editor.Document.Changed += (_, _) =>
         {
             duringText = h.Service.GetEditorAsync(Caller, default).GetAwaiter().GetResult().Data;
-            if (removeDuringChange) h.Editor.Document = null!;
+            if (removeDuringChange)
+                Assert.Throws<ExecutionBusyException>(() => h.Editor.Document = null!);
         };
         h.Editor.DocumentChanged += (_, _) => duringSwap = h.Service.GetEditorAsync(Caller, default).GetAwaiter().GetResult().Data;
         h.Window.Show();
@@ -152,6 +153,8 @@ public class EditorAutomationTests
         Assert.That(duringText!.Revision, Is.Not.EqualTo(before.Revision));
         removeDuringChange = true;
         h.Editor.Document.Insert(0, "change then swap");
+        Assert.That(duringText, Is.EqualTo(await h.Snapshot()));
+        h.Editor.Document = null!;
         Assert.That((await h.Service.GetEditorAsync(Caller, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.EditorUnavailable));
         h.Editor.Document = new TextDocument("swapped");
         Assert.That(duringSwap, Is.EqualTo(await h.Snapshot()));

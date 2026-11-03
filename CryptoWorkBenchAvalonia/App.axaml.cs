@@ -47,6 +47,7 @@ public partial class App : PrismApplication
             {
                 Container.Resolve<CryptoScriptEditViewModel>().Dispose();
                 Container.Resolve<KeyMapViewModel>().Dispose();
+                Container.Resolve<InfoViewModel>().Dispose();
             };
         var regionManager = Container.Resolve<IRegionManager>();
         regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(InfoView));

@@ -24,7 +24,7 @@ public sealed partial class WorkbenchAutomationService
         Dispatcher.UIThread.VerifyAccess();
         lock (sync)
         {
-            if (stopping || IsBusy || editorBridge.Current is not { } registration) return null;
+            if (stopping || InPresentationObserver || IsBusy || editorBridge.Current is not { } registration) return null;
             return new(registration, registration.Snapshot());
         }
     }
@@ -42,6 +42,7 @@ public sealed partial class WorkbenchAutomationService
                 lock (sync)
                 {
                     if (stopping) return AutomationErrorCode.ShuttingDown;
+                    if (InPresentationObserver) return AutomationErrorCode.Busy;
                     if (target.Delete is not null && !target.OverwriteConfirmed) return AutomationErrorCode.ConfirmationDenied;
                     try { admission = InterpreterHostQueue.Reserve(); }
                     catch (ExecutionBusyException) { return AutomationErrorCode.Busy; }
@@ -97,7 +98,7 @@ public sealed partial class WorkbenchAutomationService
         Dispatcher.UIThread.VerifyAccess();
         lock (sync)
         {
-            if (stopping) throw new ExecutionBusyException();
+            if (stopping || InPresentationObserver) throw new ExecutionBusyException();
             using var admission = InterpreterHostQueue.Reserve();
             // Legacy synchronous callers may supply a plain TextEditor (as the
             // existing Return/Save regression harness does). With no await or

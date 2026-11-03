@@ -44,6 +44,7 @@ public class SidebarViewModel : ViewModelBase
   {
         _regionManager = regionManager;
         _cseVm = cseVm;
+        Automation = cseVm.Automation;
         _container = container;
         Title = "Navigation";
         FlyoutWidth = Collapsed;

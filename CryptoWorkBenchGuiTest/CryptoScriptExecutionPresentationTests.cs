@@ -8,6 +8,7 @@ using CryptoWorkBenchAvalonia.ViewModels;
 using NUnit.Framework;
 using Avalonia;
 using Avalonia.Headless;
+using Avalonia.Controls;
 using Avalonia.Input;
 using AvaloniaEdit;
 using CryptoWorkBenchAvalonia;
@@ -202,19 +203,15 @@ public class CryptoScriptExecutionPresentationTests
         var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
-            var textEditor = new TextEditor();
-            editor.TextEditor = textEditor;
-            // Exercise the actual view input handler without unrelated XAML/navigation setup.
-            var view = (CryptoScriptEditView)RuntimeHelpers.GetUninitializedObject(typeof(CryptoScriptEditView));
-            typeof(CryptoScriptEditView).GetField("_textEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, textEditor);
-            typeof(CryptoScriptEditView).GetField("_viewModel", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, editor);
-            var entering = typeof(CryptoScriptEditView).GetMethod("textEditor_TextArea_TextEntering", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var view = new CryptoScriptEditView(editor);
+            var window = new Window { Content = view };
+            window.Show();
+            var textEditor = view.FindControl<TextEditor>("Editor")!;
             async Task Enter(string script)
             {
                 textEditor.Document.Insert(textEditor.Document.TextLength, script);
                 textEditor.TextArea.Caret.Offset = textEditor.Document.TextLength;
-                entering.Invoke(view, new object[] { textEditor.TextArea, new TextInputEventArgs { Text = newline } });
-                textEditor.Document.Insert(textEditor.Document.TextLength, newline);
+                textEditor.TextArea.PerformTextInput(newline);
                 await view.PendingExecution;
             }
 
@@ -248,7 +245,7 @@ public class CryptoScriptExecutionPresentationTests
                 Assert.That(lines, Is.All.Not.Empty);
                 Assert.That(textEditor.Document.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries), Is.EqualTo(lines));
             }
-            finally { if (File.Exists(path)) File.Delete(path); }
+            finally { window.Close(); if (File.Exists(path)) File.Delete(path); }
             return true;
         }, CancellationToken.None);
     }

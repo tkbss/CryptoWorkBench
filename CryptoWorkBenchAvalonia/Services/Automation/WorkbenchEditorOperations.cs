@@ -16,31 +16,44 @@ public sealed partial class WorkbenchAutomationService
     private readonly EditorBridge editorBridge = new();
     internal EditorCoordinator EditorCoordinator
     {
-        get { Dispatcher.UIThread.VerifyAccess(); return editorBridge.Coordinator ?? new EditorCoordinator(editorBridge); }
+        get { Dispatcher.UIThread.VerifyAccess(); return editorBridge.Coordinator ?? new EditorCoordinator(editorBridge, () => Volatile.Read(ref stopping)); }
     }
     internal IEditorReplaceConfirmation ReplaceConfirmation { get; set; } = new EditorReplaceConfirmation();
 
     private static async Task<T> OnEditorUiAsync<T>(Func<T> action) =>
         Dispatcher.UIThread.CheckAccess() ? action() : await UiDispatch.InvokeAsync(action);
 
-    internal EditorBridge.Registration? AttachEditor(TextEditor editor, IEditorExecutionPresentation presentation)
+    internal EditorBridge.Registration? AttachEditor(TextEditor editor, IEditorExecutionPresentation presentation, bool retainCurrent = false)
     {
         Dispatcher.UIThread.VerifyAccess();
         lock (sync)
         {
             if (stopping) return null;
             _ = EditorCoordinator;
-            return editorBridge.Attach(editor, presentation);
+            return editorBridge.Attach(editor, presentation, retainCurrent);
+        }
+    }
+    internal void ActivateEditor(EditorBridge.Registration view)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        lock (sync)
+        {
+            if (stopping) throw new ExecutionBusyException();
+            editorBridge.Activate(view);
         }
     }
     internal void DetachEditor(EditorBridge.Registration registration) => editorBridge.Detach(registration);
     internal bool IsEditorLive(EditorBridge.Registration registration, Guid id) => editorBridge.IsLive(registration, id);
+
+    private bool GuiOwnsSlotOrDraining => editorBridge.Coordinator is { } owner &&
+        (owner.Active || owner.ObserverDepth != 0 || owner.Phase is EditorControlPhase.Releasing or EditorControlPhase.Faulted);
 
     private AutomationErrorCode? CheckEditor(AutomationCaller caller, string permission, Guid? instance = null)
     {
         if (!Authorized(caller, permission)) return AutomationErrorCode.Forbidden;
         if (instance.HasValue && instance != InstanceId) return AutomationErrorCode.InstanceMismatch;
         if (stopping) return AutomationErrorCode.ShuttingDown;
+        if (permission == AutomationPermissions.EditorWrite && GuiOwnsSlotOrDraining) return AutomationErrorCode.Busy;
         return null;
     }
 
@@ -197,6 +210,7 @@ public sealed partial class WorkbenchAutomationService
                     return previous.Fingerprint == fingerprint ? Ok(previous.Result) : Fail<ExecutionResult>(AutomationErrorCode.InvalidArgument);
                 }
                 if (stopping) return Fail<ExecutionResult>(AutomationErrorCode.ShuttingDown);
+                if (GuiOwnsSlotOrDraining) return Fail<ExecutionResult>(AutomationErrorCode.Busy);
                 var registration = editorBridge.Current;
                 if (registration is null || registration.Id != request.EditorId) return Fail<ExecutionResult>(AutomationErrorCode.EditorUnavailable);
                 if (registration.Document.IsInUpdate) return Fail<ExecutionResult>(AutomationErrorCode.Busy);

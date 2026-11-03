@@ -25,6 +25,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     private readonly HashSet<Guid> revokedEpochs = new();
     private Guid? epoch;
     private Job? active;
+    private Job? preparingReturn;
     private Guid? last;
     private long version;
     private long completionSequence;
@@ -190,8 +191,12 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         job.Timer = CreateTimer(static state => {
             var target = (TimerTarget)state!;
             lock (target.Owner.sync)
-                if (target.Owner.jobs.TryGetValue(target.Id, out var activeJob) && activeJob.RegistrationId == target.RegistrationId)
-                    target.Owner.RequestCancel(activeJob, CancellationReason.Timeout);
+            {
+                target.Owner.jobs.TryGetValue(target.Id, out var candidate);
+                candidate ??= target.Owner.preparingReturn;
+                if (candidate?.RegistrationId == target.RegistrationId)
+                    target.Owner.RequestCancel(candidate, CancellationReason.Timeout);
+            }
         }, new TimerTarget(this, job.Id, job.RegistrationId), remaining);
     }
 
@@ -218,15 +223,20 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     // initialization succeeds. After RunOwnedAsync returns its task, only it owns cleanup.
     private (Job Job, Task<T> Work) Accept<T>(IDisposable reservation, AutomationCaller caller, Guid id,
         string fingerprint, ExecutionSource source, int timeout, CancellationToken requestCancellation,
-        CancellationToken userCancellation, Func<WorkbenchExecutionPipeline, Task<T>> operation)
+        CancellationToken userCancellation, Func<WorkbenchExecutionPipeline, Task<T>> operation, Func<bool>? validateIntent = null)
     {
         Job? job = null;
         try
         {
             requestCancellation.ThrowIfCancellationRequested();
             job = CreateJob(caller, id, fingerprint, source, timeout);
-            jobs.Add(id, job);
-            active = job;
+            void Publish()
+            {
+                jobs.Add(id, job);
+                active = job;
+            }
+            if (validateIntent == null) Publish();
+            else preparingReturn = job;
             StartTimer(job, timeout);
             job.UserCancellation = userCancellation.UnsafeRegister(static state => {
                 var target = (TimerTarget)state!;
@@ -237,6 +247,13 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             AdmissionCheckpoint?.Invoke("registration");
             AdmissionCheckpoint?.Invoke("worker");
             requestCancellation.ThrowIfCancellationRequested();
+            if (validateIntent != null)
+            {
+                if (!validateIntent() || stopping || job.Cancellation.IsCancellationRequested) throw new ExecutionBusyException();
+                requestCancellation.ThrowIfCancellationRequested();
+                Publish();
+                preparingReturn = null;
+            }
             var work = RunOwnedAsync(job, reservation, operation);
             _ = ObserveCancellation(work);
             return (job, work);
@@ -245,6 +262,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         {
             if (job is not null)
             {
+                if (ReferenceEquals(preparingReturn, job)) preparingReturn = null;
                 jobs.Remove(id);
                 if (ReferenceEquals(active, job)) active = null;
                 job.CancellationClosed = true;
@@ -289,6 +307,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 return Ok(previous.Result);
             }
             if (stopping) return Fail<ExecutionResult>(AutomationErrorCode.ShuttingDown);
+            if (InPresentationObserver) return Fail<ExecutionResult>(AutomationErrorCode.Busy);
             if (request.ExpectedStateVersion != Version) return Fail<ExecutionResult>(AutomationErrorCode.StateConflict);
             if (jobs.Count + tombstones.Count >= AutomationContracts.MaxExecutionIds) return Fail<ExecutionResult>(AutomationErrorCode.LimitExceeded);
             IDisposable reservation;
@@ -312,18 +331,20 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     }
 
     // GUI cancellation is an explicit local user/lifetime action, not a transport request token.
-    private Task<T> RunGuiAsync<T>(Func<WorkbenchExecutionPipeline, Task<T>> operation, CancellationToken userCancellation, string requestIdentity)
+    private Task<T> RunGuiAsync<T>(Func<WorkbenchExecutionPipeline, Task<T>> operation, CancellationToken userCancellation, string requestIdentity, Func<bool>? validateIntent)
     {
         userCancellation.ThrowIfCancellationRequested();
+        if (InPresentationObserver) throw new ExecutionBusyException();
         lock (sync)
         {
             if (stopping) throw new ExecutionBusyException();
             Prune();
             if (jobs.Count + tombstones.Count >= AutomationContracts.MaxExecutionIds) throw new ExecutionBusyException();
             var fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(requestIdentity)));
+            if (validateIntent?.Invoke() == false || stopping) throw new ExecutionBusyException();
             var reservation = InterpreterHostQueue.Reserve();
             return Accept(reservation, LocalCaller, Guid.NewGuid(), fingerprint, ExecutionSource.GuiLine,
-                AutomationContracts.DefaultTimeoutMs, userCancellation, userCancellation, operation).Work;
+                AutomationContracts.DefaultTimeoutMs, userCancellation, userCancellation, operation, validateIntent).Work;
         }
     }
 
@@ -467,7 +488,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     {
         lock (sync)
         {
-            if (job.Effects) ++version;
+            if (job.Effects) AdvanceVersion();
             if (job.CaptureFailed) variables = variables with { Stale = true };
             else if (job.PendingVariables is { } captured)
                 variables = captured with { StateVersion = Version, CapturedAt = clock.GetUtcNow() };
@@ -526,7 +547,14 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         }
     }
 
-    private void AdvanceVersion() { lock (sync) ++version; }
+    private void AdvanceVersion()
+    {
+        lock (sync)
+        {
+            ++version;
+            InterpreterHostQueue.AdvanceStateRevision();
+        }
+    }
 
     private IReadOnlyList<VariableModel> CaptureMutation()
     {

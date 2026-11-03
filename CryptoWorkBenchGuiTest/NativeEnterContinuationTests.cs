@@ -137,7 +137,9 @@ public class NativeEnterContinuationTests
         h.Area.TextEntering += (_, _) =>
         {
             original = Active(h);
-            Assert.That(h.Coordinator.IsActiveGuiOperation(original), Is.True);
+            Assert.That(h.Coordinator.IsCurrent(original), Is.True);
+            Assert.That(h.Coordinator.ObserverDepth, Is.Positive);
+            Assert.That(h.Coordinator.IsActiveGuiOperation(original), Is.False, "input observers cannot use the original operation");
             Assert.That(typeof(WorkbenchTextArea).GetField("enterContinuation", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(h.Area), Is.Null);
             h.Area.PerformTextInput("FOREIGN");
         };

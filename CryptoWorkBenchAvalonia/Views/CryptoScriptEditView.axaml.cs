@@ -5,6 +5,7 @@ using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using CryptoWorkBenchAvalonia.Models;
+using CryptoWorkBenchAvalonia.Controls;
 using CryptoWorkBenchAvalonia.Services;
 using CryptoWorkBenchAvalonia.ViewModels;
 
@@ -18,7 +19,7 @@ namespace CryptoWorkBenchAvalonia;
 
 public partial class CryptoScriptEditView : UserControl
 {
-    private OverloadInsightWindow _insightWindow;
+    private OverloadInsightWindow? _insightWindow;
     private readonly TextEditor? _textEditor;
     private InfoCompletionController? _infoCompletionController;
     private TextBlock? _statusTextBlock;
@@ -35,29 +36,47 @@ public partial class CryptoScriptEditView : UserControl
         _textEditor = this.FindControl<TextEditor>("Editor");
         if (_textEditor != null && _viewModel != null)
         {
+            // Initialize native dirty/history state before publishing the editor.
             _textEditor.Clear();
             _viewModel.TextEditor = _textEditor;
         }
         _statusTextBlock = this.Find<TextBlock>("StatusText");
-        EnsureInfoCompletionController();
         AttachedToVisualTree += (sender, args) =>
         {
             _viewModel!.TextEditor = _textEditor;
             _viewModel.AttachEditor();
-            EnsureInfoCompletionController();
+            try
+            {
+                EnsureInfoCompletionController();
+                ((WorkbenchTextArea)_textEditor!.TextArea).AdmittedInput = OnAdmittedInput;
+                _textEditor.TextArea.TextEntered += TextEntered;
+                _textEditor.TextArea.Caret.PositionChanged += CaretChanged;
+            }
+            catch { Detach(); throw; }
         };
-        DetachedFromVisualTree += (sender, args) =>
-        {
-            _viewModel!.DetachEditor(_textEditor);
-            _infoCompletionController?.Dispose();
-            _infoCompletionController = null;
-        };
-        _textEditor!.TextArea.TextEntering += this.textEditor_TextArea_TextEntering!;
-        _textEditor.TextArea.TextEntered += (sender, args) => ObserveEditor(() => textEditor_TextArea_TextEntered(sender!, args));
-        _textEditor.TextArea.Caret.PositionChanged += (sender, args) => ObserveEditor(() => Caret_PositionChanged(sender!, args));
-        
+        DetachedFromVisualTree += (_, _) => Detach();
 
+        void Detach()
+        {
+            ((WorkbenchTextArea)_textEditor!.TextArea).AdmittedInput = null;
+            _textEditor.TextArea.TextEntered -= TextEntered;
+            _textEditor.TextArea.Caret.PositionChanged -= CaretChanged;
+            try { _viewModel!.DetachEditor(_textEditor); }
+            finally
+            {
+                var completion = _infoCompletionController;
+                _infoCompletionController = null;
+                try { completion?.Dispose(); }
+                finally { _insightWindow?.Hide(); }
+            }
+        }
     }
+
+    private void TextEntered(object? sender, TextInputEventArgs args) =>
+        ObserveEditor(() => textEditor_TextArea_TextEntered(sender!, args));
+
+    private void CaretChanged(object? sender, EventArgs args) =>
+        ObserveEditor(() => Caret_PositionChanged(sender!, args));
     private void ObserveEditor(Action callback)
     {
         if (_textEditor is CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor { Coordinator: { } coordinator })
@@ -74,43 +93,48 @@ public partial class CryptoScriptEditView : UserControl
                 new InfoCompletionProvider());
         }
     }
-    private void textEditor_TextArea_TextEntering(object sender, TextInputEventArgs e)
+    private void OnAdmittedInput(TextInputEventArgs input, Func<bool> stillAdmitted)
     {
-        
-        if (e == null || e.Text==null || e.Handled)
-            return;
+        if (string.IsNullOrEmpty(input.Text) || input.Handled) return;
+        var editor = _textEditor!;
+        var vm = _viewModel!;
+        var document = editor.Document;
+        var caret = editor.TextArea.Caret.Position;
+        var selection = editor.TextArea.Selection;
+        long lifecycle = vm.EditorLifecycle;
+        bool isReturn = input.Text.Contains('\n') || input.Text.Contains('\r');
+        var line = isReturn ? document.GetLineByNumber(caret.Line) : null;
+        var source = line == null ? null : document.GetText(line);
 
-        _infoCompletionController?.HandleTextEntering(e.Text);
-
-        if (e.Text.Length > 0 && _insightWindow != null)
-            _insightWindow?.Hide();
-        //{
-        //    if (char.IsWhiteSpace(e.Text[0]))
-        //    {
-        //        _completionWindow.CompletionList.RequestInsertion(e);
-        //    }
-        //}
-        if (e.Text.Contains("\n") || e.Text.Contains("\r"))
+        bool IsCurrent()
         {
-            var doc=_textEditor!.Document;            
-            int l = _textEditor!.TextArea.Caret.Line-1;
-            DocumentLine line = doc.Lines[l];
-            string lineText = doc.GetText(line);
-            if(_viewModel == null)
-                return; 
-            if (_viewModel.IsExecuting) { e.Handled = true; return; }
-            var anchor = doc.CreateAnchor(line.EndOffset);
-            anchor.MovementType = AnchorMovementType.BeforeInsertion;
-            PendingExecution = ExecuteInputAsync(lineText, doc, anchor, _viewModel.EditorLifecycle);
-            //var tracker=doc.LineTrackers;
+            bool current = stillAdmitted() && vm.EditorLifecycle == lifecycle &&
+                ReferenceEquals(editor.Document, document) && editor.TextArea.Caret.Position.Equals(caret) &&
+                ReferenceEquals(editor.TextArea.Selection, selection);
+            if (!current) input.Handled = true;
+            return current;
         }
-        
+
+        ObserveEditor(() => _infoCompletionController?.HandleTextEntering(input.Text));
+        if (_insightWindow != null) ObserveEditor(() => _insightWindow?.Hide());
+        if (line == null || !IsCurrent()) return;
+        if (vm.IsExecuting) { input.Handled = true; return; }
+
+        var anchor = document.CreateAnchor(line.EndOffset);
+        anchor.MovementType = AnchorMovementType.BeforeInsertion;
+        PendingExecution = ExecuteInputAsync(source!, document, anchor, lifecycle, IsCurrent, input);
     }
-    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor, long lifecycle)
+
+    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor, long lifecycle, Func<bool> isCurrent, TextInputEventArgs input)
     {
         try
         {
-            await _viewModel!.ParseLineAsync(line);
+            if (!await _viewModel!.ParseInputLineAsync(line, isCurrent))
+            {
+                // Fresh admission failed synchronously, before returning to native TextEntering.
+                input.Handled = true;
+                return;
+            }
             if (_viewModel.EditorLifecycle == lifecycle && !anchor.IsDeleted && ReferenceEquals(document, _textEditor!.Document) &&
                 _viewModel.PrintMessage != string.Empty)
                 document.Insert(anchor.Offset, "\n" + _viewModel.PrintMessage);
@@ -138,10 +162,18 @@ public partial class CryptoScriptEditView : UserControl
 
             if (!infoCompletionOpened && provider != null)
             {
-                _insightWindow = new OverloadInsightWindow(_textEditor.TextArea);
-                _insightWindow.Closed += (o, args) => _insightWindow = null;
-                _insightWindow.Provider = provider;
-                _insightWindow.Show();
+                var window = new OverloadInsightWindow(_textEditor.TextArea);
+                _insightWindow = window;
+                window.Closed += (sender, args) => ObserveEditor(() =>
+                {
+                    if (ReferenceEquals(sender, _insightWindow)) _insightWindow = null;
+                });
+                provider.Observe = action =>
+                {
+                    if (ReferenceEquals(window, _insightWindow) && ReferenceEquals(doc, _textEditor.Document)) ObserveEditor(action);
+                };
+                window.Provider = provider;
+                window.Show();
             }
         }
     }
@@ -156,6 +188,7 @@ public class MyOverloadProvider : IOverloadProvider
 {
     private readonly IList<(string header, string content)> _items;
     private int _selectedIndex;
+    internal Action<Action> Observe { get; set; } = action => action();
 
     public MyOverloadProvider(IList<(string header, string content)> items)
     {
@@ -184,8 +217,8 @@ public class MyOverloadProvider : IOverloadProvider
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        Observe(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
     }
 }
