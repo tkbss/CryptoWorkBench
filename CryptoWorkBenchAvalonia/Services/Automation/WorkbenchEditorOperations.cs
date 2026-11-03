@@ -17,21 +17,52 @@ public sealed partial class WorkbenchAutomationService
     internal bool HasRegisteredEditor => editorBridge.Registered;
     internal EditorCoordinator EditorCoordinator
     {
-        get { Dispatcher.UIThread.VerifyAccess(); return editorBridge.Coordinator ?? new EditorCoordinator(editorBridge, () => Volatile.Read(ref stopping)); }
+        get { Dispatcher.UIThread.VerifyAccess(); return editorBridge.Coordinator ?? new EditorCoordinator(editorBridge, () => Volatile.Read(ref stopping) || epochClose != null); }
     }
     internal IEditorReplaceConfirmation ReplaceConfirmation { get; set; } = new EditorReplaceConfirmation();
 
-    private static async Task<T> OnEditorUiAsync<T>(Func<T> action) =>
-        Dispatcher.UIThread.CheckAccess() ? action() : await UiDispatch.InvokeAsync(action);
+    private async Task<T> OnEditorUiAsync<T>(Func<T> action)
+    {
+        T Run()
+        {
+            try { return action(); }
+            finally { PublishWorkspace(); }
+        }
+        return Dispatcher.UIThread.CheckAccess() ? Run() : await UiDispatch.InvokeAsync(Run);
+    }
 
     internal EditorBridge.Registration? AttachEditor(TextEditor editor, IEditorExecutionPresentation presentation, bool retainCurrent = false)
     {
         Dispatcher.UIThread.VerifyAccess();
+        EditorBridge.Registration? outgoing;
+        EditorCoordinator.DrainTicket? retirement;
         lock (sync)
         {
-            if (stopping) return null;
-            _ = EditorCoordinator;
-            return editorBridge.Attach(editor, presentation, retainCurrent);
+            if (stopping || epochClose != null) return null;
+            var owner = EditorCoordinator;
+            outgoing = editorBridge.ReplacementFor(editor, retainCurrent);
+            retirement = outgoing == null ? null : owner.BeginDrain(MarkWorkspaceChanged);
+        }
+        // Replacement publishes retirement before reading the incoming document again.
+        // An observer may have changed it or initiated shutdown in the meantime.
+        PublishWorkspace();
+        EditorBridge.Registration registration;
+        lock (sync)
+        {
+            if (outgoing != null)
+            {
+                editorBridge.Detach(outgoing);
+                if (!stopping && epochClose == null && !EditorCoordinator.ResumeGui(retirement!, MarkWorkspaceChanged))
+                    throw new ExecutionBusyException();
+            }
+            if (stopping || epochClose != null) throw new ExecutionBusyException();
+            registration = editorBridge.Attach(editor, presentation, retainCurrent, MarkWorkspaceChanged);
+        }
+        PublishWorkspace();
+        lock (sync)
+        {
+            if (stopping || !editorBridge.IsSelected(registration)) throw new ExecutionBusyException();
+            return registration;
         }
     }
     internal void ActivateEditor(EditorBridge.Registration view)
@@ -39,15 +70,27 @@ public sealed partial class WorkbenchAutomationService
         Dispatcher.UIThread.VerifyAccess();
         lock (sync)
         {
-            if (stopping) throw new ExecutionBusyException();
-            editorBridge.Activate(view);
+            if (stopping || epochClose != null) throw new ExecutionBusyException();
+            editorBridge.Activate(view, MarkWorkspaceChanged);
         }
+        PublishWorkspace();
+        if (!editorBridge.IsSelected(view)) throw new ExecutionBusyException();
     }
-    internal void DetachEditor(EditorBridge.Registration registration) => editorBridge.Detach(registration);
+    internal void DetachEditor(EditorBridge.Registration registration)
+    {
+        try
+        {
+            lock (sync)
+                if (lease is { } owned && owned.Slot.Editor == registration.Id) EndLease(owned, ReleaseReason.Detached);
+            editorBridge.Detach(registration);
+            lock (sync) CheckLease();
+        }
+        finally { PublishWorkspace(); }
+    }
     internal bool IsEditorLive(EditorBridge.Registration registration, Guid id) => editorBridge.IsLive(registration, id);
 
     private bool GuiOwnsSlotOrDraining => editorBridge.Coordinator is { } owner &&
-        (owner.Active || owner.ObserverDepth != 0 || owner.Phase is EditorControlPhase.Releasing or EditorControlPhase.Faulted);
+        (epochClose != null || owner.Active || owner.ObserverDepth != 0 || owner.Phase is EditorControlPhase.Mcp or EditorControlPhase.Releasing or EditorControlPhase.Faulted);
 
     private AutomationErrorCode? CheckEditor(AutomationCaller caller, string permission, Guid? instance = null)
     {
@@ -86,6 +129,7 @@ public sealed partial class WorkbenchAutomationService
                 ct.ThrowIfCancellationRequested();
                 lock (sync)
                 {
+                    if (caller.Source != CallerSource.Gui) return AutomationErrorCode.LeaseRequired;
                     if (CheckEditor(caller, AutomationPermissions.EditorWrite, request.InstanceId) is { } error) return error;
                     try { AutomationJson.Validate(request); }
                     catch (JsonException) { return AutomationErrorCode.InvalidArgument; }
@@ -118,7 +162,8 @@ public sealed partial class WorkbenchAutomationService
                 if (confirmed != true) return Fail<EditorMutation>(confirmed == false
                     ? AutomationErrorCode.ConfirmationDenied : AutomationErrorCode.ConfirmationUnavailable);
             }
-            return await OnEditorUiAsync(() =>
+            EditorCoordinator.OperationTicket? ticket = null;
+            var reply = await OnEditorUiAsync(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 lock (sync)
@@ -127,53 +172,60 @@ public sealed partial class WorkbenchAutomationService
                     if (!editorBridge.IsLive(registration!, request.EditorId)) return Fail<EditorMutation>(AutomationErrorCode.EditorUnavailable);
                     if (generation != EditorCoordinator.WorkspaceGeneration || !editorBridge.Matches(registration!, before!)) return Fail<EditorMutation>(AutomationErrorCode.RevisionConflict);
                     if (registration!.Document.IsInUpdate) return Fail<EditorMutation>(AutomationErrorCode.Busy);
-                    EditorSnapshot? after = null;
-                    if (noOp) after = registration.Snapshot();
-                    else
+                    if (noOp)
                     {
-                        var doc = registration.Document;
-                        var originalVersion = doc.Version;
-                        using var ticket = EditorCoordinator.TryBegin();
-                        if (ticket == null) return Fail<EditorMutation>(AutomationErrorCode.Busy);
-                        Exception? callbackFailure = null;
-                        EditorCoordinator.Commit(ticket, () =>
-                        {
-                            var guarded = registration.Editor as WorkbenchTextEditor
-                                ?? throw new InvalidOperationException("Editor does not support an identity lease.");
-                            using var identity = guarded.LockIdentity();
-                            try
-                            {
-                                using (doc.RunUpdate())
-                                {
-                                    guarded.AllowSingleEditChange();
-                                    if (request.Mode == EditorEditMode.Replace) doc.Replace(0, doc.TextLength, request.Text);
-                                    else doc.Insert(request.Mode == EditorEditMode.Append ? doc.TextLength : request.Offset!.Value, request.Text);
-                                }
-                            }
-                            catch (Exception callbackError) { callbackFailure = callbackError; }
-                            finally
-                            {
-                                // Changed/UpdateFinished can throw after the text
-                                // effect. Close any still-open library update;
-                                // never undo an already applied document change.
-                                if (doc.IsInUpdate) doc.EndUpdate();
-                            }
-                            if (ReferenceEquals(originalVersion, doc.Version))
-                            {
-                                ticket.Error = EditorOperationError.MutationFailed;
-                                return;
-                            }
-                            try { registration.Editor.IsModified = true; }
-                            catch (Exception callbackError) { callbackFailure = callbackError; }
-                            after = registration.Snapshot();
-                            if (callbackFailure != null) ticket.Error = EditorOperationError.CallbackFailed;
-                        });
-                        if (after is null) return Fail<EditorMutation>(callbackFailure is ExecutionBusyException
-                            ? AutomationErrorCode.Busy : AutomationErrorCode.InternalError);
+                        var unchanged = registration.Snapshot();
+                        return Ok(new EditorMutation(request.EditorId, before!.Revision, unchanged.Revision, unchanged.Length, unchanged.DirtyState));
                     }
-                    return Ok(new EditorMutation(request.EditorId, before!.Revision, after!.Revision, after.Length, after.DirtyState));
+                    ticket = EditorCoordinator.TryBegin();
+                    if (ticket == null || !EditorCoordinator.TryStartCommit(ticket))
+                    {
+                        ticket?.Dispose();
+                        return Fail<EditorMutation>(AutomationErrorCode.Busy);
+                    }
                 }
+                var doc = ticket.Document;
+                var originalVersion = doc.Version;
+                EditorSnapshot? after = null;
+                Exception? callbackFailure = null;
+                EditorCoordinator.FinishCommit(ticket, () =>
+                {
+                    var guarded = registration.Editor as WorkbenchTextEditor
+                        ?? throw new InvalidOperationException("Editor does not support an identity lease.");
+                    using var identity = guarded.LockIdentity();
+                    try
+                    {
+                        using (doc.RunUpdate())
+                        {
+                            guarded.AllowSingleEditChange();
+                            if (request.Mode == EditorEditMode.Replace) doc.Replace(0, doc.TextLength, request.Text);
+                            else doc.Insert(request.Mode == EditorEditMode.Append ? doc.TextLength : request.Offset!.Value, request.Text);
+                        }
+                    }
+                    catch (Exception callbackError) { callbackFailure = callbackError; }
+                    finally
+                    {
+                        // Changed/UpdateFinished can throw after the text
+                        // effect. Close any still-open library update;
+                        // never undo an already applied document change.
+                        if (doc.IsInUpdate) doc.EndUpdate();
+                    }
+                    if (ReferenceEquals(originalVersion, doc.Version))
+                    {
+                        ticket.Error = EditorOperationError.MutationFailed;
+                        return;
+                    }
+                    try { registration.Editor.IsModified = true; }
+                    catch (Exception callbackError) { callbackFailure = callbackError; }
+                    after = registration.Snapshot();
+                    if (callbackFailure != null) ticket.Error = EditorOperationError.CallbackFailed;
+                }, expectedText: null);
+                return after == null ? Fail<EditorMutation>(callbackFailure is ExecutionBusyException
+                    ? AutomationErrorCode.Busy : AutomationErrorCode.InternalError)
+                    : Ok(new EditorMutation(request.EditorId, before!.Revision, after.Revision, after.Length, after.DirtyState));
             });
+            if (ticket != null) await ticket.Completion.ConfigureAwait(false);
+            return reply;
         }
         finally
         {
@@ -216,9 +268,9 @@ public sealed partial class WorkbenchAutomationService
                 string fingerprint = Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request with
                     { TimeoutMs = request.TimeoutMs ?? AutomationContracts.DefaultTimeoutMs, OutputPolicy = OutputPolicy.MetadataOnly }, AutomationJson.Options)));
                 Prune();
-                if (tombstones.TryGetValue(request.ExecutionId, out var owner)) return Fail<ExecutionResult>(SameOwner(caller, owner)
-                    ? AutomationErrorCode.ResultExpired : AutomationErrorCode.NotFound);
-                if (jobs.TryGetValue(request.ExecutionId, out var previous))
+                var key = new JobKey(caller, request.ExecutionId);
+                if (tombstones.Contains(key)) return Fail<ExecutionResult>(AutomationErrorCode.ResultExpired);
+                if (jobs.TryGetValue(key, out var previous))
                 {
                     if (!Owns(caller, previous)) return Fail<ExecutionResult>(AutomationErrorCode.NotFound);
                     if (previous.Expired) return Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, previous.Id);

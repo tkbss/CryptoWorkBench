@@ -101,7 +101,7 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
             else if (command == ApplicationCommands.Paste || command == ApplicationCommands.Cut)
                 PendingClipboard = ClipboardAsync(owner, command);
             else
-                owner.RunGui(ExecuteNative, command == ApplicationCommands.Undo || command == ApplicationCommands.Redo);
+                owner.RunGui(ExecuteNative);
         }, (_, args) =>
         {
             bool allowed = command == ApplicationCommands.Copy ? !copying : Allowed;

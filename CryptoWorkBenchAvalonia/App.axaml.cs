@@ -37,6 +37,13 @@ public partial class App : PrismApplication
     {
         var window = Container.Resolve<MainWindow>();
         var service = Container.Resolve<CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService>();
+        CoordinateClosing(window, service);
+        window.Closed += (_, _) => Container.Resolve<CryptoScriptEditViewModel>().Dispose();
+        return window;
+    }
+
+    internal static void CoordinateClosing(Avalonia.Controls.Window window, Services.Automation.WorkbenchAutomationService service)
+    {
         bool draining = false;
         bool ready = false;
         window.Closing += async (_, args) =>
@@ -45,14 +52,20 @@ public partial class App : PrismApplication
             args.Cancel = true;
             if (draining) return;
             draining = true;
-            service.BeginShutdown();
-            var editorDrain = service.EditorCoordinator.BeginDrain();
-            await System.Threading.Tasks.Task.WhenAll(editorDrain.Quiescent.Task, service.DrainAsync());
+            try
+            {
+                service.BeginShutdown();
+                await service.DrainForExitAsync();
+            }
+            catch (System.Exception)
+            {
+                System.Diagnostics.Trace.TraceError("Workbench shutdown could not establish quiescence.");
+                draining = false;
+                return;
+            }
             // Close after the original Closing event has unwound, even for an idle workspace.
             UiDispatch.Post(() => { ready = true; window.Close(); });
         };
-        window.Closed += (_, _) => Container.Resolve<CryptoScriptEditViewModel>().Dispose();
-        return window;
     }
 
     protected override void OnInitialized()
@@ -81,6 +94,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IInfoDocumentationProvider, FileInfoDocumentationProvider>();
 
         containerRegistry.RegisterInstance(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
+        containerRegistry.RegisterInstance<CryptoWorkBench.Automation.Abstractions.IWorkbenchAutomationV2>(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
         containerRegistry.RegisterInstance<CryptoWorkBench.Automation.Abstractions.IWorkbenchAutomationService>(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
         containerRegistry.RegisterSingleton<MainViewModel>();
         containerRegistry.RegisterSingleton<InfoViewModel>();

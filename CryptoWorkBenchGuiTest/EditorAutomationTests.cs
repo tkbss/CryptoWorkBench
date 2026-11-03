@@ -535,8 +535,8 @@ public class EditorAutomationTests
         Assert.That((await h.Service.ExecuteEditorAsync(Caller, request, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.StateConflict));
         h.Editor.Text += " ";
         Assert.That((await h.Service.ExecuteEditorAsync(Caller, request, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.RevisionConflict));
-        var epoch = Guid.NewGuid(); h.Service.ActivateMcp(epoch);
-        var external = Caller with { Source = CallerSource.Mcp, ActivationEpoch = epoch };
+        h.Service.ActivateMcp();
+        var external = h.Service.IssueCredential(Caller.PrincipalId, Caller.Permissions.Add(AutomationPermissions.EditorControl));
         Assert.That((await h.Service.ExecuteEditorAsync(external, await h.Execution(), default)).Error!.Code, Is.EqualTo(AutomationErrorCode.Forbidden));
         Assert.That(VariableDictionary.Instance().Contains("blocked"), Is.False);
         var noRead = Caller with { Permissions = ImmutableHashSet<string>.Empty };

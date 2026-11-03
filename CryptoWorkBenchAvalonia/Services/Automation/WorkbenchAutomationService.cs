@@ -88,7 +88,7 @@ public sealed partial class WorkbenchAutomationService
     private void ValidateStateAccess(long? expectedVersion, Func<bool>? validate)
     {
         if (InPresentationObserver) throw new ExecutionBusyException();
-        lock (sync) if (stopping || (expectedVersion.HasValue && expectedVersion != version)) throw new ExecutionBusyException();
+        lock (sync) if (stopping || epochClose != null || (expectedVersion.HasValue && expectedVersion != version)) throw new ExecutionBusyException();
         if (editorBridge.Registered)
         {
             if (!Avalonia.Threading.Dispatcher.UIThread.CheckAccess()) throw new ExecutionBusyException();

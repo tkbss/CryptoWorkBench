@@ -5,7 +5,9 @@ public enum AutomationErrorCode
 {
     InvalidArgument, LimitExceeded, NotReady, ShuttingDown, Forbidden, InternalError, InstanceMismatch,
     EditorUnavailable, RevisionConflict, Busy, InvalidRange, ConfirmationDenied, ConfirmationUnavailable,
-    StateConflict, NotFound, ResultExpired
+    StateConflict, NotFound, ResultExpired, UnsupportedContractVersion, EditorOwned, LeaseRequired, LeaseNotFound,
+    LeaseExpired, LeaseRevoked, LeaseVersionConflict, IdempotencyConflict, AcquisitionRetired, CapacityExceeded,
+    VersionExhausted, TimerUnavailable, CallbackFailed, MutationFailed, FinalizationFailed, EditorFaulted
 }
 public sealed record AutomationError(AutomationErrorCode Code, string Message, bool Retryable, Guid? ExecutionId);
 
@@ -30,6 +32,7 @@ public static class AutomationErrors
         AutomationErrorCode.StateConflict => "The workbench state has changed.",
         AutomationErrorCode.NotFound => "The execution was not found.",
         AutomationErrorCode.ResultExpired => "The execution result has expired.",
+        >= AutomationErrorCode.UnsupportedContractVersion and <= AutomationErrorCode.EditorFaulted => "The operation could not be completed.",
         _ => throw new ArgumentOutOfRangeException(nameof(code))
     }, code is AutomationErrorCode.Busy or AutomationErrorCode.NotReady or AutomationErrorCode.EditorUnavailable
         or AutomationErrorCode.ConfirmationUnavailable, executionId);

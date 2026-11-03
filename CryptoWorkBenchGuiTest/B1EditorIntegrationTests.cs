@@ -32,15 +32,16 @@ public class B1EditorIntegrationTests
 
     internal sealed class Host : IAsyncDisposable
     {
-        internal readonly WorkbenchAutomationService Service = new();
+        internal readonly WorkbenchAutomationService Service;
         internal readonly WorkbenchTextEditor Editor = new();
         internal readonly Window Window;
         internal readonly EditorBridge.Registration Registration;
         internal WorkbenchTextArea Area => (WorkbenchTextArea)Editor.TextArea;
         internal EditorCoordinator Owner => Service.EditorCoordinator;
 
-        internal Host(string text)
+        internal Host(string text, WorkbenchAutomationService? service = null)
         {
+            Service = service ?? new();
             Editor.Text = text;
             Registration = Service.AttachEditor(Editor, null!)!;
             Window = new Window { Content = Editor, Width = 800, Height = 400 };
@@ -103,17 +104,19 @@ public class B1EditorIntegrationTests
         var b = new WorkbenchTextEditor { Text = "B" };
         var second = h.Service.AttachEditor(b, null!, retainCurrent: true)!;
         h.Service.ActivateEditor(h.Registration);
-        var epoch = Guid.NewGuid();
-        h.Service.ActivateMcp(epoch);
-        var caller = WorkbenchAutomationService.LocalCaller with { Source = CallerSource.Mcp, ActivationEpoch = epoch };
+        h.Service.ActivateMcp();
+        var caller = h.Service.IssueCredential(WorkbenchAutomationService.LocalCaller.PrincipalId, WorkbenchAutomationService.LocalCaller.Permissions.Add(AutomationPermissions.EditorControl));
         var snapshot = h.Registration.Snapshot();
         var request = new EditorEdit(h.Service.InstanceId, snapshot.EditorId, snapshot.Revision, EditorEditMode.Append, "!");
+        Assert.That((await h.Service.UpdateEditorAsync(caller, request, default)).Error?.Code, Is.EqualTo(AutomationErrorCode.LeaseRequired));
+        AcquireEditorV2 Acquire() => new("2", request.InstanceId, request.EditorId, Guid.NewGuid(), request.ExpectedRevision);
         AutomationErrorCode? denied = null;
-        h.Owner.RunGui(() => denied = h.Service.UpdateEditorAsync(caller, request, default).GetAwaiter().GetResult().Error?.Code);
+        h.Owner.RunGui(() => denied = h.Service.AcquireEditorAsync(caller, Acquire(), default).GetAwaiter().GetResult().Error?.Code);
         Assert.That(denied, Is.EqualTo(AutomationErrorCode.Busy));
         var drain = h.Owner.BeginDrain();
-        Assert.That((await h.Service.UpdateEditorAsync(caller, request, default)).Error?.Code, Is.EqualTo(AutomationErrorCode.Busy));
+        Assert.That((await h.Service.AcquireEditorAsync(caller, Acquire(), default)).Error?.Code, Is.EqualTo(AutomationErrorCode.Busy));
         Assert.That(h.Owner.ResumeGui(drain), Is.True);
+        var lease = (await h.Service.AcquireEditorAsync(caller, Acquire(), default)).Result!;
         int attempts = 0;
         bool switchRejected = false;
         h.Editor.Document.Changed += (_, _) =>
@@ -124,7 +127,11 @@ public class B1EditorIntegrationTests
             b.TextArea.PerformTextInput("wrong");
             h.Area.PerformTextInput("wrong");
         };
-        Assert.That((await h.Service.UpdateEditorAsync(caller, request, default)).Ok, Is.True);
+        var receipt = await h.Service.UpdateEditorV2Async(caller, new("2", request.InstanceId, request.EditorId,
+            lease.LeaseId, request.ExpectedRevision, request.Mode, request.Text), default);
+        Assert.That(receipt.Error, Is.Null);
+        Assert.That(receipt.HistoryEffect, Is.EqualTo(HistoryEffect.Applied));
+        await h.Service.ReleaseEditorAsync(caller, new("2", request.InstanceId, request.EditorId, lease.LeaseId), default);
         Assert.That(attempts, Is.EqualTo(1));
         Assert.That(switchRejected, Is.True);
         Assert.That(h.Editor.Text, Is.EqualTo("A!"));

@@ -26,6 +26,7 @@ public static class AutomationPermissions
 {
     public const string StatusRead = "status.read";
     public const string EditorRead = "editor.read";
+    public const string EditorControl = "editor.control";
     public const string EditorWrite = "editor.write";
     public const string VariablesMetadataRead = "variables.metadata.read";
     public const string ExecutionRead = "execution.read";

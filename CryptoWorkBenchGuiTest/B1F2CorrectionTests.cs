@@ -83,17 +83,19 @@ public class B1F2CorrectionTests
     {
         await using var h = new Host("A");
         var incoming = new WorkbenchTextEditor { Text = "B" };
+        Task? disposal = null;
         bool disposed = false;
         void Stop()
         {
             if (disposed || (afterPublication ? !h.Owner.Targets(incoming) : h.Owner.Phase != EditorControlPhase.Releasing)) return;
             disposed = true;
-            h.Service.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            disposal = h.Service.DisposeAsync().AsTask(); // This observer is itself a shutdown obligation.
         }
         h.Owner.WorkspaceChanged += Stop;
         Assert.Throws<ExecutionBusyException>(() => h.Service.AttachEditor(incoming, null!));
         h.Owner.WorkspaceChanged -= Stop;
         Assert.That(disposed, Is.True);
+        await disposal!.WaitAsync(TimeSpan.FromSeconds(5));
         Assert.That(incoming.Coordinator, Is.Null);
         Assert.That(h.Registration.Attached, Is.False);
         incoming.TextArea.PerformTextInput("bad");

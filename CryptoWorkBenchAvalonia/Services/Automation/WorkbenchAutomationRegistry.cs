@@ -19,14 +19,35 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
 {
     private readonly object sync = new();
     private readonly TimeProvider clock;
-    private readonly Dictionary<Guid, Job> jobs = new();
-    private readonly Dictionary<Guid, AutomationCaller> tombstones = new();
+    internal readonly record struct JobKey(CallerSource Source, string Principal, Guid Epoch, Guid Id)
+    {
+        internal JobKey(AutomationCaller caller, Guid id) : this(caller.Source, caller.PrincipalId, caller.ActivationEpoch, id) { }
+    }
+    private readonly Dictionary<JobKey, Job> jobs = new();
+    private readonly HashSet<JobKey> tombstones = new();
     private readonly AsyncLocal<Job?> current = new();
-    private readonly HashSet<Guid> revokedEpochs = new();
+    // Host-issued immutable grant snapshots. A record copy with modified claims has no authority.
+    private readonly HashSet<AutomationCaller> credentials = new(ReferenceEqualityComparer.Instance);
+    private bool activationUsed;
+    private volatile bool leaseCleanupFailed;
+    private volatile TaskCompletionSource? epochClose;
+    internal AutomationCaller IssueCredential(string principal, ImmutableHashSet<string> grants)
+    {
+        lock (sync)
+        {
+            if (!epoch.HasValue || stopping || credentials.Count >= 64 || principal is not { Length: > 0 and <= 128 } ||
+                grants.Count > 16 || grants.Any(g => g is not { Length: > 0 and <= 64 }))
+                throw new InvalidOperationException("Credential unavailable.");
+            var credential = new AutomationCaller(principal, CallerSource.Mcp,
+                grants.ToImmutableHashSet(StringComparer.Ordinal), epoch.Value);
+            credentials.Add(credential);
+            return credential;
+        }
+    }
     private Guid? epoch;
     private Job? active;
     private Job? preparingReturn;
-    private Guid? last;
+    private JobKey? last;
     private long version;
     private long completionSequence;
     private bool stopping;
@@ -69,7 +90,10 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         internal CancellationTokenRegistration UserCancellation;
         internal CancellationReason? Reason;
         internal ExecutionState Outcome = ExecutionState.Completed;
+        internal AutomationErrorCode FailureCode = AutomationErrorCode.InternalError;
         internal bool Effects;
+        internal bool ApprovedOutput;
+        internal int OutputBytes;
         internal bool CaptureFailed;
         internal bool Revoked;
         internal bool Expired;
@@ -91,7 +115,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     private bool Authorized(AutomationCaller caller, string permission) =>
         !string.IsNullOrEmpty(caller.PrincipalId) && caller.Permissions.Contains(permission) &&
         (caller.Source == CallerSource.Gui || (caller.Source == CallerSource.Mcp && !stopping &&
-            epoch == caller.ActivationEpoch && !revokedEpochs.Contains(caller.ActivationEpoch)));
+            epoch == caller.ActivationEpoch && credentials.Contains(caller)));
 
     private bool Owns(AutomationCaller caller, Job job) => !job.Revoked &&
         SameOwner(caller, job.Caller);
@@ -107,9 +131,14 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             Prune();
             var state = active is null ? WorkbenchExecutionState.Idle : active.Reason is not null
                 ? WorkbenchExecutionState.CancellationRequested : active.Result.State == ExecutionState.WaitingForUser
-                ? WorkbenchExecutionState.WaitingForUser : WorkbenchExecutionState.Running;
+                ? WorkbenchExecutionState.WaitingForUser : active.Result.State == ExecutionState.AwaitingConfirmation
+                ? WorkbenchExecutionState.AwaitingConfirmation : WorkbenchExecutionState.Running;
+            bool Visible(Job? job) => job != null && Authorized(caller, AutomationPermissions.ExecutionRead) && Owns(caller, job);
+            var activeId = caller.Source == CallerSource.Gui || Visible(active) ? active?.Id : null;
+            var lastId = caller.Source == CallerSource.Gui || last is { } key && jobs.TryGetValue(key, out var previous) && Visible(previous)
+                ? last?.Id : null;
             return Task.FromResult(Ok(new WorkbenchStatus(stopping ? Lifecycle.Stopping : faulted ? Lifecycle.Faulted : Lifecycle.Ready,
-                epoch.HasValue, editorBridge.Available, state, active?.Id, IsBusy, Version, last,
+                epoch.HasValue, editorBridge.Available, state, activeId, IsBusy, Version, lastId,
                 [AutomationPermissions.StatusRead, AutomationPermissions.VariablesMetadataRead, AutomationPermissions.ExecutionRead])));
         }
     }
@@ -127,10 +156,21 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         if (!Authorized(caller, AutomationPermissions.ExecutionRead)) return Fail<ExecutionResult>(AutomationErrorCode.Forbidden);
         if (id == Guid.Empty) return Fail<ExecutionResult>(AutomationErrorCode.InvalidArgument);
         Prune();
-        if (!jobs.TryGetValue(id, out var job)) return Fail<ExecutionResult>(tombstones.TryGetValue(id, out var owner) && SameOwner(caller, owner)
+        var key = new JobKey(caller, id);
+        if (!jobs.TryGetValue(key, out var job)) return Fail<ExecutionResult>(tombstones.Contains(key)
             ? AutomationErrorCode.ResultExpired : AutomationErrorCode.NotFound);
         if (!Owns(caller, job)) return Fail<ExecutionResult>(AutomationErrorCode.NotFound);
-        return job.Expired ? Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, id) : Ok(job.Result);
+        return job.Expired ? Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, id) : Ok(VisibleResult(caller, job));
+    }
+
+    private ExecutionResult VisibleResult(AutomationCaller caller, Job job)
+    {
+        var result = job.Result;
+        if (!Authorized(caller, AutomationPermissions.VariablesMetadataRead))
+            result = result with { Variables = new(result.StateVersion, result.FinishedAt ?? result.AcceptedAt, true, [], false) };
+        if (job.ApprovedOutput && !Authorized(caller, AutomationPermissions.OutputRead))
+            result = result with { Outputs = result.Outputs.Select(o => o with { Text = null, Redacted = true }).ToImmutableArray() };
+        return result;
     }
 
     public Task<Reply<ExecutionResult>> GetExecutionAsync(AutomationCaller caller, Guid executionId, CancellationToken ct)
@@ -159,7 +199,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             var reply = Lookup(caller, executionId);
             if (!reply.Ok) return Task.FromResult(Reply<CancelReceipt>.Failure(InstanceId, reply.Error!));
             ct.ThrowIfCancellationRequested();
-            var job = jobs[executionId];
+            var job = jobs[new(caller, executionId)];
             bool accepted = RequestCancel(job, CancellationReason.Explicit);
             return Task.FromResult(Ok(new CancelReceipt(executionId, accepted, job.Result.State)));
         }
@@ -193,8 +233,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             var target = (TimerTarget)state!;
             lock (target.Owner.sync)
             {
-                target.Owner.jobs.TryGetValue(target.Id, out var candidate);
-                candidate ??= target.Owner.preparingReturn;
+                var candidate = target.Owner.active ?? target.Owner.preparingReturn;
                 if (candidate?.RegistrationId == target.RegistrationId)
                     target.Owner.RequestCancel(candidate, CancellationReason.Timeout);
             }
@@ -209,7 +248,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         job.RetentionTimer = CreateTimer(static state => {
             var target = (TimerTarget)state!;
             lock (target.Owner.sync)
-                if (target.Owner.jobs.TryGetValue(target.Id, out var completed) && completed.RegistrationId == target.RegistrationId)
+                if (target.Owner.jobs.Values.FirstOrDefault(j => j.RegistrationId == target.RegistrationId && j.Id == target.Id) is { } completed)
                     target.Owner.Expire(completed);
         }, new TimerTarget(this, job.Id, job.RegistrationId), remaining);
     }
@@ -236,7 +275,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             if (editorIntent != null) job.Result = job.Result with { EditorId = editorIntent.EditorId, SourceRevision = editorIntent.SourceRevision };
             void Publish()
             {
-                jobs.Add(id, job);
+                jobs.Add(new(caller, id), job);
                 active = job;
             }
             if (validateIntent == null) Publish();
@@ -245,7 +284,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             job.UserCancellation = userCancellation.UnsafeRegister(static state => {
                 var target = (TimerTarget)state!;
                 lock (target.Owner.sync)
-                    if (target.Owner.jobs.TryGetValue(target.Id, out var registered) && registered.RegistrationId == target.RegistrationId)
+                    if (target.Owner.active is { } registered && registered.RegistrationId == target.RegistrationId)
                         target.Owner.RequestCancel(registered, CancellationReason.User);
             }, new TimerTarget(this, id, job.RegistrationId));
             AdmissionCheckpoint?.Invoke("registration");
@@ -267,7 +306,8 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             if (job is not null)
             {
                 if (ReferenceEquals(preparingReturn, job)) preparingReturn = null;
-                jobs.Remove(id);
+                var key = new JobKey(caller, id);
+                if (jobs.TryGetValue(key, out var published) && ReferenceEquals(published, job)) jobs.Remove(key);
                 if (ReferenceEquals(active, job)) active = null;
                 job.CancellationClosed = true;
                 // The registration callback only looks up the ID under sync. Once
@@ -303,9 +343,9 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             string fingerprint = Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request with
                 { TimeoutMs = request.TimeoutMs ?? AutomationContracts.DefaultTimeoutMs, OutputPolicy = OutputPolicy.MetadataOnly }, AutomationJson.Options)));
             Prune();
-            if (tombstones.TryGetValue(request.ExecutionId, out var expiredOwner))
-                return Fail<ExecutionResult>(SameOwner(caller, expiredOwner) ? AutomationErrorCode.ResultExpired : AutomationErrorCode.NotFound);
-            if (jobs.TryGetValue(request.ExecutionId, out var previous))
+            var key = new JobKey(caller, request.ExecutionId);
+            if (tombstones.Contains(key)) return Fail<ExecutionResult>(AutomationErrorCode.ResultExpired);
+            if (jobs.TryGetValue(key, out var previous))
             {
                 if (!Owns(caller, previous)) return Fail<ExecutionResult>(AutomationErrorCode.NotFound);
                 if (previous.Expired) return Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, previous.Id);
@@ -354,7 +394,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         if (InPresentationObserver) throw new ExecutionBusyException();
         lock (sync)
         {
-            if (stopping) throw new ExecutionBusyException();
+            if (stopping || epochClose != null) throw new ExecutionBusyException();
             Prune();
             if (jobs.Count + tombstones.Count >= AutomationContracts.MaxExecutionIds) throw new ExecutionBusyException();
             var fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(requestIdentity)));
@@ -515,7 +555,21 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             var outputs = job.Result.Outputs.ToBuilder();
             foreach (var output in result.Output)
                 if (outputs.Count < AutomationContracts.MaxCollectionEntries)
-                    outputs.Add(new(outputs.Count + 1, output.Kind == "print" ? OutputKind.Print : OutputKind.Info, null, true, false));
+                {
+                    string? text = null;
+                    bool omitted = false;
+                    if (job.ApprovedOutput && Authorized(job.Caller, AutomationPermissions.OutputRead))
+                    {
+                        var remaining = AutomationContracts.MaxOutputTextBytes - job.OutputBytes;
+                        if (output.Text.Length <= remaining && Encoding.UTF8.GetByteCount(output.Text) is var bytes && bytes <= remaining)
+                        {
+                            text = output.Text;
+                            job.OutputBytes += bytes;
+                        }
+                        else { omitted = true; truncated = true; }
+                    }
+                    outputs.Add(new(outputs.Count + 1, output.Kind == "print" ? OutputKind.Print : OutputKind.Info, text, text == null, omitted));
+                }
                 else truncated = true;
             job.Result = job.Result with { Diagnostics = diagnostics.ToImmutable(), Outputs = outputs.ToImmutable(),
                 HasErrors = job.Result.HasErrors || result.Diagnostics.Any(d => d.Severity == CryptoScript.ErrorListner.SemanticDiagnosticSeverity.Error)
@@ -535,15 +589,17 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 variables = captured with { StateVersion = Version, CapturedAt = clock.GetUtcNow() };
             job.PendingVariables = null;
             var outcome = job.Outcome;
+            if (job.CleanupFailed && (lease != null || epochClose != null)) leaseCleanupFailed = true;
             if (job.CaptureFailed || job.CleanupFailed) outcome = ExecutionState.Failed;
             else if (outcome == ExecutionState.Cancelled && job.Reason == CancellationReason.Timeout) outcome = ExecutionState.TimedOut;
             // Do not turn a successfully completed final statement into cancellation on a late request.
             job.Result = job.Result with { State = outcome, FinishedAt = clock.GetUtcNow(), StateVersion = Version,
                 CancellationReason = job.Reason, Variables = variables, Error = job.CaptureFailed || outcome == ExecutionState.Failed
-                    ? AutomationErrors.Create(AutomationErrorCode.InternalError, job.Id) : null };
+                    ? AutomationErrors.Create(job.CaptureFailed || job.CleanupFailed ? AutomationErrorCode.InternalError :
+                        job.FailureCode, job.Id) : null };
             job.FinishedTimestamp = clock.GetTimestamp();
             job.CompletionSequence = ++completionSequence;
-            last = job.Id;
+            last = new(job.Caller, job.Id);
             Bound(job);
             Prune();
         }
@@ -569,8 +625,9 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         job.RetentionTimer = null;
         job.Bytes = 0;
         // Tombstones carry no DTOs, tasks, timers, source text or cancellation sources.
-        tombstones[job.Id] = job.Caller;
-        jobs.Remove(job.Id);
+        var key = new JobKey(job.Caller, job.Id);
+        tombstones.Add(key);
+        jobs.Remove(key);
     }
 
     private void Prune()
@@ -653,19 +710,44 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         InterpreterHostQueue.RunState(CaptureMutation, present);
 
     public void StopAccepting() { lock (sync) stopping = true; }
+    private Task? shutdownQuiescence;
     public void BeginShutdown()
     {
-        lock (sync) { stopping = true; if (active is not null) RequestCancel(active, CancellationReason.Shutdown); RevokeMcpCore(); }
+        lock (sync)
+        {
+            if (shutdownQuiescence != null) return;
+            stopping = true;
+            if (active is not null) RequestCancel(active, CancellationReason.Shutdown);
+            RevokeMcpCore();
+            // A completed disable may have readmitted GUI producers. Capture their original
+            // coordinator now. An in-progress or failed close still owns the same obligations.
+            if (epochClose == null && editorBridge.Coordinator != null) StartEditorClose();
+            shutdownQuiescence = epochClose?.Task ?? OutstandingServiceWork();
+        }
     }
+
     public Task DrainAsync(CancellationToken ct = default)
     {
-        lock (sync) return Task.WhenAll(active?.Task ?? Task.CompletedTask, editCompletion?.Task ?? Task.CompletedTask,
-            saveCompletion?.Task ?? Task.CompletedTask, fileDialogCompletion?.Task ?? Task.CompletedTask).WaitAsync(ct);
+        lock (sync) return Task.WhenAll(OutstandingServiceWork(), epochClose?.Task ?? Task.CompletedTask,
+            shutdownQuiescence ?? Task.CompletedTask).WaitAsync(ct);
     }
+    private Task OutstandingServiceWork() => Task.WhenAll(active?.Task ?? Task.CompletedTask,
+        editCompletion?.Task ?? Task.CompletedTask, saveWork?.Completion.Task ?? Task.CompletedTask, fileDialogCompletion?.Task ?? Task.CompletedTask,
+        fileStepCompletion?.Task ?? Task.CompletedTask);
+
+    internal async Task DrainForExitAsync()
+    {
+        try { await DrainAsync().ConfigureAwait(false); }
+        catch (QuiescentEpochException) when (IsStopping)
+        {
+            // Strict certification failed after the original work quiesced. Only exit is permitted.
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
         BeginShutdown();
-        await DrainAsync().ConfigureAwait(false);
+        await DrainForExitAsync().ConfigureAwait(false);
         // No control access under the register lock or from a worker thread.
         if (editorBridge.Registered)
             await OnEditorUiAsync(() => { editorBridge.DetachCurrent(); return true; }).ConfigureAwait(false);
@@ -675,8 +757,10 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     public void DisableMcp() { lock (sync) RevokeMcpCore(); }
     private void RevokeMcpCore()
     {
-        if (epoch is Guid old) revokedEpochs.Add(old);
+        bool wasActive = epoch.HasValue;
         epoch = null;
+        credentials.Clear();
+        if (wasActive) StartEditorClose();
         foreach (var job in jobs.Values.Where(j => j.Caller.Source == CallerSource.Mcp).ToArray())
         {
             job.Revoked = true;
@@ -684,13 +768,22 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             else RequestCancel(job, CancellationReason.McpDisabled);
         }
     }
+    private void StartEditorClose()
+    {
+        epochClose = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        _ = FinishEpochCloseAsync(epochClose, OutstandingServiceWork(), editorBridge.Coordinator);
+    }
+
     // Host-only lifecycle hook; it neither authenticates clients nor enables execution.
-    internal void ActivateMcp(Guid activationEpoch)
+    internal Guid ActivateMcp()
     {
         lock (sync)
         {
-            if (activationEpoch == Guid.Empty || revokedEpochs.Contains(activationEpoch) || stopping) throw new ArgumentException("Invalid activation epoch.");
-            RevokeMcpCore(); epoch = activationEpoch;
+            // Conservative D02 fallback. No new credentials after L1 in this host.
+            if (activationUsed || stopping) throw new InvalidOperationException("Activation unavailable.");
+            activationUsed = true;
+            epoch = Guid.NewGuid();
+            return epoch.Value;
         }
     }
 

@@ -38,7 +38,7 @@ public class WorkbenchRegistryCorrectionTests
     private Task<Reply<ExecutionResult>> Execute(TextExecution request, CancellationToken ct = default) => service.ExecuteTextAsync(Caller, request, ct);
     private async Task<Guid> Active() => (await service.GetStatusAsync(Caller, default)).Data!.ActiveExecutionId!.Value;
     private async Task<ExecutionResult> Result(Guid id) => (await service.GetExecutionAsync(Caller, id, default)).Data!;
-    private object Job(Guid id) => ((IDictionary)typeof(WorkbenchAutomationService).GetField("jobs", Fields)!.GetValue(service)!)[id]!;
+    private object Job(Guid id) => ((IDictionary)typeof(WorkbenchAutomationService).GetField("jobs", Fields)!.GetValue(service)!)[new WorkbenchAutomationService.JobKey(Caller, id)]!;
     [MethodImpl(MethodImplOptions.NoInlining)]
     private WeakReference JobReference(Guid id) => new(Job(id));
 

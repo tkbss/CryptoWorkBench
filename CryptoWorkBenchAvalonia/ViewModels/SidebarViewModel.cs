@@ -77,7 +77,7 @@ public class SidebarViewModel : ViewModelBase
         using var docPath = await _window!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         // Create the CryptoScript folder path
         if (docPath == null || !Current()) return null;
-        using var CryptoScriptFolderPath = await docPath.CreateFolderAsync("CryptoScript");
+        using var CryptoScriptFolderPath = await Automation.StartFileIntentStep(intent, () => docPath.CreateFolderAsync("CryptoScript"));
         if (!Current()) return null;
         var options = new FilePickerSaveOptions
         {
@@ -88,7 +88,7 @@ public class SidebarViewModel : ViewModelBase
             ShowOverwritePrompt = false
         };
 
-        var result = await _window.StorageProvider.SaveFilePickerAsync(options);
+        var result = await Automation.StartFileIntentStep(intent, () => _window.StorageProvider.SaveFilePickerAsync(options));
         if (result != null)
         {
             bool transferred = false;

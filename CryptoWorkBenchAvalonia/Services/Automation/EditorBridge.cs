@@ -73,24 +73,26 @@ internal sealed class EditorBridge
         }
     }
 
-    internal Registration Attach(TextEditor editor, IEditorExecutionPresentation? presentation, bool retainCurrent = false)
+    internal Registration? ReplacementFor(TextEditor editor, bool retainCurrent)
+    {
+        if (retainCurrent || current == null || open.ContainsKey(editor)) return null;
+        if (editor.Document is { } document && UsedByAnotherEditor(editor, document)) throw new ExecutionBusyException();
+        Coordinator!.BeforeAttach(editor);
+        return current;
+    }
+
+    internal bool IsSelected(Registration value) => ReferenceEquals(current, value) && Owns(value);
+
+    internal Registration Attach(TextEditor editor, IEditorExecutionPresentation? presentation, bool retainCurrent, Action publish)
     {
         Dispatcher.UIThread.VerifyAccess();
         if (open.TryGetValue(editor, out var known))
         {
-            Activate(known);
+            Activate(known, publish);
             if (!Owns(known)) throw new ExecutionBusyException();
             return known;
         }
-        if (editor.Document is { } documentToAttach && UsedByAnotherEditor(editor, documentToAttach))
-            throw new ExecutionBusyException();
-        if (current is { } existing)
-        {
-            if (existing.Editor is WorkbenchTextEditor { IdentityLocked: true } ||
-                (retainCurrent && existing.Editor is WorkbenchTextEditor { MutationLocked: true })) throw new ExecutionBusyException();
-            Coordinator?.BeforeAttach(editor, retainCurrent);
-            if (!retainCurrent) Detach(existing);
-        }
+        if (!retainCurrent && current != null) throw new ExecutionBusyException();
         Coordinator?.BeforeAttach(editor, retainCurrent);
         if (open.ContainsKey(editor) || editor.Document is { } live && UsedByAnotherEditor(editor, live))
             throw new ExecutionBusyException();
@@ -100,12 +102,32 @@ internal sealed class EditorBridge
         current = registration;
         editor.DocumentChanged += DocumentChanged;
         if (registration.RawDocument is { } document) document.Changed += TextChanged;
-        Coordinator?.Attach(registration);
+        Coordinator!.Attach(registration, publish);
         if (!Owns(registration)) throw new ExecutionBusyException();
         return registration;
     }
 
-    internal void Activate(Registration registration)
+    internal bool IsLiveRegistration(Guid id) => Current?.Id == id;
+
+    internal Registration? Find(Guid id)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        foreach (var candidate in open.Values)
+        {
+            ObserveDocument(candidate);
+            if (candidate.Id == id && candidate.HasDocument) return candidate;
+        }
+        return null;
+    }
+
+    internal void TakeControl(Registration target)
+    {
+        if (!Owns(target)) throw new ExecutionBusyException();
+        Coordinator!.TakeControl(target);
+        current = target;
+    }
+
+    internal void Activate(Registration registration, Action publish)
     {
         Dispatcher.UIThread.VerifyAccess();
         if (!open.TryGetValue(registration.Editor, out var known) || !ReferenceEquals(known, registration))
@@ -113,7 +135,7 @@ internal sealed class EditorBridge
         if (ReferenceEquals(current, registration)) return;
         Coordinator?.SelectView(registration);
         current = registration;
-        Coordinator?.NotifyWorkspaceChanged();
+        publish();
     }
 
     internal bool Owns(Registration registration) =>
@@ -132,7 +154,8 @@ internal sealed class EditorBridge
             return;
         }
         bool selected = ReferenceEquals(current, registration);
-        Coordinator?.Detached(registration);
+        bool changed = false;
+        Coordinator?.Detached(registration, () => changed = true);
         if (!selected && registration.Editor is WorkbenchTextEditor editor && ReferenceEquals(editor.Coordinator, Coordinator))
             editor.Coordinator = null;
         registration.Attached = false;
@@ -145,6 +168,7 @@ internal sealed class EditorBridge
             current = null;
             Coordinator?.RetireDetachedRegistration();
         }
+        if (changed) Coordinator!.NotifyWorkspaceChanged();
         // An outstanding save's independent mutation lease remains alive until
         // its finally. Detach never unlocks a document during DeleteAsync.
     }

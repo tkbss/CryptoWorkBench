@@ -293,8 +293,8 @@ public class WorkbenchRegistryTests
         Assert.That((await Execute(request with { InstanceId = Guid.NewGuid() })).Error!.Code, Is.EqualTo(AutomationErrorCode.InstanceMismatch));
         Assert.That((await Execute(request with { ExpectedStateVersion = "99" })).Error!.Code, Is.EqualTo(AutomationErrorCode.StateConflict));
         Assert.That((await Execute(request with { OutputPolicy = OutputPolicy.IncludeText })).Error!.Code, Is.EqualTo(AutomationErrorCode.Forbidden));
-        var epoch = Guid.NewGuid(); service.ActivateMcp(epoch);
-        var external = Caller with { Source = CallerSource.Mcp, ActivationEpoch = epoch };
+        service.ActivateMcp();
+        var external = service.IssueCredential(Caller.PrincipalId, Caller.Permissions.Add(AutomationPermissions.EditorControl));
         Assert.That((await service.ExecuteTextAsync(external, request, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.Forbidden));
         Assert.That((await service.ExecuteEditorAsync(external, new(service.InstanceId, Guid.NewGuid(), Guid.NewGuid(), "0", "0"), default)).Error!.Code,
             Is.EqualTo(AutomationErrorCode.EditorUnavailable));
@@ -308,15 +308,15 @@ public class WorkbenchRegistryTests
         Assert.That((await service.GetExecutionAsync(Caller with { PrincipalId = "other" }, result.ExecutionId, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.NotFound));
         Assert.That((await service.CancelExecutionAsync(Caller with { PrincipalId = "other" }, result.ExecutionId, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.NotFound));
         Assert.That((await service.GetExecutionAsync(Caller with { Permissions = ImmutableHashSet<string>.Empty }, result.ExecutionId, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.Forbidden));
-        var epoch = Guid.NewGuid(); service.ActivateMcp(epoch);
-        var external = Caller with { Source = CallerSource.Mcp, ActivationEpoch = epoch };
+        service.ActivateMcp();
+        var external = service.IssueCredential(Caller.PrincipalId, Caller.Permissions.Add(AutomationPermissions.EditorControl));
         Assert.That((await service.GetVariablesAsync(external, default)).Ok, Is.True);
         Assert.That((await service.GetExecutionAsync(external, result.ExecutionId, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.NotFound));
         service.DisableMcp();
         Assert.That((await service.GetVariablesAsync(external, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.Forbidden));
-        service.ActivateMcp(Guid.NewGuid());
+        Assert.Throws<InvalidOperationException>(() => service.ActivateMcp());
         Assert.That((await service.GetStatusAsync(external, default)).Error!.Code, Is.EqualTo(AutomationErrorCode.Forbidden));
-        Assert.Throws<ArgumentException>(() => service.ActivateMcp(epoch));
+        Assert.Throws<InvalidOperationException>(() => service.ActivateMcp());
     }
 
     [Test]
@@ -337,8 +337,8 @@ public class WorkbenchRegistryTests
     {
         var result = await Run("");
         // Fill minimal tombstones directly: retention transition itself is covered above.
-        var tombstones = (Dictionary<Guid, AutomationCaller>)typeof(WorkbenchAutomationService).GetField("tombstones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(service)!;
-        for (int i = 1; i < AutomationContracts.MaxExecutionIds; ++i) tombstones.Add(Guid.NewGuid(), Caller);
+        var tombstones = (HashSet<WorkbenchAutomationService.JobKey>)typeof(WorkbenchAutomationService).GetField("tombstones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(service)!;
+        for (int i = 1; i < AutomationContracts.MaxExecutionIds; ++i) tombstones.Add(new(Caller, Guid.NewGuid()));
         Assert.That((await Execute(await Request(""))).Error!.Code, Is.EqualTo(AutomationErrorCode.LimitExceeded));
         Assert.That((await service.GetExecutionAsync(Caller, result.ExecutionId, default)).Ok, Is.True);
     }
@@ -551,15 +551,17 @@ public class WorkbenchRegistryTests
     [Test]
     public async Task McpDisableCancelsOwnedWorkRevokesAccessAndDiscardsResultAfterDrain()
     {
-        var activation = Guid.NewGuid(); service.ActivateMcp(activation);
-        var external = Caller with { Source = CallerSource.Mcp, ActivationEpoch = activation };
+        service.ActivateMcp();
+        var external = service.IssueCredential(Caller.PrincipalId, Caller.Permissions.Add(AutomationPermissions.EditorControl));
         var entered = Signal<bool>(); var release = Signal<bool>();
         var operation = service.RunAsync(async _ => { entered.SetResult(true); await release.Task; return true; }, default);
         await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
         var id = (await service.GetStatusAsync(Caller, default)).Data!.ActiveExecutionId!.Value;
         // Simulate the future authenticated host binding without adding a production MCP execute bypass.
         var registry = (System.Collections.IDictionary)typeof(WorkbenchAutomationService).GetField("jobs", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(service)!;
-        var job = registry[id]!;
+        var job = registry[new WorkbenchAutomationService.JobKey(Caller, id)]!;
+        registry.Remove(new WorkbenchAutomationService.JobKey(Caller, id));
+        registry.Add(new WorkbenchAutomationService.JobKey(external, id), job);
         job.GetType().GetField("Caller", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(job, external);
         try
         {
@@ -572,7 +574,7 @@ public class WorkbenchRegistryTests
             Assert.That(result.CancellationReason, Is.EqualTo(CancellationReason.McpDisabled));
         }
         finally { release.TrySetResult(true); await operation; }
-        Assert.That(registry.Contains(id), Is.False);
+        Assert.That(registry.Contains(new WorkbenchAutomationService.JobKey(external, id)), Is.False);
     }
 
     [Test]
@@ -581,7 +583,7 @@ public class WorkbenchRegistryTests
         await service.ExecuteSubmissionAsync("VAR secret=0x(DEADBEEF)", NoPassword);
         var id = (await Last()).ExecutionId;
         var registry = (System.Collections.IDictionary)typeof(WorkbenchAutomationService).GetField("jobs", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(service)!;
-        var job = registry[id]!;
+        var job = registry[new WorkbenchAutomationService.JobKey(Caller, id)]!;
         var task = (Task)job.GetType().GetProperty("Task", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(job)!;
         Assert.That(task, Is.Not.InstanceOf<Task<ExecutionPresentation>>());
         Assert.That(task.IsCompletedSuccessfully, Is.True);
@@ -603,7 +605,7 @@ public class WorkbenchRegistryTests
         public override CryptoType? Type { get => Enabled ? throw new InvalidOperationException("PRIVATE_METADATA") : null; set { } }
     }
 
-    private sealed class ManualClock : TimeProvider
+    internal sealed class ManualClock : TimeProvider
     {
         private long ticks;
         private readonly List<ManualTimer> timers = new();

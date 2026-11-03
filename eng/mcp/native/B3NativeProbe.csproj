@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <StartupObject>Program</StartupObject>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj" />
+    <ProjectReference Include="../../../CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj" />
+  </ItemGroup>
+</Project>

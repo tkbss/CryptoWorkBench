@@ -167,12 +167,13 @@ public class B1F3CorrectionTests
         Assert.That((h.Editor.Text, h.Owner.CanStartGui), Is.EqualTo(("b\ndef", true)));
     });
 
-    [TestCase("protect")] [TestCase("stop")] [TestCase("dispose")] [TestCase("accept")]
+    [TestCase("protect")] [TestCase("stop")] [TestCase("dispose")] [TestCase("empty")] [TestCase("accept")]
     public Task CompletionAcceptsOnlyTheOriginalLiveGrant(string mode) => Ui(async () =>
     {
         await using var h = new Host("Info(AES");
         h.Editor.Document.UndoStack.SizeLimit = 2;
-        SeedRedo(h);
+        if (mode == "empty") h.Editor.Document.UndoStack.ClearAll();
+        else SeedRedo(h);
         var before = h.Registration.Snapshot();
         long policyRevision = 0;
         h.Area.ReadOnlySectionProvider = new VersionedPolicy(_ => policyRevision == 0, s => policyRevision == 0 ? [s] : [], () => policyRevision);
@@ -184,7 +185,7 @@ public class B1F3CorrectionTests
             updates++;
             if (mode == "protect") policyRevision++;
             if (mode == "stop") h.Service.StopAccepting();
-            if (mode == "dispose") completion.Dispose();
+            if (mode is "dispose" or "empty") completion.Dispose();
         }
         h.Editor.Document.UpdateStarted += Revoke;
         try { window.CompletionList.RequestInsertion(EventArgs.Empty); }
@@ -204,6 +205,13 @@ public class B1F3CorrectionTests
         }
         Assert.That(h.Registration.Snapshot(), Is.EqualTo(before));
         Assert.That(h.Owner.LastReceipt?.HistoryEffect, Is.EqualTo(EditorHistoryEffect.None));
+        if (mode == "empty")
+        {
+            Assert.That((h.Editor.Document.UndoStack.CanUndo, h.Editor.Document.UndoStack.CanRedo), Is.EqualTo((false, false)));
+            Assert.That(h.Owner.LastReceipt!.TextEffect, Is.EqualTo(EditorTextEffect.None));
+            Assert.That(h.Owner.LastReceipt.Finalization, Is.EqualTo(EditorFinalization.Complete));
+            return;
+        }
         if (mode == "stop")
         {
             h.Area.PerformTextInput("bad");
@@ -224,16 +232,19 @@ public class B1F3CorrectionTests
         var rb = h.Service.AttachEditor(b, null!, true)!;
         Assert.That(h.Service.AttachEditor(h.Editor, null!), Is.SameAs(h.Registration));
         h.Service.ActivateEditor(rb);
+        Task? disposal = null;
         bool disposed = false;
         void Stop()
         {
             if (disposed || !h.Owner.Targets(h.Editor)) return;
             disposed = true;
-            h.Service.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            disposal = h.Service.DisposeAsync().AsTask(); // This observer is itself a shutdown obligation.
         }
         h.Owner.WorkspaceChanged += Stop;
         try { Assert.Throws<ExecutionBusyException>(() => h.Service.AttachEditor(h.Editor, null!)); }
         finally { h.Owner.WorkspaceChanged -= Stop; }
+        Assert.That(disposal, Is.Not.Null);
+        await disposal!.WaitAsync(TimeSpan.FromSeconds(5));
         Assert.That(disposed && !rb.Attached && !h.Registration.Attached, Is.True);
         Assert.That(h.Editor.Coordinator, Is.Null);
         h.Area.PerformTextInput("bad");

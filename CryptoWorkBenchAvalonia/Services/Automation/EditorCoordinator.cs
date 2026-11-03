@@ -11,7 +11,7 @@ using CryptoWorkBenchAvalonia.Controls;
 
 namespace CryptoWorkBenchAvalonia.Services.Automation;
 
-internal enum EditorControlPhase { Unavailable, Gui, Releasing, Faulted }
+internal enum EditorControlPhase { Unavailable, Gui, Mcp, Releasing, Faulted }
 internal enum EditorTextEffect { None, Applied, Partial, Indeterminate }
 internal enum EditorHistoryEffect { None, Applied, Indeterminate }
 internal enum EditorFinalization { Complete, Faulted }
@@ -28,7 +28,7 @@ internal sealed record EditorOperationReceipt(Guid EditorId, string OriginalRevi
 
 /// <summary>
 /// One UI-affine slot owned by the service. Identity/revision belong exclusively to EditorBridge.
-/// AP2.1 deliberately has no MCP acquisition or credential/epoch publication API.
+/// MCP tickets and GUI tickets share the same registration and drain.
 /// This drain covers registered editor obligations, not the service/provider shutdown drain.
 /// </summary>
 internal sealed class EditorCoordinator
@@ -68,7 +68,17 @@ internal sealed class EditorCoordinator
     internal event Action? WorkspaceChanged;
     internal void NotifyWorkspaceChanged()
     {
-        if (WorkspaceChanged is { } changed) Observe(changed);
+        if (WorkspaceChanged is not { } changed) return;
+        var generation = WorkspaceGeneration;
+        Observe(() =>
+        {
+            foreach (var subscriber in Delegate.EnumerateInvocationList(changed))
+            {
+                // A reentrant transition publishes its own generation to the remaining views.
+                if (WorkspaceGeneration != generation) break;
+                Observe(subscriber);
+            }
+        });
     }
 
     private void Advance(bool workspace = true)
@@ -78,14 +88,14 @@ internal sealed class EditorCoordinator
         if (workspace) WorkspaceGeneration = Generation;
     }
 
-    internal void Attach(EditorBridge.Registration value)
+    internal void Attach(EditorBridge.Registration value, Action? publish = null)
     {
         Verify();
         if (ReferenceEquals(registration, value) && Phase == EditorControlPhase.Gui) return;
-        if (Active || Pending != 0 || ObserverDepth != 0 || Phase is EditorControlPhase.Faulted or EditorControlPhase.Releasing)
+        if (Active || Pending != 0 || ObserverDepth != 0 || Phase is EditorControlPhase.Faulted or EditorControlPhase.Releasing or EditorControlPhase.Mcp)
             throw new ExecutionBusyException();
         SelectRegistration(value);
-        NotifyWorkspaceChanged();
+        (publish ?? NotifyWorkspaceChanged)();
     }
 
     internal void BeforeAttach(TextEditor editor, bool retainCurrent = false)
@@ -100,6 +110,20 @@ internal sealed class EditorCoordinator
         if (Generation == long.MaxValue) { Phase = EditorControlPhase.Faulted; throw new ExecutionBusyException(); }
     }
 
+    internal bool CanTakeControl => stopping?.Invoke() != true && !TransitionBlocked(allowPending: false) &&
+        !OutgoingViewBusy(retainCurrent: true);
+
+    internal void TakeControl(EditorBridge.Registration target)
+    {
+        Verify();
+        if (!CanTakeControl || target.RawDocument is not { IsInUpdate: false } ||
+            target.Editor is not WorkbenchTextEditor { MutationLocked: false, IdentityLocked: false })
+            throw new ExecutionBusyException();
+        Advance();
+        registration = target;
+        Phase = EditorControlPhase.Mcp;
+    }
+
     internal void SelectView(EditorBridge.Registration value)
     {
         Verify();
@@ -112,7 +136,7 @@ internal sealed class EditorCoordinator
     private bool TransitionBlocked(bool allowPending)
     {
         if (Phase == EditorControlPhase.Unavailable) CheckDrain();
-        return Active || ObserverDepth != 0 || Phase is EditorControlPhase.Faulted or EditorControlPhase.Releasing ||
+        return Active || ObserverDepth != 0 || Phase is EditorControlPhase.Faulted or EditorControlPhase.Releasing or EditorControlPhase.Mcp ||
             (Pending != 0 && (!allowPending || Phase == EditorControlPhase.Unavailable)) ||
             (Phase == EditorControlPhase.Unavailable && drain is { Completion.IsCompletedSuccessfully: false });
     }
@@ -151,26 +175,29 @@ internal sealed class EditorCoordinator
 
     internal void InvalidateInputIntents() { Verify(); Advance(workspace: false); }
 
-    internal void Detached(EditorBridge.Registration value)
+    internal void Detached(EditorBridge.Registration value, Action publish)
     {
         Verify();
         if (!ReferenceEquals(value, registration)) return;
         bool transitioning = Phase == EditorControlPhase.Releasing;
-        BeginDrain();
+        BeginDrain(publish);
         if (!transitioning && Phase != EditorControlPhase.Faulted) Phase = EditorControlPhase.Unavailable;
         CheckDrain();
     }
 
-    private bool CanBegin => stopping?.Invoke() != true && Phase == EditorControlPhase.Gui && !Active && ObserverDepth == 0 &&
+    private bool CanBegin => CanBeginIn(EditorControlPhase.Gui);
+    private bool CanBeginIn(EditorControlPhase phase) => stopping?.Invoke() != true && Phase == phase && !Active && ObserverDepth == 0 &&
         registration is { Attached: true, HasDocument: true } r && ReferenceEquals(bridge.Current, r) &&
         !r.Document.IsInUpdate && r.Editor is WorkbenchTextEditor { MutationLocked: false, IdentityLocked: false };
 
     internal bool CanStartGui { get { Verify(); return CanBegin; } }
 
-    internal OperationTicket? TryBegin()
+    internal OperationTicket? TryBegin() => BeginIn(EditorControlPhase.Gui);
+    internal OperationTicket? TryBeginMcp() => BeginIn(EditorControlPhase.Mcp);
+    private OperationTicket? BeginIn(EditorControlPhase phase)
     {
         Verify();
-        if (!CanBegin || Pending >= MaxOutstanding) return null;
+        if (!CanBeginIn(phase) || Pending >= MaxOutstanding) return null;
         var r = registration!;
         var snapshot = r.Snapshot();
         var ticket = new OperationTicket(this, r, snapshot.EditorId, snapshot.Revision, Generation);
@@ -182,18 +209,18 @@ internal sealed class EditorCoordinator
     {
         Verify();
         return stopping?.Invoke() != true && ticket.Owner == this && tickets.Contains(ticket) && !ticket.BodyDone &&
-            ticket.Generation == Generation && Phase == EditorControlPhase.Gui &&
+            (ticket.Phase == EditorControlPhase.Mcp ? ticket.Workspace == WorkspaceGeneration : ticket.Generation == Generation) && Phase == ticket.Phase &&
             bridge.IsLive(ticket.Registration, ticket.EditorId) &&
             ReferenceEquals(ticket.Document, ticket.Registration.RawDocument) &&
             ticket.OriginalRevision == ticket.Registration.Revision.ToString(CultureInfo.InvariantCulture);
     }
 
-    internal bool RunGui(Action action, bool historyCommand = false, string? expectedText = null)
+    internal bool RunGui(Action action, string? expectedText = null)
     {
         Verify();
         var ticket = TryBegin();
         if (ticket is null) return false;
-        return Commit(ticket, action, historyCommand, expectedText);
+        return Commit(ticket, action, expectedText);
     }
 
     // Validation only: never creates or upgrades an operation's authority.
@@ -254,14 +281,17 @@ internal sealed class EditorCoordinator
         return Commit(ticket, () => action(ticket.Document));
     }
 
-    internal bool Commit(OperationTicket ticket, Action action, bool historyCommand = false, string? expectedText = null)
+    internal bool Commit(OperationTicket ticket, Action action, string? expectedText = null) =>
+        TryStartCommit(ticket) && FinishCommit(ticket, action, expectedText);
+
+    internal bool TryStartCommit(OperationTicket ticket)
     {
         Verify();
         if (ticket.Owner != this || !tickets.Contains(ticket) || ticket.BodyDone) return false;
         if (Active || ObserverDepth != 0) return false;
         // Admission is only an intent: recheck live locks/update state immediately
         // before any native action. The action may then open its own atomic group.
-        if (!IsCurrent(ticket) || !CanBegin)
+        if (!IsCurrent(ticket) || !CanBeginIn(ticket.Phase))
         {
             ticket.Error = EditorOperationError.Stale;
             ticket.Dispose();
@@ -269,7 +299,16 @@ internal sealed class EditorCoordinator
         }
         active = ticket;
         ticket.MutationStarted = true;
+        return true;
+    }
+
+    internal bool FinishCommit(OperationTicket ticket, Action action, string? expectedText)
+    {
+        Verify();
+        if (!ReferenceEquals(active, ticket)) throw new InvalidOperationException("No matching editor commit.");
         bool returned = false;
+        var history = ticket.Document.UndoStack;
+        bool emptyBefore = !history.CanUndo && !history.CanRedo;
         bool historyObserved = false;
         PropertyChangedEventHandler historyChanged = (_, e) =>
         {
@@ -287,8 +326,17 @@ internal sealed class EditorCoordinator
                     ? EditorTextEffect.Applied : EditorTextEffect.Indeterminate
                 : returned ? EditorTextEffect.None : EditorTextEffect.Indeterminate;
             // An escaped native exception can have popped/altered history even without text.
-            ticket.History = returned ? changed || historyCommand || historyObserved ? EditorHistoryEffect.Applied : EditorHistoryEffect.None
-                : EditorHistoryEffect.Indeterminate;
+            // Optional caret actions can transiently enable Undo during an empty update.
+            bool emptyAfter = !history.CanUndo && !history.CanRedo;
+            bool historyEffect = !(emptyBefore && emptyAfter) && (changed || historyObserved);
+            ticket.History = !returned ? EditorHistoryEffect.Indeterminate :
+                historyEffect ? EditorHistoryEffect.Applied : EditorHistoryEffect.None;
+            if (ticket.Phase == EditorControlPhase.Mcp &&
+                ((changed && !history.CanUndo) || expectedText != ticket.Document.Text))
+            {
+                if (expectedText != ticket.Document.Text) ticket.Text = EditorTextEffect.Indeterminate;
+                Fault(ticket);
+            }
             if (!returned || ticket.Document.IsInUpdate) Fault(ticket);
             active = null;
             ticket.Dispose();
@@ -314,10 +362,10 @@ internal sealed class EditorCoordinator
     // A detached, fully drained document is no longer the host's editor slot.
     // Keep native entry points unavailable, but do not freeze an orphan forever.
     internal bool RejectDocumentMutation => ObserverDepth != 0 || (!Active &&
-        (Phase is EditorControlPhase.Releasing or EditorControlPhase.Faulted ||
+        (Phase is EditorControlPhase.Mcp or EditorControlPhase.Releasing or EditorControlPhase.Faulted ||
          (Phase == EditorControlPhase.Unavailable && Pending != 0)));
 
-    internal DrainTicket BeginDrain()
+    internal DrainTicket BeginDrain(Action? publish = null)
     {
         Verify();
         if (drain is not null) return drain;
@@ -329,12 +377,12 @@ internal sealed class EditorCoordinator
             drainingDocument = original;
             original.UpdateFinished += NativeUpdateFinished;
         }
-        NotifyWorkspaceChanged();
+        (publish ?? NotifyWorkspaceChanged)();
         CheckDrain();
         return certificate;
     }
 
-    internal bool ResumeGui(DrainTicket certificate)
+    internal bool ResumeGui(DrainTicket certificate, Action? publish = null)
     {
         Verify();
         // The current certificate is the transition identity. Focus invalidation
@@ -356,7 +404,7 @@ internal sealed class EditorCoordinator
         Advance();
         drain = null;
         Phase = EditorControlPhase.Gui;
-        NotifyWorkspaceChanged();
+        (publish ?? NotifyWorkspaceChanged)();
         return true;
     }
 
@@ -375,7 +423,10 @@ internal sealed class EditorCoordinator
     private void CheckDrain()
     {
         if (drain != null && Pending == 0 && !Active && ObserverDepth == 0 && Phase == EditorControlPhase.Faulted)
+        {
+            StopWatchingDrain(); // faultedDocument retains the original identity and open-group evidence.
             drain.Quiescent.TrySetResult();
+        }
         if (drain is not null && !drain.Completion.IsCompleted && Pending == 0 && !Active && ObserverDepth == 0 &&
             Phase != EditorControlPhase.Faulted && drainingDocument?.IsInUpdate != true && registration?.RawDocument?.IsInUpdate != true)
         {
@@ -396,9 +447,17 @@ internal sealed class EditorCoordinator
         drain = null;
     }
 
+    // A faulted native group belongs to the original document even after detach.
+    private TextDocument? faultedDocument;
+    internal bool EpochWorkFinalized => Pending == 0 && !Active && ObserverDepth == 0 &&
+        faultedDocument?.IsInUpdate != true && drainingDocument?.IsInUpdate != true &&
+        registration?.RawDocument?.IsInUpdate != true &&
+        registration?.Editor is not WorkbenchTextEditor { IdentityLocked: true } and not WorkbenchTextEditor { MutationLocked: true };
+
     private void Fault(OperationTicket ticket)
     {
         Phase = EditorControlPhase.Faulted;
+        faultedDocument = ticket.Document;
         StopWatchingDrain();
         ticket.Finalization = EditorFinalization.Faulted;
         ticket.History = EditorHistoryEffect.Indeterminate;
@@ -441,13 +500,14 @@ internal sealed class EditorCoordinator
 
     internal sealed class OperationTicket : IDisposable
     {
+        internal readonly EditorControlPhase Phase;
         internal readonly EditorCoordinator Owner;
         internal readonly EditorBridge.Registration Registration;
         internal readonly TextDocument Document;
         internal readonly ITextSourceVersion Version;
         internal readonly Guid EditorId;
         internal readonly string OriginalRevision;
-        internal readonly long Generation;
+        internal readonly long Generation, Workspace;
         internal readonly TaskCompletionSource<EditorOperationReceipt> Signal = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal Task<EditorOperationReceipt> Completion => Signal.Task;
         internal bool BodyDone, Sealed, MutationStarted;
@@ -459,7 +519,7 @@ internal sealed class EditorCoordinator
         internal EditorOperationError? Error;
         internal OperationTicket(EditorCoordinator owner, EditorBridge.Registration registration, Guid id, string revision, long generation)
         {
-            Owner = owner; Registration = registration; Document = registration.Document; Version = Document.Version;
+            Owner = owner; Phase = owner.Phase; Workspace = owner.WorkspaceGeneration; Registration = registration; Document = registration.Document; Version = Document.Version;
             EditorId = id; OriginalRevision = revision; Generation = generation;
         }
         internal CallbackTicket RegisterCallback()
