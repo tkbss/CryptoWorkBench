@@ -45,13 +45,13 @@ public class NativeEnterContinuationTests
             Editor.Text = "Print(0x(11))"; Editor.CaretOffset = Editor.Text.Length;
             Assert.That(Area.Focus(), Is.True, "native key fixture needs actual TextArea focus");
             var previous = View?.PendingExecution;
-            Area.TextEntering += (_, _) =>
+            Area.TextEntering += (_, _) => Entering++;
+            Area.TextEntered += (_, _) =>
             {
-                Entering++;
+                Entered++;
                 if (View is not null && !ReferenceEquals(previous, View.PendingExecution))
                 { ExecutionRequests.Add(View.PendingExecution); previous = View.PendingExecution; }
             };
-            Area.TextEntered += (_, _) => Entered++;
             Editor.Document.Changed += (_, _) => Changes++;
         }
 
@@ -75,6 +75,40 @@ public class NativeEnterContinuationTests
 
     private static async Task Ui(Func<Task> test) =>
         await GuiTestSession.Session.Dispatch(async () => { await test(); return true; }, CancellationToken.None);
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public Task DiscardedReturnDoesNotPublishOrExecute(bool changeText) => Ui(async () =>
+    {
+        await using var h = new Host();
+        h.Area.TextEntering += (_, args) =>
+        {
+            if (changeText) args.Text = "FOREIGN";
+            else args.Handled = true;
+        };
+        h.Key();
+        await h.Complete();
+        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))"));
+        Assert.That(h.HistoryCount, Is.Zero);
+        Assert.That(h.Vm.PrintMessage, Is.Empty);
+        h.AssertClosed();
+    });
+
+    [Test]
+    public Task RegistrationExceptionRejectsNewlineAndAllowsNextReturn() => Ui(async () =>
+    {
+        await using var h = new Host();
+        h.Service.AdmissionCheckpoint = stage => { if (stage == "worker") throw new IOException(); };
+        h.Key();
+        await h.Complete();
+        var status = (await h.Service.GetStatusAsync(WorkbenchAutomationService.LocalCaller, default)).Data!;
+        Assert.That((h.Editor.Text, h.HistoryCount, status.LastExecutionId), Is.EqualTo(("Print(0x(11))", 0, (Guid?)null)));
+        h.AssertClosed();
+        h.Service.AdmissionCheckpoint = null;
+        h.Key();
+        await h.Complete();
+        Assert.That(h.Editor.Text, Does.Contain("out: 0x(11)"));
+    });
 
     [Test]
     public Task NativeReturnExecutesExactlyOnceThroughTheCompleteView() => Ui(async () =>
@@ -353,6 +387,9 @@ public class NativeEnterContinuationTests
         Assert.That(receipt.HistoryEffect, Is.EqualTo(EditorHistoryEffect.Indeterminate));
         Assert.That(receipt.Finalization, Is.EqualTo(EditorFinalization.Faulted));
         Assert.That(h.Coordinator.Phase, Is.EqualTo(EditorControlPhase.Faulted));
+        var drain = h.Coordinator.BeginDrain();
+        Assert.That(drain.Quiescent.Task.IsCompletedSuccessfully, Is.True);
+        Assert.That(h.Coordinator.ResumeGui(drain), Is.False);
         Assert.That(typeof(WorkbenchTextArea).GetField("enterContinuation", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(h.Area), Is.Null);
         h.AssertClosed();
     });

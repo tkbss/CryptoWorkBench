@@ -7,6 +7,7 @@ using CryptoScript.Model.Ast;
 using CryptoScript.Variables;
 using CryptoWorkBench.Automation.Abstractions;
 using CryptoWorkBenchAvalonia.Models;
+using CryptoWorkBenchAvalonia.Services;
 using CryptoWorkBenchAvalonia.Services.Automation;
 using NUnit.Framework;
 
@@ -488,6 +489,26 @@ public class WorkbenchRegistryTests
         Assert.That(result.State, Is.EqualTo(ExecutionState.Failed));
         Assert.That(result.Error!.Code, Is.EqualTo(AutomationErrorCode.InternalError));
         Assert.That(AutomationJson.Serialize(result), Does.Not.Contain("PRIVATE_HOST"));
+    }
+
+    [Test]
+    public async Task RetiredPipelineCannotRunUnderSuccessorAndClearPlusRunAdvancesOnce()
+    {
+        WorkbenchExecutionPipeline? retired = null;
+        await service.RunAsync(pipeline => { retired = pipeline; return Task.FromResult(true); }, default);
+        long revision = InterpreterHostQueue.StateRevision;
+        await service.RunAsync(async current =>
+        {
+            await Assert.ThatAsync(async () => await retired!.ExecuteAsync("VAR rejected=0x(01)", NoPassword, default),
+                Throws.TypeOf<ExecutionBusyException>());
+            service.ClearAdmittedState();
+            return (await current.ExecuteAsync("VAR accepted=0x(02)", NoPassword, default)).Succeeded;
+        }, default);
+        var result = await Last();
+        Assert.That(result.State, Is.EqualTo(ExecutionState.Completed));
+        Assert.That(result.StateVersion, Is.EqualTo("1"));
+        Assert.That(InterpreterHostQueue.StateRevision, Is.EqualTo(revision + 1));
+        Assert.That(result.Variables.Items.Select(item => item.Identifier), Does.Contain("accepted").And.Not.Contain("rejected"));
     }
 
     [Test]

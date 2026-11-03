@@ -14,6 +14,7 @@ namespace CryptoWorkBenchAvalonia.Services.Automation;
 public sealed partial class WorkbenchAutomationService
 {
     private readonly EditorBridge editorBridge = new();
+    internal bool HasRegisteredEditor => editorBridge.Registered;
     internal EditorCoordinator EditorCoordinator
     {
         get { Dispatcher.UIThread.VerifyAccess(); return editorBridge.Coordinator ?? new EditorCoordinator(editorBridge, () => Volatile.Read(ref stopping)); }
@@ -69,11 +70,15 @@ public sealed partial class WorkbenchAutomationService
         }
     });
 
+    private TaskCompletionSource? editCompletion;
+
     public async Task<Reply<EditorMutation>> UpdateEditorAsync(AutomationCaller caller, EditorEdit request, CancellationToken ct)
     {
         IDisposable? reservation = null;
         EditorBridge.Registration? registration = null;
         EditorSnapshot? before = null;
+        long generation = 0;
+        TaskCompletionSource? completion = null;
         try
         {
             var initial = await OnEditorUiAsync(() =>
@@ -87,6 +92,8 @@ public sealed partial class WorkbenchAutomationService
                     registration = editorBridge.Current;
                     if (registration is null || registration.Id != request.EditorId) return AutomationErrorCode.EditorUnavailable;
                     if (registration.Document.IsInUpdate) return AutomationErrorCode.Busy;
+                    if (!EditorCoordinator.CanStartGui) return AutomationErrorCode.Busy;
+                    generation = EditorCoordinator.WorkspaceGeneration;
                     before = registration.Snapshot();
                     if (before.Revision != request.ExpectedRevision) return AutomationErrorCode.RevisionConflict;
                     if (request.Mode == EditorEditMode.Insert && !AutomationContracts.IsValidInsertionOffset(before.Text, request.Offset!.Value))
@@ -95,6 +102,7 @@ public sealed partial class WorkbenchAutomationService
                         return AutomationErrorCode.LimitExceeded;
                     try { reservation = InterpreterHostQueue.Reserve(); }
                     catch (ExecutionBusyException) { return AutomationErrorCode.Busy; }
+                    editCompletion = completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
                     return (AutomationErrorCode?)null;
                 }
             });
@@ -117,7 +125,7 @@ public sealed partial class WorkbenchAutomationService
                 {
                     if (CheckEditor(caller, AutomationPermissions.EditorWrite, request.InstanceId) is { } error) return Fail<EditorMutation>(error);
                     if (!editorBridge.IsLive(registration!, request.EditorId)) return Fail<EditorMutation>(AutomationErrorCode.EditorUnavailable);
-                    if (!editorBridge.Matches(registration!, before!)) return Fail<EditorMutation>(AutomationErrorCode.RevisionConflict);
+                    if (generation != EditorCoordinator.WorkspaceGeneration || !editorBridge.Matches(registration!, before!)) return Fail<EditorMutation>(AutomationErrorCode.RevisionConflict);
                     if (registration!.Document.IsInUpdate) return Fail<EditorMutation>(AutomationErrorCode.Busy);
                     EditorSnapshot? after = null;
                     if (noOp) after = registration.Snapshot();
@@ -125,12 +133,14 @@ public sealed partial class WorkbenchAutomationService
                     {
                         var doc = registration.Document;
                         var originalVersion = doc.Version;
-                        try
+                        using var ticket = EditorCoordinator.TryBegin();
+                        if (ticket == null) return Fail<EditorMutation>(AutomationErrorCode.Busy);
+                        Exception? callbackFailure = null;
+                        EditorCoordinator.Commit(ticket, () =>
                         {
                             var guarded = registration.Editor as WorkbenchTextEditor
                                 ?? throw new InvalidOperationException("Editor does not support an identity lease.");
                             using var identity = guarded.LockIdentity();
-                            Exception? callbackFailure = null;
                             try
                             {
                                 using (doc.RunUpdate())
@@ -149,26 +159,31 @@ public sealed partial class WorkbenchAutomationService
                                 if (doc.IsInUpdate) doc.EndUpdate();
                             }
                             if (ReferenceEquals(originalVersion, doc.Version))
-                                return Fail<EditorMutation>(callbackFailure is ExecutionBusyException
-                                    ? AutomationErrorCode.Busy : AutomationErrorCode.InternalError);
+                            {
+                                ticket.Error = EditorOperationError.MutationFailed;
+                                return;
+                            }
                             try { registration.Editor.IsModified = true; }
                             catch (Exception callbackError) { callbackFailure = callbackError; }
                             after = registration.Snapshot();
-                        }
-                        catch (Exception)
-                        {
-                            // Deferred lifecycle callbacks run only after the
-                            // original response has been copied. Their failure
-                            // cannot transfer the result to a successor or erase
-                            // the already applied edit from its response.
-                            if (after is null) return Fail<EditorMutation>(AutomationErrorCode.InternalError);
-                        }
+                            if (callbackFailure != null) ticket.Error = EditorOperationError.CallbackFailed;
+                        });
+                        if (after is null) return Fail<EditorMutation>(callbackFailure is ExecutionBusyException
+                            ? AutomationErrorCode.Busy : AutomationErrorCode.InternalError);
                     }
                     return Ok(new EditorMutation(request.EditorId, before!.Revision, after!.Revision, after.Length, after.DirtyState));
                 }
             });
         }
-        finally { reservation?.Dispose(); }
+        finally
+        {
+            lock (sync)
+            {
+                reservation?.Dispose();
+                if (ReferenceEquals(editCompletion, completion)) editCompletion = null;
+                completion?.TrySetResult();
+            }
+        }
     }
 
     public async Task<Reply<ExecutionResult>> ExecuteEditorAsync(AutomationCaller caller, EditorExecution request, CancellationToken requestCancellation)
@@ -222,48 +237,52 @@ public sealed partial class WorkbenchAutomationService
                 IDisposable reservation;
                 try { reservation = InterpreterHostQueue.Reserve(); }
                 catch (ExecutionBusyException) { return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
-                accepted = Accept(reservation, caller, request.ExecutionId, fingerprint, ExecutionSource.Editor,
-                    request.TimeoutMs ?? AutomationContracts.DefaultTimeoutMs, requestCancellation, default, async pipeline =>
+                EditorCoordinator.ExecutionIntent intent;
+                try { intent = new(EditorCoordinator, null); }
+                catch (ExecutionBusyException) { reservation.Dispose(); return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
+                try
                 {
-                    using var password = new PasswordDialogHost();
-                    bool ContinueEditor()
+                    accepted = Accept(reservation, caller, request.ExecutionId, fingerprint, ExecutionSource.Editor,
+                        request.TimeoutMs ?? AutomationContracts.DefaultTimeoutMs, requestCancellation, default, async pipeline =>
                     {
-                        if (editorBridge.IsLive(registration, snapshot.EditorId)) return true;
-                        lock (sync)
+                        using var password = new PasswordDialogHost();
+                        bool ContinueEditor()
                         {
-                            RequestCancel(accepted!, CancellationReason.User);
-                            accepted!.Outcome = ExecutionState.Cancelled;
+                            if (intent.DestinationLive) return true;
+                            lock (sync)
+                            {
+                                RequestCancel(accepted!, CancellationReason.User);
+                                accepted!.Outcome = ExecutionState.Cancelled;
+                            }
+                            return false;
                         }
-                        return false;
-                    }
-                    if (!await OnEditorUiAsync(() =>
-                    {
-                        if (!ContinueEditor()) return false;
-                        registration.Presentation?.BeginExecution();
-                        return ContinueEditor();
-                    }).ConfigureAwait(false)) return false;
-                    return await ExecuteScriptBookAsync(pipeline, snapshot.Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'),
-                        password.RequestAsync,
-                        (line, _) => OnEditorUiAsync(() =>
+                        if (!await OnEditorUiAsync(() =>
                         {
                             if (!ContinueEditor()) return false;
-                            registration.Presentation?.Begin(line);
+                            registration.Presentation?.BeginExecution();
                             return ContinueEditor();
-                        }),
-                        (line, number, result) => OnEditorUiAsync(() =>
-                        {
-                            // Suppress stale presentation. A subsequent parse
-                            // unit is stopped by beforeLine; a successfully
-                            // finished final unit keeps its completed outcome.
-                            if (!editorBridge.IsLive(registration, snapshot.EditorId)) return true;
-                            if (result is null) return true;
-                            bool success = registration.Presentation?.Present(result, number) ?? true;
-                            if (!editorBridge.IsLive(registration, snapshot.EditorId)) return true;
-                            string output = registration.Presentation?.Output ?? string.Empty;
-                            if (output.Length != 0) registration.Document.Insert(registration.Document.TextLength, "\n" + output);
-                            return success;
-                        }), pipeline.ExecutionToken).ConfigureAwait(false);
-                }).Job;
+                        }).ConfigureAwait(false)) return false;
+                        return await ExecuteScriptBookAsync(pipeline, snapshot.Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'),
+                            password.RequestAsync,
+                            (line, _) => OnEditorUiAsync(() =>
+                            {
+                                if (!ContinueEditor()) return false;
+                                registration.Presentation?.Begin(line);
+                                return ContinueEditor();
+                            }),
+                            (line, number, result) => OnEditorUiAsync(() =>
+                            {
+                                // Suppress stale presentation. A subsequent parse
+                                // unit is stopped by beforeLine; a successfully
+                                // finished final unit keeps its completed outcome.
+                                if (!intent.DestinationLive) return true;
+                                if (result is null) return true;
+                                return registration.Presentation?.Present(result, number) ?? true;
+                            }), pipeline.ExecutionToken).ConfigureAwait(false);
+                    }, () => intent.Current, intent).Job;
+                }
+                catch (ExecutionBusyException) { intent.Dispose(); return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
+                catch { intent.Dispose(); throw; }
                 accepted.Result = accepted.Result with { EditorId = snapshot.EditorId, SourceRevision = snapshot.Revision };
                 return (Reply<ExecutionResult>?)null;
             }

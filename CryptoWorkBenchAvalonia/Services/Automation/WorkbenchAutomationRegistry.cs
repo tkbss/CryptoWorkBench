@@ -51,6 +51,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
 
     private sealed class Job
     {
+        internal EditorCoordinator.ExecutionIntent? EditorIntent;
         internal required Guid Id;
         internal readonly Guid RegistrationId = Guid.NewGuid();
         internal required AutomationCaller Caller;
@@ -223,13 +224,16 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     // initialization succeeds. After RunOwnedAsync returns its task, only it owns cleanup.
     private (Job Job, Task<T> Work) Accept<T>(IDisposable reservation, AutomationCaller caller, Guid id,
         string fingerprint, ExecutionSource source, int timeout, CancellationToken requestCancellation,
-        CancellationToken userCancellation, Func<WorkbenchExecutionPipeline, Task<T>> operation, Func<bool>? validateIntent = null)
+        CancellationToken userCancellation, Func<WorkbenchExecutionPipeline, Task<T>> operation, Func<bool>? validateIntent = null,
+        EditorCoordinator.ExecutionIntent? editorIntent = null)
     {
         Job? job = null;
         try
         {
             requestCancellation.ThrowIfCancellationRequested();
             job = CreateJob(caller, id, fingerprint, source, timeout);
+            job.EditorIntent = editorIntent;
+            if (editorIntent != null) job.Result = job.Result with { EditorId = editorIntent.EditorId, SourceRevision = editorIntent.SourceRevision };
             void Publish()
             {
                 jobs.Add(id, job);
@@ -283,6 +287,8 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     public async Task<Reply<ExecutionResult>> ExecuteTextAsync(AutomationCaller caller, TextExecution request, CancellationToken requestCancellation)
     {
         requestCancellation.ThrowIfCancellationRequested();
+        if (editorBridge.Registered && !Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+            return await UiDispatch.InvokeAsync(() => ExecuteTextAsync(caller, request, requestCancellation));
         Job job;
         lock (sync)
         {
@@ -307,31 +313,42 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 return Ok(previous.Result);
             }
             if (stopping) return Fail<ExecutionResult>(AutomationErrorCode.ShuttingDown);
-            if (InPresentationObserver) return Fail<ExecutionResult>(AutomationErrorCode.Busy);
+            if (InPresentationObserver || GuiOwnsSlotOrDraining) return Fail<ExecutionResult>(AutomationErrorCode.Busy);
             if (request.ExpectedStateVersion != Version) return Fail<ExecutionResult>(AutomationErrorCode.StateConflict);
             if (jobs.Count + tombstones.Count >= AutomationContracts.MaxExecutionIds) return Fail<ExecutionResult>(AutomationErrorCode.LimitExceeded);
             IDisposable reservation;
             try { reservation = InterpreterHostQueue.Reserve(); }
             catch (ExecutionBusyException) { return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
             int timeout = request.TimeoutMs ?? AutomationContracts.DefaultTimeoutMs;
-            job = Accept(reservation, caller, request.ExecutionId, fingerprint, ExecutionSource.Text, timeout,
-                requestCancellation, default, async pipeline =>
+            EditorCoordinator.ExecutionIntent? intent = null;
+            try
             {
-                using var password = new PasswordDialogHost();
-                if (request.Mode == TextExecutionMode.Submission)
-                    await pipeline.ExecuteAsync(request.Text, password.RequestAsync, pipeline.ExecutionToken).ConfigureAwait(false);
-                else
-                    await ExecuteScriptBookAsync(pipeline, request.Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'),
-                        password.RequestAsync, (_, _) => Task.CompletedTask, (_, _, _) => Task.FromResult(true), pipeline.ExecutionToken).ConfigureAwait(false);
-                return true;
-            }).Job;
+                if (editorBridge.Registered) intent = new(EditorCoordinator, null);
+            }
+            catch (ExecutionBusyException) { reservation.Dispose(); return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
+            try
+            {
+                job = Accept(reservation, caller, request.ExecutionId, fingerprint, ExecutionSource.Text, timeout,
+                    requestCancellation, default, async pipeline =>
+                {
+                    using var password = new PasswordDialogHost();
+                    if (request.Mode == TextExecutionMode.Submission)
+                        await pipeline.ExecuteAsync(request.Text, password.RequestAsync, pipeline.ExecutionToken).ConfigureAwait(false);
+                    else
+                        await ExecuteScriptBookAsync(pipeline, request.Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'),
+                            password.RequestAsync, (_, _) => Task.CompletedTask, (_, _, _) => Task.FromResult(true), pipeline.ExecutionToken).ConfigureAwait(false);
+                    return true;
+                }, intent == null ? null : () => intent.Current, intent).Job;
+            }
+            catch (ExecutionBusyException) { intent?.Dispose(); return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
+            catch { intent?.Dispose(); throw; }
         }
         await job.Task.WaitAsync(requestCancellation).ConfigureAwait(false);
         lock (sync) return job.Expired ? Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, job.Id) : Ok(job.Result);
     }
 
     // GUI cancellation is an explicit local user/lifetime action, not a transport request token.
-    private Task<T> RunGuiAsync<T>(Func<WorkbenchExecutionPipeline, Task<T>> operation, CancellationToken userCancellation, string requestIdentity, Func<bool>? validateIntent)
+    private Task<T> RunGuiAsync<T>(Func<WorkbenchExecutionPipeline, Task<T>> operation, CancellationToken userCancellation, string requestIdentity, Func<bool>? validateIntent, EditorCoordinator.OperationTicket? native)
     {
         userCancellation.ThrowIfCancellationRequested();
         if (InPresentationObserver) throw new ExecutionBusyException();
@@ -342,9 +359,21 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             if (jobs.Count + tombstones.Count >= AutomationContracts.MaxExecutionIds) throw new ExecutionBusyException();
             var fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(requestIdentity)));
             if (validateIntent?.Invoke() == false || stopping) throw new ExecutionBusyException();
-            var reservation = InterpreterHostQueue.Reserve();
-            return Accept(reservation, LocalCaller, Guid.NewGuid(), fingerprint, ExecutionSource.GuiLine,
-                AutomationContracts.DefaultTimeoutMs, userCancellation, userCancellation, operation, validateIntent).Work;
+            EditorCoordinator.ExecutionIntent? intent = null;
+            if (editorBridge.Registered || native != null)
+            {
+                if (!Avalonia.Threading.Dispatcher.UIThread.CheckAccess()) throw new ExecutionBusyException();
+                intent = new(EditorCoordinator, native);
+            }
+            else if (GuiOwnsSlotOrDraining) throw new ExecutionBusyException();
+            try
+            {
+                if (intent != null && validateIntent == null) validateIntent = () => intent.Current;
+                var reservation = InterpreterHostQueue.Reserve();
+                return Accept(reservation, LocalCaller, Guid.NewGuid(), fingerprint, ExecutionSource.GuiLine,
+                    AutomationContracts.DefaultTimeoutMs, userCancellation, userCancellation, operation, validateIntent, intent).Work;
+            }
+            catch { intent?.Dispose(); throw; }
         }
     }
 
@@ -364,7 +393,12 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                         job.Result = job.Result with { Variables = variables with { Stale = true } };
                     }
                     var pipeline = new WorkbenchExecutionPipeline {
-                        ExecutionToken = job.Cancellation.Token, Publish = result => RecordUnit(job, result),
+                        ValidateJob = () =>
+                        {
+                            lock (sync) if (!ReferenceEquals(current.Value, job) || !ReferenceEquals(active, job) || job.ResourcesReleased)
+                                throw new ExecutionBusyException();
+                        },
+                        EditorIntent = job.EditorIntent, ExecutionToken = job.Cancellation.Token, Publish = result => RecordUnit(job, result),
                         CancellationObserved = reason => { lock (sync) RequestCancel(job, reason); },
                         WaitingForUser = waiting => { lock (sync) if (job.Reason is null)
                             job.Result = job.Result with { State = waiting ? ExecutionState.WaitingForUser : ExecutionState.Running }; }
@@ -452,6 +486,12 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         job.Cancellation.Dispose();
         job.Timer = null;
         job.UserCancellation = default;
+        if (job.EditorIntent is { } intent)
+        {
+            try { await OnEditorUiAsync(() => { intent.Dispose(); return true; }).ConfigureAwait(false); }
+            catch { job.CleanupFailed = true; }
+            job.EditorIntent = null;
+        }
         job.ResourcesReleased = true;
     }
 
@@ -459,6 +499,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     {
         lock (sync)
         {
+            if (!ReferenceEquals(active, job) || job.ResourcesReleased) throw new ExecutionBusyException();
             job.Effects |= result.EffectsPossible;
             job.Outcome = result.Outcome;
             if (result.Outcome == ExecutionState.Cancelled && job.Reason is null) job.Reason = CancellationReason.User;
@@ -570,7 +611,16 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             }
             return captured;
         }
-        catch { lock (sync) { faulted = true; variables = variables with { Stale = true }; } throw; }
+        catch
+        {
+            lock (sync)
+            {
+                if (current.Value is { } job) job.CaptureFailed = true;
+                faulted = true;
+                variables = variables with { Stale = true };
+            }
+            throw;
+        }
     }
 
     // Recapture only; never repeat an operation to repair a snapshot.
@@ -609,7 +659,8 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     }
     public Task DrainAsync(CancellationToken ct = default)
     {
-        lock (sync) return Task.WhenAll(active?.Task ?? Task.CompletedTask, saveCompletion?.Task ?? Task.CompletedTask).WaitAsync(ct);
+        lock (sync) return Task.WhenAll(active?.Task ?? Task.CompletedTask, editCompletion?.Task ?? Task.CompletedTask,
+            saveCompletion?.Task ?? Task.CompletedTask, fileDialogCompletion?.Task ?? Task.CompletedTask).WaitAsync(ct);
     }
     public async ValueTask DisposeAsync()
     {
@@ -643,4 +694,5 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         }
     }
 
+    internal bool IsStopping => Volatile.Read(ref stopping);
 }

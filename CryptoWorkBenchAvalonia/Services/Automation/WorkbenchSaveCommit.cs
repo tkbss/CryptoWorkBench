@@ -15,24 +15,30 @@ public sealed partial class WorkbenchAutomationService
 {
     // Host-private capability: Sidebar carries it unchanged through all picker
     // awaits. Neither the snapshot nor the approval is a transport argument.
-    internal sealed record SaveIntent(EditorBridge.Registration Registration, EditorSnapshot Snapshot);
-    internal sealed record SaveTarget(string Path, bool OverwriteConfirmed, Func<Task>? Delete);
+    internal sealed record SaveIntent(EditorBridge.Registration Registration, EditorSnapshot Snapshot, long WorkspaceGeneration);
+    internal sealed record SaveTarget(string Path, bool OverwriteConfirmed, Func<Task>? Delete, IDisposable? ProviderItem = null);
     private TaskCompletionSource? saveCompletion;
+    private TaskCompletionSource? fileDialogCompletion;
 
     internal SaveIntent? CaptureSaveIntent()
     {
         Dispatcher.UIThread.VerifyAccess();
         lock (sync)
         {
-            if (stopping || InPresentationObserver || IsBusy || editorBridge.Current is not { } registration) return null;
-            return new(registration, registration.Snapshot());
+            if (stopping || GuiOwnsSlotOrDraining || InPresentationObserver || IsBusy || editorBridge.Current is not { } registration) return null;
+            return new(registration, registration.Snapshot(), EditorCoordinator.WorkspaceGeneration);
         }
     }
+
+    internal bool IsFileIntentCurrent(SaveIntent intent) =>
+        !IsStopping && EditorCoordinator.WorkspaceGeneration == intent.WorkspaceGeneration &&
+        editorBridge.Matches(intent.Registration, intent.Snapshot);
 
     internal async Task<AutomationErrorCode?> CommitSaveAsync(SaveIntent intent, SaveTarget target, CancellationToken ct = default)
     {
         IDisposable? admission = null;
         IDisposable? mutationLock = null;
+        EditorCoordinator.OperationTicket? ticket = null;
         TaskCompletionSource? completion = null;
         try
         {
@@ -42,14 +48,16 @@ public sealed partial class WorkbenchAutomationService
                 lock (sync)
                 {
                     if (stopping) return AutomationErrorCode.ShuttingDown;
-                    if (InPresentationObserver) return AutomationErrorCode.Busy;
+                    if (GuiOwnsSlotOrDraining || InPresentationObserver) return AutomationErrorCode.Busy;
                     if (target.Delete is not null && !target.OverwriteConfirmed) return AutomationErrorCode.ConfirmationDenied;
                     try { admission = InterpreterHostQueue.Reserve(); }
                     catch (ExecutionBusyException) { return AutomationErrorCode.Busy; }
                     if (!editorBridge.IsLive(intent.Registration, intent.Snapshot.EditorId)) return AutomationErrorCode.EditorUnavailable;
-                    if (!editorBridge.Matches(intent.Registration, intent.Snapshot)) return AutomationErrorCode.RevisionConflict;
+                    if (!IsFileIntentCurrent(intent)) return AutomationErrorCode.RevisionConflict;
                     // Publish ownership before Lock changes IsReadOnly: its
                     // synchronous observers can reenter Shutdown/Drain/Dispose.
+                    ticket = EditorCoordinator.TryBegin();
+                    if (ticket == null) return AutomationErrorCode.Busy;
                     completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
                     saveCompletion = completion;
                     try { mutationLock = EditorBridge.Lock(intent.Registration); }
@@ -57,7 +65,7 @@ public sealed partial class WorkbenchAutomationService
                     ct.ThrowIfCancellationRequested();
                     if (stopping) return AutomationErrorCode.ShuttingDown;
                     if (!editorBridge.IsLive(intent.Registration, intent.Snapshot.EditorId)) return AutomationErrorCode.EditorUnavailable;
-                    if (!editorBridge.Matches(intent.Registration, intent.Snapshot)) return AutomationErrorCode.RevisionConflict;
+                    if (!IsFileIntentCurrent(intent)) return AutomationErrorCode.RevisionConflict;
                     // This is the commit's cancellation/shutdown boundary. The
                     // reservation and document lease are now service-owned.
                     return (AutomationErrorCode?)null;
@@ -76,8 +84,8 @@ public sealed partial class WorkbenchAutomationService
         {
             try
             {
-                if (mutationLock is not null)
-                    await OnEditorUiAsync(() => { mutationLock.Dispose(); return true; }).ConfigureAwait(false);
+                if (ticket is not null)
+                    await OnEditorUiAsync(() => { try { mutationLock?.Dispose(); } finally { ticket.Dispose(); } return true; }).ConfigureAwait(false);
             }
             finally
             {
@@ -98,7 +106,8 @@ public sealed partial class WorkbenchAutomationService
         Dispatcher.UIThread.VerifyAccess();
         lock (sync)
         {
-            if (stopping || InPresentationObserver) throw new ExecutionBusyException();
+            if (stopping || GuiOwnsSlotOrDraining || InPresentationObserver ||
+                (editorBridge.Registered && !ReferenceEquals(editorBridge.Current?.Editor, editor))) throw new ExecutionBusyException();
             using var admission = InterpreterHostQueue.Reserve();
             // Legacy synchronous callers may supply a plain TextEditor (as the
             // existing Return/Save regression harness does). With no await or
@@ -136,6 +145,26 @@ public sealed partial class WorkbenchAutomationService
             byte[] bytes = Encoding.ASCII.GetBytes(line);
             stream.Write(bytes, 0, bytes.Length);
             stream.WriteByte((byte)'\n');
+        }
+    }
+
+    internal async Task WithFileDialogAsync(EditorBridge.Registration origin, Func<SaveIntent, Task> action)
+    {
+        var intent = CaptureSaveIntent();
+        if (intent == null || !ReferenceEquals(intent.Registration, origin)) return;
+        using var ticket = EditorCoordinator.TryBegin();
+        if (ticket == null) return;
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        lock (sync)
+        {
+            if (stopping || fileDialogCompletion != null) return;
+            fileDialogCompletion = completion;
+        }
+        try { await action(intent); }
+        finally
+        {
+            try { ticket.Dispose(); }
+            finally { lock (sync) { fileDialogCompletion = null; completion.TrySetResult(); } }
         }
     }
 }

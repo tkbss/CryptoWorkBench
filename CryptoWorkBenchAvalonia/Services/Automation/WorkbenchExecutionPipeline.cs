@@ -30,7 +30,10 @@ internal sealed record SyntaxDiagnostic(string Line, string Column, string Symbo
 /// <summary>Runs one parse unit within an already admitted host operation.</summary>
 internal sealed class WorkbenchExecutionPipeline
 {
+    internal EditorCoordinator.ExecutionIntent? EditorIntent { get; init; }
+    internal void CancelStaleDestination() => CancellationObserved?.Invoke(CancellationReason.User);
     internal CancellationToken ExecutionToken { get; init; }
+    internal Action? ValidateJob { get; init; }
     internal Action<ExecutionPresentation>? Publish { get; init; }
     internal Action<bool>? WaitingForUser { get; init; }
     internal Action<CancellationReason>? CancellationObserved { get; init; }
@@ -39,6 +42,7 @@ internal sealed class WorkbenchExecutionPipeline
         CancellationToken token, CryptoScriptRunner? testRunner = null,
         IEnumerable<StatementNode?>? testStatements = null)
     {
+        ValidateJob?.Invoke();
         if (Publish is not null) token = ExecutionToken;
         if (token.IsCancellationRequested)
             return Finish(FinalizePresentation(false, "Script execution cancelled.", null,

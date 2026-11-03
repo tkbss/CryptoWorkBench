@@ -102,16 +102,175 @@ public class EditorAutomationTests
         Assert.That(long.Parse(after.Revision), Is.GreaterThan(long.Parse(before.Revision)));
     });
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public Task ShellKeyMapMayReachFirstEditorButCannotFollowASuccessor(bool switchView) => Headless(async () =>
+    {
+        await using var h = new Harness(attach: false);
+        using var keyMap = new KeyMapViewModel(h.Status, h.Service);
+        h.Window.Show();
+        if (switchView) h.Service.AttachEditor(new WorkbenchTextEditor(), null!, true);
+        await keyMap.Initialization.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(keyMap.InfoText.Contains("Gesture="), Is.EqualTo(!switchView));
+    });
+
     [Test]
-    public Task WholeEditorPrintIsInsertedOnceWithoutDuplicatingSource() => Headless(async () =>
+    public Task FileBookClearsAndExecutesAsOneVersionAndCanRecoverFromObserverFailure() => Headless(async () =>
+    {
+        await using var h = new Harness();
+        var path = h.PathFor();
+        File.WriteAllText(path, "VAR bookValue=0x(01)\nPrint(bookValue)");
+        h.Editor.Text = "old editor";
+        System.Collections.Specialized.NotifyCollectionChangedEventHandler fail = (_, _) => throw new IOException("test observer");
+        var changes = (System.Collections.Specialized.INotifyCollectionChanged)h.Status.Diagnostics;
+        changes.CollectionChanged += fail;
+        try { await Assert.ThatAsync(() => h.Vm.OpenScriptBookAsync(path, true), Throws.TypeOf<IOException>()); }
+        finally { changes.CollectionChanged -= fail; }
+        Assert.That(h.Editor.Text, Is.EqualTo("old editor"));
+        Assert.That(h.Vm.IsExecuting, Is.False);
+        await h.Vm.OpenScriptBookAsync(path, true);
+        Assert.That(h.Vm.LastScriptBookSucceeded, Is.True);
+        Assert.That(h.Editor.Text, Is.EqualTo("VAR bookValue=0x(01)\nPrint(bookValue)\n"));
+        var status = (await h.Service.GetStatusAsync(Caller, default)).Data!;
+        var job = (await h.Service.GetExecutionAsync(Caller, status.LastExecutionId!.Value, default)).Data!;
+        Assert.That((job.Source, job.StateVersion, job.Outputs.Length), Is.EqualTo((ExecutionSource.ScriptBookFile, "1", 1)));
+        Assert.That(h.Service.EditorCoordinator.Pending, Is.Zero);
+    });
+
+    [Test]
+    public Task InactiveViewCannotOpenSaveOrExecuteTheSelectedDocument() => Headless(async () =>
+    {
+        await using var h = new Harness();
+        h.Editor.Text = "A";
+        var b = new WorkbenchTextEditor { Text = "B" };
+        h.Service.AttachEditor(b, null!, true);
+        int selections = 0;
+        await h.Vm.SaveScriptBookAsync(() => { selections++; return Task.FromResult<WorkbenchAutomationService.SaveTarget?>(new(h.PathFor(), false, null)); });
+        await h.Vm.ParseLineAsync("Print(0x(01))");
+        await Assert.ThatAsync(() => h.Vm.OpenScriptBookAsync(h.PathFor(), true), Throws.TypeOf<ExecutionBusyException>());
+        var status = (await h.Service.GetStatusAsync(Caller, default)).Data!;
+        Assert.That((selections, File.Exists(h.PathFor()), h.Editor.Text, b.Text, status.LastExecutionId),
+            Is.EqualTo((0, false, "A", "B", (Guid?)null)));
+        Assert.That(h.Service.EditorCoordinator.Pending, Is.Zero);
+    });
+
+    [Test]
+    public Task ReentrantDetachStopsRemainingPublicationAfterCommittedUnit() => Headless(async () =>
+    {
+        await using var h = new Harness();
+        h.Editor.Text = "VAR beforeDetach=0x(01)";
+        h.Status.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(h.Status.StatusString) && h.Status.StatusString == "Line successfull parsed")
+                h.Window.Content = null;
+        };
+        var job = (await h.Service.ExecuteEditorAsync(Caller, await h.Execution(), default)).Data!;
+        Assert.That(job.State, Is.EqualTo(ExecutionState.Completed));
+        Assert.That(job.Variables.Items.Select(item => item.Identifier), Does.Contain("beforeDetach"));
+        Assert.That(h.Variables.DataVariables, Is.Empty);
+    });
+
+    [TestCase("typing")]
+    [TestCase("switch")]
+    [TestCase("close")]
+    [TestCase("drain")]
+    public Task DelayedReturnOutputBelongsToOriginalJobAndAnchor(string transition) => Headless(async () =>
+    {
+        await using var h = new Harness();
+        var next = new WorkbenchTextEditor { Text = "second" };
+        var nextRegistration = h.Service.AttachEditor(next, null!, retainCurrent: true)!;
+        var original = h.Service.AttachEditor(h.Editor, h.Vm)!;
+        h.Editor.Text = "Print(0x(AB))";
+        h.Editor.CaretOffset = h.Editor.Document.TextLength;
+        var emitted = Signal();
+        using var resume = new ManualResetEventSlim();
+        void HoldOutput(string _)
+        {
+            emitted.TrySetResult();
+            if (!resume.Wait(TimeSpan.FromSeconds(8))) throw new TimeoutException();
+        }
+        OutputOperations.PrintEvent += HoldOutput;
+        EditorCoordinator.DrainTicket? drain = null;
+        Guid id;
+        try
+        {
+            h.Editor.TextArea.PerformTextInput("\n");
+            await emitted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            id = (await h.Service.GetStatusAsync(Caller, default)).Data!.ActiveExecutionId!.Value;
+            if (transition == "typing") h.Editor.TextArea.PerformTextInput("next line");
+            else if (transition == "drain")
+            {
+                drain = h.Service.EditorCoordinator.BeginDrain();
+                Assert.That(drain.Completion.IsCompleted, Is.False);
+            }
+            else
+            {
+                h.Service.ActivateEditor(nextRegistration);
+                if (transition == "close") h.Service.DetachEditor(original);
+            }
+        }
+        finally { OutputOperations.PrintEvent -= HoldOutput; resume.Set(); }
+        await h.View.PendingExecution.WaitAsync(TimeSpan.FromSeconds(5));
+        var job = (await h.Service.GetExecutionAsync(Caller, id, default)).Data!;
+        Assert.That((job.State, job.Effects, job.Outputs.Length, job.StateVersion),
+            Is.EqualTo((ExecutionState.Completed, Effects.Possible, 1, "1")));
+        Assert.That(h.Editor.Text.Contains("out: "), Is.EqualTo(transition == "typing"));
+        if (transition == "typing") Assert.That(h.Editor.Text, Does.EndWith("next line"));
+        Assert.That(next.Text, Is.EqualTo("second"));
+        Assert.That(next.Document.UndoStack.CanUndo, Is.False);
+        if (drain != null)
+        {
+            await drain.Completion.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.That(h.Service.EditorCoordinator.ResumeGui(drain), Is.True);
+        }
+        Assert.That(h.Service.EditorCoordinator.Pending, Is.Zero);
+        Assert.That(h.Service.IsBusy, Is.False);
+        h.Service.ActivateEditor(nextRegistration);
+        next.Text = "Print(0x(01))";
+        var successor = await h.Service.ExecuteEditorAsync(Caller, await h.Execution(), default);
+        Assert.That(successor.Data!.State, Is.EqualTo(ExecutionState.Completed));
+        Assert.That(successor.Data.ExecutionId, Is.Not.EqualTo(id));
+    });
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public Task PickerDrainWaitsForProviderReturnAndUnwindsOnFailure(bool fail) => Headless(async () =>
+    {
+        await using var h = new Harness();
+        var release = Signal();
+        var work = h.Vm.SaveScriptBookAsync(async () =>
+        {
+            await release.Task;
+            if (fail) throw new IOException("provider unavailable");
+            return null;
+        });
+        var coordinator = h.Service.EditorCoordinator;
+        var drain = coordinator.BeginDrain();
+        var providers = h.Service.DrainAsync();
+        try
+        {
+            Assert.That(drain.Completion.IsCompleted || providers.IsCompleted, Is.False);
+            Assert.That(h.Service.IsBusy, Is.False);
+        }
+        finally { release.TrySetResult(); }
+        if (fail) await Assert.ThatAsync(async () => await work, Throws.TypeOf<IOException>());
+        else await work;
+        await Task.WhenAll(providers, drain.Completion).WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(coordinator.ResumeGui(drain), Is.True);
+        Assert.That(coordinator.Pending, Is.Zero);
+        Assert.That(h.Vm.CaptureSaveIntent(), Is.Not.Null);
+    });
+
+    [Test]
+    public Task WholeEditorPrintIsReturnedWithoutChangingSource() => Headless(async () =>
     {
         await using var h = new Harness(); h.Editor.Text = "Print(0x(AB))";
         var before = await h.Snapshot();
         var request = await h.Execution();
         var result = await h.Service.ExecuteEditorAsync(Caller, request, default);
         Assert.That(result.Data!.State, Is.EqualTo(ExecutionState.Completed));
-        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(AB))\nout: 0x(AB)"));
-        Assert.That(long.Parse((await h.Snapshot()).Revision), Is.GreaterThan(long.Parse(before.Revision)));
+        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(AB))"));
+        Assert.That(long.Parse((await h.Snapshot()).Revision), Is.EqualTo(long.Parse(before.Revision)));
         Assert.That(result.Data.Outputs.Length, Is.EqualTo(1));
         Assert.That(result.Data.Outputs[0].Redacted, Is.True);
     });

@@ -6,6 +6,7 @@ using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using CryptoWorkBenchAvalonia.Models;
 using CryptoWorkBenchAvalonia.Controls;
+using CryptoWorkBenchAvalonia.Services.Automation;
 using CryptoWorkBenchAvalonia.Services;
 using CryptoWorkBenchAvalonia.ViewModels;
 
@@ -93,7 +94,7 @@ public partial class CryptoScriptEditView : UserControl
                 new InfoCompletionProvider());
         }
     }
-    private void OnAdmittedInput(TextInputEventArgs input, Func<bool> stillAdmitted)
+    private void OnAdmittedInput(TextInputEventArgs input, Func<bool> stillAdmitted, EditorCoordinator.OperationTicket ticket)
     {
         if (string.IsNullOrEmpty(input.Text) || input.Handled) return;
         var editor = _textEditor!;
@@ -122,27 +123,32 @@ public partial class CryptoScriptEditView : UserControl
 
         var anchor = document.CreateAnchor(line.EndOffset);
         anchor.MovementType = AnchorMovementType.BeforeInsertion;
-        PendingExecution = ExecuteInputAsync(source!, document, anchor, lifecycle, IsCurrent, input);
+        PendingExecution = ExecuteInputAsync(source!, document, anchor, lifecycle, IsCurrent, input, ticket);
     }
 
-    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor, long lifecycle, Func<bool> isCurrent, TextInputEventArgs input)
+    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor, long lifecycle, Func<bool> isCurrent, TextInputEventArgs input, EditorCoordinator.OperationTicket ticket)
     {
+        var vm = _viewModel!;
         try
         {
-            if (!await _viewModel!.ParseInputLineAsync(line, isCurrent))
+            void Output(string text)
+            {
+                if (ReferenceEquals(_viewModel, vm) && vm.EditorLifecycle == lifecycle && !anchor.IsDeleted &&
+                    ReferenceEquals(document, _textEditor?.Document))
+                    document.Insert(anchor.Offset, "\n" + text);
+            }
+            if (!await vm.ParseInputLineAsync(line, isCurrent, publishOutput: Output, native: ticket))
             {
                 // Fresh admission failed synchronously, before returning to native TextEntering.
                 input.Handled = true;
                 return;
             }
-            if (_viewModel.EditorLifecycle == lifecycle && !anchor.IsDeleted && ReferenceEquals(document, _textEditor!.Document) &&
-                _viewModel.PrintMessage != string.Empty)
-                document.Insert(anchor.Offset, "\n" + _viewModel.PrintMessage);
         }
         catch (Exception)
         {
+            input.Handled = true;
             // Task is tracked; no async-void exception escapes the input event.
-            _viewModel!.Status.StatusString = "Script execution failed.";
+            if (ReferenceEquals(_viewModel, vm) && vm.EditorLifecycle == lifecycle) vm.Status.StatusString = "Script execution failed.";
         }
     }
     private void textEditor_TextArea_TextEntered(object sender, TextInputEventArgs e)

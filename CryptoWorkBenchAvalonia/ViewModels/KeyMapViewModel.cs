@@ -1,9 +1,5 @@
-using Avalonia.Controls.Shapes;
-using CryptoScript.ErrorListner;
 using CryptoScript.Model;
-using Prism.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -24,36 +20,54 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public KeyMapViewModel(StatusViewModel statusViewModel, Services.Automation.WorkbenchAutomationService? automation = null)
         {
             Automation = automation ?? statusViewModel.Automation;
-            OutputOperations.InfoEvent += OnInfoEvent;
             Initialization = LoadInfoAsync(statusViewModel);
         }
 
         private void OnInfoEvent(string message)
         {
-            if (Avalonia.Application.Current is not null && !Dispatcher.UIThread.CheckAccess())
-            { UiDispatch.Post(() => OnInfoEvent(message)); return; }
             if (message.Contains("Gesture="))
                 InfoText = message;
         }
         internal async Task LoadInfoAsync(StatusViewModel status, CryptoScriptRunner? testRunner = null)
         {
+            var coordinator = Dispatcher.UIThread.CheckAccess() ? Automation.EditorCoordinator : null;
+            long? workspace = coordinator?.WorkspaceGeneration;
+            bool Current() => !Automation.IsStopping && !lifetime.IsCancellationRequested &&
+                (coordinator == null || coordinator.AcceptsWorkspacePresentation(workspace!.Value));
+            bool started = false;
             try
             {
                 using var password = new PasswordDialogHost();
-                var result = await Automation.ExecuteSubmissionAsync(
-                    "Info(keymap)", password.RequestAsync, lifetime.Token, testRunner);
-                await UiDispatch.InvokeAsync(() =>
+                await Automation.RunAsync(async pipeline =>
                 {
-                    status.AppendDiagnostics(result.Diagnostics, result.Error);
-                    if (!result.HostSucceeded) status.StatusString = result.CaptureFailed
-                        ? result.PresentationStatus : "Error in loading KeyMap information.";
-                });
+                    started = true;
+                    try
+                    {
+                        var result = await pipeline.ExecuteAsync("Info(keymap)", password.RequestAsync, pipeline.ExecutionToken, testRunner);
+                        await UiDispatch.InvokeAsync(() =>
+                        {
+                            if (!Current() || pipeline.EditorIntent?.DestinationLive == false) return;
+                            foreach (var item in result.Output)
+                                if (item.Kind == "info" && Current()) OnInfoEvent(item.Text);
+                            if (!Current()) return;
+                            status.AppendDiagnostics(result.Diagnostics, result.Error, null, Current);
+                            if (Current() && !result.HostSucceeded) status.StatusString = result.CaptureFailed
+                                ? result.PresentationStatus : "Error in loading KeyMap information.";
+                        });
+                        return result.HostSucceeded;
+                    }
+                    catch
+                    {
+                        await UiDispatch.InvokeAsync(() => { if (Current()) status.StatusString = "Error in loading KeyMap information."; });
+                        throw;
+                    }
+                }, lifetime.Token, "keymap");
             }
             catch (Exception)
             {
-                await UiDispatch.InvokeAsync(() => status.StatusString = "Error in loading KeyMap information.");
+                if (!started && Dispatcher.UIThread.CheckAccess() && Current()) status.StatusString = "Error in loading KeyMap information.";
             }
         }
-        public void Dispose() { lifetime.Cancel(); OutputOperations.InfoEvent -= OnInfoEvent; }
+        public void Dispose() { lifetime.Cancel(); }
     }
 }

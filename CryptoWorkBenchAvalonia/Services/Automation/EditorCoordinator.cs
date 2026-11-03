@@ -59,6 +59,12 @@ internal sealed class EditorCoordinator
 
     private static void Verify() => Dispatcher.UIThread.VerifyAccess();
     internal long WorkspaceGeneration { get; private set; }
+    private long? firstAttachment;
+    // The shell can start its own KeyMap before its first editor is attached.
+    internal bool AcceptsWorkspacePresentation(long generation) =>
+        (Phase == EditorControlPhase.Gui || (Phase == EditorControlPhase.Unavailable && Pending == 0)) &&
+        (generation == WorkspaceGeneration || (generation == 0 && firstAttachment == WorkspaceGeneration));
+
     internal event Action? WorkspaceChanged;
     internal void NotifyWorkspaceChanged()
     {
@@ -117,7 +123,9 @@ internal sealed class EditorCoordinator
 
     private void SelectRegistration(EditorBridge.Registration value)
     {
+        bool initial = WorkspaceGeneration == 0;
         Advance();
+        if (initial) firstAttachment = WorkspaceGeneration;
         registration = value;
         Phase = EditorControlPhase.Gui;
         drain = null;
@@ -366,11 +374,14 @@ internal sealed class EditorCoordinator
 
     private void CheckDrain()
     {
+        if (drain != null && Pending == 0 && !Active && ObserverDepth == 0 && Phase == EditorControlPhase.Faulted)
+            drain.Quiescent.TrySetResult();
         if (drain is not null && !drain.Completion.IsCompleted && Pending == 0 && !Active && ObserverDepth == 0 &&
             Phase != EditorControlPhase.Faulted && drainingDocument?.IsInUpdate != true && registration?.RawDocument?.IsInUpdate != true)
         {
             StopWatchingDrain();
             drain.Signal.TrySetResult();
+            drain.Quiescent.TrySetResult();
         }
         RetireDetachedRegistration();
     }
@@ -423,6 +434,7 @@ internal sealed class EditorCoordinator
     {
         internal readonly EditorCoordinator Owner;
         internal readonly TaskCompletionSource Signal = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal readonly TaskCompletionSource Quiescent = new(TaskCreationOptions.RunContinuationsAsynchronously);
         internal Task Completion => Signal.Task;
         internal DrainTicket(EditorCoordinator owner) => Owner = owner;
     }
@@ -465,6 +477,61 @@ internal sealed class EditorCoordinator
             if (BodyDone) return;
             if (ReferenceEquals(Owner.active, this)) throw new ExecutionBusyException();
             Sealed = true; BodyDone = true; Owner.Finish(this);
+        }
+    }
+
+    // A job borrows the native Return operation, or owns an intent captured at admission.
+    // Only edits made by this intent may advance its expected document version.
+    internal sealed class ExecutionIntent : IDisposable
+    {
+        private readonly OperationTicket origin;
+        private readonly CallbackTicket? nativeCallback;
+        private readonly long workspace;
+        private ITextSourceVersion? expected;
+        private bool disposed;
+
+        internal ExecutionIntent(EditorCoordinator owner, OperationTicket? native)
+        {
+            workspace = owner.WorkspaceGeneration;
+            if (native != null && !owner.IsActiveGuiOperation(native)) throw new ExecutionBusyException();
+            origin = native ?? owner.TryBegin() ?? throw new ExecutionBusyException();
+            if (native != null) nativeCallback = native.RegisterCallback();
+            else expected = origin.Version;
+        }
+
+        internal Guid EditorId => origin.EditorId;
+        internal string SourceRevision => origin.OriginalRevision;
+
+        internal bool DestinationLive
+        {
+            get
+            {
+                Verify();
+                if (disposed || origin.Owner.WorkspaceGeneration != workspace || !origin.Owner.CanBegin ||
+                    !origin.Owner.bridge.IsLive(origin.Registration, origin.EditorId) ||
+                    !ReferenceEquals(origin.Document, origin.Registration.RawDocument)) return false;
+                if (nativeCallback != null && (!origin.BodyDone || origin.Error != null ||
+                    origin.Text != EditorTextEffect.Applied)) return false;
+                // Interactive Return addresses a surviving original anchor and allows subsequent typing.
+                return true;
+            }
+        }
+
+        internal bool Current => DestinationLive && (nativeCallback != null || ReferenceEquals(expected, origin.Document.Version));
+
+        internal bool Write(Action action)
+        {
+            if (!Current || !origin.Owner.RunGui(action)) return false;
+            expected = origin.Document.Version;
+            return true;
+        }
+
+        public void Dispose()
+        {
+            Verify();
+            disposed = true;
+            if (nativeCallback != null) nativeCallback.Dispose();
+            else origin.Dispose();
         }
     }
 

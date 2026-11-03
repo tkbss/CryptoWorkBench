@@ -164,6 +164,7 @@ public class VariableViewModel : ViewModelBase
             var stamp = ++publication;
             var coordinator = Automation.EditorCoordinator;
             var generation = coordinator.WorkspaceGeneration;
+            bool Current() => stamp == publication && generation == coordinator.WorkspaceGeneration && !Automation.IsStopping;
             var version = Automation.DraftRevision;
             var drafts = snapshot.ToDictionary(variable => variable,
                 variable => new Draft(variable.Identifier, variable.Parameters.ToDictionary(p => p, p => p.Parameter)));
@@ -171,16 +172,16 @@ public class VariableViewModel : ViewModelBase
             Publish(() =>
             {
                 SelectedVariable = null;
-                if (stamp != publication) return;
+                if (!Current()) return;
                 if (DataVariables.Count != 0) DataVariables.Clear();
                 foreach (var variable in snapshot)
                 {
-                    if (stamp != publication) return;
+                    if (!Current()) return;
                     variable.Automation = Automation;
                     foreach (var parameter in variable.Parameters) parameter.Automation = Automation;
                     DataVariables.Add(variable);
                 }
-                if (stamp != publication || generation != coordinator.WorkspaceGeneration) return;
+                if (!Current()) return;
                 draftRevision = version;
                 draftGeneration = generation;
                 published = drafts;

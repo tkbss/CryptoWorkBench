@@ -36,6 +36,21 @@ public partial class App : PrismApplication
     protected override AvaloniaObject CreateShell()
     {
         var window = Container.Resolve<MainWindow>();
+        var service = Container.Resolve<CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService>();
+        bool draining = false;
+        bool ready = false;
+        window.Closing += async (_, args) =>
+        {
+            if (ready) return;
+            args.Cancel = true;
+            if (draining) return;
+            draining = true;
+            service.BeginShutdown();
+            var editorDrain = service.EditorCoordinator.BeginDrain();
+            await System.Threading.Tasks.Task.WhenAll(editorDrain.Quiescent.Task, service.DrainAsync());
+            // Close after the original Closing event has unwound, even for an idle workspace.
+            UiDispatch.Post(() => { ready = true; window.Close(); });
+        };
         window.Closed += (_, _) => Container.Resolve<CryptoScriptEditViewModel>().Dispose();
         return window;
     }

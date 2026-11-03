@@ -16,7 +16,8 @@ public sealed partial class WorkbenchAutomationService
     public bool IsBusy => InterpreterHostQueue.IsBusy;
 
     internal Task<T> RunAsync<T>(Func<WorkbenchExecutionPipeline, Task<T>> operation, CancellationToken token,
-        string requestIdentity = "local-host-operation", Func<bool>? validateIntent = null) => RunGuiAsync(operation, token, requestIdentity, validateIntent);
+        string requestIdentity = "local-host-operation", Func<bool>? validateIntent = null, EditorCoordinator.OperationTicket? native = null) =>
+        RunGuiAsync(operation, token, requestIdentity, validateIntent, native);
 
     internal Task<ExecutionPresentation> ExecuteSubmissionAsync(string text, PasswordRequestHandler password,
         CancellationToken token = default, CryptoScriptRunner? testRunner = null,
@@ -88,6 +89,14 @@ public sealed partial class WorkbenchAutomationService
     {
         if (InPresentationObserver) throw new ExecutionBusyException();
         lock (sync) if (stopping || (expectedVersion.HasValue && expectedVersion != version)) throw new ExecutionBusyException();
+        if (editorBridge.Registered)
+        {
+            if (!Avalonia.Threading.Dispatcher.UIThread.CheckAccess()) throw new ExecutionBusyException();
+            var owner = EditorCoordinator;
+            if (!owner.CanStartGui && !(owner.Active && owner.Phase == EditorControlPhase.Gui && validate != null))
+                throw new ExecutionBusyException();
+        }
+        else if (GuiOwnsSlotOrDraining) throw new ExecutionBusyException();
         EnsureRecovered();
         if (validate != null && !validate()) throw new ExecutionBusyException();
     }
@@ -114,8 +123,9 @@ public sealed partial class WorkbenchAutomationService
 
     internal IReadOnlyList<VariableModel> ClearAdmittedState() => InterpreterExecution.AccessState(() =>
     {
+        var job = current.Value ?? throw new ExecutionBusyException();
         VariableDictionary.Instance().Clear();
-        AdvanceVersion();
+        lock (sync) job.Effects = true;
         return CaptureMutation();
     });
 }

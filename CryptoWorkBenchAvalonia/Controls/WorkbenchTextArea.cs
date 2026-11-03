@@ -21,7 +21,7 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
     internal WorkbenchTextEditor? Host { get; set; }
     internal Task PendingClipboard { get; private set; } = Task.CompletedTask;
     private RoutedCommandBinding? nativeBinding;
-    internal Action<TextInputEventArgs, Func<bool>>? AdmittedInput { private get; set; }
+    internal Action<TextInputEventArgs, Func<bool>, EditorCoordinator.OperationTicket>? AdmittedInput { private get; set; }
     private bool copying;
     private Action<TextInputEventArgs>? enterContinuation;
     protected override Type StyleKeyOverride => typeof(TextArea);
@@ -177,13 +177,17 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
                     !actual.Handled && IsOriginal();
                 valid = false;
                 if (!admitted) { actual.Handled = true; return; }
-                // The host's existing Return/Book execution begins as a specific
-                // admitted continuation. Event subscribers receive observation only.
-                AdmittedInput?.Invoke(actual, IsOriginal);
+                var caret = Caret.Position;
+                var selection = Selection;
                 coordinator.Observe(() => base.OnTextEntering(actual), propagate: true);
-                // A callback may invalidate/detach the original registration.
-                // Never continue native insertion on its successor or generation.
-                if (actual.Text != expected || !IsOriginal()) actual.Handled = true;
+                if (actual.Handled || actual.Text != expected || !IsOriginal() ||
+                    !Caret.Position.Equals(caret) || !ReferenceEquals(Selection, selection))
+                {
+                    actual.Handled = true;
+                    return;
+                }
+                AdmittedInput?.Invoke(actual, IsOriginal, ticket);
+                if (!IsOriginal()) actual.Handled = true;
             };
             try
             {
