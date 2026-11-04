@@ -69,6 +69,14 @@ public class EditorReviewCorrectionTests
         {
             if (swap) Editor.Document = new TextDocument("successor"); else Window.Content = null;
         }
+        // A presentation subscriber can request a later user lifecycle action.
+        // B1 rejects a synchronous document mutation inside this observer.
+        internal void InvalidateFromObserver(bool swap)
+        {
+            if (!swap) { Invalidate(false); return; }
+            Assert.Throws<ExecutionBusyException>(() => Invalidate(true));
+            UiDispatch.Post(() => Invalidate(true), Avalonia.Threading.DispatcherPriority.Send);
+        }
         public async ValueTask DisposeAsync()
         {
             await Service.DisposeAsync(); Window.Close(); Vm.Dispose();
@@ -87,7 +95,7 @@ public class EditorReviewCorrectionTests
         NotifyCollectionChangedEventHandler handler = (_, _) =>
         {
             if (afterFirst && !invalidated && h.Variables.DataVariables.Any(v => v.Identifier == "first"))
-            { invalidated = true; h.Invalidate(swap); }
+            { invalidated = true; h.InvalidateFromObserver(swap); }
         };
         h.Variables.DataVariables.CollectionChanged += handler;
         var request = await h.Request();
@@ -115,7 +123,7 @@ public class EditorReviewCorrectionTests
         h.Variables.DataVariables.CollectionChanged += (_, _) =>
         {
             if (!once && h.Variables.DataVariables.Any(v => v.Identifier == "final"))
-            { once = true; h.Invalidate(swap); }
+            { once = true; h.InvalidateFromObserver(swap); }
         };
         var result = (await h.Service.ExecuteEditorAsync(Caller, await h.Request(), default)).Data!;
         Assert.That(once, Is.True);

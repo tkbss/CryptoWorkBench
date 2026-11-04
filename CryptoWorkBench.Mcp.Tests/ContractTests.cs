@@ -17,6 +17,27 @@ public class ContractTests
         "Check", "Check failed.", null, null, 1, null, null, null, null, null);
     public static IEnumerable<object> Samples()
     {
+        var safe = SafeError.From(AutomationErrorCode.Busy);
+        yield return new StatusV2("2");
+        yield return new VariablesV2("2", Id);
+        yield return new ReadEditorV2("2", Id, Id);
+        yield return new AcquireEditorV2("2", Id, Id, Id, "0");
+        yield return new RenewEditorV2("2", Id, Id, Id, "1");
+        yield return new ReleaseEditorV2("2", Id, Id, Id);
+        yield return new EditorEditV2("2", Id, Id, Id, "0", EditorEditMode.Insert, "x", 0);
+        yield return new EditorExecutionV2("2", Id, Id, Id, Id, "0", "0");
+        yield return new JobRequestV2("2", Id, Id);
+        yield return new ResultV2<ControlStatus>("2", Id, new(Lifecycle.Ready, true, true, WorkbenchExecutionState.Idle,
+            null, false, "1", null, [], Id, ControlPhase.Mcp, true, new(Id, Id, "1", Now)), null);
+        yield return new ResultV2<EditorSnapshot>("2", Id, new(Id, "0", "", 0, false, DirtyState.Clean), null);
+        yield return new ResultV2<VariableSnapshot>("2", Id, FakeAutomationService.Variables, null);
+        yield return new ResultV2<ExecutionResult>("2", Id, FakeAutomationService.Completed(Id), null);
+        yield return new ResultV2<DiagnosticSnapshot>("2", Id, new(Id, true, [], false), null);
+        yield return new ResultV2<CancelReceipt>("2", Id, new(Id, true, ExecutionState.Cancelled), null);
+        yield return new LeaseReplyV2<Acquired>("2", Id, new(AcquiredKind.Acquired, Id, Id, Id, "0", "1", Now, Now.AddMinutes(10), LeaseState.Active), null, false, RetryPolicy.SameRequestOnly, false);
+        yield return new LeaseReplyV2<Renewed>("2", Id, new(RenewedKind.Renewed, Id, Id, "1", "2", Now, Now.AddMinutes(10)), null, false, RetryPolicy.SameRequestOnly, false);
+        yield return new LeaseReplyV2<Released>("2", Id, new(ReleasedKind.Released, Id, Id, ReleasePhase.Released, ReleaseReason.Expired), null, true, RetryPolicy.SameRequestOnly, false);
+        yield return new EditorMutationReceiptV2("2", Id, Id, "0", null, TextEffect.None, HistoryEffect.None, Finalization.Complete, safe, RetryPolicy.NoAutomaticRetry, true);
         yield return new EditorEdit(Id, Id, "0", EditorEditMode.Insert, "abc", 0);
         yield return new EditorExecution(Id, Id, Id, "0", "0");
         yield return new TextExecution(Id, Id, "0", "abc", TextExecutionMode.Submission);

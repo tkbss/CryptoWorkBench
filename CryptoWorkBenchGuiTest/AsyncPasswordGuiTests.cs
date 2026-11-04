@@ -269,6 +269,8 @@ public class AsyncPasswordGuiTests
                 new MainViewModel(), null!, new HistoryService());
             try
             {
+                editor.TextEditor = new CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor();
+                editor.AttachEditor();
                 await editor.ParseLineAsync("VAR asyncValue=0x(01) Print(asyncValue) Info(keymap) Print(0x(02))");
                 Assert.That(editor.PrintMessage, Is.EqualTo("out: 0x(01)" + Environment.NewLine + "out: 0x(02)"));
                 variables.SelectedVariable = variables.DataVariables.Single(v => v.Identifier == "asyncValue");

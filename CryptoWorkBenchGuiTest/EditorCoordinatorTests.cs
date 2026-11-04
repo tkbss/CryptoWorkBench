@@ -308,9 +308,11 @@ public class EditorCoordinatorTests
     {
         public IClipboard Inner = null!;
         public Task<string?>? DelayedRead;
+        public Task? DelayedWrite;
         protected override object? Invoke(MethodInfo? method, object?[]? args)
         {
-            if (method!.Name == "TryGetDataAsync" && DelayedRead is not null) return ReadDelayedAsync(DelayedRead);
+            if (method!.Name == "SetDataAsync" && DelayedWrite is not null) return DelayedWrite;
+            if (method.Name == "TryGetDataAsync" && DelayedRead is not null) return ReadDelayedAsync(DelayedRead);
             try { return method.Invoke(Inner, args); }
             catch (TargetInvocationException error) { throw error.InnerException!; }
         }

@@ -31,7 +31,9 @@ internal sealed class PasswordDialogHost : IDisposable
         var dialog = new PasswordDialog(request);
         void OwnerClosed(object? sender, EventArgs args) => linked.Cancel();
         owner.Closed += OwnerClosed;
-        using var cancellation = linked.Token.Register(() => UiDispatch.Post(() => dialog.Close()));
+        Task close = Task.CompletedTask;
+        var cancellation = linked.Token.Register(() =>
+            close = UiDispatch.InvokeAsync(() => { if (dialog.IsVisible) dialog.Close(); }).GetTask());
         PasswordResponse? response = null;
         try
         {
@@ -48,7 +50,13 @@ internal sealed class PasswordDialogHost : IDisposable
             response = null;
             return result;
         }
-        finally { owner.Closed -= OwnerClosed; response?.Dispose(); }
+        finally
+        {
+            owner.Closed -= OwnerClosed;
+            response?.Dispose();
+            await cancellation.DisposeAsync();
+            await close;
+        }
     }
     public void Dispose() { lifetime.Cancel(); /* token registrations can still be unwinding */ }
 }

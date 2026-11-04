@@ -16,7 +16,8 @@ public sealed partial class WorkbenchAutomationService
     public bool IsBusy => InterpreterHostQueue.IsBusy;
 
     internal Task<T> RunAsync<T>(Func<WorkbenchExecutionPipeline, Task<T>> operation, CancellationToken token,
-        string requestIdentity = "local-host-operation") => RunGuiAsync(operation, token, requestIdentity);
+        string requestIdentity = "local-host-operation", Func<bool>? validateIntent = null, EditorCoordinator.OperationTicket? native = null) =>
+        RunGuiAsync(operation, token, requestIdentity, validateIntent, native);
 
     internal Task<ExecutionPresentation> ExecuteSubmissionAsync(string text, PasswordRequestHandler password,
         CancellationToken token = default, CryptoScriptRunner? testRunner = null,
@@ -62,21 +63,69 @@ public sealed partial class WorkbenchAutomationService
         return true;
     }
 
-    internal IReadOnlyList<VariableModel> Mutate(Action mutation,
-        Action<IReadOnlyList<VariableModel>>? present = null) => InterpreterHostQueue.RunState(() =>
+    internal bool InPresentationObserver => InterpreterHostQueue.InObservation;
+
+    internal void ObservePresentation(Action action)
     {
-        lock (sync) if (stopping) throw new ExecutionBusyException();
+        // Detached capture models have no subscribers. They are populated under
+        // the interpreter lease before first publication on the dispatcher.
+        if (editorBridge.Coordinator is { } owner && Avalonia.Threading.Dispatcher.UIThread.CheckAccess() &&
+            (editorBridge.Registered || owner.Pending != 0 || owner.Active))
+            owner.Observe(action, propagate: true);
+        else action();
+    }
+
+    internal long PresentationVersion
+    {
+        get { lock (sync) return active is { Effects: true } ? checked(version + 1) : version; }
+    }
+
+    internal long DraftRevision
+    {
+        get { lock (sync) return checked(InterpreterHostQueue.StateRevision + (active is { Effects: true } ? 1 : 0)); }
+    }
+
+    private void ValidateStateAccess(long? expectedVersion, Func<bool>? validate)
+    {
+        if (InPresentationObserver) throw new ExecutionBusyException();
+        lock (sync) if (stopping || epochClose != null || (expectedVersion.HasValue && expectedVersion != version)) throw new ExecutionBusyException();
+        if (editorBridge.Registered)
+        {
+            if (!Avalonia.Threading.Dispatcher.UIThread.CheckAccess()) throw new ExecutionBusyException();
+            var owner = EditorCoordinator;
+            if (!owner.CanStartGui && !(owner.Active && owner.Phase == EditorControlPhase.Gui && validate != null))
+                throw new ExecutionBusyException();
+        }
+        else if (GuiOwnsSlotOrDraining) throw new ExecutionBusyException();
         EnsureRecovered();
+        if (validate != null && !validate()) throw new ExecutionBusyException();
+    }
+
+    internal void ReadVariableValue(VariableDeclaration declaration, Func<bool> validate, Action<string> present) =>
+        InterpreterHostQueue.RunState(() =>
+        {
+            ValidateStateAccess(null, validate);
+            return declaration.Value;
+        }, present);
+
+    internal IReadOnlyList<VariableModel> Mutate(Action mutation,
+        Action<IReadOnlyList<VariableModel>>? present = null, long? expectedVersion = null,
+        Func<bool>? validate = null) => InterpreterHostQueue.RunState(() =>
+    {
+        ValidateStateAccess(expectedVersion, validate);
         IReadOnlyList<VariableModel> captured;
         try { mutation(); }
         finally { AdvanceVersion(); captured = CaptureMutation(); }
         return captured;
     }, present);
 
-    internal static IReadOnlyList<VariableModel> ClearAdmitted() => InterpreterExecution.AccessState(() =>
+    internal static IReadOnlyList<VariableModel> ClearAdmitted() => Shared.ClearAdmittedState();
+
+    internal IReadOnlyList<VariableModel> ClearAdmittedState() => InterpreterExecution.AccessState(() =>
     {
+        var job = current.Value ?? throw new ExecutionBusyException();
         VariableDictionary.Instance().Clear();
-        Shared.AdvanceVersion();
-        return Shared.CaptureMutation();
+        lock (sync) job.Effects = true;
+        return CaptureMutation();
     });
 }

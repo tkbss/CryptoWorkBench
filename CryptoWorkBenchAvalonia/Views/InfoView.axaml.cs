@@ -11,12 +11,16 @@ namespace CryptoWorkBenchAvalonia.Views;
 public partial class InfoView : UserControl
 {
     private ICommand? _defaultHyperlinkCommand;
+    private object? _linkContext;
+    private bool _detached;
 
     public InfoView()
     {
         InitializeComponent();
         InfoMarkdownViewer.DataContextChanged += OnMarkdownDataContextChanged;
         ConfigureHyperlinkCommand();
+        AttachedToVisualTree += (_, _) => { _detached = false; ConfigureHyperlinkCommand(); };
+        DetachedFromVisualTree += (_, _) => { _detached = true; _linkContext = null; };
     }
 
     private void OnMarkdownDataContextChanged(object? sender, EventArgs e) =>
@@ -24,24 +28,27 @@ public partial class InfoView : UserControl
 
     private void ConfigureHyperlinkCommand()
     {
-        if (InfoMarkdownViewer.Engine is not global::Markdown.Avalonia.Markdown markdown)
+        if (_detached || InfoMarkdownViewer.Engine is not global::Markdown.Avalonia.Markdown markdown)
             return;
 
+        var context = _linkContext = new object();
         _defaultHyperlinkCommand ??= markdown.HyperlinkCommand;
-        markdown.HyperlinkCommand = InfoMarkdownViewer.DataContext is InfoViewModel viewModel
-            ? new InfoHyperlinkCommand(viewModel.OpenInfoLinkCommand, _defaultHyperlinkCommand)
-            : _defaultHyperlinkCommand;
+        var dataContext = InfoMarkdownViewer.DataContext;
+        markdown.HyperlinkCommand = new InfoHyperlinkCommand(dataContext as InfoViewModel, _defaultHyperlinkCommand,
+            () => ReferenceEquals(_linkContext, context) && ReferenceEquals(InfoMarkdownViewer.DataContext, dataContext));
     }
 
     private sealed class InfoHyperlinkCommand : ICommand
     {
         private const string InternalSchemePrefix = "cryptoscript-info:";
-        private readonly ICommand _internalCommand;
+        private readonly InfoViewModel? _viewModel;
+        private readonly Func<bool> _current;
         private readonly ICommand? _defaultCommand;
 
-        public InfoHyperlinkCommand(ICommand internalCommand, ICommand? defaultCommand)
+        public InfoHyperlinkCommand(InfoViewModel? viewModel, ICommand? defaultCommand, Func<bool> current)
         {
-            _internalCommand = internalCommand;
+            _viewModel = viewModel;
+            _current = current;
             _defaultCommand = defaultCommand;
         }
 
@@ -51,14 +58,15 @@ public partial class InfoView : UserControl
             remove { }
         }
 
-        public bool CanExecute(object? parameter) => IsInternal(parameter)
-            ? _internalCommand.CanExecute(parameter)
-            : _defaultCommand?.CanExecute(parameter) == true;
+        public bool CanExecute(object? parameter) => _current() && (_viewModel != null && IsInternal(parameter)
+            ? _viewModel.OpenInfoLinkCommand.CanExecute((string)parameter!)
+            : _defaultCommand?.CanExecute(parameter) == true);
 
         public void Execute(object? parameter)
         {
-            if (IsInternal(parameter))
-                _internalCommand.Execute(parameter);
+            if (!_current()) return;
+            if (_viewModel != null && IsInternal(parameter))
+                _viewModel.Publish(() => _viewModel.OpenInfoLinkCommand.Execute((string)parameter!));
             else if (_defaultCommand?.CanExecute(parameter) == true)
                 _defaultCommand.Execute(parameter);
         }

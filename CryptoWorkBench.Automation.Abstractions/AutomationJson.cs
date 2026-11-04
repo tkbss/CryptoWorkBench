@@ -59,10 +59,20 @@ public static class AutomationJson
             foreach (var item in node.EnumerateArray()) CheckInput(item);
     }
     internal static JsonException Invalid() => new("Invalid automation contract.");
-    public static void Validate(object value)
+    public static void Validate(object value) => ValidateValue(value, value is IContractV2);
+
+    // The two lease-less legacy DTOs have the same remaining fields as their v2 counterparts.
+    public static void ValidateUnleasedV2(EditorEdit edit) => ValidateValue(edit, true);
+    public static void ValidateUnleasedV2(EditorExecution execution) => ValidateValue(execution, true);
+
+    private static void ValidateValue(object value, bool v2)
     {
         if (value is null) throw Invalid();
+        if (value is IContractV2 contract && contract.ContractVersion != "2") throw Invalid();
         var type = value.GetType();
+        if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(ResultV2<>) ||
+            type.GetGenericTypeDefinition() == typeof(LeaseReplyV2<>)) &&
+            ((type.GetProperty("Result")!.GetValue(value) is null) == (type.GetProperty("Error")!.GetValue(value) is null))) throw Invalid();
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Reply<>))
         {
             var ok = (bool)type.GetProperty("Ok")!.GetValue(value)!;
@@ -79,6 +89,13 @@ public static class AutomationJson
                 if (new NullabilityInfoContext().Create(property).ReadState == NullabilityState.NotNull) throw Invalid();
                 continue;
             }
+            if ((value is IRequestV2 || (v2 && value is EditorEdit or EditorExecution)) && item is Guid id && id == Guid.Empty) throw Invalid();
+            bool leaseVersion = property.Name is "ExpectedLeaseVersion" or "LeaseVersion" or "InputLeaseVersion";
+            bool revisionField = property.Name is "Revision" or "ExpectedRevision" or "PreviousRevision" or "SourceRevision" or
+                "ObservedRevision" or "ExpectedStateVersion" or "StateVersion";
+            if (v2 && (leaseVersion || revisionField) &&
+                (item is not string number || !ulong.TryParse(number, NumberStyles.None, CultureInfo.InvariantCulture, out var n) ||
+                 n.ToString(CultureInfo.InvariantCulture) != number || (leaseVersion && n == 0))) throw Invalid();
             if (property.Name is "Revision" or "ExpectedRevision" or "PreviousRevision" or "SourceRevision" or "StateVersion" or "ExpectedStateVersion")
                 if (item is not string revision || revision.Length == 0 || revision.Any(c => c < '0' || c > '9')) throw Invalid();
             if (property.Name == "Text" && value is EditorEdit or EditorSnapshot or TextExecution && ((string)item).Length > AutomationContracts.MaxTextLength) throw Invalid();
@@ -95,15 +112,27 @@ public static class AutomationJson
                 foreach (var entry in sequence)
                 {
                     if (++count > AutomationContracts.MaxCollectionEntries || entry is null) throw Invalid();
-                    if (entry.GetType().Namespace == typeof(AutomationJson).Namespace && !entry.GetType().IsEnum) Validate(entry);
+                    if (entry.GetType().Namespace == typeof(AutomationJson).Namespace && !entry.GetType().IsEnum) ValidateValue(entry, v2);
                 }
             }
-            else if (item.GetType().Namespace == typeof(AutomationJson).Namespace && !item.GetType().IsEnum) Validate(item);
+            else if (item.GetType().Namespace == typeof(AutomationJson).Namespace && !item.GetType().IsEnum) ValidateValue(item, v2);
         }
         switch (value)
         {
+            case SafeError safe when safe != SafeError.From(safe.Code): throw Invalid();
+            case EditorEditV2 e when e.Text.Length > AutomationContracts.MaxTextLength ||
+                (e.Mode == EditorEditMode.Insert) != e.Offset.HasValue || e.Offset is < 0 or > AutomationContracts.MaxTextLength: throw Invalid();
+            case EditorMutationReceiptV2 r when r.RetryPolicy != RetryPolicy.NoAutomaticRetry ||
+                (r.HistoryEffect == HistoryEffect.Indeterminate && r.Finalization != Finalization.Faulted) ||
+                ((r.Finalization == Finalization.Faulted || r.TextEffect is TextEffect.Partial or TextEffect.Indeterminate) && r.Error == null) ||
+                (r.RequiresStateRefresh != (r.Error != null)) ||
+                (r.Error?.Code is AutomationErrorCode.Busy or AutomationErrorCode.RevisionConflict &&
+                    (r.TextEffect != TextEffect.None || r.HistoryEffect != HistoryEffect.None || r.Finalization != Finalization.Complete)) ||
+                (r.Error == null && !((r.TextEffect == TextEffect.None && r.HistoryEffect == HistoryEffect.None) ||
+                    (r.TextEffect == TextEffect.Applied && r.HistoryEffect == HistoryEffect.Applied && r.ObservedRevision != null))): throw Invalid();
             case EditorEdit edit:
-                if ((edit.Mode == EditorEditMode.Insert) != edit.Offset.HasValue || edit.Offset < 0) throw Invalid();
+                if ((edit.Mode == EditorEditMode.Insert) != edit.Offset.HasValue || edit.Offset < 0 ||
+                    (v2 && edit.Offset > AutomationContracts.MaxTextLength)) throw Invalid();
                 break;
             case EditorSnapshot editor when editor.Length != editor.Text.Length: throw Invalid();
             case VariableInfo variable when variable.ValueIncluded || variable.KeySizeBits < 0: throw Invalid();

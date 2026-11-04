@@ -1,4 +1,4 @@
-﻿using CryptoWorkBenchAvalonia.Services;
+using CryptoWorkBenchAvalonia.Services;
 using Prism.Commands;
 using Prism.Ioc;
 using Prism.Mvvm;
@@ -6,7 +6,7 @@ using Prism.Navigation.Regions;
 
 namespace CryptoWorkBenchAvalonia.ViewModels;
 
-public partial class MainViewModel : BindableBase, INavigationAware
+public partial class MainViewModel : WorkbenchBindable, INavigationAware
 {
     private readonly IHistoryService? _historyService;
     public DelegateCommand InfoHistoryBackCommand { get; }

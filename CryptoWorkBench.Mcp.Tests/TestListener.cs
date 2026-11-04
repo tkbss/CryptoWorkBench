@@ -15,7 +15,8 @@ internal sealed class TestListener : IAsyncDisposable
     public System.Collections.Concurrent.ConcurrentQueue<string> ProtocolVersions { get; }
     private TestListener(WebApplication application, FakeAutomationService service, System.Collections.Concurrent.ConcurrentQueue<string> versions, CapturedLogs logs)
     { app = application; Service = service; ProtocolVersions = versions; Logs = logs; Endpoint = new Uri(app.Urls.Single() + "/mcp"); }
-    public static async Task<TestListener> StartAsync(FakeAutomationService? service = null, bool normalizeParseErrors = true)
+    public static async Task<TestListener> StartAsync(FakeAutomationService? service = null, bool normalizeParseErrors = true,
+        Action<IServiceCollection>? configureTools = null)
     {
         service ??= new();
         var builder = WebApplication.CreateSlimBuilder(new WebApplicationOptions { Args = [], EnvironmentName = "Testing" });
@@ -27,13 +28,18 @@ internal sealed class TestListener : IAsyncDisposable
         });
         var logs = new CapturedLogs();
         builder.Logging.ClearProviders().AddProvider(logs);
-        builder.Services.AddWorkbenchStatusProbe(service, () => FakeAutomationService.Caller);
+        if (configureTools == null) builder.Services.AddWorkbenchStatusProbe(service, () => FakeAutomationService.Caller);
+        else configureTools(builder.Services);
         var app = builder.Build();
         var versions = new System.Collections.Concurrent.ConcurrentQueue<string>();
         app.Use((context, next) => { versions.Enqueue(context.Request.Headers["MCP-Protocol-Version"].ToString()); return next(context); });
         app.UseRouting();
-        if (normalizeParseErrors) app.UseSafeMcpParseErrors();
-        app.MapMcp("/mcp").WithMetadata(new McpParseErrorProtectionMetadata());
+        if (normalizeParseErrors && configureTools != null) app.MapWorkbenchV2("/mcp");
+        else
+        {
+            if (normalizeParseErrors) app.UseSafeMcpParseErrors();
+            app.MapMcp("/mcp").WithMetadata(new McpParseErrorProtectionMetadata());
+        }
         try { await app.StartAsync(); return new(app, service, versions, logs); }
         catch { await app.DisposeAsync(); throw; }
     }

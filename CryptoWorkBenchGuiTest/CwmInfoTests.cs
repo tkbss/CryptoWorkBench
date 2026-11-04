@@ -11,8 +11,10 @@ public class CwmInfoTests
     [TestCase("junk", "true")] [TestCase("True", "true")]
     [TestCase("false", "false")] [TestCase("true", "true")]
     [NonParallelizable]
-    public void ValEditingPreservesBooleanDomain(string edit, string expected)
+    public Task ValEditingPreservesBooleanDomain(string edit, string expected) => GuiTestSession.Session.Dispatch(() =>
     {
+        var service = CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared;
+        var registration = service.AttachEditor(new CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor(), null!)!;
         var dictionary = CryptoScript.Variables.VariableDictionary.Instance();
         CryptoScript.Variables.VariableDeclaration[] previous;
         using (InterpreterExecution.Enter())
@@ -34,11 +36,13 @@ public class CwmInfoTests
         }
         finally
         {
+            service.DetachEditor(registration);
             using var cleanupLease = InterpreterExecution.Enter();
             dictionary.Clear();
             foreach (var value in previous) dictionary.Add(value);
         }
-    }
+        return true;
+    }, CancellationToken.None);
 
     [TestCase("MacPack")] [TestCase("MacVerify")]
     public void CompletionOverlayAndDeployedHelp(string function)

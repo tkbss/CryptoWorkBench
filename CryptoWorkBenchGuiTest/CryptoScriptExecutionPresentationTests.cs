@@ -8,6 +8,7 @@ using CryptoWorkBenchAvalonia.ViewModels;
 using NUnit.Framework;
 using Avalonia;
 using Avalonia.Headless;
+using Avalonia.Controls;
 using Avalonia.Input;
 using AvaloniaEdit;
 using CryptoWorkBenchAvalonia;
@@ -44,7 +45,6 @@ public class CryptoScriptExecutionPresentationTests
     public void TearDown()
     {
         editor.Dispose();
-        OutputOperations.InfoEvent -= Handler(editor, "OnInfoEvent");
         VariableDictionary.Instance().Clear();
         foreach (var variable in previous) VariableDictionary.Instance().Add(variable);
         SyntaxErrorListner.SyntaxErrorOccured = previousSyntaxFlag;
@@ -52,10 +52,6 @@ public class CryptoScriptExecutionPresentationTests
         SyntaxErrorList.Instance().Clear();
         SyntaxErrorList.Instance().AddRange(previousSyntaxErrors);
     }
-
-    internal static Action<string> Handler(object target, string name) =>
-        (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), target,
-            target.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!);
 
     internal static CryptoScriptRunner ControlledRunner(Action<FunctionCall, ISemanticDiagnosticSink> action) =>
         (CryptoScriptRunner)Activator.CreateInstance(typeof(CryptoScriptRunner),
@@ -202,19 +198,15 @@ public class CryptoScriptExecutionPresentationTests
         var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
-            var textEditor = new TextEditor();
-            editor.TextEditor = textEditor;
-            // Exercise the actual view input handler without unrelated XAML/navigation setup.
-            var view = (CryptoScriptEditView)RuntimeHelpers.GetUninitializedObject(typeof(CryptoScriptEditView));
-            typeof(CryptoScriptEditView).GetField("_textEditor", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, textEditor);
-            typeof(CryptoScriptEditView).GetField("_viewModel", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(view, editor);
-            var entering = typeof(CryptoScriptEditView).GetMethod("textEditor_TextArea_TextEntering", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var view = new CryptoScriptEditView(editor);
+            var window = new Window { Content = view };
+            window.Show();
+            var textEditor = view.FindControl<TextEditor>("Editor")!;
             async Task Enter(string script)
             {
                 textEditor.Document.Insert(textEditor.Document.TextLength, script);
                 textEditor.TextArea.Caret.Offset = textEditor.Document.TextLength;
-                entering.Invoke(view, new object[] { textEditor.TextArea, new TextInputEventArgs { Text = newline } });
-                textEditor.Document.Insert(textEditor.Document.TextLength, newline);
+                textEditor.TextArea.PerformTextInput(newline);
                 await view.PendingExecution;
             }
 
@@ -248,7 +240,7 @@ public class CryptoScriptExecutionPresentationTests
                 Assert.That(lines, Is.All.Not.Empty);
                 Assert.That(textEditor.Document.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries), Is.EqualTo(lines));
             }
-            finally { if (File.Exists(path)) File.Delete(path); }
+            finally { window.Close(); if (File.Exists(path)) File.Delete(path); }
             return true;
         }, CancellationToken.None);
     }
@@ -509,6 +501,23 @@ public class CryptoScriptExecutionPresentationTests
     }
 
     [Test]
+    public async Task AnotherEditorDoesNotReceiveThisJobsPrintOrInfo()
+    {
+        await GuiTestSession.Session.Dispatch(async () =>
+        {
+            using var info = new InfoViewModel();
+            using var other = new CryptoScriptEditViewModel(new(), new(), info, new(), null!, new HistoryService());
+            other.PrintMessage = "untouched";
+            var beforeInfo = info.InfoText;
+            await editor.ParseLineAsync("Print(0x(AB)) Info(Print)");
+            Assert.That(editor.PrintMessage, Does.Contain("out:"));
+            Assert.That(other.PrintMessage, Is.EqualTo("untouched"));
+            Assert.That(info.InfoText, Is.EqualTo(beforeInfo));
+            return true;
+        }, CancellationToken.None);
+    }
+
+    [Test]
     public async Task PrintOutputIsUnchanged()
     {
         var session = GuiTestSession.Session;
@@ -536,8 +545,6 @@ public class CryptoScriptExecutionPresentationTests
         var session = GuiTestSession.Session;
         await session.Dispatch(async () =>
         {
-            // Detach the editor's info handler: this test concerns KeyMap, not region navigation.
-            OutputOperations.InfoEvent -= Handler(editor, "OnInfoEvent");
             status.AppendDiagnostics(new[] { Warning("interactive warning") });
             var prior = status.Diagnostics[0];
             var keyMap = new KeyMapViewModel(status);
@@ -551,7 +558,7 @@ public class CryptoScriptExecutionPresentationTests
                 Assert.That(status.Diagnostics, Has.Count.EqualTo(2));
                 Assert.That(status.Diagnostics[1].Text, Is.EqualTo(SemanticDiagnosticFormatter.Format(warning)));
             }
-            finally { OutputOperations.InfoEvent -= Handler(keyMap, "OnInfoEvent"); }
+            finally { keyMap.Dispose(); }
 
             return true;
         }, CancellationToken.None);

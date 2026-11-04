@@ -34,9 +34,17 @@ public class WorkbenchReviewRegressionTests
         foreach (var variable in previous) Dictionary.Add(variable);
     }
 
+    private Task WithEditor(Action test) => GuiTestSession.Session.Dispatch(() =>
+    {
+        var registration = service.AttachEditor(new CryptoWorkBenchAvalonia.Controls.WorkbenchTextEditor(), null!)!;
+        try { test(); }
+        finally { service.DetachEditor(registration); }
+        return true;
+    }, CancellationToken.None);
+
     [TestCase(false)]
     [TestCase(true)]
-    public void RealSelectedMutationIsBusyUntilOuterMutationOrSetupPresentationCompletes(bool setup)
+    public Task RealSelectedMutationIsBusyUntilOuterMutationOrSetupPresentationCompletes(bool setup) => WithEditor(() =>
     {
         Dictionary.Add(new StringVariableDeclaration { Id = "expected", Value = "0x(01)" });
         var main = new VariableViewModel(); var other = new VariableViewModel();
@@ -53,7 +61,8 @@ public class WorkbenchReviewRegressionTests
             Assert.That(service.IsBusy, Is.True);
             // This is the actual selected-entry command, not the null shortcut.
             other.ModifyValueCommand.Execute(other.SelectedVariable);
-            Assert.Throws<ExecutionBusyException>(() => other.SetupVariables());
+            other.SetupVariables();
+            Assert.That(other.IsSnapshotStale, Is.True);
             Assert.Throws<ExecutionBusyException>(() => service.Mutate(() =>
                 Dictionary.Get("expected").Value = "0x(EE)"));
         };
@@ -70,15 +79,20 @@ public class WorkbenchReviewRegressionTests
         Assert.That(main.DataVariables.Single().Value, Is.EqualTo(expected));
         Assert.That(main.IsSnapshotStale, Is.False);
         Assert.That(service.IsBusy, Is.False);
-        // The same command is accepted after the outer presentation ends.
+        // A stale draft cannot acquire the new state version after Busy.
+        other.ModifyValueCommand.Execute(other.SelectedVariable);
+        Assert.That(Dictionary.Get("expected").Value, Is.EqualTo(expected));
+        other.SetupVariables();
+        other.SelectedVariable = other.DataVariables.Single();
+        other.SelectedVariable.Value = "0x(FF)";
         other.ModifyValueCommand.Execute(other.SelectedVariable);
         Assert.That(Dictionary.Get("expected").Value, Is.EqualTo("0x(FF)"));
         Assert.That(other.DataVariables.Single().Value, Is.EqualTo("0x(FF)"));
-    }
+    });
 
     [TestCase(false)]
     [TestCase(true)]
-    public void ThrowingMutationOrSetupPresentationPreservesExceptionAndReleasesAdmission(bool setup)
+    public Task ThrowingMutationOrSetupPresentationPreservesExceptionAndReleasesAdmission(bool setup) => WithEditor(() =>
     {
         Dictionary.Add(new StringVariableDeclaration { Id = "expected", Value = "0x(01)" });
         var variables = new VariableViewModel(); variables.SetupVariables();
@@ -110,7 +124,7 @@ public class WorkbenchReviewRegressionTests
         variables.ModifyValueCommand.Execute(variables.SelectedVariable);
         Assert.That(Dictionary.Get("expected").Value, Is.EqualTo("0x(03)"));
         Assert.That(variables.IsSnapshotStale, Is.False);
-    }
+    });
 
     private sealed record Scenario(string Script, bool Succeeded, bool Effects, int Diagnostics,
         int Outputs, string Status, bool Syntax = false);

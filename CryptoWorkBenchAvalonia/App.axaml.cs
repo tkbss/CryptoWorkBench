@@ -15,6 +15,7 @@ namespace CryptoWorkBenchAvalonia;
 
 public partial class App : PrismApplication
 {
+    internal System.Func<MainWindow, Services.Automation.WorkbenchAutomationService, System.Func<System.Threading.Tasks.Task>>? ConfigureDesktopMcp { get; init; }
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -36,8 +37,56 @@ public partial class App : PrismApplication
     protected override AvaloniaObject CreateShell()
     {
         var window = Container.Resolve<MainWindow>();
+        var service = Container.Resolve<CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService>();
+        CoordinateClosing(window, service, ConfigureDesktopMcp?.Invoke(window, service));
         window.Closed += (_, _) => Container.Resolve<CryptoScriptEditViewModel>().Dispose();
         return window;
+    }
+
+    internal static void CoordinateClosing(Avalonia.Controls.Window window, Services.Automation.WorkbenchAutomationService service,
+        System.Func<System.Threading.Tasks.Task>? stopTransport = null,
+        System.Action<string>? reportShutdown = null)
+    {
+        reportShutdown ??= message => window.Title = message;
+        bool draining = false;
+        bool ready = false;
+        window.Closing += async (_, args) =>
+        {
+            if (ready) return;
+            args.Cancel = true;
+            if (draining) return;
+            draining = true;
+            using var notification = new System.Threading.CancellationTokenSource();
+            async System.Threading.Tasks.Task NotifyWaiting()
+            {
+                try
+                {
+                    await System.Threading.Tasks.Task.Delay(System.TimeSpan.FromSeconds(5), notification.Token);
+                    reportShutdown("CryptoWorkBench — waiting for pending work before closing");
+                }
+                catch (System.OperationCanceledException) when (notification.IsCancellationRequested) { }
+            }
+            var notice = NotifyWaiting();
+            try
+            {
+                service.BeginShutdown();
+                if (stopTransport != null) await stopTransport();
+                await service.DrainForExitAsync();
+            }
+            catch (System.Exception)
+            {
+                reportShutdown("CryptoWorkBench — safe shutdown failed; pending work remains protected");
+                draining = false;
+                return;
+            }
+            finally
+            {
+                notification.Cancel();
+                await notice;
+            }
+            // Close after the original Closing event has unwound, even for an idle workspace.
+            UiDispatch.Post(() => { ready = true; window.Close(); });
+        };
     }
 
     protected override void OnInitialized()
@@ -47,6 +96,7 @@ public partial class App : PrismApplication
             {
                 Container.Resolve<CryptoScriptEditViewModel>().Dispose();
                 Container.Resolve<KeyMapViewModel>().Dispose();
+                Container.Resolve<InfoViewModel>().Dispose();
             };
         var regionManager = Container.Resolve<IRegionManager>();
         regionManager.RegisterViewWithRegion(RegionNames.InfoRegion, typeof(InfoView));
@@ -65,6 +115,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IInfoDocumentationProvider, FileInfoDocumentationProvider>();
 
         containerRegistry.RegisterInstance(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
+        containerRegistry.RegisterInstance<CryptoWorkBench.Automation.Abstractions.IWorkbenchAutomationV2>(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
         containerRegistry.RegisterInstance<CryptoWorkBench.Automation.Abstractions.IWorkbenchAutomationService>(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.Shared);
         containerRegistry.RegisterSingleton<MainViewModel>();
         containerRegistry.RegisterSingleton<InfoViewModel>();
