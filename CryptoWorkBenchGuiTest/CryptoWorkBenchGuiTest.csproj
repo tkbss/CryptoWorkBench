@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj" />
-    <ProjectReference Include="..\CryptoWorkBenchConsole\CryptoWorkBenchConsole.csproj" />
     <ProjectReference Include="..\CryptoWorkBench.Mcp\CryptoWorkBench.Mcp.csproj" />
   </ItemGroup>
 

@@ -619,12 +619,6 @@
           "UVtools.AvaloniaControls": "[5.2.0, )"
         }
       },
-      "cryptoworkbenchconsole": {
-        "type": "Project",
-        "dependencies": {
-          "CryptoScript": "[1.0.0, )"
-        }
-      },
       "prism.avalonia": {
         "type": "Project",
         "dependencies": {
