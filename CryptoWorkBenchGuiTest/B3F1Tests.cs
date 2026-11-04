@@ -194,7 +194,7 @@ public class B3F1Tests
     public Task JobReadsRespectGrantsFromFirstReplyThroughTombstone() => Ui(async () =>
     {
         var clock = new WorkbenchRegistryTests.ManualClock();
-        await using var h = new Host("Print(0x(01))", new WorkbenchAutomationService(clock));
+        await using var h = new Host("Print(0x(01))", new WorkbenchAutomationService(clock) { LeaseMilliseconds = () => 1_000UL });
         var owner = Activate(h);
         var limited = h.Service.IssueCredential(owner.PrincipalId, owner.Permissions.Remove(AutomationPermissions.ExecutionRead)
             .Remove(AutomationPermissions.VariablesMetadataRead));

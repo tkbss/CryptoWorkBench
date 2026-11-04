@@ -76,6 +76,24 @@ public class NativeEnterContinuationTests
     private static async Task Ui(Func<Task> test) =>
         await GuiTestSession.Session.Dispatch(async () => { await test(); return true; }, CancellationToken.None);
 
+    [TestCase("\n")]
+    [TestCase("\r\n")]
+    public Task NativeEnterPreservesExistingDocumentNewLine(string newLine) => Ui(async () =>
+    {
+        await using var h = new Host(false);
+        string seed = "Print(0x(22))" + newLine + "Print(0x(11))";
+        h.Editor.Text = seed;
+        h.Editor.CaretOffset = seed.Length;
+        h.Key();
+        Assert.That(h.Editor.Text, Is.EqualTo(seed + newLine));
+        Assert.That(h.Coordinator.LastReceipt!.Error, Is.Null);
+        ApplicationCommands.Undo.Execute(null, h.Area);
+        Assert.That(h.Editor.Text, Is.EqualTo(seed));
+        ApplicationCommands.Redo.Execute(null, h.Area);
+        Assert.That(h.Editor.Text, Is.EqualTo(seed + newLine));
+        h.AssertClosed();
+    });
+
     [TestCase(false)]
     [TestCase(true)]
     public Task DiscardedReturnDoesNotPublishOrExecute(bool changeText) => Ui(async () =>
@@ -185,7 +203,7 @@ public class NativeEnterContinuationTests
             Assert.That(h.Coordinator.IsActiveGuiOperation(original!), Is.False);
             h.Area.PerformTextInput("\n");
         });
-        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))\r\n"));
+        Assert.That(h.Editor.Text, Is.EqualTo(("Print(0x(11))" + Environment.NewLine)));
         Assert.That((h.Entering, h.Entered, h.Changes, h.HistoryCount), Is.EqualTo((1, 1, 1, 0)));
         h.AssertClosed();
     });
@@ -208,7 +226,7 @@ public class NativeEnterContinuationTests
         Assert.That(tickets, Has.Count.EqualTo(3));
         Assert.That(tickets.All(t => ReferenceEquals(t, tickets[0])), Is.True);
         Assert.That((h.Entering, h.Entered, h.Changes), Is.EqualTo((1, 1, 1)));
-        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))\r\n"));
+        Assert.That(h.Editor.Text, Is.EqualTo(("Print(0x(11))" + Environment.NewLine)));
         var receipt = await tickets[0].Completion;
         Assert.That((receipt.TextEffect, receipt.HistoryEffect, receipt.Finalization, receipt.Error),
             Is.EqualTo((EditorTextEffect.Applied, EditorHistoryEffect.Applied, EditorFinalization.Complete, (EditorOperationError?)null)));
@@ -216,7 +234,7 @@ public class NativeEnterContinuationTests
         Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))"));
         Assert.That(h.Editor.Document.UndoStack.CanUndo, Is.False);
         ApplicationCommands.Redo.Execute(null, h.Area);
-        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))\r\n"));
+        Assert.That(h.Editor.Text, Is.EqualTo(("Print(0x(11))" + Environment.NewLine)));
         h.AssertClosed();
     });
 
@@ -254,7 +272,7 @@ public class NativeEnterContinuationTests
         }
         h.Key();
         Assert.That(attempts, Is.GreaterThan(0));
-        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))\r\n"));
+        Assert.That(h.Editor.Text, Is.EqualTo(("Print(0x(11))" + Environment.NewLine)));
         Assert.That((h.Entering, h.Entered, h.Changes, h.HistoryCount), Is.EqualTo((1, 1, 1, 0)));
         h.AssertClosed();
     });
@@ -296,7 +314,7 @@ public class NativeEnterContinuationTests
         Assert.That(h.Coordinator.LastReceipt, Is.Null);
         h.AssertClosed();
         h.Key();
-        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))\r\n"));
+        Assert.That(h.Editor.Text, Is.EqualTo(("Print(0x(11))" + Environment.NewLine)));
         Assert.That((h.Entering, h.Entered, h.Changes, h.HistoryCount), Is.EqualTo((1, 1, 1, 0)));
         h.AssertClosed();
     });
@@ -336,7 +354,7 @@ public class NativeEnterContinuationTests
         });
         h.Key();
         Assert.That(h.Editor.Document, Is.SameAs(original));
-        Assert.That(h.Editor.Text, Is.EqualTo("Print(0x(11))\r\n"));
+        Assert.That(h.Editor.Text, Is.EqualTo(("Print(0x(11))" + Environment.NewLine)));
         Assert.That(next.Text, Is.EqualTo("successor"));
         Assert.That(h.HistoryCount, Is.Zero);
         Assert.That(h.Coordinator.LastReceipt!.Error, Is.EqualTo(EditorOperationError.CallbackFailed));
@@ -377,7 +395,7 @@ public class NativeEnterContinuationTests
             case "entered": h.Area.TextEntered += (_, _) => Fail(); break;
         }
         h.Key();
-        Assert.That(h.Editor.Text, Is.EqualTo(changed ? "Print(0x(11))\r\n" : "Print(0x(11))"));
+        Assert.That(h.Editor.Text, Is.EqualTo(changed ? ("Print(0x(11))" + Environment.NewLine) : "Print(0x(11))"));
         var before = h.Editor.Text;
         h.Area.PerformTextInput("FOREIGN"); h.Key();
         Assert.That(h.Editor.Text, Is.EqualTo(before));

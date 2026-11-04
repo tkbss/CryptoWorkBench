@@ -151,7 +151,7 @@ public class B3F2Tests
     public Task JobIdsAreScopedToAuthenticatedHistory(string grant) => Ui(async () =>
     {
         var clock = new WorkbenchRegistryTests.ManualClock();
-        await using var h = new Host("Print(0x(01))", new WorkbenchAutomationService(clock));
+        await using var h = new Host("Print(0x(01))", new WorkbenchAutomationService(clock) { LeaseMilliseconds = () => 1_000UL });
         var s = h.Service;
         s.ActivateMcp();
         var all = WorkbenchAutomationService.LocalCaller.Permissions.Add(AutomationPermissions.EditorControl);

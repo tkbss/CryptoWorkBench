@@ -755,6 +755,24 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             foreach (var job in jobs.Values.ToArray()) Expire(job);
     }
     public void DisableMcp() { lock (sync) RevokeMcpCore(); }
+    internal Task DisableMcpAndDrainAsync()
+    {
+        Task close;
+        lock (sync)
+        {
+            RevokeMcpCore();
+            // Capture this epoch's completion while still under the admission lock.
+            close = epochClose?.Task ?? Task.CompletedTask;
+        }
+        return CertifyGuiReturnAsync(close);
+    }
+    private async Task CertifyGuiReturnAsync(Task close)
+    {
+        await close.ConfigureAwait(false);
+        // A quiescent native fault may complete epoch cleanup without restoring GUI ownership.
+        if (!await OnEditorUiAsync(() => !IsStopping && editorBridge.Coordinator?.Phase == EditorControlPhase.Gui))
+            throw new InvalidOperationException("Editor return could not be certified.");
+    }
     private void RevokeMcpCore()
     {
         bool wasActive = epoch.HasValue;

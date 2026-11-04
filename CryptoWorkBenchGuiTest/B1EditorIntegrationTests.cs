@@ -41,7 +41,9 @@ public class B1EditorIntegrationTests
 
         internal Host(string text, WorkbenchAutomationService? service = null)
         {
-            Service = service ?? new();
+            // Lease integration scenarios need a supported deterministic test clock on every OS.
+            // Explicitly supplied services retain their production or fault-injection clock.
+            Service = service ?? new() { LeaseMilliseconds = () => 1_000UL };
             Editor.Text = text;
             Registration = Service.AttachEditor(Editor, null!)!;
             Window = new Window { Content = Editor, Width = 800, Height = 400 };

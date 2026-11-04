@@ -14,10 +14,12 @@ namespace CryptoWorkBench.Mcp;
 // original credential. No listener, pairing endpoint or default principal.
 public static class WorkbenchToolsV2
 {
+    private sealed record Catalog(IReadOnlyList<McpServerTool> Tools);
     public static IMcpServerBuilder AddWorkbenchV2(this IServiceCollection services, IWorkbenchAutomationV2 service,
         Func<RequestContext<CallToolRequestParams>, AutomationCaller> authenticatedCaller)
     {
         var catalog = Create(service, authenticatedCaller);
+        services.AddSingleton(new Catalog(catalog));
         return services.AddMcpServer().WithHttpTransport(options =>
         {
             options.SessionMode = HttpServerSessionMode.Stateless;
@@ -44,7 +46,10 @@ public static class WorkbenchToolsV2
     public static void MapWorkbenchV2(this WebApplication app, string pattern)
     {
         app.UseSafeMcpParseErrors();
-        app.MapMcp(pattern).WithMetadata(new McpParseErrorProtectionMetadata());
+        app.MapMcp(pattern).WithMetadata(new McpParseErrorProtectionMetadata
+        {
+            ToolNames = app.Services.GetService<Catalog>()?.Tools.Select(tool => tool.ProtocolTool.Name).ToHashSet(StringComparer.Ordinal)
+        });
     }
 
     private static IReadOnlyList<McpServerTool> Create(IWorkbenchAutomationV2 service, Func<RequestContext<CallToolRequestParams>, AutomationCaller> authenticatedCaller)

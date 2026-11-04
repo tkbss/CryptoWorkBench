@@ -11,7 +11,10 @@ using Microsoft.AspNetCore.Http;
 namespace CryptoWorkBench.Mcp;
 
 /// <summary>Attach to the MCP endpoint; install the middleware after UseRouting.</summary>
-public sealed class McpParseErrorProtectionMetadata;
+public sealed class McpParseErrorProtectionMetadata
+{
+    public IReadOnlySet<string>? ToolNames { get; init; }
+}
 
 /// <summary>Suppresses input-derived parser details in SDK HTTP 400 responses for marked endpoints.
 /// Install after UseRouting so protection follows endpoint selection, including route aliases.
@@ -51,6 +54,12 @@ public static class SafeMcpParseErrors
     {
         if (context.GetEndpoint()?.Metadata.GetMetadata<McpParseErrorProtectionMetadata>() is null)
         { await next(context); return; }
+        var versions = context.Request.Headers["MCP-Protocol-Version"];
+        if (versions.Count > 1 || versions.Count == 1 && !SupportedVersion(versions[0]))
+        {
+            await InvalidTransportAsync(context);
+            return;
+        }
         var input = context.Request.Body;
         using var replay = new MemoryStream();
         if (HttpMethods.IsPost(context.Request.Method))
@@ -129,6 +138,42 @@ public static class SafeMcpParseErrors
             bool toolCall = TryIdentifyToolCall(root, out var id, out var parameters);
             if (error == 0)
             {
+                if (!ConsistentRouting(context.Request, root))
+                {
+                    await InvalidTransportAsync(context);
+                    return false;
+                }
+                if (root.ValueKind == JsonValueKind.Object &&
+                    root.TryGetProperty("jsonrpc", out var rpc) && IsString(rpc, "2.0") &&
+                    root.TryGetProperty("method", out var method) && method.ValueKind == JsonValueKind.String &&
+                    !KnownMethod(method.GetString()) &&
+                    root.EnumerateObject().All(field => field.Name is "jsonrpc" or "method" or "id" or "params") &&
+                    (!root.TryGetProperty("params", out var args) || args.ValueKind == JsonValueKind.Object))
+                {
+                    if (!root.TryGetProperty("id", out var correlation))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status202Accepted;
+                        return false; // Unknown notifications have no response.
+                    }
+                    if (correlation.ValueKind == JsonValueKind.String ||
+                        correlation.ValueKind == JsonValueKind.Number && correlation.TryGetInt64(out _))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status200OK;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new { jsonrpc = "2.0", id = correlation,
+                            error = new { code = -32601, message = "Method not found." } }), ct);
+                        return false;
+                    }
+                }
+                var tools = context.GetEndpoint()?.Metadata.GetMetadata<McpParseErrorProtectionMetadata>()?.ToolNames;
+                if (toolCall && tools != null && !tools.Contains(parameters.GetProperty("name").GetString()!))
+                {
+                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(new { jsonrpc = "2.0", id = id.Id,
+                        error = new { code = -32602, message = "Unknown tool." } }), ct);
+                    return false;
+                }
                 context.Features.Set(toolCall ? new ValidatedPost(id, JsonNode.Parse(parameters.GetRawText()), ct)
                     : new ValidatedPost(null, null, ct));
                 return true;
@@ -167,6 +212,48 @@ public static class SafeMcpParseErrors
 
     private static bool IsString(JsonElement value, string text) =>
         value.ValueKind == JsonValueKind.String && value.ValueEquals(text);
+
+    // The tool-only Workbench advertises no resource, prompt, task or logging capability.
+    private static bool KnownMethod(string? method) => method is "initialize" or "server/discover" or "ping" or "tools/list" or "tools/call"
+        or "notifications/initialized" or "notifications/cancelled" or "notifications/progress";
+
+    private static bool SupportedVersion(string? version) =>
+        version is "2024-11-05" or "2025-03-26" or "2025-06-18" or "2025-11-25" or "2026-07-28";
+
+    private static Task InvalidTransportAsync(HttpContext context)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        context.Response.ContentType = "application/json";
+        return context.Response.WriteAsync(
+            """{"jsonrpc":"2.0","id":null,"error":{"code":-32600,"message":"Invalid MCP transport metadata."}}""", context.RequestAborted);
+    }
+
+    private static bool ConsistentRouting(HttpRequest request, JsonElement root)
+    {
+        if (root.ValueKind != JsonValueKind.Object) return true; // Original parser handles the envelope.
+        string? method = root.TryGetProperty("method", out var m) && m.ValueKind == JsonValueKind.String ? m.GetString() : null;
+        if (method == null) return true;
+        string? name = null;
+        string? declaredVersion = null;
+        if (root.TryGetProperty("params", out var parameters) && parameters.ValueKind == JsonValueKind.Object)
+        {
+            if (parameters.TryGetProperty("name", out var n) && n.ValueKind == JsonValueKind.String) name = n.GetString();
+            if (parameters.TryGetProperty("_meta", out var meta) && meta.ValueKind == JsonValueKind.Object &&
+                meta.TryGetProperty("io.modelcontextprotocol/protocolVersion", out var version))
+            {
+                if (version.ValueKind != JsonValueKind.String || !SupportedVersion(version.GetString())) return false;
+                declaredVersion = version.GetString();
+            }
+        }
+        var headerVersion = request.Headers["MCP-Protocol-Version"];
+        if (declaredVersion != null && headerVersion.Count == 1 && declaredVersion != headerVersion[0]) return false;
+        if (declaredVersion == "2026-07-28" && headerVersion.Count == 0) return false;
+        var methodHeader = request.Headers["Mcp-Method"];
+        var nameHeader = request.Headers["Mcp-Name"];
+        return methodHeader.Count <= 1 && nameHeader.Count <= 1 &&
+            (methodHeader.Count == 0 || methodHeader[0] == method) &&
+            (nameHeader.Count == 0 || nameHeader[0] == name);
+    }
 
     private enum Section { Envelope, Params, Arguments, Other }
 

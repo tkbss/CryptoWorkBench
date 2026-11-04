@@ -112,6 +112,8 @@ public class EditorAutomationTests
         if (switchView) h.Service.AttachEditor(new WorkbenchTextEditor(), null!, true);
         await keyMap.Initialization.WaitAsync(TimeSpan.FromSeconds(5));
         Assert.That(keyMap.InfoText.Contains("Gesture="), Is.EqualTo(!switchView));
+        if (!switchView)
+            Assert.That(keyMap.InfoText, Does.Match(@"History of Info commands.*Ctrl\+PageUp.*Ctrl\+PageDown.*lines in editor.*Alt\+PageUp.*Alt\+PageDown"));
     });
 
     [Test]

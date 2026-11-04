@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CryptoWorkBenchAvalonia\CryptoWorkBenchAvalonia.csproj" />
+    <ProjectReference Include="..\CryptoWorkBench.Mcp\CryptoWorkBench.Mcp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -20,6 +20,35 @@ public class LeaseV2Tests
         Guid.NewGuid(), h.Registration.Snapshot().Revision);
 
     [Test]
+    public Task ProductionLeaseClockRetainsPlatformBoundaryAndGuiAdmission() => Ui(async () =>
+    {
+        // Bypass Host's synthetic default: this must exercise the unchanged production clock.
+        await using var h = new Host("A", new WorkbenchAutomationService());
+        var caller = Activate(h);
+        var request = Acquire(h);
+        var reply = await h.Service.AcquireEditorAsync(caller, request, default);
+        if (OperatingSystem.IsWindows())
+        {
+            Assert.That(reply.Error, Is.Null);
+            Assert.That(reply.Result, Is.Not.Null);
+            await h.Service.ReleaseEditorAsync(caller,
+                new("2", request.InstanceId, request.EditorId, reply.Result!.LeaseId), default);
+        }
+        else
+        {
+            Assert.Throws<PlatformNotSupportedException>(() => h.Service.LeaseMilliseconds());
+            Assert.That(reply.Error!.Code, Is.EqualTo(AutomationErrorCode.TimerUnavailable));
+            Assert.That(reply.Result, Is.Null);
+            Assert.That((await h.Service.GetStatusV2Async(caller, new("2"), default)).Result!.OwnLease, Is.Null);
+            TestContext.Out.WriteLine("Unmodified production clock: TimerUnavailable, no lease; GUI remains admitted.");
+        }
+        Assert.That(h.Owner.CanStartGui, Is.True);
+        h.Area.PerformTextInput("!");
+        Assert.That(h.Editor.Text, Is.EqualTo("A!"));
+        Assert.That(h.Owner.Pending, Is.Zero);
+    });
+
+    [Test]
     public Task RetainedRegistrationIsAddressedWithoutFallbackAndOtherPrincipalSeesNoLease() => Ui(async () =>
     {
         await using var h = new Host("original");

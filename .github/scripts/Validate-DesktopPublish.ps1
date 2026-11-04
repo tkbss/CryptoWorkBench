@@ -36,7 +36,7 @@ function Assert-PublishedFile([string] $RelativePath) {
 
 $executable = if ($RuntimeIdentifier -eq 'win-x64') { "$appName.exe" } else { $appName }
 foreach ($file in @($executable, "$appName.dll", "$appName.deps.json",
-        "$appName.runtimeconfig.json", 'CryptoWorkBenchAvalonia.dll', 'CryptoScript.dll')) {
+        "$appName.runtimeconfig.json", 'CryptoWorkBenchAvalonia.dll', 'CryptoScript.dll', 'CryptoWorkBench.Mcp.dll')) {
     Assert-PublishedFile $file
 }
 if ($RuntimeIdentifier -ne 'win-x64') {
@@ -46,9 +46,11 @@ if ($RuntimeIdentifier -ne 'win-x64') {
 
 $runtimeConfig = Get-Content -LiteralPath (Join-Path $publishRoot "$appName.runtimeconfig.json") -Raw |
     ConvertFrom-Json -AsHashtable
-$framework = $runtimeConfig.runtimeOptions.framework
-if ($framework.name -ne 'Microsoft.NETCore.App' -or $framework.version -notlike '10.0.*') {
-    throw 'Publish must require the shared .NET 10 runtime (framework-dependent).'
+foreach ($name in 'Microsoft.NETCore.App', 'Microsoft.AspNetCore.App') {
+    $framework = @($runtimeConfig.runtimeOptions.frameworks | Where-Object name -CEQ $name)
+    if ($framework.Count -ne 1 -or $framework[0].version -notlike '10.0.*') {
+        throw "Desktop publish must require shared framework $name 10.0."
+    }
 }
 
 $deps = Get-Content -LiteralPath (Join-Path $publishRoot "$appName.deps.json") -Raw |
