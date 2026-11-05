@@ -169,13 +169,9 @@ public class DukptTdeaWorkingKeyTests
 
     [TestCase(KeyAlgorithm.Aes)]
     [TestCase(KeyAlgorithm.Hmac)]
-    [TestCase(KeyAlgorithm.Rsa)]
-    [TestCase(KeyAlgorithm.Ec)]
     public void NonTdeaInitialKeyTypesDoNotChangeTheTdeaDerivation(KeyAlgorithm algorithm)
     {
-        KeyType keyType = algorithm is KeyAlgorithm.Rsa or KeyAlgorithm.Ec
-            ? KeyType.Public(algorithm)
-            : KeyType.Secret(algorithm);
+        KeyType keyType = KeyType.Secret(algorithm);
         DeriveWithRegisteredKey(InitialKey, keyType).Value.Should().BeEquivalentTo(
             "0x(042666B49184CF5C68DE9628D0397B36)", options => options.IgnoringCase());
     }

@@ -36,7 +36,7 @@ public class Tr31HeaderAuthorityTests
         Id = id, Value = "0x(" + hex + ")",
         ValueFormat = FormatConversions.HEX, Type = new CryptoTypeKey(),
         KeySizeInBits = new KeySize(hex.Length * 4),
-        KeyType = a is KeyAlgorithm.Rsa or KeyAlgorithm.Ec ? KeyType.Public(a) : KeyType.Secret(a),
+        KeyType = KeyType.Secret(a),
         Usage = KeyUsagePolicy.Restricted(KeyUsage.MacVerify)
     };
 

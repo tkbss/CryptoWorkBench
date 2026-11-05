@@ -244,7 +244,7 @@ public class EmvApplicationCryptogramTests
     public void RejectsInvalidEmvTdeaKeys(int length) => CheckInvalidKey(KeyAlgorithm.Tdea, new byte[length]);
 
     [TestCase(KeyAlgorithm.Unknown)] [TestCase(KeyAlgorithm.Hmac)]
-    [TestCase(KeyAlgorithm.Rsa)] [TestCase(KeyAlgorithm.Ec)] [TestCase((KeyAlgorithm)int.MaxValue)]
+    [TestCase((KeyAlgorithm)4)] [TestCase((KeyAlgorithm)5)] [TestCase((KeyAlgorithm)int.MaxValue)]
     public void RejectsOtherAlgorithms(KeyAlgorithm algorithm) => CheckInvalidKey(algorithm, Hex(AesKey));
 
     [Test]

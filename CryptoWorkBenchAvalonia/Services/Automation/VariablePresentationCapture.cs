@@ -62,8 +62,6 @@ internal static class VariablePresentationCapture
         KeyAlgorithm.Aes => "AES",
         KeyAlgorithm.Tdea => "TDEA",
         KeyAlgorithm.Hmac => "HMAC",
-        KeyAlgorithm.Rsa => "RSA",
-        KeyAlgorithm.Ec => "EC",
         _ => "Unknown"
     };
 }

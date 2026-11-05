@@ -58,32 +58,17 @@ public class KeyTypeMigrationTests
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
 
-    [TestCase(KeyAlgorithm.Aes, KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Tdea, KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Hmac, KeyMaterialKind.Private)]
-    [TestCase(KeyAlgorithm.Rsa, KeyMaterialKind.Secret)]
-    [TestCase(KeyAlgorithm.Ec, KeyMaterialKind.Secret)]
+    [TestCase(KeyAlgorithm.Aes, (KeyMaterialKind)1)]
+    [TestCase(KeyAlgorithm.Tdea, (KeyMaterialKind)1)]
+    [TestCase(KeyAlgorithm.Hmac, (KeyMaterialKind)2)]
+    [TestCase((KeyAlgorithm)4, KeyMaterialKind.Secret)]
+    [TestCase((KeyAlgorithm)5, KeyMaterialKind.Secret)]
     public void InvalidAlgorithmAndMaterialCombinationsAreRejected(
         KeyAlgorithm algorithm, KeyMaterialKind materialKind)
     {
         Action action = () => _ = new KeyType(algorithm, materialKind);
 
         action.Should().Throw<ArgumentException>();
-    }
-
-    [TestCase(KeyAlgorithm.Rsa, KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Rsa, KeyMaterialKind.Private)]
-    [TestCase(KeyAlgorithm.Ec, KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Ec, KeyMaterialKind.Private)]
-    public void AsymmetricPublicAndPrivateTypesAreValid(
-        KeyAlgorithm algorithm, KeyMaterialKind materialKind)
-    {
-        KeyType type = materialKind == KeyMaterialKind.Public
-            ? KeyType.Public(algorithm)
-            : KeyType.Private(algorithm);
-
-        type.Algorithm.Should().Be(algorithm);
-        type.MaterialKind.Should().Be(materialKind);
     }
 
     [TestCase("{\"Algorithm\":999,\"MaterialKind\":0}")]

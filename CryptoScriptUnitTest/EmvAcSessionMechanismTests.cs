@@ -217,8 +217,6 @@ public class EmvAcSessionMechanismTests
 
     [TestCase(KeyAlgorithm.Unknown)]
     [TestCase(KeyAlgorithm.Hmac)]
-    [TestCase(KeyAlgorithm.Rsa)]
-    [TestCase(KeyAlgorithm.Ec)]
     public void RejectsUnsupportedMasterKeyAlgorithms(KeyAlgorithm algorithm)
     {
         RegisterKey("master", algorithm, Convert.FromHexString(Aes128MasterKey));
@@ -447,9 +445,7 @@ public class EmvAcSessionMechanismTests
         byte[] bytes)
     {
         string value = $"0x({Convert.ToHexString(bytes)})";
-        KeyMaterialKind materialKind = algorithm is KeyAlgorithm.Rsa or KeyAlgorithm.Ec
-            ? KeyMaterialKind.Private
-            : KeyMaterialKind.Secret;
+        KeyMaterialKind materialKind = KeyMaterialKind.Secret;
         return new KeyVariableDeclaration
         {
             Id = id,

@@ -4,19 +4,17 @@ namespace CryptoScript.Variables;
 
 public enum KeyAlgorithm
 {
-    Unknown,
-    Aes,
-    Tdea,
-    Hmac,
-    Rsa,
-    Ec
+    // Persisted numeric values must remain stable. Values 4 and 5 are unsupported.
+    Unknown = 0,
+    Aes = 1,
+    Tdea = 2,
+    Hmac = 3
 }
 
 public enum KeyMaterialKind
 {
-    Secret,
-    Public,
-    Private
+    // Retained in the serialized contract for existing symmetric keys.
+    Secret = 0
 }
 
 public sealed record KeyType
@@ -25,20 +23,9 @@ public sealed record KeyType
     public KeyType(KeyAlgorithm algorithm, KeyMaterialKind materialKind)
     {
         if (!Enum.IsDefined(algorithm))
-            throw new ArgumentOutOfRangeException(nameof(algorithm), algorithm, "Unknown key algorithm value.");
+            throw new ArgumentOutOfRangeException(nameof(algorithm), algorithm, "Unsupported key algorithm in CryptoScript v1.");
         if (!Enum.IsDefined(materialKind))
-            throw new ArgumentOutOfRangeException(nameof(materialKind), materialKind, "Unknown key material kind value.");
-
-        bool valid = algorithm switch
-        {
-            KeyAlgorithm.Unknown or KeyAlgorithm.Aes or KeyAlgorithm.Tdea or KeyAlgorithm.Hmac =>
-                materialKind == KeyMaterialKind.Secret,
-            KeyAlgorithm.Rsa or KeyAlgorithm.Ec =>
-                materialKind is KeyMaterialKind.Public or KeyMaterialKind.Private,
-            _ => false
-        };
-        if (!valid)
-            throw new ArgumentException($"{algorithm} key material cannot be {materialKind}.", nameof(materialKind));
+            throw new ArgumentOutOfRangeException(nameof(materialKind), materialKind, "Unsupported key material kind in CryptoScript v1.");
 
         Algorithm = algorithm;
         MaterialKind = materialKind;
@@ -48,8 +35,6 @@ public sealed record KeyType
     public KeyMaterialKind MaterialKind { get; }
 
     public static KeyType Secret(KeyAlgorithm algorithm) => new(algorithm, KeyMaterialKind.Secret);
-    public static KeyType Public(KeyAlgorithm algorithm) => new(algorithm, KeyMaterialKind.Public);
-    public static KeyType Private(KeyAlgorithm algorithm) => new(algorithm, KeyMaterialKind.Private);
 }
 
 public readonly record struct KeySize

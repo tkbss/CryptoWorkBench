@@ -67,16 +67,16 @@ namespace CryptoScriptUnitTest
         {
             var key = new KeyVariableDeclaration
             {
-                KeyType = KeyType.Private(KeyAlgorithm.Rsa),
-                KeySizeInBits = new KeySize(2048),
-                KeySize = "2048"
+                KeyType = KeyType.Secret(KeyAlgorithm.Aes),
+                KeySizeInBits = new KeySize(256),
+                KeySize = "256"
             };
 
             var restored = KeyVariableDeclaration.Deserialize(key.Serialize());
 
-            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Private(KeyAlgorithm.Rsa)));
-            Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(2048)));
-            Assert.That(restored.KeySize, Is.EqualTo("2048"));
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
+            Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(256)));
+            Assert.That(restored.KeySize, Is.EqualTo("256"));
         }
 
         [TestCase("AES-CBC", KeyAlgorithm.Aes)]

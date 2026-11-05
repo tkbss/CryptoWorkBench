@@ -35,16 +35,6 @@ public class KeyMechanismReaderMigrationTests
         Assert.That(sink.GetSnapshot().Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyTypeConflict));
     }
 
-    [Test]
-    public void Des3WarnsForRsaAndEcMetadataWithTechnicallyValidBytes()
-    {
-        Action rsa = () => Encrypt(KeyType.Public(KeyAlgorithm.Rsa));
-        Action ec = () => Encrypt(KeyType.Private(KeyAlgorithm.Ec));
-
-        rsa.Should().NotThrow();
-        ec.Should().NotThrow();
-    }
-
     [TestCase("DES3-CBC", false)]
     [TestCase("AES-CBC", true)]
     [TestCase("HMAC-SHA256", true)]

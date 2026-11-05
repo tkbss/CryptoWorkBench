@@ -137,8 +137,8 @@ public class EmvAcSessionKeyDerivationTests
 
     [TestCase(KeyAlgorithm.Unknown)]
     [TestCase(KeyAlgorithm.Hmac)]
-    [TestCase(KeyAlgorithm.Rsa)]
-    [TestCase(KeyAlgorithm.Ec)]
+    [TestCase((KeyAlgorithm)4)]
+    [TestCase((KeyAlgorithm)5)]
     [TestCase((KeyAlgorithm)int.MaxValue)]
     public void RejectsUnsupportedMasterKeyAlgorithm(KeyAlgorithm algorithm)
     {

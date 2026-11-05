@@ -13,6 +13,36 @@ namespace CryptoScriptUnitTest;
 
 public partial class SecureLoadTests
 {
+    [TestCase("Rsa")]
+    [TestCase("Ec")]
+    public void RetiredManifestAlgorithmsRejectBeforePasswordAndPreserveDictionary(string algorithm)
+    {
+        var roots = new[] { new KeyVariableDeclaration { Id = "key", Value = "0x(01020304)" } };
+        var manifest = SecureManifest.Create(roots);
+        manifest[0] = manifest[0] with { Key = manifest[0].Key! with { Algorithm = algorithm } };
+        ProtectPayload(new VariableSnapshotJsonSerializer().Serialize(roots), manifest);
+        int requests = 0;
+        var runner = new CryptoScriptRunner();
+        runner.PasswordRequested += (_, request) => { requests++; return Task.FromResult(Supply(request)); };
+        Failure("UnsupportedKeyAlgorithm", runner: runner);
+        Assert.That(requests, Is.Zero);
+    }
+
+    [TestCase("Rsa", "Public", false)]
+    [TestCase("Rsa", "Private", true)]
+    [TestCase("Ec", "Public", true)]
+    [TestCase("Ec", "Private", false)]
+    public void AuthenticatedRetiredPayloadMetadataCannotPublishEvenWhenUnselected(string algorithm, string kind, bool gmac)
+    {
+        VariableDeclaration[] roots = [new StringVariableDeclaration { Id = "data", Value = "ok" },
+            new KeyVariableDeclaration { Id = "key", Value = "0x(01020304)" }];
+        var json = JObject.Parse(new VariableSnapshotJsonSerializer().Serialize(roots));
+        var type = json["variables"]![1]!["metadata"]!["keyType"]!;
+        type["algorithm"] = algorithm; type["materialKind"] = kind;
+        ProtectPayload(json.ToString(), SecureManifest.Create(roots), gmac);
+        Failure("InvalidSecureSnapshot", "SecureLoad(path,data)");
+    }
+
     [TestCase("payload")][TestCase("tag")][TestCase("password")]
     public void GmacTamperingHasSameAuthenticationFailure(string field)
     {

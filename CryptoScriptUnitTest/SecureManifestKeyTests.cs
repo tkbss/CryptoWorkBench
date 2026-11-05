@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using CryptoScript;
 using CryptoScript.Model;
 using CryptoScript.Serialization;
@@ -33,25 +32,5 @@ public class SecureManifestKeyTests
         if (kcvHexLength == 0) Assert.That(manifest.Kcv,Is.Null);
         else Assert.That(manifest.Kcv,Does.Match("^0x\\([0-9a-f]{"+kcvHexLength+"}\\)$"));
         Assert.That(key.KeySizeInBits.IsKnown,Is.False);
-    }
-
-    [TestCase(KeyAlgorithm.Rsa,KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Rsa,KeyMaterialKind.Private)]
-    [TestCase(KeyAlgorithm.Ec,KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Ec,KeyMaterialKind.Private)]
-    public void AsymmetricKeyUsesMathematicalBitLengthAndNullKcv(KeyAlgorithm algorithm,KeyMaterialKind kind)
-    {
-        using AsymmetricAlgorithm generator = algorithm == KeyAlgorithm.Rsa ? RSA.Create(2048) : ECDsa.Create(ECCurve.NamedCurves.nistP256);
-        byte[] bytes = kind == KeyMaterialKind.Private ? generator.ExportPkcs8PrivateKey() : generator.ExportSubjectPublicKeyInfo();
-        try
-        {
-            var key = new KeyVariableDeclaration { Id="key",Type=new CryptoTypeKey(),ValueFormat=FormatConversions.B64,
-                Value=Convert.ToBase64String(bytes),KeyType=new(algorithm,kind),KeySizeInBits=new KeySize(generator.KeySize) };
-            var manifest = Project(key);
-            Assert.That(manifest.BitLength,Is.EqualTo((ulong)generator.KeySize));
-            Assert.That(manifest.Algorithm,Is.EqualTo(algorithm.ToString()));
-            Assert.That(manifest.Kcv,Is.Null);
-        }
-        finally { CryptographicOperations.ZeroMemory(bytes); }
     }
 }

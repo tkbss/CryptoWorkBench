@@ -1,0 +1,93 @@
+AS-01 R1 – Review und Integrationsprüfung
+Datum: 2026-11-05 (Europe/Zurich)
+Vergleichsbasis: c3586fe5b07116fb314fddc46148e78d679e808b
+
+Geprüfter Umfang
+
+Vollständiger Arbeitsdiff einschliesslich der neuen, zunächst unversionierten
+Regressionstests, Fixture und Berichte. Produktänderungen betreffen genau
+acht Dateien: zwei entfernte Algorithmusklassen, vier Schlüssel-/Serialisierungs-
+dateien und zwei GUI-/Automation-Projektoren. Keine Änderung an Workflow,
+Paket-Locks, MCP-Zertifikaten, produktiven symmetrischen Mechanismen oder
+Secret Sharing. Alle übrigen Änderungen sind AS-01-Tests und Dokumentation.
+
+Findings
+
+Ein separater, ausschliesslich lesender Review-Subagent hat den vollständigen
+finalen Diff und die neuen Dateien unabhängig geprüft. Ergebnis: keine
+zusätzlichen Findings in Critical, High, Medium oder Low. Der Subagent hat
+weder Dateien verändert noch Builds/Tests ausgeführt; die Laufzeitevidenz
+stammt aus den unten dokumentierten erneuten Prüfungen des Hauptagenten.
+
+Critical: 0
+High:     0
+Medium:   0
+Low:      1, behoben (R1-L01)
+
+R1-L01 – Snapshot-Negativtest mit unabhängig ungültigem Material
+Datei: CryptoScriptUnitTest/As01CompatibilityTests.cs, AssertSnapshotRejection.
+Die ursprüngliche neue Prüfung änderte gleichzeitig Metadaten und Material.
+Der Serializer konnte deshalb auch wegen des Materials fehlschlagen; die
+zusätzliche direkte ReadType-Prüfung reduzierte das Risiko, isolierte aber
+nicht die vollständige Deserialisierung. Korrektur: gültiges Baseline-Material
+beibehalten und nur Algorithmus/MaterialKind ändern. Der Testname beschreibt
+nun diese Aussage. Bestehende defekte DER-/ASN.1-Fälle bleiben separat erhalten.
+
+Prüfergebnisse nach Schwerpunkt
+
+- Entfernung: keine asymmetrischen Klassen, Enum-Member, Schlüssel-Fabriken,
+  DER-Decodierung oder mathematische RSA-/EC-Grössenberechnung in CryptoScript.
+  AsymmtricCryptoAlgorithm und Rsa waren nicht produktiv registriert.
+- Symmetrischer Vertrag: Enum-Werte 0..3 und MaterialKind.Secret=0 unverändert;
+  kein Umbau von KeySize, Usage, KCV, KeyVariableDeclaration oder DTO-Feldern.
+  Die expliziten Zahlen verhindern versehentliche Umnummerierung.
+- Historische Daten: Konstruktorvalidierung weist frühere Zahlenwerte 4/5
+  und 1/2 zurück. Die strikte Snapshot-Enumprüfung lehnt Rsa/Ec/Public/Private
+  und numerische Namen ab. Kein stilles Umdeuten zu Unknown/Secret.
+- SecureLoad: Manifest-Prüfung vor Passwortanforderung; Payload erst nach
+  Authentisierung vollständig deserialisiert; Veröffentlichung erst nach
+  erfolgreicher Prüfung aller Roots. Auch ein nicht ausgewählter ungültiger
+  Schlüssel verhindert den Import. Fehler bleiben kontrolliert und datenfrei.
+- TR-31: Header R bleibt beim bestehenden authentisierten Unwrap opakes
+  Secret(Unknown). Kein DER-Import wird reaktiviert. Bestehende Wrapper-
+  Regressionen und standardisierte Lexerkennungen bleiben erhalten.
+- MCP: LocalMcpIdentity, RSA/CNG-/TLS-Verarbeitung, Zertifikat-Cleanup und
+  Authentisierung sind gegen den Basiscommit unverändert. Nur die GUI-seitige
+  Liste erlaubter Schlüsselmetadaten im Automation-Snapshot wird eingeschränkt.
+- Tests: asymmetrische Akzeptanzfälle werden entfernt, nicht allgemeine
+  Sicherheitsregressionen. Ungültige Enumwerte bleiben in primitiven EMV-/
+  GenerateKey-APIs getestet; erlaubte symmetrische Konfliktfälle bleiben erhalten.
+  Neue Golden-Fixture stammt aus dem Basisstand, umfasst sieben Schlüssel-
+  varianten und beide SecureContainer-Modi. Sie wird nicht neu erzeugt.
+- Plattformen: Snapshot-Zeilenenden folgen wie zuvor Environment.NewLine;
+  authentisierte Fixture-Payloads werden bytegenau beibehalten. Die neuen
+  Projektionstests ändern weder GUI-Zustand noch globale Interpreterdaten.
+
+Validierung und Integration
+
+Erneute lokale Validierung: beide Solutions in Debug und Release erfolgreich.
+Je Konfiguration: Core 11508 bestanden / 0 Fehler / 27 nicht ausgeführt;
+GUI 797 bestanden / 0 Fehler; MCP 176 bestanden / 0 Fehler / 13 explizite
+Installed-Codex-/Desktop-Prüfungen nicht ausgeführt. Core-Nichtausführungen:
+18 fehlende Windows-Symlink-Berechtigungen, 8 macOS-spezifische Fälle und
+1 expliziter Hardwarebenchmark. Diese Einschränkungen werden nicht als
+erfolgreiche Prüfungen gewertet und im CI-Abschluss erneut abgeglichen.
+
+R1-L01 ist im vollständigen Release-Lauf enthalten. Nach der Korrektur wurden
+zusätzlich beide Debug-Solutions gebaut und sämtliche 13 Fälle von
+As01CompatibilityTests erneut erfolgreich ausgeführt. git diff --check
+bestanden. Keine Produktkorrektur aufgrund des Reviews erforderlich.
+
+Lokale R1-Builds und Tests werden getrennt vom Implementierungslauf unter
+C:/Users/stefa/.codex/visualizations/2026/11/05/01a1ab2a-5d26-76f2-899c-17822b16e4b5/r1/
+aufbewahrt. Finaler Stand, Commit-SHA, Push-Nachweis und tatsächliche CI-
+Ergebnisse werden im Integrationsabschluss ausserhalb des einmaligen Commits
+dokumentiert; dieser Bericht behauptet vor dem Push keine erfolgreiche CI.
+
+Der unveränderte .NET-Workflow prüft win-x64, linux-x64, osx-x64 und osx-arm64.
+Je Plattform: beide Solutions Debug/Release mit Locked Restore, Native-F01-
+Gate, Core, GUI, EditorCoordinator, F1, C1, MCP, RID-Publish und Publish-Layout.
+Auf macOS müssen sämtliche Darwin-ABI-Tests bestehen; ARM64 verlangt einen
+echten ARM64-Prozess. Publish prüft Native Assets, InfoDocs und auf macOS
+zusätzlich universellen Shim, Signatur, Abhängigkeiten und exportierte Symbole.
+Ein grüner Publish-Schritt ist kein interaktiver GUI-Smoke-Test.

@@ -84,7 +84,8 @@ internal sealed record SecureEnvelope(SecureSaveOptions Options, byte[] Salt, by
                     Fields(key, "algorithm", "bitLength", "kcv");
                     string a = String(key.GetProperty("algorithm"), 16);
                     ulong bits = Number(key.GetProperty("bitLength"));
-                    if (a is not ("Unknown" or "Aes" or "Tdea" or "Hmac" or "Rsa" or "Ec") || bits is < 1 or > 134217728) Fail("InvalidEnvelope");
+                    if (a is not ("Unknown" or "Aes" or "Tdea" or "Hmac")) Fail("UnsupportedKeyAlgorithm");
+                    if (bits is < 1 or > 134217728) Fail("InvalidEnvelope");
                     var value = key.GetProperty("kcv");
                     string? kcv = value.ValueKind == JsonValueKind.Null ? null : String(value, 36);
                     if (kcv is not null && (a is not ("Aes" or "Tdea") || kcv.Length != (a == "Aes" ? 36 : 20) ||

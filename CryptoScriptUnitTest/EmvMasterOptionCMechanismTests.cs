@@ -253,11 +253,10 @@ public class EmvMasterOptionCMechanismTests
 
     [TestCase(KeyAlgorithm.Tdea)]
     [TestCase(KeyAlgorithm.Hmac)]
-    [TestCase(KeyAlgorithm.Rsa)]
     [TestCase(KeyAlgorithm.Unknown)]
     public void ConflictingOrUnknownKeyAlgorithmsKeepTheAesDerivation(KeyAlgorithm algorithm)
     {
-        AddKey("bad", Imk128, algorithm == KeyAlgorithm.Rsa ? KeyType.Public(algorithm) : KeyType.Secret(algorithm), 128);
+        AddKey("bad", Imk128, KeyType.Secret(algorithm), 128);
         var runner = new CryptoScriptRunner();
         runner.Execute(ParserBuilder.StringBuild($"PARAM p=Parameters({Mechanism},#PSN:\"45\") KEY ICC=Derive(p,bad,\"{Pan}\")").program());
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), Icc128, 128, Mechanism);

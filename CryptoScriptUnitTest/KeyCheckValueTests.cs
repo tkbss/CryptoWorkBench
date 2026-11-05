@@ -130,7 +130,7 @@ public class KeyCheckValueTests
         Assert.That(copy.Kcv, Is.EqualTo("0x(8ca64de9c1b123a7)"));
         copy.KeyType = KeyType.Secret(KeyAlgorithm.Unknown);
         Assert.That(copy.Kcv, Is.Null);
-        copy.KeyType = KeyType.Public(KeyAlgorithm.Rsa);
+        copy.KeyType = KeyType.Secret(KeyAlgorithm.Hmac);
         Assert.That(copy.Kcv, Is.Null);
     }
 

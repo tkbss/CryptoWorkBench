@@ -143,8 +143,8 @@ public class GenerateKeyContractTests
     [TestCase(null, true)]
     [TestCase(KeyAlgorithm.Unknown, true)]
     [TestCase((KeyAlgorithm)999, true)]
-    [TestCase(KeyAlgorithm.Rsa, true)]
-    [TestCase(KeyAlgorithm.Ec, true)]
+    [TestCase((KeyAlgorithm)4, true)]
+    [TestCase((KeyAlgorithm)5, true)]
     [TestCase(KeyAlgorithm.Aes, false)]
     public void RegistryRejectsMissingUndefinedOrInapplicableGenerationAlgorithm(KeyAlgorithm? algorithm, bool supports) =>
         Assert.Throws<ArgumentException>(() => new MechanismRegistryEntry("TEST", "Test", "test.md",
@@ -196,7 +196,7 @@ public class GenerateKeyContractTests
     public void AllBaseImplementationsRejectRatherThanReturningEmptyKeys()
     {
         foreach (var algorithm in new Algorithm[]
-            { new(), new SymmetricCryptoAlgorithm(), new AsymmtricCryptoAlgorithm(), new CryptoScript.CryptoAlgorithm.Rsa() })
+            { new(), new SymmetricCryptoAlgorithm() })
         {
             Assert.Throws<NotSupportedException>(() => algorithm.GenerateKey("AES-ECB", "128"));
             Assert.Throws<NotSupportedException>(() => algorithm.GenerateKey("KDF-HKDF", "128"));

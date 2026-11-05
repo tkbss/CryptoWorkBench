@@ -60,8 +60,7 @@ public class EmvArpcIntegrationTests
     }
 
     public static IEnumerable<TestCaseData> BadAlgorithms() =>
-        Mechanisms.SelectMany(m => new[] { KeyType.Secret(KeyAlgorithm.Unknown), KeyType.Secret(KeyAlgorithm.Hmac),
-            KeyType.Public(KeyAlgorithm.Rsa), KeyType.Private(KeyAlgorithm.Ec) }.Select(t => new TestCaseData(m, t)));
+        Mechanisms.SelectMany(m => new[] { KeyType.Secret(KeyAlgorithm.Unknown), KeyType.Secret(KeyAlgorithm.Hmac) }.Select(t => new TestCaseData(m, t)));
 
     [TestCaseSource(nameof(BadAlgorithms))]
     public void UnsupportedKeyMetadataIsRejected(string mechanism, KeyType type)

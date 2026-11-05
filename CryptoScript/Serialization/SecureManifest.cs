@@ -2,8 +2,6 @@ using System.Security.Cryptography;
 using CryptoScript.Model;
 using CryptoScript.Variables;
 using CryptoScript.CryptoAlgorithm;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 
 namespace CryptoScript.Serialization;
 
@@ -39,17 +37,6 @@ internal static class SecureManifest
         try
         {
             ulong bits = checked((ulong)bytes.Length * 8);
-            if (key.KeyType.Algorithm is KeyAlgorithm.Rsa or KeyAlgorithm.Ec)
-            {
-                var decoded = key.KeyType.MaterialKind == KeyMaterialKind.Private
-                    ? PrivateKeyFactory.CreateKey(bytes) : PublicKeyFactory.CreateKey(bytes);
-                bits = decoded switch
-                {
-                    RsaKeyParameters rsa => (ulong)rsa.Modulus.BitLength,
-                    ECKeyParameters ec => (ulong)ec.Parameters.N.BitLength,
-                    _ => throw new SecureSaveException("InvalidSnapshot")
-                };
-            }
             if (bits is < 1 or > 134217728) throw new SecureSaveException("InvalidSnapshot");
             return bits;
         }

@@ -480,40 +480,11 @@ public class VariableSnapshotJsonSerializerTests
         finally { JsonConvert.DefaultSettings = old; }
     }
 
-    [TestCase(KeyAlgorithm.Rsa, KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Rsa, KeyMaterialKind.Private)]
-    [TestCase(KeyAlgorithm.Ec, KeyMaterialKind.Public)]
-    [TestCase(KeyAlgorithm.Ec, KeyMaterialKind.Private)]
-    public void AsymmetricKeyMetadataUsesMathematicalSizeInsteadOfDerLength(KeyAlgorithm algorithm, KeyMaterialKind kind)
-    {
-        using System.Security.Cryptography.AsymmetricAlgorithm generator = algorithm == KeyAlgorithm.Rsa
-            ? System.Security.Cryptography.RSA.Create(2048)
-            : System.Security.Cryptography.ECDsa.Create(System.Security.Cryptography.ECCurve.NamedCurves.nistP256);
-        byte[] bytes = kind == KeyMaterialKind.Private ? generator.ExportPkcs8PrivateKey() : generator.ExportSubjectPublicKeyInfo();
-        var source = new KeyVariableDeclaration
-        {
-            Id = "asymmetric", Type = new CryptoTypeKey(), Value = Convert.ToBase64String(bytes),
-            ValueFormat = FormatConversions.B64, KeyType = new(algorithm, kind),
-            KeySizeInBits = new KeySize(generator.KeySize)
-        };
-        var restored = RoundTrip(source);
-        Common(source, restored);
-        Assert.That(restored.KeyType, Is.EqualTo(source.KeyType));
-        Assert.That(restored.KeySizeInBits, Is.EqualTo(source.KeySizeInBits));
-        Assert.That(restored.Kcv, Is.Null);
-        Assert.That(restored.Kcvc, Is.Null);
-        Assert.That(restored.Kcvk, Is.Null);
-        Reject(j => j["variables"]![0]!["metadata"]!["keyType"]!["algorithm"] =
-            algorithm == KeyAlgorithm.Rsa ? "Ec" : "Rsa", source);
-        Reject(j => j["variables"]![0]!["metadata"]!["keyType"]!["materialKind"] =
-            kind == KeyMaterialKind.Private ? "Public" : "Private", source);
-    }
-
     [TestCase("AA==")]
     [TestCase("MAA=")]
     [TestCase("MAMCAQA=")]
     [TestCase("////////////")]
-    public void MalformedAsymmetricMaterialHasControlledErrors(string material)
+    public void RetiredMetadataWithMalformedMaterialHasControlledErrors(string material)
     {
         Reject(j =>
         {
@@ -679,7 +650,7 @@ public class VariableSnapshotJsonSerializerTests
 
     [TestCase("3012300D06092A864886F70D0101010500030100", "Public")]
     [TestCase("3014020100300D06092A864886F70D01010105000400", "Private")]
-    public void MissingNestedRsaObjectsCannotEscapeAsLibraryExceptions(string hex, string kind)
+    public void RetiredMetadataWithMalformedDerHasControlledErrors(string hex, string kind)
     {
         Reject(j =>
         {

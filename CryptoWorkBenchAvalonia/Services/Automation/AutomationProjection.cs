@@ -19,8 +19,8 @@ internal static class AutomationProjection
             var id = v.Identifier;
             if (id.Length > 256) { truncated = true; id = id[..256]; }
             return new VariableInfo(id, v.Type is "VAR" or "KEY" or "PATH" or "PARAM" or "SECRET" or "TR31H" ? v.Type : "Unknown",
-                v.IsKey, v.Algorithm is "AES" or "TDEA" or "HMAC" or "RSA" or "EC" ? v.Algorithm : null,
-                v.Material is "Raw" or "Symmetric" or "Public" or "Private" or "Secret" ? v.Material : null,
+                v.IsKey, v.Algorithm is "AES" or "TDEA" or "HMAC" ? v.Algorithm : null,
+                v.Material is "Raw" or "Symmetric" or "Secret" ? v.Material : null,
                 v.HasKeySize && int.TryParse(v.KeySize, out int bits) && bits >= 0 ? bits : null, null, false);
         }).ToImmutableArray();
         return new(version, now, false, items, truncated);

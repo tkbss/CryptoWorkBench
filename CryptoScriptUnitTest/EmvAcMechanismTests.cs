@@ -718,12 +718,10 @@ public class EmvAcMechanismTests
 
     [TestCase(KeyAlgorithm.Hmac)]
     [TestCase(KeyAlgorithm.Unknown)]
-    [TestCase(KeyAlgorithm.Rsa)]
     public void InvalidAlgorithmMetadataIsRejected(KeyAlgorithm algorithm)
     {
         EmvAcFixtures.Execute(EmvAcFixtures.Prefix() + $"PARAM p=Parameters({Mechanism})");
-        ((KeyVariableDeclaration)VariableDictionary.Instance().Get("sk")).KeyType = algorithm == KeyAlgorithm.Rsa
-            ? KeyType.Public(algorithm) : KeyType.Secret(algorithm);
+        ((KeyVariableDeclaration)VariableDictionary.Instance().Get("sk")).KeyType = KeyType.Secret(algorithm);
         Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR ac=Mac(p,sk,data)"));
     }
 
