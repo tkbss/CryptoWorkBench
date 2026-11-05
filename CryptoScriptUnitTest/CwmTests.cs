@@ -82,6 +82,39 @@ public class CwmTests
         var valid = VariableDictionary.Instance().Get("valid")!;
         Assert.That(valid.Type, Is.TypeOf<CryptoTypeVal>()); Assert.That(valid.Value, Is.EqualTo("true"));
     }
+
+    [TestCase(false)] [TestCase(true)]
+    public async Task AssignmentUsesRealPathAndBooleanResultsAndPreservesThemOnFailure(bool asynchronous)
+    {
+        async Task Execute(string text)
+        {
+            var parser = ParserBuilder.StringBuild(text);
+            var context = parser.program();
+            Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
+            var runner = new CryptoScriptRunner();
+            if (asynchronous) await runner.ExecuteAsync(context);
+            else runner.Execute(context);
+        }
+        File.WriteAllBytes(source.Value, [1, 2, 3]);
+        await Execute("PATH container=\"old\" container=MacPack(p,k,source) VAL valid=MacVerify(p,k,container)");
+        var originalContainer = VariableDictionary.Instance().Get("container");
+        var original = VariableDictionary.Instance().Get("valid");
+        Assert.That(original, Is.TypeOf<ValVariableDeclaration>());
+        Assert.That(original.Value, Is.EqualTo("true"));
+        await Assert.ThatAsync(() => Execute("valid=\"false\""), Throws.TypeOf<SemanticErrorException>());
+        Assert.That(VariableDictionary.Instance().Get("valid"), Is.SameAs(original));
+        await Assert.ThatAsync(() => Execute("container=MacVerify(p,k,container)"), Throws.TypeOf<SemanticErrorException>());
+        Assert.That(VariableDictionary.Instance().Get("container"), Is.SameAs(originalContainer));
+        File.WriteAllBytes(source.Value, [4, 5, 6]);
+        await Execute("valid=MacVerify(p,k,container)");
+        var changed = VariableDictionary.Instance().Get("valid");
+        Assert.That(changed.Value, Is.EqualTo("false"));
+        Assert.That(changed.Type!.Name, Is.EqualTo("VAL"));
+        Assert.That(changed, Is.Not.SameAs(original));
+        Assert.That(original.Value, Is.EqualTo("true"));
+        await Assert.ThatAsync(() => Execute("valid=MacVerify(p,k,source)"), Throws.TypeOf<SemanticErrorException>());
+        Assert.That(VariableDictionary.Instance().Get("valid"), Is.SameAs(changed));
+    }
     [TestCase("VAR result = MacPack(p,k,source)")]
     [TestCase("VAL result = MacPack(p,k,source)")]
     [TestCase("PATH result = MacVerify(p,k,source)")]

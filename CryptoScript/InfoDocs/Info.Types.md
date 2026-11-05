@@ -32,6 +32,35 @@ List of all types used in CRYPTO-SCRIPT. Upper case lettersfor every type is man
     - EXAMPLE (Windows): "C:\folder\subfolder\file.txt"
     - EXAMPLE (Linux): "/home/user/folder/file.txt"
 
+## Assigning a new value
+
+Declare a variable once, then assign without repeating its type:
+
+```cryptoscript
+VAR data = "Original"
+data = "New value"
+Print(data)
+data = Compare(data, data)
+```
+
+The name and declared CryptoScript type remain unchanged. Unknown targets are
+errors; assignments do not declare variables or convert between types.
+VAR, KEY and PATH accept their existing literal forms. PARAM accepts parameter
+initializers or `Parameters(...)`; TR31H accepts validated braces or header
+function results. VAL and SECRET require matching function results.
+
+Assignments replace the complete value and its result metadata after validation.
+For example, assigning a KEY literal produces the same Unknown algorithm and
+Unspecified usage defaults as a KEY literal declaration; assigning `GenerateKey`
+or `Check` retains that function's key metadata. A failed assignment preserves
+the previous target value and all its metadata.
+
+Print, Info, Save, Load, SecureSave, SecureLoad and Delete cannot supply assignment
+values, including within nested calls. PARAM assignment function trees accept
+only Parameters, so cryptographic operations cannot mutate the target during
+evaluation. Effects on other parameters or files from completed operations are
+not rolled back when a later part of the assignment fails.
+
 ## KEY literals
 
 ```cryptoscript

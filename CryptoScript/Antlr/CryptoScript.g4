@@ -7,13 +7,20 @@ INT           : [0-9]+;
 program       : statement* EOF;
 
 statement     : declaration              
-              | functionCall              
+              | functionCall
+              | assignment
               ; 
 
 declaration   : type ID '=' expression              
               | type ID '=' functionCall
               | type ID '=' (declareparam)*
               | type ID '=' tr31Header
+              ;
+// Reuse initializer forms, retaining the legacy empty declaration alternative.
+assignment    : ID '=' expression
+              | ID '=' functionCall
+              | ID '=' declareparam+
+              | ID '=' tr31Header
               ;
 declareparam  :  P_POLYNOM ':' polynomialValue
               |  P_SHAREFORMAT ':' shareFormatValue
