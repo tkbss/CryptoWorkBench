@@ -219,15 +219,41 @@ public class LeaseV2Tests
         }
         var drain = h.Service.DrainAsync();
         Assert.That(drain.IsCompleted, Is.False);
+        Assert.That(edit.IsCompleted, Is.False);
         h.Area.PerformTextInput("bad");
         Assert.That(h.Owner.CanStartGui, Is.False);
-        dialog.Answer.SetResult(true);
+        Assert.That(h.Editor.Text, Is.EqualTo("before"));
+
+        // Release-only service drain does not certify lease retirement. Observe the
+        // production GUI transition; never drive CheckLease by polling a lease API.
+        var guiPhase = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        void OnWorkspaceChanged()
+        {
+            // CanStartGui is deliberately false inside workspace observers.
+            if (h.Owner.Phase == EditorControlPhase.Gui) guiPhase.TrySetResult();
+        }
+        h.Owner.WorkspaceChanged += OnWorkspaceChanged;
+        try
+        {
+            dialog.Answer.SetResult(true);
+            await Task.WhenAll(edit, drain, guiPhase.Task).WaitAsync(TimeSpan.FromSeconds(5));
+        }
+        catch (TimeoutException)
+        {
+            Assert.Fail($"GUI return timed out (revoke={revoke}): phase={h.Owner.Phase}, " +
+                $"pending={h.Owner.Pending}, active={h.Owner.Active}, observers={h.Owner.ObserverDepth}, " +
+                $"canStartGui={h.Owner.CanStartGui}, mutationLocked={h.Editor.MutationLocked}, " +
+                $"identityLocked={h.Editor.IdentityLocked}, documentUpdating={h.Editor.Document.IsInUpdate}, " +
+                $"edit={edit.Status}, serviceDrain={drain.Status}, guiPhase={guiPhase.Task.Status}.");
+        }
+        finally { h.Owner.WorkspaceChanged -= OnWorkspaceChanged; }
         var receipt = await edit;
-        await drain;
         Assert.That(receipt.Error, Is.Not.Null);
         Assert.That((receipt.TextEffect, receipt.HistoryEffect), Is.EqualTo((TextEffect.None, HistoryEffect.None)));
         Assert.That(h.Editor.Text, Is.EqualTo("before"));
         Assert.That(h.Owner.CanStartGui, Is.True);
+        h.Area.PerformTextInput("!");
+        Assert.That(h.Editor.Text, Is.EqualTo("before!"));
         if (revoke)
         {
             Assert.Throws<InvalidOperationException>(() => h.Service.ActivateMcp());
