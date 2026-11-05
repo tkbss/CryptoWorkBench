@@ -1,1 +1,0 @@
-VAR key1=0x(1234) VAR res = Compare(key1,key1)

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using CryptoWorkBench.Automation.Abstractions;
@@ -137,16 +138,54 @@ public class TransportTests
         var endpoint = host.Endpoint;
         try
         {
-            using var http = new HttpClient();
-            using var request = Request(endpoint, new string(' ', AutomationContracts.MaxHttpBodyBytes + 1));
-            using var response = await http.SendAsync(request);
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.RequestEntityTooLarge));
+            const int limit = 1_048_576;
+            Assert.That(AutomationContracts.MaxHttpBodyBytes, Is.EqualTo(limit));
+            const string call = """{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"workbench_get_status","arguments":{}}}""";
+            string atLimit = call.PadRight(limit, ' ');
+            string oversized = atLimit + " ";
+            Assert.That(Encoding.UTF8.GetByteCount(atLimit), Is.EqualTo(limit));
+            Assert.That(Encoding.UTF8.GetByteCount(oversized), Is.EqualTo(limit + 1));
+
+            // No timer-based upload fallback: reject from Content-Length before
+            // sending the body. The overall request still has a bounded timeout.
+            using (var request = Request(endpoint, oversized))
+            {
+                request.Version = HttpVersion.Version11;
+                request.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                request.Headers.ExpectContinue = true;
+                Assert.That(request.Content!.Headers.ContentLength, Is.EqualTo(limit + 1));
+                using var http = new HttpClient(new SocketsHttpHandler
+                { UseProxy = false, Expect100ContinueTimeout = Timeout.InfiniteTimeSpan }) { Timeout = TimeSpan.FromSeconds(10) };
+                using var rejection = await http.SendAsync(request);
+                Assert.That(rejection.StatusCode, Is.EqualTo(HttpStatusCode.RequestEntityTooLarge));
+            }
             Assert.That(host.Service.StatusCalls, Is.Zero);
+
+            // A separate handler guarantees a fresh connection after rejection.
+            using var healthyClient = new HttpClient(new SocketsHttpHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(10) };
+            using var accepted = Request(endpoint, atLimit);
+            Assert.That(accepted.Content!.Headers.ContentLength, Is.EqualTo(limit));
+            using var result = await healthyClient.SendAsync(accepted);
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            string text = await result.Content.ReadAsStringAsync();
+            string json = text.StartsWith("event:", StringComparison.Ordinal)
+                ? text.Split('\n').Single(line => line.StartsWith("data: ", StringComparison.Ordinal))[6..] : text;
+            using var document = JsonDocument.Parse(json);
+            Assert.That(document.RootElement.GetProperty("id").GetInt32(), Is.EqualTo(1));
+            var reply = AutomationJson.Deserialize<Reply<WorkbenchStatus>>(
+                document.RootElement.GetProperty("result").GetProperty("structuredContent").GetRawText());
+            Assert.That(reply.Data!.StateVersion, Is.EqualTo("9007199254740993"));
+            Assert.That(reply.InstanceId, Is.EqualTo(host.Service.InstanceId));
+            Assert.That(host.Service.StatusCalls, Is.EqualTo(1));
         }
         finally { await host.DisposeAsync(); }
-        using var socket = new System.Net.Sockets.TcpClient();
-        Assert.ThrowsAsync<System.Net.Sockets.SocketException>(async () => await socket.ConnectAsync(endpoint.Host, endpoint.Port));
+        using var socket = new TcpClient();
+        var closed = Assert.ThrowsAsync<SocketException>(async () =>
+            await socket.ConnectAsync(endpoint.Host, endpoint.Port).WaitAsync(TimeSpan.FromSeconds(5)));
+        Assert.That(closed!.SocketErrorCode, Is.EqualTo(SocketError.ConnectionRefused));
+        Assert.That(host.Service.StatusCalls, Is.EqualTo(1));
     }
+
     [Test]
     public async Task Sdk230ParseDetailReproducerAndMitigation()
     {

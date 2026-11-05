@@ -5,8 +5,6 @@ VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoScript", "CryptoScript\CryptoScript.csproj", "{45B1416A-FD92-4BA9-8777-36479B35B9AD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CryptoWorkBenchConsole", "CryptoWorkBenchConsole\CryptoWorkBenchConsole.csproj", "{4997B695-77DC-4FC8-AFD1-66A6DC79CDF4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoScriptUnitTest", "CryptoScriptUnitTest\CryptoScriptUnitTest.csproj", "{9E484244-661D-4432-82E1-8C6D69F17299}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkBench.Automation.Abstractions", "CryptoWorkBench.Automation.Abstractions\CryptoWorkBench.Automation.Abstractions.csproj", "{D443CF04-43F3-41AF-8347-E601E3661F3B}"
@@ -25,10 +23,6 @@ Global
 		{45B1416A-FD92-4BA9-8777-36479B35B9AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45B1416A-FD92-4BA9-8777-36479B35B9AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45B1416A-FD92-4BA9-8777-36479B35B9AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4997B695-77DC-4FC8-AFD1-66A6DC79CDF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4997B695-77DC-4FC8-AFD1-66A6DC79CDF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4997B695-77DC-4FC8-AFD1-66A6DC79CDF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4997B695-77DC-4FC8-AFD1-66A6DC79CDF4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E484244-661D-4432-82E1-8C6D69F17299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9E484244-661D-4432-82E1-8C6D69F17299}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E484244-661D-4432-82E1-8C6D69F17299}.Release|Any CPU.ActiveCfg = Release|Any CPU
