@@ -143,6 +143,30 @@ public class NativeEnterContinuationTests
         h.AssertClosed();
     });
 
+    [Test]
+    public Task NativeReturnExecutesAssignmentAndPrintsUpdatedValue() => Ui(async () =>
+    {
+        var previous = CryptoScript.Variables.VariableDictionary.Instance().GetVariables().ToArray();
+        try
+        {
+            await using var h = new Host();
+            h.Editor.Text = "VAR assignmentEnter=0x(11) assignmentEnter=0x(22) Print(assignmentEnter)";
+            h.Editor.CaretOffset = h.Editor.Text.Length;
+            h.Key(); await h.Complete();
+            Assert.That(h.ExecutionRequests, Has.Count.EqualTo(1));
+            Assert.That(h.Vm.PrintMessage, Is.EqualTo("out: 0x(22)"));
+            Assert.That(CryptoScript.Variables.VariableDictionary.Instance().Get("assignmentEnter").Value,
+                Is.EqualTo("0x(22)"));
+            h.AssertClosed();
+        }
+        finally
+        {
+            var dictionary = CryptoScript.Variables.VariableDictionary.Instance();
+            dictionary.Clear();
+            foreach (var variable in previous) dictionary.Add(variable);
+        }
+    });
+
     [TestCase("key-numpad")]
     [TestCase("key-shift")]
     [TestCase("paragraph-command")]

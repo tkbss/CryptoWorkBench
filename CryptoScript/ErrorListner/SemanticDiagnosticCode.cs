@@ -20,5 +20,8 @@ public enum SemanticDiagnosticCode
     PinBlockTranslationForbidden = 14,
     PinBlockPanMismatch = 15,
     InvalidPinBlock = 16,
-    AsyncExecutionRequired = 17
+    AsyncExecutionRequired = 17,
+    AssignmentTypeMismatch = 18,
+    InvalidAssignmentInitializer = 19,
+    MissingReturnValue = 20
 }

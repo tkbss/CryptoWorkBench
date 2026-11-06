@@ -61,6 +61,16 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.assignment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAssignment([NotNull] CryptoScriptParser.AssignmentContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.assignment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAssignment([NotNull] CryptoScriptParser.AssignmentContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.declareparam"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

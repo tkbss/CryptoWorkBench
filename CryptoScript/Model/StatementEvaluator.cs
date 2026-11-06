@@ -38,6 +38,10 @@ namespace CryptoScript.Model
         {
             switch (node)
             {
+                case AssignmentStatementNode assignment:
+                    return AssignmentEvaluator.Evaluate(assignment, semanticErrors,
+                        call => FunctionCallEvaluator.EvaluateFunctionCall(call, semanticErrors,
+                            ParameterEvaluator.Evaluate, execution, location));
                 case VariableDeclarationStatementNode declaration:
                     var result = VariableDeclarationEvaluator.Evaluate(
                         declaration.Declaration, semanticErrors,

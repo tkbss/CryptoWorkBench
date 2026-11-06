@@ -19,10 +19,18 @@ namespace CryptoScript.Model
         }
         public static Statement BuildVariable(Statement stmt,string Id, CryptoType type) 
         {
+            var prepared = PrepareVariable(stmt, Id, type);
+            if (stmt is Expression && prepared is VariableDeclaration variable)
+                VariableDictionary.Instance().Add(variable);
+            return prepared;
+        }
+
+        // No publication: assignments validate before replacing a value.
+        internal static Statement PrepareVariable(Statement stmt, string Id, CryptoType type)
+        {
             if (type is CryptoTypeKey && stmt is Expression keyExpression)
             {
                 var key = BuildLiteralKey(keyExpression, Id, type);
-                VariableDictionary.Instance().Add(key);
                 return key;
             }
             var newVariable = new StringVariableDeclaration();
@@ -33,7 +41,6 @@ namespace CryptoScript.Model
                 newVariable.Value = expressionString.Value();
                 newVariable.Type = type;
                 newVariable.ValueFormat = FormatConversions.ParseString(expressionString.Value());
-                VariableDictionary.Instance().Add(newVariable);
                 return newVariable;
             }
             if (stmt is ExpressionTR31String expressionTR31)
@@ -43,7 +50,6 @@ namespace CryptoScript.Model
                 newVariable.Value = expressionTR31.Value();
                 newVariable.Type = type;
                 newVariable.ValueFormat = FormatConversions.ParseString(expressionTR31.Value());
-                VariableDictionary.Instance().Add(newVariable);
                 return newVariable;
             }
             if (stmt is ExpressionHex expressionHex)
@@ -53,7 +59,6 @@ namespace CryptoScript.Model
                 newVariable.Value = expressionHex.Value();
                 newVariable.Type = type;
                 newVariable.ValueFormat = FormatConversions.ParseString(expressionHex.Value());
-                VariableDictionary.Instance().Add(newVariable);
                 return newVariable;
             }
             if (stmt is ExpressionNumber expressionNu)
@@ -62,7 +67,6 @@ namespace CryptoScript.Model
                 newVariable.Value = expressionNu.Value();
                 newVariable.Type = type;
                 newVariable.ValueFormat = FormatConversions.ParseString(expressionNu.Value());
-                VariableDictionary.Instance().Add(newVariable);
                 return newVariable;
             }
             if (stmt is ExpressionBase64 expressionB64)
@@ -71,7 +75,6 @@ namespace CryptoScript.Model
                 newVariable.Value = expressionB64.Value();
                 newVariable.Type = type;
                 newVariable.ValueFormat = FormatConversions.ParseString(expressionB64.Value());
-                VariableDictionary.Instance().Add(newVariable);
                 return newVariable;
             }
             if (stmt is ExpressionJSON expressionJS)
@@ -80,7 +83,6 @@ namespace CryptoScript.Model
                 newVariable.Value = expressionJS.Value();
                 newVariable.Type = type;
                 newVariable.ValueFormat = FormatConversions.ParseString(expressionJS.Value());
-                VariableDictionary.Instance().Add(newVariable);
                 return newVariable;
             }
             if (stmt is ExpressionPath expressionPath)
@@ -90,7 +92,6 @@ namespace CryptoScript.Model
                 pathVariable.Value = expressionPath.Value();
                 pathVariable.Type = type;
                 pathVariable.ValueFormat = FormatConversions.ParseString(expressionPath.Value());
-                VariableDictionary.Instance().Add(pathVariable);
                 return pathVariable;
             }
             return stmt; 
