@@ -63,13 +63,20 @@ public static class AssignmentEvaluator
             {
                 if (type is not CryptoTypeParameters) throw TypeMismatch(errors, assignment);
                 prepared = ParameterInitializerEvaluator.Prepare(target.Id, type.Name,
-                    assignment.Parameters.Items, errors, ParameterEvaluator.Evaluate);
+                    assignment.Parameters.Items, errors, ParameterEvaluator.Evaluate, requireStructuredMechanism: true);
             }
             else if (assignment.Initializer is LiteralInitializerNode literal)
             {
                 if (type is not (CryptoTypeVar or CryptoTypeKey or CryptoTypePath))
                     throw Error(errors, assignment, SemanticDiagnosticCode.InvalidAssignmentInitializer,
                         "This type does not accept a literal initializer.");
+                // INT tokens contain ASCII digits. Reject overflow before the legacy
+                // expression factory can silently fall back to an empty string.
+                if (literal.RawText.Length != 0 && literal.RawText.All(char.IsAsciiDigit) &&
+                    !int.TryParse(literal.RawText, System.Globalization.NumberStyles.None,
+                        System.Globalization.CultureInfo.InvariantCulture, out _))
+                    throw Error(errors, assignment, SemanticDiagnosticCode.InvalidAssignmentInitializer,
+                        "Integer assignment literal is outside the supported Int32 range.");
                 var expression = type is CryptoTypePath
                     ? PathInitializerEvaluator.Prepare(literal.RawText, errors) : Expression.Create(literal.RawText);
                 prepared = Expression.PrepareVariable(expression, target.Id, type) as VariableDeclaration
@@ -77,6 +84,17 @@ public static class AssignmentEvaluator
             }
             else throw Error(errors, assignment, SemanticDiagnosticCode.InvalidAssignmentInitializer,
                 "Unsupported assignment initializer.");
+
+            if (prepared is ParameterVariableDeclaration parameter)
+            {
+                // This boundary also covers detached Parameters(...) results.
+                try { ParameterInitializerEvaluator.ValidateAssignmentSerialization(parameter); }
+                catch (Exception)
+                {
+                    throw Error(errors, assignment, SemanticDiagnosticCode.InvalidAssignmentInitializer,
+                        "Invalid assignment initializer.");
+                }
+            }
 
             prepared.Id = target.Id;
             prepared.Type = type;
@@ -122,7 +140,8 @@ public static class AssignmentEvaluator
         CryptoTypeVal => value is ValVariableDeclaration,
         CryptoTypeParameters => value is ParameterVariableDeclaration,
         CryptoTypePath => value is PathVariableDeclaration,
-        CryptoTypeTR31Header => value is BlockHeaderVariableDeclaration,
+        // Definitions are immutable and can only be created through their validating factory.
+        CryptoTypeTR31Header => value is BlockHeaderVariableDeclaration { Definition: not null },
         CryptoTypeSecret => value is SecretVariableDeclaration,
         _ => false
     };
