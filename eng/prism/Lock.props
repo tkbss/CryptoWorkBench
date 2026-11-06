@@ -1,0 +1,17 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)ProjectScope.props" />
+  <PropertyGroup Condition="'$(_CwbScopedProject)' == 'true'">
+    <!-- Runs before Directory.Build.props, including upstream versioning references. -->
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <CwbTemporaryPrismPolicy>true</CwbTemporaryPrismPolicy>
+    <DISABLE_GITVERSIONING>true</DISABLE_GITVERSIONING>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <NuGetPackageRoot Condition="'$(NUGET_PACKAGES)' != ''">$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::GetFullPath('$(NUGET_PACKAGES)'))))</NuGetPackageRoot>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(RestoreLockedMode)' == ''">true</RestoreLockedMode>
+    <NuGetLockFilePath>$(MSBuildThisFileDirectory)locks/$(Configuration)/$(MSBuildProjectName).lock.json</NuGetLockFilePath>
+    <NuGetLockFilePath Condition="'$(CwbPublishRid)' != ''">$(MSBuildThisFileDirectory)locks/$(Configuration)/rid/$(CwbPublishRid)/$(MSBuildProjectName).lock.json</NuGetLockFilePath>
+  </PropertyGroup>
+</Project>

@@ -61,6 +61,7 @@ public sealed class InfoCompletionReopenPolicy : IDisposable
 
     private void Document_Changing(object? sender, DocumentChangeEventArgs e)
     {
+        if (!ReferenceEquals(sender, _document)) return;
         if (_invocationStart == null ||
             _argumentStart == null ||
             _invocationStart.IsDeleted ||

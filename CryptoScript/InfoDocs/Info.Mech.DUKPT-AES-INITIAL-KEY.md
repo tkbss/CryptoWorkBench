@@ -42,6 +42,13 @@ This CryptoScript mechanism performs only BDK to Initial Key derivation. It does
 
 The BDK and Initial Key are not the same key. Different IKIDs allow different Initial Keys to be derived from one BDK without using the BDK itself as the Initial Key.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Aes. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. Declared KEY metadata does not change AES DUKPT. #USAGE and #KEYTYPE on working-key parameters are protocol values controlling derivation data and result usage; they remain mandatory, with unchanged strength limits.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 
 | Function | Arguments | Input | Output | Key Length |

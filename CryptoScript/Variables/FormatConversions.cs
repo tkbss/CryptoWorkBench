@@ -100,7 +100,7 @@ namespace CryptoScript.Variables
         }
         public static string ParseString(string input) 
         {
-            if (input.StartsWith("\"") && input.Contains("0x("))
+            if (input.StartsWith("\"") && TR31String.IsComposite(input))
             {
                 return TR31;
             }

@@ -1,0 +1,2 @@
+# Keep reference message bytes exact on every checkout, including CR/LF.
+*.bin -text

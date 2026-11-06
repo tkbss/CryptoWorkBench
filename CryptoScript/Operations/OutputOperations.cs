@@ -21,14 +21,28 @@ namespace CryptoScript.Model
                 throw new ArgumentNullException(nameof(infoDocumentationProvider));
         }
 
-        public VariableDeclaration Print(OperationInvocation invocation) => Print(invocation.Values);
+        public VariableDeclaration Print(OperationInvocation invocation)
+        {
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is BlockHeaderVariableDeclaration header)
+                return Print(new[] { header.PrintOutput() });
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is SecretVariableDeclaration secret)
+                return Print(new[] { secret.PrintOutput().ReplaceLineEndings(Environment.NewLine + "out: ") });
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is KeyVariableDeclaration key)
+                // ScriptBooks skip output one physical line at a time. The legacy
+                // Print path supplies the first prefix and publishes the event once.
+                return Print(new[] { key.PrintOutput().ReplaceLineEndings(Environment.NewLine + "out: ") });
+            return Print(invocation.Values);
+        }
         public VariableDeclaration Info(OperationInvocation invocation) => Info(invocation.Values);
 
         public VariableDeclaration Print(string[] args)
         {
             string output = "out: " + args[0];
             if (PrintEvent != null)
+            {
+                using var callback = InterpreterExecution.HostOutputCallback();
                 PrintEvent?.Invoke(output);
+            }
             Console.WriteLine(output);
             return new VariableDeclaration();
         }
@@ -40,7 +54,10 @@ namespace CryptoScript.Model
                 Console.WriteLine("No info available");
 
             if (InfoEvent != null)
+            {
+                using var callback = InterpreterExecution.HostOutputCallback();
                 InfoEvent?.Invoke(output);
+            }
             Console.WriteLine(output);
             return new VariableDeclaration();
         }

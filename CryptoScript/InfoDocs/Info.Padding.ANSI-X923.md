@@ -87,3 +87,8 @@ The name `ANSI-X923` refers historically to ANSI X9.23. CryptoScript implements 
 - [.NET `SymmetricPadding` source code](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Security.Cryptography/src/System/Security/Cryptography/SymmetricPadding.cs)
 - [FIPS PUB 140-1, Appendix C](https://csrc.nist.gov/files/pubs/fips/140-1/upd1/final/docs/fips1401.pdf), which identifies ANSI X9.23-1988 among the referenced standards
 - [ASC X9 TR 37-2010](https://webstore.ansi.org/standards/ascx9/ascx9tr372010), which records later migration guidance for X9.23
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.

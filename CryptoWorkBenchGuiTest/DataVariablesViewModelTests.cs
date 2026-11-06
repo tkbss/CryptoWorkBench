@@ -8,6 +8,27 @@ namespace CryptoWorkBenchGuiTest;
 public class DataVariablesViewModelTests
 {
     [Test]
+    public void KeyRefreshDisplaysCurrentCanonicalValue()
+    {
+        var key = new CryptoScript.CryptoAlgorithm.AES.AES().GenerateKey("AES-ECB", "128");
+        key.Id = "key";
+        var sut = new DataVariablesViewModel();
+        sut.Add(key);
+        key.Value = "0x(000102030405060708090A0B0C0D0E0F)";
+
+        // Execution refreshes the variable table by clearing and repopulating it.
+        sut.Clear();
+        sut.Add(key);
+
+        var row = sut.DataVariables.Should().ContainSingle().Which;
+        row.Type.Should().Be("KEY");
+        row.Identifier.Should().Be("key");
+        row.Value.Should().Be(key.Value);
+        row.ValueFormat.Should().Be(FormatConversions.HEX);
+        key.PrintOutput().Should().Contain("Value: " + row.Value).And.NotContain("KeyValue:");
+    }
+
+    [Test]
     public void Add_WithStringVariable_MapsVariableToVisibleCollection()
     {
         var sut = new DataVariablesViewModel();

@@ -3,6 +3,10 @@ using CryptoScript.Variables;
 
 namespace CryptoScript.CryptoAlgorithm.WRAPPERS
 {
+    /// <summary>
+    /// Legacy BlockHeader() display factory retained for compatibility. It does not serialize wire headers.
+    /// CreateHeader uses Tr31HeaderDefinition for validated, immutable transport definitions.
+    /// </summary>
     public class Tr31BlockHeader : CryptoAlgorithm
     {
         

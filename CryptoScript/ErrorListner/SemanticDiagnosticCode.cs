@@ -10,5 +10,18 @@ public enum SemanticDiagnosticCode
     FunctionContractViolation = 4,
     FunctionExecutionFailed = 5,
     InvalidDeclaration = 6,
-    InvalidParameter = 7
+    InvalidParameter = 7,
+    KeyUsageConflict = 8,
+    KeyTypeConflict = 9,
+    DesParityViolation = 10,
+    WeakDes3Key = 11,
+    KeyCheckValueNotFound = 12,
+    KeyCheckValueAmbiguous = 13,
+    PinBlockTranslationForbidden = 14,
+    PinBlockPanMismatch = 15,
+    InvalidPinBlock = 16,
+    AsyncExecutionRequired = 17,
+    AssignmentTypeMismatch = 18,
+    InvalidAssignmentInitializer = 19,
+    MissingReturnValue = 20
 }

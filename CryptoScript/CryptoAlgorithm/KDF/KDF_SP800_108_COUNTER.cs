@@ -75,7 +75,11 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         int prfOutputLength = GetPrfOutputLengthBits(prf);
         ulong iterations = ValidateIterationCount(outputLength, prfOutputLength, counterLength);
 
-        byte[] key = ResolveKeyBytes(KdfArgumentResolver.ResolveKey(parameters, 1));
+        KeyVariableDeclaration sourceKey = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(sourceKey, prf.Equals("AES-CMAC", StringComparison.OrdinalIgnoreCase)
+                ? KeyAlgorithm.Aes : KeyAlgorithm.Hmac, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
+        byte[] key = ResolveKeyBytes(sourceKey);
         ValidatePrfKey(prf, key);
         byte[] context = ResolveBinaryValue(parameters.Arguments[2].Value!, "Context");
         byte[] label = parameter.GetParameters().ContainsKey("#LABEL")
@@ -98,7 +102,6 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = outputLength.ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
@@ -113,7 +116,6 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
         var keyVariable = new KeyVariableDeclaration
         {
             Value = FormatConversions.ByteArrayToHexString(key),
-            KeyValue = FormatConversions.ByteArrayToHexString(key),
             ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey()
         };
@@ -190,7 +192,7 @@ public sealed class KDF_SP800_108_COUNTER : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (!IsBinaryFormat(format) && IsBinaryFormat(key.ValueFormat))
             format = key.ValueFormat;

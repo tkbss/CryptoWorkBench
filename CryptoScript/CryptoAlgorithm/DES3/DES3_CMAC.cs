@@ -9,6 +9,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 {
     public class DES3_CMAC : EncryptionMode
     {
+        private readonly bool analysisKeys;
+        public DES3_CMAC() { }
+        internal DES3_CMAC(bool analysisKeys) => this.analysisKeys = analysisKeys;
         public override StringVariableDeclaration ModeMac(
             ParameterVariableDeclaration parameter,
             KeyVariableDeclaration key,
@@ -16,7 +19,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             byte[] keyBytes = FormatConversions.ToByteArray(key.Value, key.ValueFormat);
             DES3.ValidateKeyLength(keyBytes);
-            DES3.ValidateUsableKey(keyBytes);
+            if (!analysisKeys) DES3.ValidateUsableKey(keyBytes);
 
             byte[] input = FormatConversions.ToByteArray(data.Value, data.ValueFormat);
             byte[] result = Compute(keyBytes, input);
@@ -30,7 +33,16 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             };
         }
 
-        // Callers validate the key before invoking this shared primitive.
+        // Explicit analysis boundary; no quality gate on the effective key bits.
+        internal static byte[] ComputeForAnalysis(byte[] keyBytes, byte[] input)
+        {
+            ArgumentNullException.ThrowIfNull(keyBytes);
+            ArgumentNullException.ThrowIfNull(input);
+            DES3.ValidateKeyLength(keyBytes);
+            return Compute(keyBytes, input);
+        }
+
+        // Existing shared primitive: callers validate the key before invoking it.
         internal static byte[] Compute(byte[] keyBytes, byte[] input)
         {
             IMac mac = new CMac(new DesEdeEngine());

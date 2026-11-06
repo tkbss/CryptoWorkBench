@@ -144,7 +144,7 @@ public class EmvMasterOptionBMechanismTests
         RejectScript("KEY ICC=Derive(p,IMK,\"1234\",\"45\")", "argument");
         VariableDictionary.Instance().Add(new KeyVariableDeclaration
         {
-            Id = "inconsistent", Value = "0x(" + Imk + ")", KeyValue = "0x(" + Imk + ")",
+            Id = "inconsistent", Value = "0x(" + Imk + ")",
             ValueFormat = FormatConversions.HEX, KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
             KeySizeInBits = new KeySize(192), Type = new CryptoTypeKey()
         });
@@ -164,7 +164,6 @@ public class EmvMasterOptionBMechanismTests
         Assert.That(error.ParameterName, Is.EqualTo("#UNKNOWN"));
     }
 
-    [TestCase("AES-ECB", Imk)]
     [TestCase("DES3-ECB", "0123456789ABCDEFFEDCBA98765432100011223344556677")]
     public void RejectsWrongKeyTypeOrLength(string algorithm, string value) =>
         RejectScript($"KEY IMK=GenerateKey({algorithm},0x({value})) PARAM p=Parameters({Mechanism}) KEY ICC=Derive(p,IMK,\"1234\")", "requires");
@@ -174,9 +173,11 @@ public class EmvMasterOptionBMechanismTests
     {
         Execute(Prefix + $"KEY aes=GenerateKey(AES-ECB,0x({Imk})) PARAM p=Parameters({Mechanism},#PSN:\"45\") KEY ICC=Derive(p,IMK,\"99012345678901234\")");
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), "985EC4FD3EDF6162E31AF1C7D0543416", Mechanism);
-        var error = Assert.Throws<SemanticErrorException>(() => Execute("KEY rejected=Derive(p,aes,\"99012345678901234\")"));
-        Assert.That(error!.SemanticError!.Message, Does.Contain("Secret TDEA KEY"));
-        Assert.That(VariableDictionary.Instance().Contains("rejected"), Is.False);
+        var runner = new CryptoScriptRunner();
+        runner.Execute(ParserBuilder.StringBuild("KEY warned=Derive(p,aes,\"99012345678901234\")").program());
+        AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("warned"), "985EC4FD3EDF6162E31AF1C7D0543416", Mechanism);
+        Assert.That(runner.Diagnostics.Select(d => d.DiagnosticCode), Is.EqualTo(new[] { SemanticDiagnosticCode.KeyTypeConflict }));
+        Assert.That(runner.Diagnostics[0].Identifier, Is.EqualTo("aes"));
     }
 
     [TestCase("#PSN:\"45\"", true)]
@@ -374,7 +375,6 @@ public class EmvMasterOptionBMechanismTests
         Assert.Multiple(() =>
         {
             Assert.That(key.Value, Is.EqualTo("0x(" + expected + ")").IgnoreCase);
-            Assert.That(key.KeyValue, Is.EqualTo(key.Value));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(128)));
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));

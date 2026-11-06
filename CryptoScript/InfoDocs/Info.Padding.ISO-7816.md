@@ -125,3 +125,8 @@ ISO/IEC 9797-1:2011, 6.3.3 defines Padding Method 2 as a single `1` bit followed
 - ISO/IEC 7816-4:2005, *Identification cards — Integrated circuit cards — Part 4: Organization, security and commands for interchange*, 6.2.3.1
 - [ISO catalogue: ISO/IEC 7816-4:2020](https://www.iso.org/standard/77180.html)
 - ISO/IEC 9797-1:2011, *Information technology — Security techniques — Message Authentication Codes (MACs) — Part 1: Mechanisms using a block cipher*, 6.3.3
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.

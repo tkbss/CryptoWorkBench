@@ -94,6 +94,28 @@ public class PinBlockDocumentationTests
         Assert.That(Read("WRAP-DES3-PINBLOCK-3"), Does.Contain("10-to-19-digit decimal PAN"));
     }
 
+    [Test]
+    public void PinBlockDocumentsSeparateMetadataWarningsFromTechnicalErrors()
+    {
+        foreach (string mechanism in Mechanisms)
+        {
+            string document = Read(mechanism);
+            Assert.That(document, Does.Contain("non-blocking `KeyTypeConflict`"));
+            Assert.That(document, Does.Contain("non-blocking `KeyUsageConflict`"));
+            Assert.That(document, Does.Contain("`Encrypt` is not equivalent to `PinEncrypt`"));
+            Assert.That(document, Does.Contain("Unknown algorithm and Unspecified usage"));
+            Assert.That(document, Does.Contain("no global warning collection"));
+            Assert.That(document, Does.Contain("remain blocking errors"));
+            Assert.That(document, Does.Contain("Decrypted PIN block is invalid."));
+            if (mechanism.Contains("DES3", StringComparison.Ordinal))
+            {
+                Assert.That(document, Does.Contain("`DesParityViolation`"));
+                Assert.That(document, Does.Contain("`WeakDes3Key`"));
+                Assert.That(document, Does.Contain("K1=K3 alone"));
+            }
+        }
+    }
+
     private static string Read(string mechanism) => File.ReadAllText(Path.Combine(
         AppContext.BaseDirectory, "InfoDocs", $"Info.Mech.{mechanism}.md"));
 }

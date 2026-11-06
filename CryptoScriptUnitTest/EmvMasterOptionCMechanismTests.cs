@@ -56,7 +56,7 @@ public class EmvMasterOptionCMechanismTests
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), icc, bits, Mechanism);
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("session"), session, bits, "KDF-EMV-AC-SESSION");
         var original = (KeyVariableDeclaration)VariableDictionary.Instance().Get("IMK");
-        Assert.That(original.KeyValue, Is.EqualTo("0x(" + imk + ")").IgnoreCase);
+        Assert.That(original.Value, Is.EqualTo("0x(" + imk + ")").IgnoreCase);
     }
 
     [TestCase("PARAM p=Parameters(KDF-EMV-MASTER-C)")]
@@ -170,7 +170,6 @@ public class EmvMasterOptionCMechanismTests
         Assert.Multiple(() =>
         {
             Assert.That(key.Value, Is.EqualTo("0x(" + expected + ")").IgnoreCase);
-            Assert.That(key.KeyValue, Is.EqualTo(key.Value));
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(algorithm)));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(128)));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
@@ -254,12 +253,15 @@ public class EmvMasterOptionCMechanismTests
 
     [TestCase(KeyAlgorithm.Tdea)]
     [TestCase(KeyAlgorithm.Hmac)]
-    [TestCase(KeyAlgorithm.Rsa)]
     [TestCase(KeyAlgorithm.Unknown)]
-    public void RejectsWrongKeyAlgorithmsFromTheReferencedKey(KeyAlgorithm algorithm)
+    public void ConflictingOrUnknownKeyAlgorithmsKeepTheAesDerivation(KeyAlgorithm algorithm)
     {
-        AddKey("bad", Imk128, algorithm == KeyAlgorithm.Rsa ? KeyType.Public(algorithm) : KeyType.Secret(algorithm), 128);
-        RejectScript($"PARAM p=Parameters({Mechanism}) KEY ICC=Derive(p,bad,\"1234\")", "Secret AES KEY");
+        AddKey("bad", Imk128, KeyType.Secret(algorithm), 128);
+        var runner = new CryptoScriptRunner();
+        runner.Execute(ParserBuilder.StringBuild($"PARAM p=Parameters({Mechanism},#PSN:\"45\") KEY ICC=Derive(p,bad,\"{Pan}\")").program());
+        AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), Icc128, 128, Mechanism);
+        Assert.That(runner.Diagnostics.Select(d => d.DiagnosticCode), Is.EqualTo(
+            algorithm == KeyAlgorithm.Unknown ? Array.Empty<SemanticDiagnosticCode>() : new[] { SemanticDiagnosticCode.KeyTypeConflict }));
     }
 
     [TestCase(15)]
@@ -282,7 +284,8 @@ public class EmvMasterOptionCMechanismTests
         AddKey("wrongSize", Imk128, KeyType.Secret(KeyAlgorithm.Aes), 192);
         Execute($"KEY ICC=Derive(p,IMK,\"{Pan}\")");
         AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC"), Icc128, 128, Mechanism);
-        RejectScript($"KEY rejected=Derive(p,wrongType,\"{Pan}\")", "Secret AES KEY", "rejected");
+        Execute($"KEY warned=Derive(p,wrongType,\"{Pan}\")");
+        AssertKey((KeyVariableDeclaration)VariableDictionary.Instance().Get("warned"), Icc128, 128, Mechanism);
         RejectScript($"KEY rejected=Derive(p,wrongSize,\"{Pan}\")", "size metadata", "rejected");
     }
 
@@ -433,7 +436,7 @@ public class EmvMasterOptionCMechanismTests
     {
         var key = new KeyVariableDeclaration
         {
-            Id = id, Value = "0x(" + hex + ")", KeyValue = "0x(" + hex + ")",
+            Id = id, Value = "0x(" + hex + ")",
             ValueFormat = FormatConversions.HEX, KeyType = type, KeySizeInBits = new KeySize(bits),
             Type = new CryptoTypeKey()
         };
@@ -446,7 +449,6 @@ public class EmvMasterOptionCMechanismTests
         Assert.Multiple(() =>
         {
             Assert.That(key.Value, Is.EqualTo("0x(" + expected + ")").IgnoreCase);
-            Assert.That(key.KeyValue, Is.EqualTo(key.Value));
             Assert.That(key.ValueFormat, Is.EqualTo(FormatConversions.HEX));
             Assert.That(key.KeySizeInBits, Is.EqualTo(new KeySize(bits)));
             Assert.That(key.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));

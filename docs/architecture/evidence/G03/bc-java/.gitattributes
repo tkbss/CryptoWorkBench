@@ -1,0 +1,3 @@
+# Preserve upstream bytes so SHA256SUMS remains valid on every checkout platform.
+*.java -text
+LICENSE.html -text

@@ -17,7 +17,9 @@ namespace CryptoScriptUnitTest
         [Test]
         public void TR31BlockParsingTest() 
         {      
-            TR31Block tr31block = TR31Block.FromString(b);
+            // The verbatim fixture includes a source-formatting newline outside KBLEN.
+            // Pass the exact published wire bytes; the reader no longer ignores suffixes.
+            TR31Block tr31block = TR31Block.FromString(b.TrimEnd('\r', '\n'));
             Assert.That(tr31block.Header == "D3776S0RS00N0400");
             Assert.That(tr31block.OptionalBlocks.Count == 4);
             Assert.That(tr31block.OptionalBlocks[0].ID == "CT");
@@ -75,7 +77,6 @@ namespace CryptoScriptUnitTest
             var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
-            Assert.That(ik.KeyValue.ToUpper() == "0x(3F419E1CB7079442AA37474C2EFBF8B8)".ToUpper());
             string v = "0x(3F419E1CB7079442AA37474C2EFBF8B8)";
             Assert.That(ik.Value.ToUpper() == v.ToUpper());
         }
@@ -94,7 +95,6 @@ namespace CryptoScriptUnitTest
             var res = prog.Execute(context);
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
-            Assert.That(ik.KeyValue.ToUpper() == "0x(3F419E1CB7079442AA37474C2EFBF8B8)".ToUpper());
             string v = "0x(3F419E1CB7079442AA37474C2EFBF8B8)";
             Assert.That(ik.Value.ToUpper() == v.ToUpper());
         }
@@ -102,7 +102,7 @@ namespace CryptoScriptUnitTest
         public void WrapperTr31UnwrapNormalStringRSAKeyTest() 
         { 
             string input=
-                "VAR block= \""+b+"\""+
+                "VAR block= \""+b.TrimEnd('\r', '\n')+"\""+
                 "KEY kbpk = GenerateKey(AES-CBC,0x(FA36E44278DB3AB5F298F9F7DA8F1F88)) " +
                 "PARAM p=#MECH:WRAP-AES-TR31" +
                 "KEY ik=Unwrap(p,kbpk,block)";
@@ -113,7 +113,7 @@ namespace CryptoScriptUnitTest
             Assert.That(res.Statements.Count == 4);
             var ik = res.Statements[3] as KeyVariableDeclaration;
             string partRSAKey="308204a40201000282010100d6c460fb012e8dedf2d78574b451e9bf1c69";
-            string pr=FormatConversions.HexStringToString(ik.KeyValue);
+            string pr=FormatConversions.HexStringToString(ik.Value);
             Assert.That(pr.Substring(0, partRSAKey.Length).ToUpper() == partRSAKey.ToUpper());
         }
     }

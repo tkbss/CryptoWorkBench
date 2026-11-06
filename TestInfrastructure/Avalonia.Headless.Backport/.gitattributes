@@ -1,0 +1,8 @@
+# Preserve upstream bytes, including its inherited whitespace, for blob verification.
+src/*.cs text eol=lf -whitespace
+*.md text eol=lf
+*.json text eol=lf
+# Unified-diff context lines intentionally consist of a single space.
+*.patch text eol=lf -whitespace
+*.props text eol=lf
+*.snk binary

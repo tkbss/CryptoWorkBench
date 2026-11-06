@@ -9,6 +9,8 @@
                 ? mechanism["#MECH:".Length..]
                 : mechanism;
             string canonicalMechanism = normalizedMechanism.ToUpperInvariant();
+            if (SecretSharing.SecretParameters.IsSecretMechanism(canonicalMechanism))
+                return new SecretSharing.SecretSharingAlgorithm();
 
             if (canonicalMechanism == "BLOCKHEADER-WRAP-AES-TR31")
                 return new WRAPPERS.Tr31BlockHeader();
@@ -49,6 +51,22 @@
                 return new KDF.KDF_EMV_MASTER_B();
             if (canonicalMechanism == "KDF-EMV-MASTER-C")
                 return new KDF.KDF_EMV_MASTER_C();
+            if (canonicalMechanism == "MAC-EMV-AC")
+                return new EMV.MAC_EMV_AC();
+            if (canonicalMechanism == "MAC-EMV-AC-VERIFY")
+                return new EMV.MAC_EMV_AC_VERIFY();
+            if (canonicalMechanism == "MAC-EMV-ARPC-METHOD-1")
+                return new EMV.MAC_EMV_ARPC_METHOD_1();
+            if (canonicalMechanism == "MAC-EMV-ARPC-METHOD-2")
+                return new EMV.MAC_EMV_ARPC_METHOD_2();
+            if (canonicalMechanism == "EP2-TR31-KEY-BLOCK")
+                return new EP2.Ep2Tr31KeyBlock();
+            if (canonicalMechanism == "EP2-PAN-RECEIPT-ENCRYPTION")
+                return new EP2.Ep2PanReceiptEncryption();
+            if (canonicalMechanism == "EP2-DATA-ENCRYPTION")
+                return new EP2.Ep2DataEncryption();
+            if (canonicalMechanism is "EP2-MESSAGE-MAC" or "EP2-TRANSACTION-CERTIFICATE")
+                return new EP2.Ep2Mac(canonicalMechanism);
             if (canonicalMechanism == "KDF-EP2-SESSION")
                 return new KDF.KDF_EP2_SESSION();
             if (canonicalMechanism == "KDF-EP2-PAN-SURROGATE-TRX")

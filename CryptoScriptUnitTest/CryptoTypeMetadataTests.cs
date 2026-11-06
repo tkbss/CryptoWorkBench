@@ -55,13 +55,13 @@ public class CryptoTypeMetadataTests
     [TestCase("VAR")]
     [TestCase("PARAM")]
     [TestCase("PATH")]
+    [TestCase("TR31H")]
     public void ParseKeepsClrMappingAndCaseHandling(string name)
     {
         Assert.That(CryptoType.Parse(name).GetType(), Is.EqualTo(Create(name).GetType()));
         Assert.That(CryptoType.Parse(name.ToLowerInvariant()).Id, Is.EqualTo(Create(name).Id));
     }
 
-    [TestCase("TR31H")]
     [TestCase("unknown")]
     public void ParseStillRejectsUnsupportedTypes(string name)
     {

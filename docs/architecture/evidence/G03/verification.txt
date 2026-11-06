@@ -1,0 +1,59 @@
+G03 final verification, 2026-10-19, Windows x64, .NET SDK 10.0.401
+
+Core regression
+dotnet test CryptoScriptUnitTest --no-restore --logger 'trx;LogFileName=core-final.trx' --results-directory docs/architecture/evidence/G03
+Exit code: 0
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  CryptoScriptUnitTest -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll
+Test run for C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+WARNING: Overwriting results file: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\docs\architecture\evidence\G03\core-final.trx
+Results File: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\docs\architecture\evidence\G03\core-final.trx
+
+Passed!  - Failed:     0, Passed:  6933, Skipped:     0, Total:  6933, Duration: 3 s - CryptoScriptUnitTest.dll (net10.0)
+
+GUI regression
+dotnet test CryptoWorkBenchGuiTest --no-restore --logger 'trx;LogFileName=gui-final.trx' --results-directory docs/architecture/evidence/G03
+Exit code: 0
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  Avalonia Accelerate Community requires telemetry. To opt out, please upgrade to a paid tier. Learn more: https://avaloniaui.net/accelerate/
+  CryptoWorkBenchConsole -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchConsole\bin\Debug\net10.0\CryptoWorkBenchConsole.dll
+  CryptoWorkBenchAvalonia -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\bin\Debug\net10.0\CryptoWorkBenchAvalonia.dll
+  Avalonia Accelerate Community requires telemetry. To opt out, please upgrade to a paid tier. Learn more: https://avaloniaui.net/accelerate/
+  CryptoWorkBenchGuiTest -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchGuiTest\bin\Debug\net10.0\CryptoWorkBenchGuiTest.dll
+Test run for C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchGuiTest\bin\Debug\net10.0\CryptoWorkBenchGuiTest.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+WARNING: Overwriting results file: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\docs\architecture\evidence\G03\gui-final.trx
+Results File: C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\docs\architecture\evidence\G03\gui-final.trx
+
+Passed!  - Failed:     0, Passed:   210, Skipped:     0, Total:   210, Duration: 723 ms - CryptoWorkBenchGuiTest.dll (net10.0)
+
+Core solution build
+dotnet build CryptoWorkBench.sln --no-restore -m:1 -v minimal
+Exit code: 0
+Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  CryptoWorkBenchConsole -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchConsole\bin\Debug\net10.0\CryptoWorkBenchConsole.dll
+  CryptoScriptUnitTest -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScriptUnitTest\bin\Debug\net10.0\CryptoScriptUnitTest.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.84
+
+Desktop build
+dotnet build CryptoWorkBenchAvalonia.Desktop --no-restore -m:1 -v minimal
+Exit code: 0
+Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
+  CryptoScript -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoScript\bin\Debug\net10.0\CryptoScript.dll
+  CryptoWorkBenchAvalonia -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia\bin\Debug\net10.0\CryptoWorkBenchAvalonia.dll
+  CryptoWorkBenchAvalonia.Desktop -> C:\Users\stefa\Documents\projects\GITHUB\CryptoWorkBench\CryptoWorkBenchAvalonia.Desktop\bin\Debug\net10.0\CryptoWorkBenchAvalonia.Desktop.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.91
+
+

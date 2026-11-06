@@ -73,6 +73,12 @@ public sealed class FileInfoDocumentationProvider : IInfoDocumentationProvider
     {
         documentId = name switch
         {
+            "tr31" => InfoDocumentId.CreateTr31Overview(),
+            "tr31attributes" => InfoDocumentId.CreateTr31Attributes(),
+            "Hash" or "MacPack" or "MacVerify" or "Encrypt" or "Decrypt" or "CreateHeader" => InfoDocumentId.CreateFunction(name),
+            "SECRET" => InfoDocumentId.CreateType("SECRET"),
+            "Share" or "Secret" or "Restore" or "Save" or "Load" => InfoDocumentId.CreateFunction(name),
+            "pintranslations" => InfoDocumentId.CreatePinTranslationsOverview(),
             "functions" => InfoDocumentId.CreateFunctionsOverview(),
             "mechanisms" => InfoDocumentId.CreateMechanismsOverview(),
             "parameters" => InfoDocumentId.CreateParametersOverview(),

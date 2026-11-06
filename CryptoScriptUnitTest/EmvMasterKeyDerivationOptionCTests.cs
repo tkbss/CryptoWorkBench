@@ -234,8 +234,12 @@ public class EmvMasterKeyDerivationOptionCTests
 
     private static void AssertSanitized(Exception exception, params string?[] sensitiveValues)
     {
-        foreach (string? value in sensitiveValues)
-            if (!string.IsNullOrEmpty(value))
-                exception.ToString().Should().NotContain(value);
+        // Check diagnostic messages (including wrapped errors), not stack traces or PDB source paths.
+        for (Exception? diagnostic = exception; diagnostic is not null; diagnostic = diagnostic.InnerException)
+        {
+            foreach (string? value in sensitiveValues)
+                if (!string.IsNullOrEmpty(value))
+                    diagnostic.Message.Should().NotContain(value);
+        }
     }
 }

@@ -8,6 +8,12 @@ namespace CryptoScript.CryptoAlgorithm.KDF;
 internal static class EmvMasterKeyDerivationOptionA
 {
     internal static byte[] Derive(byte[] issuerMasterKey, string pan, string? psn)
+        => DeriveCore(issuerMasterKey, pan, psn, analysisKeys: false);
+
+    internal static byte[] DeriveForAnalysis(byte[] issuerMasterKey, string pan, string? psn)
+        => DeriveCore(issuerMasterKey, pan, psn, analysisKeys: true);
+
+    private static byte[] DeriveCore(byte[] issuerMasterKey, string pan, string? psn, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(issuerMasterKey);
 
@@ -19,7 +25,7 @@ internal static class EmvMasterKeyDerivationOptionA
             if (keySnapshot.Length != 16)
                 throw new ArgumentException("EMV Option A issuer master key must contain exactly 16 bytes.", nameof(issuerMasterKey));
             Des3Algorithm.ValidateKeyLength(keySnapshot);
-            Des3Algorithm.ValidateUsableKey(keySnapshot);
+            if (!analysisKeys) Des3Algorithm.ValidateUsableKey(keySnapshot);
 
             ArgumentNullException.ThrowIfNull(pan);
             // The 1-19 digit limit is a provisional technical input contract, not a conformity claim.
@@ -28,7 +34,7 @@ internal static class EmvMasterKeyDerivationOptionA
             ValidateDigits(psn, 2, 2, nameof(psn));
 
             firstInput = CreateDiversificationBlock(pan, psn);
-            return EmvTdeaMasterKeyDiversification.Derive(keySnapshot, firstInput);
+            return EmvTdeaMasterKeyDiversification.Derive(keySnapshot, firstInput, analysisKeys);
         }
         finally
         {

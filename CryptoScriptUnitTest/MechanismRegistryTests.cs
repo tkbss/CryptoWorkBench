@@ -14,7 +14,7 @@ public class MechanismRegistryTests
     // Formatting tolerance is limited to Markdown list indentation, whitespace around
     // the list marker and colon, and trailing line whitespace.
     private static readonly Regex MechanismDescriptionLine = new(
-        @"^\s*-\s+(?<name>[A-Z0-9-]+)\s+:\s+(?<description>\S(?:.*\S)?)\s*$",
+        @"^\s*-\s+(?<name>[A-Z0-9_-]+)\s+:\s+(?<description>\S(?:.*\S)?)\s*$",
         RegexOptions.CultureInvariant);
 
     private static readonly string[] RoadmapMechanisms =
@@ -23,9 +23,9 @@ public class MechanismRegistryTests
     };
 
     [Test]
-    public void ContainsExactlyFiftySevenRegisteredMechanisms()
+    public void ContainsExactlySixtyEightRegisteredMechanisms()
     {
-        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(57));
+        Assert.That(MechanismRegistry.Entries, Has.Count.EqualTo(68));
         Assert.That(
             MechanismRegistry.Entries.Select(entry => entry.CanonicalName),
             Is.EquivalentTo(MechanismList.Instance.Mechanisms));
@@ -222,7 +222,7 @@ public class MechanismRegistryTests
         IReadOnlyDictionary<string, string> documentedDescriptions =
             ReadDocumentedMechanismDescriptions();
 
-        Assert.That(documentedDescriptions, Has.Count.EqualTo(57));
+        Assert.That(documentedDescriptions, Has.Count.EqualTo(68));
 
         foreach (MechanismRegistryEntry entry in MechanismRegistry.Entries)
         {
@@ -311,6 +311,17 @@ public class MechanismRegistryTests
     {
         Algorithm algorithm = AlgorithmFactory.Create(mechanism);
         var functions = new HashSet<CryptoScriptFunction>();
+        if (algorithm is CryptoScript.SecretSharing.SecretSharingAlgorithm)
+        {
+            // Object-valued operations are dispatched by OperationFactory, not byte-string algorithms.
+            foreach (var function in new[] { CryptoScriptFunction.Share, CryptoScriptFunction.Secret, CryptoScriptFunction.Restore })
+            {
+                var operation = OperationFactory.CreateInvocationOperation(function.ToString());
+                Assert.That(operation.Method.DeclaringType, Is.EqualTo(typeof(CryptoScript.Operations.SecretOperations)));
+                Assert.That(operation.Method.Name, Is.EqualTo(function.ToString()));
+                functions.Add(function);
+            }
+        }
 
         if (HasConcreteAlgorithmOverride(
                 algorithm,
@@ -356,11 +367,19 @@ public class MechanismRegistryTests
                 CryptoScriptFunction.Mac);
         }
 
+        if (algorithm is not SymmetricCryptoAlgorithm)
+        {
+            AddAlgorithmFunction(functions, algorithm, nameof(Algorithm.Encrypt), CryptoScriptFunction.Encrypt, typeof(AlgorithmCallArguments));
+            AddAlgorithmFunction(functions, algorithm, nameof(Algorithm.Decrypt), CryptoScriptFunction.Decrypt, typeof(AlgorithmCallArguments));
+        }
         AddAlgorithmFunction(
             functions,
             algorithm,
             nameof(Algorithm.Hash),
             CryptoScriptFunction.Hash);
+        if (algorithm is not SymmetricCryptoAlgorithm)
+            AddAlgorithmFunction(functions, algorithm, nameof(Algorithm.Mac),
+                CryptoScriptFunction.Mac, typeof(AlgorithmCallArguments));
         AddAlgorithmFunction(
             functions,
             algorithm,
@@ -404,6 +423,18 @@ public class MechanismRegistryTests
         CryptoScriptFunction function,
         Type? structuredArgumentType = null)
     {
+        // EP2 explicitly rejects legacy base-class stubs; an override is not support.
+        // Ep2MacTests.DirectUnsupportedAlgorithmOperationsThrow verifies these rejections.
+        if (algorithm is CryptoScript.CryptoAlgorithm.EP2.Ep2Mac &&
+            function is CryptoScriptFunction.Hash or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap or CryptoScriptFunction.Encrypt or CryptoScriptFunction.Decrypt)
+            return;
+        // Ep2DataEncryptionTests and Ep2PanReceiptEncryptionTests verify each explicit rejection.
+        if (algorithm is (CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption or CryptoScript.CryptoAlgorithm.EP2.Ep2PanReceiptEncryption) &&
+            function is CryptoScriptFunction.Hash or CryptoScriptFunction.Mac or CryptoScriptFunction.Wrap or CryptoScriptFunction.Unwrap)
+            return;
+        if (algorithm is CryptoScript.CryptoAlgorithm.EP2.Ep2Tr31KeyBlock &&
+            function is CryptoScriptFunction.Hash or CryptoScriptFunction.Mac or CryptoScriptFunction.Encrypt or CryptoScriptFunction.Decrypt)
+            return;
         if (HasConcreteAlgorithmOverride(algorithm, methodName, typeof(string[])) ||
             (structuredArgumentType is not null &&
              HasConcreteAlgorithmOverride(algorithm, methodName, structuredArgumentType)))

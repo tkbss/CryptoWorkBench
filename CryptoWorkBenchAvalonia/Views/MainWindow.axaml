@@ -40,7 +40,10 @@
 				<ContentControl prism:RegionManager.RegionName="{x:Static core:RegionNames.SidebarRegion}" />
 			</Border>
 			<Border Grid.Row="0" Grid.Column="1"  Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="7">
-				<TextBlock  Text="Crypto Script Edit" TextAlignment="Center" FontSize="20" Margin="10" />
+				<DockPanel>
+					<Button x:Name="McpSessionButton" DockPanel.Dock="Right" Content="Connect Codex…" IsVisible="False" Margin="4" />
+					<TextBlock Text="Crypto Script Edit" TextAlignment="Center" FontSize="20" Margin="10" />
+				</DockPanel>
 			</Border>
 			<Border Grid.Row="0" Grid.Column="2"  Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="7">
 				<TextBlock  TextAlignment="Center" Text="{Binding InfoViewTitle}" FontSize="20" Margin="10" />

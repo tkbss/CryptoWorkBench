@@ -75,11 +75,11 @@ public class InfoDocumentCatalogTests
 
         Assert.Multiple(() =>
         {
-            mechanismDocuments.Should().HaveCount(57);
+            mechanismDocuments.Should().HaveCount(68);
             mechanismDocuments.Select(entry => entry.DocumentId.Mechanism)
                 .Should().Equal(MechanismRegistry.Entries.Select(entry => entry.CanonicalName));
             InfoDocumentCatalog.Entries.Should().HaveCount(
-                MechanismRegistry.Entries.Count + PaddingRegistry.Entries.Count + 4);
+                MechanismRegistry.Entries.Count + PaddingRegistry.Entries.Count + 4 + 28 + 16 + 5);
         });
 
         foreach (MechanismRegistryEntry mechanism in MechanismRegistry.Entries)
@@ -154,7 +154,6 @@ public class InfoDocumentCatalogTests
     {
         InfoDocumentId[] undocumented =
         {
-            InfoDocumentId.CreateFunction("Encrypt"),
             InfoDocumentId.CreateMechanismFunction("Encrypt", "AES-CBC"),
             InfoDocumentId.CreateMechanismParameter("AES-CBC", "IV"),
             InfoDocumentId.CreateFunction("FutureFunction")

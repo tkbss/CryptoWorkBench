@@ -1,5 +1,7 @@
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
+using CryptoScript.Operations;
+using CryptoScript.Serialization;
 
 namespace CryptoScript.Model
 {
@@ -45,12 +47,91 @@ namespace CryptoScript.Model
             }
         }
 
+        internal static async Task<Statement> EvaluateSecureSaveAsync(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> errors, SemanticDiagnosticExecution execution, DiagnosticLocation parent,
+            AsyncOperationContext context)
+        {
+            var fc = new FunctionCall { Name = "SecureSave", CallText = "SecureSave(<redacted>)",
+                Location = execution.BeginOperation(parent, "SecureSave") };
+            try
+            {
+                PreparedSecureSave prepared;
+                using (InterpreterExecution.EnterState(runner: true))
+                {
+                    ValidateArgumentContracts(call, errors);
+                    prepared = SecureSaveOperations.Prepare(call);
+                }
+                using (prepared)
+                {
+                    using (InterpreterExecution.EnterState(runner: true)) execution.BeforeOperation(fc);
+                    await OperationFactory.CreateAsyncOperation(call.Name)(prepared, context).ConfigureAwait(false);
+                }
+                return fc;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (SecurePasswordCancelledException) { throw; }
+            catch (Exception exception)
+            {
+                if (exception is SemanticErrorException semantic && semantic.SemanticError is { } existing)
+                { execution.CaptureError(existing, fc.Location!); throw; }
+                var error = new SemanticError { Type = "FunctionCall", FunctionName = "SecureSave",
+                    FunctionCall = "SecureSave(<redacted>)",
+                    Message = exception is SecureSaveException or VariableSnapshotFileException or PasswordProtocolException
+                        ? exception.Message : "SecureSave failed.",
+                    DiagnosticCode = exception is SecureSaveException or SnapshotArgumentException or PasswordProtocolException
+                        ? SemanticDiagnosticCode.FunctionContractViolation : SemanticDiagnosticCode.FunctionExecutionFailed };
+                errors.Add(error); execution.Report(error, fc.Location!);
+                if (exception is PasswordProtocolException) throw;
+                throw new SemanticErrorException { SemanticError = error };
+            }
+        }
+
+        internal static async Task<Statement> EvaluateSecureLoadAsync(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> errors, SemanticDiagnosticExecution execution, DiagnosticLocation parent,
+            AsyncOperationContext context)
+        {
+            var fc = new FunctionCall { Name = "SecureLoad", CallText = "SecureLoad(<redacted>)",
+                Location = execution.BeginOperation(parent, "SecureLoad") };
+            try
+            {
+                PreparedSecureLoad prepared;
+                using (InterpreterExecution.EnterState(runner: true))
+                {
+                    ValidateArgumentContracts(call, errors);
+                    prepared = SecureLoadOperations.Prepare(call, context.CancellationToken);
+                }
+                using (prepared)
+                {
+                    using (InterpreterExecution.EnterState(runner: true)) execution.BeforeOperation(fc);
+                    await OperationFactory.CreateSecureLoadOperation(call.Name)(prepared, context).ConfigureAwait(false);
+                }
+                return fc;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (SecurePasswordCancelledException) { throw; }
+            catch (Exception exception)
+            {
+                if (exception is SemanticErrorException semantic && semantic.SemanticError is { } existing)
+                { execution.CaptureError(existing, fc.Location!); throw; }
+                var error = new SemanticError { Type = "FunctionCall", FunctionName = "SecureLoad",
+                    FunctionCall = "SecureLoad(<redacted>)",
+                    Message = exception is SecureLoadException or VariableSnapshotFileException or PasswordProtocolException
+                        ? exception.Message : "SecureLoad failed.",
+                    DiagnosticCode = exception is SecureLoadException or SnapshotArgumentException or PasswordProtocolException
+                        ? SemanticDiagnosticCode.FunctionContractViolation : SemanticDiagnosticCode.FunctionExecutionFailed };
+                errors.Add(error); execution.Report(error, fc.Location!);
+                if (exception is PasswordProtocolException) throw;
+                throw new SemanticErrorException { SemanticError = error };
+            }
+        }
+
         private static Statement EvaluateFunctionCallCore(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
             FunctionCall fc, SemanticDiagnosticExecution? execution)
         {
             string functionName = call.Name;
-            fc.CallText = call.CallText;
+            fc.CallText = DeleteOperations.IsDelete(functionName) ? "Delete(<redacted>)" : SnapshotOperations.IsSnapshot(functionName)
+                ? $"{SnapshotOperations.CanonicalName(functionName)}(<redacted>)" : call.CallText;
             fc.Name = functionName;
             try
             {
@@ -58,19 +139,51 @@ namespace CryptoScript.Model
             }
             catch (Exception)
             {
-                SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=fc.CallText };
+                SemanticError se=new SemanticError() { Type = "FunctionCall",FunctionName=functionName,FunctionCall=$"{functionName}(<redacted>)" };
                 se.Message = "Unknown function: "+functionName;
                 semanticErrors.Add(se);
                 execution?.Report(se, fc.Location!, SemanticDiagnosticCode.UnknownFunction);
                 throw new SemanticErrorException() { SemanticError=se};
             }
+            FileEncryption.FileEncryptionContract.Validate(call, semanticErrors);
+            FileEncryption.FileMacContract.Validate(call, semanticErrors);
+            FileEncryption.FileHashContract.Validate(call, semanticErrors);
+            ValidateArgumentContracts(call, semanticErrors);
+            if (SecureSaveOperations.IsSecureSave(functionName) || SecureLoadOperations.IsSecureLoad(functionName))
+            {
+                var error = new SemanticError { Type = "FunctionCall", FunctionName = functionName,
+                    FunctionCall = functionName + "(<redacted>)", Message = functionName + " requires asynchronous execution.",
+                    DiagnosticCode = SemanticDiagnosticCode.AsyncExecutionRequired };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
             var arguments = call.Arguments;
+            if (SnapshotOperations.IsSnapshot(functionName) || DeleteOperations.IsDelete(functionName))
+            {
+                try
+                {
+                    fc.Arguments.AddRange(DeleteOperations.IsDelete(functionName) ? DeleteOperations.ResolveArguments(call) : SnapshotOperations.IsLoad(functionName)
+                        ? SnapshotOperations.ResolveLoadArguments(call) : SnapshotOperations.ResolveSaveArguments(call));
+                    fc.Call(execution);
+                    return fc;
+                }
+                catch (Exception e)
+                {
+                    throw CreateFunctionCallError(e, call, fc, semanticErrors);
+                }
+            }
             if (arguments.Count == 0)
             {
                 try
                 {
                     fc.Call(execution);
                     return fc;
+                }
+                catch (OperationCanceledException) { throw; }
+                catch (KeyCheckValueSearchException e)
+                {
+                    if (!semanticErrors.Contains(e.SemanticError!)) semanticErrors.Add(e.SemanticError!);
+                    throw;
                 }
                 catch (FunctionContractException e)
                 {
@@ -81,7 +194,7 @@ namespace CryptoScript.Model
                     throw;
                 }
                 catch (SemanticErrorException e) when (
-                    IsRegisteredSensitiveFunctionError(e, semanticErrors))
+                    IsRegisteredSafeFunctionError(e, semanticErrors))
                 {
                     throw;
                 }
@@ -100,6 +213,12 @@ namespace CryptoScript.Model
                 fc.Call(execution);
                 return fc;
             }
+            catch (OperationCanceledException) { throw; }
+            catch (KeyCheckValueSearchException e)
+            {
+                if (!semanticErrors.Contains(e.SemanticError!)) semanticErrors.Add(e.SemanticError!);
+                throw;
+            }
             catch (FunctionContractException e)
             {
                 throw CreateFunctionContractError(e, semanticErrors);
@@ -109,7 +228,7 @@ namespace CryptoScript.Model
                 throw;
             }
             catch (SemanticErrorException e) when (
-                IsRegisteredSensitiveFunctionError(e, semanticErrors))
+                IsRegisteredSafeFunctionError(e, semanticErrors))
             {
                 throw;
             }
@@ -129,6 +248,12 @@ namespace CryptoScript.Model
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
             SemanticDiagnosticExecution? execution, DiagnosticLocation? parent)
         {
+            if (argument is Ast.HeaderAttributeArgumentNode field)
+            {
+                if (functionName != "CreateHeader")
+                    throw new ArgumentException("Named header attributes are only accepted by CreateHeader.");
+                return new ArgumentHeaderAttribute { Name = field.Name, RawValue = field.RawValue };
+            }
             if (argument is Ast.MechanismArgumentNode mechanism)
             {
 
@@ -152,10 +277,24 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.NestedCallArgumentNode nestedCall)
             {
+                if ((SecureSaveOperations.IsVoidSnapshot(nestedCall.Call.Name) || DeleteOperations.IsDelete(nestedCall.Call.Name)))
+                {
+                    string name = DeleteOperations.IsDelete(nestedCall.Call.Name) ? "Delete" : SecureSaveOperations.CanonicalName(nestedCall.Call.Name);
+                    var error = new SemanticError
+                    {
+                        Type = "FunctionCall", FunctionName = name, FunctionCall = $"{name}(<redacted>)",
+                        DiagnosticCode = SemanticDiagnosticCode.FunctionContractViolation,
+                        Message = $"{name} has no return value and cannot be used as a function argument."
+                    };
+                    semanticErrors.Add(error);
+                    throw new SemanticErrorException { SemanticError = error };
+                }
                 var fc = EvaluateFunctionCall(nestedCall.Call, semanticErrors, evaluateParameter,
                     execution, parent) as FunctionCall;
                 if (fc != null && fc.ReturnVariable != null)
                 {
+                    if (fc.ReturnVariable is BlockHeaderVariableDeclaration header)
+                        return new ArgumentVariable { Id = header };
                     var expr = Expression.Create(fc.ReturnVariable.Value);
                     ArgumentExpression argExpr = new ArgumentExpression()
                     {
@@ -194,7 +333,8 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.ParameterArgumentNode parameter)
             {
-
+                if (parameter.TypeName == "#ONCONFLICT")
+                    throw new ArgumentException("#ONCONFLICT is accepted only by Load and SecureLoad.");
                 return evaluateParameter(parameter.TypeName, parameter.RawValue);
             }
             if (argument is Ast.InfoArgumentNode infoNode)
@@ -214,11 +354,49 @@ namespace CryptoScript.Model
                 Type = "FunctionContract",
                 FunctionName = exception.Function.ToString(),
                 ErrorCode = exception.Error,
+                Location = exception.Function == CryptoScriptFunction.PinBlockTranslate
+                    ? new DiagnosticLocation(Mechanism: exception.Mechanism) : null,
                 Identifier = exception.ParameterName ?? string.Empty,
                 Message = exception.Message
             };
             semanticErrors.Add(error);
             return new SemanticErrorException { SemanticError = error };
+        }
+
+        // Inspect the complete argument tree before evaluating any sibling. A void
+        // snapshot call or a misplaced Load-only parameter must not trigger earlier
+        // nested operations (including Print, Save or file access).
+        private static void ValidateArgumentContracts(Ast.FunctionCallExpressionNode call,
+            List<SemanticError> semanticErrors)
+        {
+            foreach (var argument in call.Arguments)
+            {
+                string? name = null;
+                string? message = null;
+                if (argument is Ast.NestedCallArgumentNode nested)
+                {
+                    if ((SecureSaveOperations.IsVoidSnapshot(nested.Call.Name) || DeleteOperations.IsDelete(nested.Call.Name)))
+                    {
+                        name = DeleteOperations.IsDelete(nested.Call.Name) ? "Delete" : SecureSaveOperations.CanonicalName(nested.Call.Name);
+                        message = $"{name} has no return value and cannot be used as a function argument.";
+                    }
+                    else ValidateArgumentContracts(nested.Call, semanticErrors);
+                }
+                if (argument is Ast.ParameterArgumentNode { TypeName: "#ONCONFLICT" } &&
+                    !SnapshotOperations.IsLoad(call.Name) && !SecureLoadOperations.IsSecureLoad(call.Name))
+                {
+                    name = call.Name;
+                    message = "#ONCONFLICT is accepted only by Load and SecureLoad.";
+                }
+                if (message is null) continue;
+                var error = new SemanticError
+                {
+                    Type = "FunctionCall", FunctionName = name!, FunctionCall = $"{name}(<redacted>)",
+                    DiagnosticCode = SemanticDiagnosticCode.FunctionContractViolation, Message = message
+                };
+                semanticErrors.Add(error);
+                throw new SemanticErrorException { SemanticError = error };
+            }
         }
 
         private static bool IsFunctionContractError(SemanticErrorException exception) =>
@@ -230,10 +408,35 @@ namespace CryptoScript.Model
             FunctionCall functionCall,
             List<SemanticError> semanticErrors)
         {
+            if (call.Name.Equals("MacPack", StringComparison.OrdinalIgnoreCase) ||
+                call.Name.Equals("MacVerify", StringComparison.OrdinalIgnoreCase))
+            {
+                var cwmError = new SemanticError { Type = "FunctionCall", FunctionName = call.Name,
+                    FunctionCall = call.Name + "(<redacted>)", Message = call.Name + " failed.",
+                    DiagnosticCode = SemanticDiagnosticCode.FunctionExecutionFailed };
+                semanticErrors.Add(cwmError);
+                return new SemanticErrorException { SemanticError = cwmError };
+            }
+            if (SnapshotOperations.IsSnapshot(call.Name) || DeleteOperations.IsDelete(call.Name))
+            {
+                string name = DeleteOperations.IsDelete(call.Name) ? "Delete" : SnapshotOperations.CanonicalName(call.Name);
+                var saveError = new SemanticError
+                {
+                    Type = "FunctionCall", FunctionName = name, FunctionCall = $"{name}(<redacted>)",
+                    DiagnosticCode = exception is SnapshotArgumentException argumentError
+                        ? argumentError.Code : SemanticDiagnosticCode.FunctionExecutionFailed,
+                    Message = exception is SnapshotArgumentException or VariableSnapshotFileException
+                        ? exception.Message : $"{name} failed."
+                };
+                semanticErrors.Add(saveError);
+                return new SemanticErrorException { SemanticError = saveError };
+            }
             bool sensitive = IsCryptographicFunction(call.Name);
             var error = new SemanticError
             {
                 Type = "FunctionCall",
+                DiagnosticCode = exception is CryptoAlgorithm.PINBLOCK.PinBlockTranslationException translation
+                    ? translation.Code : SemanticDiagnosticCode.Unclassified,
                 FunctionName = call.Name,
                 FunctionCall = sensitive ? $"{call.Name}(<redacted>)" : functionCall.CallText ?? string.Empty,
                 Message = sensitive
@@ -244,14 +447,20 @@ namespace CryptoScript.Model
             return new SemanticErrorException { SemanticError = error };
         }
 
-        private static bool IsRegisteredSensitiveFunctionError(
+        private static bool IsRegisteredSafeFunctionError(
             SemanticErrorException exception,
             List<SemanticError> semanticErrors) =>
             exception.SemanticError is not null &&
             semanticErrors.Contains(exception.SemanticError) &&
-            IsCryptographicFunction(exception.SemanticError.FunctionName);
+            (SnapshotOperations.IsSnapshot(exception.SemanticError.FunctionName) ||
+             IsCryptographicFunction(exception.SemanticError.FunctionName) ||
+             // Unknown functions are rejected before arguments are evaluated. Keep
+             // their already-redacted diagnostic intact through enclosing calls.
+             exception.SemanticError.Type == "FunctionCall" &&
+             exception.SemanticError.Message == "Unknown function: " + exception.SemanticError.FunctionName);
 
         private static bool IsCryptographicFunction(string functionName) =>
+            functionName.Equals("Check", StringComparison.OrdinalIgnoreCase) ||
             Enum.TryParse(functionName, ignoreCase: true, out CryptoScriptFunction _);
 
         private static string RedactSensitiveValues(

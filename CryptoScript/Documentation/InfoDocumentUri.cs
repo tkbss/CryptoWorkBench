@@ -10,6 +10,11 @@ public static class InfoDocumentUri
 
         return documentId.Kind switch
         {
+            InfoDocumentKind.Tr31Overview => $"{Scheme}://overview/tr31",
+            InfoDocumentKind.Tr31Attributes => $"{Scheme}://overview/tr31attributes",
+            InfoDocumentKind.Type => $"{Scheme}://type/{Escape(documentId.TypeName!)}",
+            InfoDocumentKind.PinTranslationsOverview => $"{Scheme}://overview/pintranslations",
+            InfoDocumentKind.PinTranslation => $"{Scheme}://pintranslation/{documentId.SourceFormat}/{documentId.TargetFormat}",
             InfoDocumentKind.MechanismsOverview => $"{Scheme}://overview/mechanisms",
             InfoDocumentKind.FunctionsOverview => $"{Scheme}://overview/functions",
             InfoDocumentKind.ParametersOverview => $"{Scheme}://overview/parameters",
@@ -48,6 +53,13 @@ public static class InfoDocumentUri
         {
             documentId = uri.Host switch
             {
+                "overview" when segments is ["tr31"] => InfoDocumentId.CreateTr31Overview(),
+                "overview" when segments is ["tr31attributes"] => InfoDocumentId.CreateTr31Attributes(),
+                "type" when segments is [var type] => InfoDocumentId.CreateType(type),
+                "overview" when segments is ["pintranslations"] => InfoDocumentId.CreatePinTranslationsOverview(),
+                "pintranslation" when segments is [var source, var target] &&
+                    int.TryParse(source, out int s) && int.TryParse(target, out int t) =>
+                    InfoDocumentId.CreatePinTranslation(s, t),
                 "overview" when segments is ["mechanisms"] =>
                     InfoDocumentId.CreateMechanismsOverview(),
                 "overview" when segments is ["functions"] =>

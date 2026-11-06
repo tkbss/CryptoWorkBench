@@ -75,7 +75,7 @@ public class Tr31ConfidentialDataTests
     [TestCase("0009FFFF")]
     public void ExtractionRejectsMissingTruncatedOrNonByteAlignedKey(string encoded)
     {
-        // Only the new structural extractor; legacy D unwrap intentionally does not use it.
+        // Shared by TDEA and AES readers, including authenticated legacy wire inputs.
         Assert.Throws<ArgumentException>(() => Tr31ConfidentialData.ExtractKey(Convert.FromHexString(encoded)));
     }
 }

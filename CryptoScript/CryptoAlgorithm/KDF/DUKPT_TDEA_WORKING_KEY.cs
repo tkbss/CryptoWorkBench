@@ -65,12 +65,14 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
         string usageName = RequireUsage(parameter.GetParameter("USAGE"));
         WorkingKeyUsage usage = Usages[usageName];
         KeyVariableDeclaration initialKey = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(initialKey, KeyAlgorithm.Tdea, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
         byte[] initialKeyBytes = ResolveKeyBytes(initialKey);
-        if (initialKey.KeyType.Algorithm is not (KeyAlgorithm.Tdea or KeyAlgorithm.Unknown))
-            throw new ArgumentException($"{MechanismName} requires a TDEA Initial Key.");
         if (initialKeyBytes.Length != 16)
             throw new ArgumentException($"{MechanismName} Initial Key must be exactly 128 bits (16 bytes).");
 
+        CryptoScript.CryptoAlgorithm.DES3.Des3KeyQuality.Report(initialKeyBytes, initialKey.Id,
+            "Derive", MechanismName, parameters.DiagnosticSink);
         byte[] ksn = ResolveDataBytes(parameters.Arguments[2].Value!);
         if (ksn.Length != 10)
             throw new ArgumentException($"{MechanismName} KSN must be exactly 80 bits (10 bytes).");
@@ -85,7 +87,6 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = "128",
             KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
@@ -175,7 +176,7 @@ public sealed class DUKPT_TDEA_WORKING_KEY : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && key.ValueFormat == FormatConversions.HEX)
             format = key.ValueFormat;

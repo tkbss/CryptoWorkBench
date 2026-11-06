@@ -16,7 +16,7 @@ namespace CryptoScriptUnitTest
             
             input[0] = "KEY key0=0x(1234)";
             input[1] = "KEY key1=0x(1234) Print(key1)";
-            input[2] = "VAR c1 = Sign(Encrypt(key1),0x(123))";
+            input[2] = "VAR c1 = Compare(key1,key1)";
             input[3] = "Print(c1)";
             input[4] = "KEY key2=GenerateKey(AES-CBC,128)";
             input[5] = "PARAM p1=Parameters(AES-CBC)";
@@ -34,8 +34,10 @@ namespace CryptoScriptUnitTest
             var statement=res.Statements.FirstOrDefault();
             ClassicAssert.IsNotNull(statement);
             ClassicAssert.IsTrue(res.Statements.Count == 1);   
-            ClassicAssert.IsTrue(statement is StringVariableDeclaration);
-            var variable = statement as StringVariableDeclaration;
+            ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
+            var variable = statement as KeyVariableDeclaration;
+            Assert.That(variable!.KeyType.Algorithm, Is.EqualTo(KeyAlgorithm.Unknown));
+            Assert.That(variable.KeySizeInBits.Bits, Is.EqualTo(16UL));
             ClassicAssert.IsTrue(variable?.Id == "key0");
             ClassicAssert.IsTrue(variable?.Value == "0x(1234)");
             ClassicAssert.IsTrue(variable?.Type is CryptoTypeKey);
@@ -52,8 +54,10 @@ namespace CryptoScriptUnitTest
             var statement=res.Statements.FirstOrDefault(); 
             ClassicAssert.IsNotNull(statement); 
             ClassicAssert.IsTrue(res.Statements.Count == 2);    
-            ClassicAssert.IsTrue(statement is StringVariableDeclaration); 
-            var variable = statement as StringVariableDeclaration; 
+            ClassicAssert.IsTrue(statement is KeyVariableDeclaration);
+            var variable = statement as KeyVariableDeclaration;
+            Assert.That(variable!.KeyType.Algorithm, Is.EqualTo(KeyAlgorithm.Unknown));
+            Assert.That(variable.KeySizeInBits.Bits, Is.EqualTo(16UL));
             ClassicAssert.IsTrue(variable?.Id == "key1"); 
             ClassicAssert.IsTrue(variable?.Value == "0x(1234)"); 
             ClassicAssert.IsTrue(variable?.Type is CryptoTypeKey);

@@ -11,8 +11,26 @@ namespace CryptoScript.Model
     
     public class CryptoOperations
     {
+        public VariableDeclaration PinBlockTranslate(OperationInvocation invocation) =>
+            CryptoAlgorithm.PINBLOCK.PinBlockAlgorithm.Translate(invocation, algorithmFactory);
+
+        public VariableDeclaration PinBlockTranslate(string[] arguments) =>
+            throw new ArgumentException("PinBlockTranslate requires structured variable references.");
+        private readonly Func<string, CryptoAlgorithm.CryptoAlgorithm> algorithmFactory;
+
+        public CryptoOperations() : this(AlgorithmFactory.Create) { }
+
+        // Instance-local dispatch seam for transport tests; no registry or global mutation.
+        internal CryptoOperations(Func<string, CryptoAlgorithm.CryptoAlgorithm> algorithmFactory)
+        {
+            this.algorithmFactory = algorithmFactory ?? throw new ArgumentNullException(nameof(algorithmFactory));
+        }
+
         public VariableDeclaration GenerateParameters(OperationInvocation invocation)
         {
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration sourceParameter)
+                MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
+                    sourceParameter.Mechanism, sourceParameter, CryptoScriptFunction.Parameters);
             string[] values = invocation.Values;
             if (values.Length == 0)
                 return GenerateParameters(values);
@@ -28,26 +46,61 @@ namespace CryptoScript.Model
 
             MechanismParameterContractValidator.Validate(
                 mechanism, CryptoScriptFunction.Parameters, suppliedParameters);
+            if (SecretSharing.SecretParameters.IsSecretMechanism(suppliedParameters.Mechanism))
+            {
+                suppliedParameters.Type = new CryptoTypeParameters();
+                return suppliedParameters;
+            }
             return GenerateParameters(values);
         }
-        public VariableDeclaration GenerateKey(OperationInvocation invocation) => GenerateKey(invocation.Values);
+        public VariableDeclaration GenerateKey(OperationInvocation invocation)
+        {
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration parameters)
+                MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
+                    parameters.Mechanism, parameters, CryptoScriptFunction.GenerateKey);
+            return GenerateKey(invocation.Values);
+        }
         public VariableDeclaration Mac(OperationInvocation invocation)
         {
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
-            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments);
+            if (invocation.Arguments[2].SourceVariable is PathVariableDeclaration &&
+                invocation.Arguments[0].SourceVariable is not ParameterVariableDeclaration)
+                throw new ArgumentException("Mac(PATH) requires a PARAM variable reference.");
+            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments, CryptoScriptFunction.Mac);
             MechanismParameterContractValidator.Validate(
                 parameters.Mechanism, CryptoScriptFunction.Mac, parameters);
+            if (invocation.Arguments[2].SourceVariable is PathVariableDeclaration path)
+            {
+                if (invocation.Arguments.Any(a => a.Kind == ResolvedCallArgumentKind.NestedFunctionCall))
+                    throw new ArgumentException("Mac(PATH) requires a direct call with no nested arguments.");
+                return FileEncryption.FileMacCoordinator.Mac(resolvedArguments, path, invocation.CancellationToken);
+            }
             return algorithm.Mac(resolvedArguments);
         }
-        public VariableDeclaration Hash(OperationInvocation invocation) => Hash(invocation.Values);
+        public VariableDeclaration Hash(OperationInvocation invocation)
+        {
+            if (invocation.Arguments.Count != 2)
+                throw new ArgumentException("wrong number of arguments");
+            if (invocation.Arguments[1].SourceVariable is PathVariableDeclaration path)
+            {
+                if (invocation.Arguments[0].SourceVariable is not ParameterVariableDeclaration fileParameters ||
+                    invocation.Arguments.Any(a => a.Kind == ResolvedCallArgumentKind.NestedFunctionCall))
+                    throw new ArgumentException("Hash(PATH) requires PARAM, PATH references and no nested arguments.");
+                return FileEncryption.FileHashCoordinator.Hash(fileParameters, path, invocation.CancellationToken);
+            }
+            if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration parameters)
+                MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
+                    parameters.Mechanism, parameters, CryptoScriptFunction.Hash);
+            return Hash(invocation.Values);
+        }
         public VariableDeclaration Derive(OperationInvocation invocation)
         {
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
-            var (algorithm, resolvedArguments, _) = DetermineAlgorithm(arguments);
+            var (algorithm, resolvedArguments, _) = DetermineAlgorithm(arguments, CryptoScriptFunction.Derive);
             return algorithm.Derive(resolvedArguments);
         }
         public VariableDeclaration Encrypt(OperationInvocation invocation)
@@ -55,9 +108,11 @@ namespace CryptoScript.Model
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
-            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments);
+            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments, CryptoScriptFunction.Encrypt);
             MechanismParameterContractValidator.Validate(
                 parameters.Mechanism, CryptoScriptFunction.Encrypt, parameters);
+            if (invocation.Arguments[2].SourceVariable is PathVariableDeclaration path)
+                return FileEncryption.FileEncryptCoordinator.Encrypt(resolvedArguments, path, invocation.CancellationToken);
             return algorithm.Encrypt(resolvedArguments);
         }
         public VariableDeclaration Decrypt(OperationInvocation invocation)
@@ -65,9 +120,11 @@ namespace CryptoScript.Model
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
-            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments);
+            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments, CryptoScriptFunction.Decrypt);
             MechanismParameterContractValidator.Validate(
                 parameters.Mechanism, CryptoScriptFunction.Decrypt, parameters);
+            if (invocation.Arguments[2].SourceVariable is PathVariableDeclaration path)
+                return FileEncryption.FileDecryptCoordinator.Decrypt(resolvedArguments, path, invocation.CancellationToken);
             return algorithm.Decrypt(resolvedArguments);
         }
         public VariableDeclaration BlockHeader(OperationInvocation invocation) => BlockHeader(invocation.Values);
@@ -76,7 +133,7 @@ namespace CryptoScript.Model
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
-            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments);
+            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments, CryptoScriptFunction.Wrap);
             MechanismParameterContractValidator.Validate(
                 parameters.Mechanism, CryptoScriptFunction.Wrap, parameters);
             return algorithm.Wrap(resolvedArguments);
@@ -86,12 +143,11 @@ namespace CryptoScript.Model
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
-            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments);
+            var (algorithm, resolvedArguments, parameters) = DetermineAlgorithm(arguments, CryptoScriptFunction.Unwrap);
             MechanismParameterContractValidator.Validate(
                 parameters.Mechanism, CryptoScriptFunction.Unwrap, parameters);
             return algorithm.Unwrap(resolvedArguments);
         }
-        public VariableDeclaration Sign(OperationInvocation invocation) => Sign(invocation.Values);
 
         //the requirement for generate parameters is that there will be an undefined number of parameters
         //the first parameter is the mechanism
@@ -102,6 +158,8 @@ namespace CryptoScript.Model
                 throw new ArgumentException("wrong number of arguments"); 
             }
             string mech = args[0];
+            MechanismParameterContractValidator.ValidateEmvCryptogramParameterNames(
+                NormalizeMechanismSelector(mech), args.Skip(1).Select(parameter => parameter.Split(':', 2)[0]));
             var algo=AlgorithmFactory.Create(mech);
             VariableDeclaration? returnValue = null;
             if(args.Length > 1)
@@ -112,7 +170,11 @@ namespace CryptoScript.Model
             }
             else
                 returnValue = algo.GenerateParameters(mech);
-            
+
+            if (returnValue is ParameterVariableDeclaration generatedParameters)
+                MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
+                    NormalizeMechanismSelector(mech), generatedParameters);
+
             return returnValue;
         }
         //the requirement for generate key is that there will be 2 arguments
@@ -124,10 +186,10 @@ namespace CryptoScript.Model
             { 
                 throw new ArgumentException("wrong number of arguments"); 
             }
-            string mech = args[0];
+            var entry = GenerateKeyContract.RequireMechanism(args[0]);
             string size = args[1];
-            var algo=AlgorithmFactory.Create(mech);
-            var returnValue = algo.GenerateKey(mech, size);            
+            var algo = AlgorithmFactory.Create(entry.CanonicalName);
+            var returnValue = algo.GenerateKey(entry.CanonicalName, size);
             return returnValue;
         }
         //the requirement for mac is that there will be 3 arguments
@@ -227,12 +289,6 @@ namespace CryptoScript.Model
             var returnValue = algo.Unwrap(args);
             return returnValue;
         }
-        public VariableDeclaration Sign(params string[]args)
-        {
-            string res = "0x(123456789)";
-            var variable = new StringVariableDeclaration() {Type = new CryptoTypeVar(),Value = res, ValueFormat = FormatConversions.ParseString(res)};
-            return variable;
-        }
         private CryptoAlgorithm.CryptoAlgorithm DetermineAlgorithm(params string[] args) 
         {
             ParameterVariableDeclaration? parameter = null;
@@ -254,24 +310,36 @@ namespace CryptoScript.Model
             {
                 throw new ArgumentException("Missing argument of type PARAM");
             }            
+            MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(parameter.Mechanism, parameter);
             var algo=AlgorithmFactory.Create(parameter.Mechanism);
+            if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2Tr31KeyBlock)
+                throw new ArgumentException("EP2 TR-31 requires structured calls with genuine PARAM and KEY references.");
+            if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2PanReceiptEncryption)
+                throw new ArgumentException("EP2 PAN receipt encryption requires structured calls with genuine PARAM and KEY references.");
+            if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2DataEncryption)
+                throw new ArgumentException("EP2 encryption requires structured calls with genuine PARAM and KEY references.");
+            if (algo is CryptoScript.CryptoAlgorithm.EP2.Ep2Mac)
+                throw new ArgumentException("EP2 MAC mechanisms require structured Mac calls with genuine PARAM and KEY references.");
             return algo;
         }
 
         private static AlgorithmCallArguments ToAlgorithmArguments(OperationInvocation invocation) =>
             new(invocation.Arguments.Select(argument =>
-                new AlgorithmCallArgument(argument.Value, argument.SourceVariable, argument.Kind)));
+                new AlgorithmCallArgument(argument.Value, argument.SourceVariable, argument.Kind)),
+                invocation.DiagnosticSink);
 
-        private static (CryptoAlgorithm.CryptoAlgorithm Algorithm, AlgorithmCallArguments Arguments,
+        private (CryptoAlgorithm.CryptoAlgorithm Algorithm, AlgorithmCallArguments Arguments,
                 ParameterVariableDeclaration Parameters)
-            DetermineAlgorithm(AlgorithmCallArguments arguments)
+            DetermineAlgorithm(AlgorithmCallArguments arguments, CryptoScriptFunction function)
         {
             for (int index = 0; index < arguments.Arguments.Count; index++)
             {
                 AlgorithmCallArgument argument = arguments.Arguments[index];
                 if (argument.SourceVariable is ParameterVariableDeclaration sourceParameter)
                 {
-                    return (AlgorithmFactory.Create(sourceParameter.Mechanism), arguments, sourceParameter);
+                    MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
+                        sourceParameter.Mechanism, sourceParameter, function);
+                    return (algorithmFactory(sourceParameter.Mechanism), arguments, sourceParameter);
                 }
 
                 if (argument.Value is not null &&
@@ -281,7 +349,7 @@ namespace CryptoScript.Model
                         AlgorithmArgumentResolver.ResolveParameter(argument);
                     AlgorithmCallArguments resolved =
                         arguments.WithSourceVariable(index, temporary);
-                    return (AlgorithmFactory.Create(temporary.Mechanism), resolved, temporary);
+                    return (algorithmFactory(temporary.Mechanism), resolved, temporary);
                 }
             }
 

@@ -145,3 +145,10 @@ ISO/IEC 9797-1:2011/Amd 1:2023 exists and is listed as a published amendment in 
 - ISO/IEC 9797-1:2011, Section 6.3.2, *Padding Method 1*
 - [ISO catalogue: ISO/IEC 9797-1:2011](https://www.iso.org/standard/50375.html)
 - [ISO catalogue: ISO/IEC 9797-1:2011/Amd 1:2023](https://www.iso.org/standard/78748.html)
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.
+PATH stores the original length, validates removed zero padding, and restores
+original trailing zero bytes. VAR decryption intentionally retains padded bytes.

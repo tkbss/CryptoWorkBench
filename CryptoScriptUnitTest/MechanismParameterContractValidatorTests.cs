@@ -234,7 +234,7 @@ public class MechanismParameterContractValidatorTests
             {
                 new MechanismFunctionMetadata(
                     function, new[] { parameter }, handling)
-            });
+            }, generatedKeyAlgorithm: function == CryptoScriptFunction.GenerateKey ? KeyAlgorithm.Aes : null);
 
     private static MechanismParameterMetadata Parameter(
         string name,

@@ -11,16 +11,24 @@ namespace CryptoScript.Model
         public static List<string> Operations { get; set; } = new List<string>()
         {
             "Parameters",
+            "CreateHeader",
+            "Share", "Secret", "Restore",
+            "Save",
+            "Load",
+            "Delete",
             "GenerateKey",
             "Encrypt",
             "Decrypt",
             "Mac",
-            "Sign",
+            "Hash",
+            "MacPack", "MacVerify",
             "Wrap",
             "Unwrap",
+            "PinBlockTranslate",
             "Print",
             "Info",
             "Compare",
+            "Check",
         };
         public static int MaximalOperationTextLenght()
         {

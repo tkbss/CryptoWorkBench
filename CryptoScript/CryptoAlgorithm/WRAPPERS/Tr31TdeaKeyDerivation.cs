@@ -6,14 +6,20 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS;
 public static class Tr31TdeaKeyDerivation
 {
     public static (byte[] Kbek, byte[] Kbak) DeriveKeys(byte[] kbpk)
+        => DeriveKeysCore(kbpk, analysisKeys: false);
+
+    internal static (byte[] Kbek, byte[] Kbak) DeriveKeysForAnalysis(byte[] kbpk)
+        => DeriveKeysCore(kbpk, analysisKeys: true);
+
+    private static (byte[] Kbek, byte[] Kbak) DeriveKeysCore(byte[] kbpk, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(kbpk);
         DES3.DES3.ValidateKeyLength(kbpk);
-        DES3.DES3.ValidateUsableKey(kbpk);
-        return (Derive(kbpk, 0), Derive(kbpk, 1));
+        if (!analysisKeys) DES3.DES3.ValidateUsableKey(kbpk);
+        return (Derive(kbpk, 0, analysisKeys), Derive(kbpk, 1, analysisKeys));
     }
 
-    private static byte[] Derive(byte[] kbpk, byte usage)
+    private static byte[] Derive(byte[] kbpk, byte usage, bool analysisKeys)
     {
         const int cmacBytes = 8;
         byte[] result = new byte[kbpk.Length];
@@ -22,8 +28,9 @@ public static class Tr31TdeaKeyDerivation
         byte[] data = [1, 0, usage, 0, 0, (byte)(kbpk.Length == 16 ? 0 : 1), 0, (byte)(kbpk.Length * 8)];
         for (int offset = 0; offset < result.Length; offset += cmacBytes)
         {
-            byte[] part = DES3_CMAC.Compute(kbpk, data);
-            Array.Copy(part, 0, result, offset, cmacBytes);
+            byte[] part = analysisKeys ? DES3_CMAC.ComputeForAnalysis(kbpk, data) : DES3_CMAC.Compute(kbpk, data);
+            try { Array.Copy(part, 0, result, offset, cmacBytes); }
+            finally { System.Security.Cryptography.CryptographicOperations.ZeroMemory(part); }
             data[0]++;
         }
         return result;

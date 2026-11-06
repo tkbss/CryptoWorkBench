@@ -40,8 +40,8 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
             throw new ArgumentException("Option A requires KDF-EMV-MASTER-A parameters.");
         MechanismParameterContractValidator.Validate(MechanismName, CryptoScriptFunction.Derive, parameters);
         KeyVariableDeclaration key = KdfArgumentResolver.ResolveKey(arguments, 1);
-        if (key.KeyType != KeyType.Secret(KeyAlgorithm.Tdea))
-            throw new ArgumentException("KDF-EMV-MASTER-A requires a Secret TDEA KEY.");
+        KeyMetadataValidator.Validate(key, KeyAlgorithm.Tdea, KeyUsage.DeriveKey,
+            "Derive", MechanismName, arguments.DiagnosticSink);
         string pan = ResolvePan(arguments);
         string? psn = parameters.GetParameters().ContainsKey("#PSN")
             ? parameters.GetParameter("#PSN")[1..^1] : null;
@@ -54,11 +54,13 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
                 throw new ArgumentException("KDF-EMV-MASTER-A requires exactly 16 bytes of issuer key data.");
             if (key.KeySizeInBits.IsKnown && key.KeySizeInBits != new KeySize(128))
                 throw new ArgumentException("Issuer KEY size metadata does not match its key data.");
-            derived = EmvMasterKeyDerivationOptionA.Derive(keyBytes, pan, psn);
+            CryptoScript.CryptoAlgorithm.DES3.Des3KeyQuality.Report(keyBytes, key.Id,
+                "Derive", MechanismName, arguments.DiagnosticSink);
+            derived = EmvMasterKeyDerivationOptionA.DeriveForAnalysis(keyBytes, pan, psn);
             string value = FormatConversions.ByteArrayToHexString(derived);
             return new KeyVariableDeclaration
             {
-                Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
+                Value = value, ValueFormat = FormatConversions.HEX,
                 KeyType = KeyType.Secret(KeyAlgorithm.Tdea), KeySizeInBits = new KeySize(128),
                 Usage = KeyUsagePolicy.Unspecified, DerivationMechanism = MechanismName,
                 Type = new CryptoTypeKey()
@@ -91,7 +93,7 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
 
     internal static byte[] DecodeKey(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && key.ValueFormat == FormatConversions.HEX)
             format = FormatConversions.HEX;

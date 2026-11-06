@@ -52,6 +52,8 @@ namespace CryptoScriptUnitTest
                 var expectedError = CaptureException(() =>
                 {
                     var type = CryptoType.Parse(context.type().GetText());
+                    if (type is CryptoTypeTR31Header)
+                        throw new ArgumentException("TR31H requires CreateHeader or a validated header initializer.");
                     expected = (VariableDeclaration)Expression.BuildVariable(
                         Expression.Create(context.expression().GetText()), "astRuntime", type);
                 });

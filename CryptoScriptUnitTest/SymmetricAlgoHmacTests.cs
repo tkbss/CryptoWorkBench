@@ -18,7 +18,7 @@ public class SymmetricAlgoHmacTests
         int ExpectedBytes,
         string Source);
 
-    private static readonly HmacVector[] KnownAnswerVectors =
+    internal static readonly HmacVector[] KnownAnswerVectors =
     {
         // RFC 2202, test case 1.
         new("HMAC-SHA1",

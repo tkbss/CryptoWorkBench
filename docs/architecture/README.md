@@ -4,7 +4,7 @@ This is the entry point for the architecture recovery documentation. It describe
 
 | Metadata | Value |
 | --- | --- |
-| Documentation status | Chapters 1, 2 and 3: Reviewed; Chapter 4: Draft - pending independent review |
+| Documentation status | Chapters 1, 2 and 3: Reviewed; Chapter 4: Draft - pending independent review; Chapter 9: partial-state contract documented, awaiting owner review |
 | Chapters 1 and 2 baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
 | Chapter 3 baseline | `efa81d6ca282ad7a2b8959d0f406f741c87006b0` |
 | Chapter 4 baseline | `29b6b36e860ff278b845ac439dd123661760d098` |
@@ -14,8 +14,11 @@ This is the entry point for the architecture recovery documentation. It describe
 | Analysis checkout | Dedicated architecture worktree at documentation HEAD 19c79fe; implementation checkout remains at the earlier baseline; Chapter 3 incorporates the fetched new baseline through immutable source references |
 | Source formats | Markdown for text; Mermaid for diagrams |
 | Language | English for all documentation and diagram content |
+| Original Chapter 1 working-tree observation | Local application changes were present and excluded from baseline findings |
 
 See the [Introduction evidence](evidence/01-introduction-baseline.md), [System Overview evidence](evidence/02-system-overview-baseline.md) and [Project Structure and Dependencies evidence](evidence/03-project-structure-and-dependencies-baseline.md) for baselines, sources, owner context and analysis limitations. Chapter 4 keeps its [source evidence register](chapters/04-language-architecture.md#source-evidence) within the chapter.
+
+Chapter 9 records its later implementation baseline separately; it does not revise the Chapter 1 baseline. Its partial-state contract, historical implementation reports and evidence imported from master are preserved.
 
 ## Product Architecture Scope
 
@@ -37,7 +40,7 @@ The chapter order and titles follow the approved structure. Navigation links poi
 | 6 | Cryptographic Architecture | `chapters/06-cryptographic-architecture.md` | Not yet analyzed |
 | 7 | Diagnostics and Error Handling | `chapters/07-diagnostics-and-error-handling.md` | Not yet analyzed |
 | 8 | Interfaces and Integration | `chapters/08-interfaces-and-integration.md` | Not yet analyzed |
-| 9 | Data Flows and Execution Sequences | `chapters/09-data-flows-and-execution-sequences.md` | Not yet analyzed |
+| 9 | [Data Flows and Execution Sequences](chapters/09-data-flows-and-execution-sequences.md) | `chapters/09-data-flows-and-execution-sequences.md` | Partial-state contract documented; remaining flows not yet analyzed |
 | 10 | GUI Architecture | `chapters/10-gui-architecture.md` | Not yet analyzed |
 | 11 | Testing and Quality Assurance | `chapters/11-testing-and-quality-assurance.md` | Not yet analyzed |
 | 12 | Architecture Assessment | `chapters/12-architecture-assessment.md` | Not yet analyzed |
@@ -47,7 +50,7 @@ The chapter order and titles follow the approved structure. Navigation links poi
 
 | Area | Purpose | Current state |
 | --- | --- | --- |
-| `chapters/` | Numbered architecture chapters in Markdown | Chapters 1, 2 and 3 reviewed; Chapter 4 draft available |
+| `chapters/` | Numbered architecture chapters in Markdown | Chapters 1, 2 and 3 reviewed; Chapter 4 draft and scoped Chapter 9 available |
 | `diagrams/` | Mermaid sources, accompanied by evidence and a legend | [Project references](diagrams/01-project-references.mmd), [System Context](diagrams/02-system-context.mmd), [Container Overview](diagrams/02-container-overview.mmd), [Build and Test Dependency Coverage](diagrams/03-build-and-test-dependency-coverage.mmd), [Language Components](diagrams/04-language-components-and-dependencies.mmd), [AST Structure](diagrams/04-abstract-syntax-tree-structure.mmd), [Source-to-Operation Sequence](diagrams/04-source-to-operation-sequence.mmd) |
 | `decisions/` | Architecture decision records with context, status and consequences | Reserved; create when a decision is documented |
 | `evidence/` | Baselines, source references, verification notes and analysis limitations | [Introduction](evidence/01-introduction-baseline.md) and [System Overview](evidence/02-system-overview-baseline.md) and [Project Structure and Dependencies](evidence/03-project-structure-and-dependencies-baseline.md) evidence available |
@@ -78,3 +81,7 @@ Markdown and Mermaid are the authoritative sources intended for version control 
 Generated PDF, DOCX and rendered diagram files are reproducible outputs. Write them beneath `generated/`, which is excluded by the local [ignore policy](.gitignore). Commit such outputs only if a later publication policy explicitly requires it.
 
 Use relative links with forward slashes and exact filename casing. New chapter, evidence and diagram filenames use lowercase kebab-case and two-digit chapter prefixes. `README.md` retains its conventional casing. References to application files preserve their existing casing. Do not introduce links to chapter files before those files exist.
+
+## G03 Implementation Evidence
+
+[G03 implementation report](G03-report.md) records the secret-sharing architecture, pinned Bouncy Castle sources, ISO review scope, security findings, interoperability tests and verification limitations. [Reproducible reference checks](evidence/G03/run-reference.ps1) accompany the report.

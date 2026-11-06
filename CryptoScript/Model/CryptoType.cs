@@ -24,10 +24,16 @@ namespace CryptoScript.Model
             typeId = typeId.ToLower();
             switch(typeId) 
             {
+                case "tr31h":
+                    return new CryptoTypeTR31Header();
                 case "var":
                     return new CryptoTypeVar();
+                case "val":
+                    return new CryptoTypeVal();
                 case "key":
                     return new CryptoTypeKey();
+                case "secret":
+                    return new CryptoTypeSecret();
                 case "param":
                     return new CryptoTypeParameters();
                 case "path":                    
@@ -35,6 +41,16 @@ namespace CryptoScript.Model
                 default: throw new Exception();
             }
         }
+    }
+    public sealed class CryptoTypeVal : CryptoType
+    {
+        public override string Name => "VAL";
+        public CryptoTypeVal() { Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_VAL); }
+    }
+    public sealed class CryptoTypeSecret : CryptoType
+    {
+        public override string Name => "SECRET";
+        public CryptoTypeSecret() { Id = AntlrLanguageMetadata.GetTypeDisplayName(Lexer, CryptoScriptLexer.T_SECRET); }
     }
     public class CryptoTypeKey : CryptoType 
     {

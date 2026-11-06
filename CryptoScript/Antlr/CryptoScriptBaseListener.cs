@@ -72,6 +72,18 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.assignment"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAssignment([NotNull] CryptoScriptParser.AssignmentContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.assignment"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAssignment([NotNull] CryptoScriptParser.AssignmentContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.declareparam"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -83,6 +95,30 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.type"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -120,6 +156,18 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTr31Field([NotNull] CryptoScriptParser.Tr31FieldContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerAttribute"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterHeaderAttribute([NotNull] CryptoScriptParser.HeaderAttributeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.headerAttribute"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitHeaderAttribute([NotNull] CryptoScriptParser.HeaderAttributeContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.expression"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -144,6 +192,66 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFunctionCall([NotNull] CryptoScriptParser.FunctionCallContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.functionTopic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.functionTopic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterHeaderArguments([NotNull] CryptoScriptParser.HeaderArgumentsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitHeaderArguments([NotNull] CryptoScriptParser.HeaderArgumentsContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.arguments"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -167,6 +275,42 @@ public partial class CryptoScriptBaseListener : ICryptoScriptListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitArgument([NotNull] CryptoScriptParser.ArgumentContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSecureArguments([NotNull] CryptoScriptParser.SecureArgumentsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureArguments"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSecureArguments([NotNull] CryptoScriptParser.SecureArgumentsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSecureArgument([NotNull] CryptoScriptParser.SecureArgumentContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureArgument"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSecureArgument([NotNull] CryptoScriptParser.SecureArgumentContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureOption"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSecureOption([NotNull] CryptoScriptParser.SecureOptionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureOption"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSecureOption([NotNull] CryptoScriptParser.SecureOptionContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

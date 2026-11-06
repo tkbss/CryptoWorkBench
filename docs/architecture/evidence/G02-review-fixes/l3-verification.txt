@@ -1,0 +1,9 @@
+L3 final verification; .NET SDK 10.0.401; Debug; Windows.
+l3-focused.trx: {'total': '238', 'executed': '238', 'passed': '238', 'failed': '0', 'error': '0', 'timeout': '0', 'aborted': '0', 'inconclusive': '0', 'passedButRunAborted': '0', 'notRunnable': '0', 'notExecuted': '0', 'disconnected': '0', 'warning': '0', 'completed': '0', 'inProgress': '0', 'pending': '0'}
+172 G02 translation cases, including all five result declaration types.
+l3-core-full.trx: {'total': '6861', 'executed': '6861', 'passed': '6861', 'failed': '0', 'error': '0', 'timeout': '0', 'aborted': '0', 'inconclusive': '0', 'passedButRunAborted': '0', 'notRunnable': '0', 'notExecuted': '0', 'disconnected': '0', 'warning': '0', 'completed': '0', 'inProgress': '0', 'pending': '0'}
+l3-gui-full.trx: {'total': '209', 'executed': '209', 'passed': '208', 'failed': '1', 'error': '0', 'timeout': '0', 'aborted': '0', 'inconclusive': '0', 'passedButRunAborted': '0', 'notRunnable': '0', 'notExecuted': '0', 'disconnected': '0', 'warning': '0', 'completed': '0', 'inProgress': '0', 'pending': '0'}
+l3-gui-retry.trx: {'total': '209', 'executed': '209', 'passed': '209', 'failed': '0', 'error': '0', 'timeout': '0', 'aborted': '0', 'inconclusive': '0', 'passedButRunAborted': '0', 'notRunnable': '0', 'notExecuted': '0', 'disconnected': '0', 'warning': '0', 'completed': '0', 'inProgress': '0', 'pending': '0'}
+core: 0 compiler warnings, identical to baseline.
+gui: 9 compiler warnings, identical to baseline.
+git diff --check: exit 0. Existing LF/CRLF conversion notices only.

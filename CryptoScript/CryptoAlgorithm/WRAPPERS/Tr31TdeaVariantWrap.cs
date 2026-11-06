@@ -10,7 +10,7 @@ internal static class Tr31TdeaVariantWrap
     private const int AuthenticationValueLength = 4;
 
     internal static (byte[] Ciphertext, byte[] Mac, string Block) Wrap(
-        string header, byte[] kbpk, byte[] confidentialData)
+        string header, byte[] kbpk, byte[] confidentialData, bool analysisKeys = false)
     {
         ArgumentNullException.ThrowIfNull(header);
         ArgumentNullException.ThrowIfNull(kbpk);
@@ -24,11 +24,22 @@ internal static class Tr31TdeaVariantWrap
         if (confidentialData.Length % BlockSizeBytes != 0)
             throw new ArgumentException("Confidential data must be a multiple of 8 bytes.", nameof(confidentialData));
 
-        var (kbek, kbak) = Tr31TdeaKeyVariants.DeriveKeys(kbpk);
-        byte[] iv = headerBytes[..BlockSizeBytes];
-        byte[] ciphertext = DES3_CBC.EncryptNoPadding(kbek, iv, confidentialData);
-        byte[] dataToAuthenticate = [.. headerBytes, .. ciphertext];
-        byte[] mac = DES3_CBC.ComputeMacNoPadding(kbak, dataToAuthenticate, AuthenticationValueLength);
-        return (ciphertext, mac, header + Convert.ToHexString(ciphertext) + Convert.ToHexString(mac));
+        var (kbek, kbak) = analysisKeys ? Tr31TdeaKeyVariants.DeriveKeysForAnalysis(kbpk)
+            : Tr31TdeaKeyVariants.DeriveKeys(kbpk);
+        try
+        {
+            byte[] iv = headerBytes[..BlockSizeBytes];
+            byte[] ciphertext = analysisKeys ? DES3_CBC.EncryptNoPaddingForAnalysis(kbek, iv, confidentialData)
+                : DES3_CBC.EncryptNoPadding(kbek, iv, confidentialData);
+            byte[] dataToAuthenticate = [.. headerBytes, .. ciphertext];
+            byte[] mac = analysisKeys ? DES3_CBC.ComputeMacNoPaddingForAnalysis(kbak, dataToAuthenticate, AuthenticationValueLength)
+                : DES3_CBC.ComputeMacNoPadding(kbak, dataToAuthenticate, AuthenticationValueLength);
+            return (ciphertext, mac, header + Convert.ToHexString(ciphertext) + Convert.ToHexString(mac));
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(kbek);
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(kbak);
+        }
     }
 }

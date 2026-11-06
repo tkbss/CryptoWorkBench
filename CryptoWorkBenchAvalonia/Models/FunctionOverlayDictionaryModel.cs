@@ -15,7 +15,30 @@ namespace CryptoWorkBenchAvalonia.Models
     {
         public  Dictionary<string, List<(string header, string description)>> functionOverloads = new Dictionary<string, List<(string header, string description)>> 
         {
+            { "Hash", new List<(string, string)> {
+                ("Hash(parameters, data)", "Returns VAR with the complete HEX digest of memory data."),
+                ("Hash(parameters, sourcePath)", "Streams a binary file in 65,536-byte blocks. Requires direct PARAM and PATH references; returns VAR. Unkeyed: does not authenticate the source.")
+            }},
+            { "MacPack", new List<(string, string)> {
+                ("MacPack(parameters, key, source)", "Returns PATH to a new CWM container with a streaming file MAC and HKDF/HMAC-SHA256 authenticated JCS metadata. Requires PARAM, KEY, PATH references.")
+            }},
+            { "MacVerify", new List<(string, string)> {
+                ("MacVerify(parameters, key, container)", "Returns VAL true/false after metadata and file authentication. Requires PARAM, KEY, PATH references; metadata is authenticated before opening the file.")
+            }},
+            { "CreateHeader", new List<(string, string)> {
+                ("CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)",
+                 "Returns TR31H. Optional KEYVN:00, KEYCTX:0 and repeated OPTID/OPTBD pairs. Wrap computes KBLEN. See Info(tr31attributes).")
+            }},
 
+            { "Share", new List<(string, string)> {
+                ("Share(parameters, key)", "Creates a SECRET containing all XOR or Shamir shares and independent key metadata. Requires PARAM and KEY references.")
+            }},
+            { "Secret", new List<(string, string)> {
+                ("Secret(parameters, shares...)", "Creates a SECRET from repeated HEX literals (X-Y or Y-X), or decimal index/HEX pairs (SEPARATE-X). Incomplete sets are allowed.")
+            }},
+            { "Restore", new List<(string, string)> {
+                ("Restore(secret)", "Reconstructs a KEY from the SECRET descriptor and enough consistent shares. This does not authenticate the key.")
+            }},
             { "Encrypt", new List<(string, string)>{
                 ("Encrypt(parameters, key, mechanism)", "Encrypts data using the specified parameters:" +
                 "\n- parameters: The encryption algorithm (e.g., AES-CBC) and additional parameters (e.g. IV)"+
@@ -43,7 +66,16 @@ namespace CryptoWorkBenchAvalonia.Models
                 "\n- param-1 : The mechanism as #MECH:ALOG (e.g., AES-CBC)" +
                 "\n- param-2,..,param-N: Predefined parameters needed by  #MECH in the form of #PARAM:VALUE (e.g. #PAD:PKCS-7).")
             }},
+            { "PinBlockTranslate", new List<(string, string)> {
+                ("PinBlockTranslate(sourceParams, sourceKey, encryptedPinBlock, targetParams, targetKey)",
+                 "Translates an encrypted PIN block. Requires PARAM, KEY, VAR, PARAM, KEY references and distinct PARAMs. See Info(pintranslations) for PCI format and PAN rules.")
+            }},
+            { "Check", new List<(string, string)> {
+                ("Check(value, method)", "Finds one visible KEY by a full HEX check value or byte prefix. Optional method: KCV, KCVC, KCVK. No match or ambiguity reports an error without declaring a KEY.")
+            }},
             { "Print", new List<(string, string)> {
+                ("Print(secret)", "Prints all full share values, indices, reconstruction metadata and copyable Secret statements. This discloses the shared material."),
+                ("Print(key)", "Prints the complete key and its metadata, including full KCV, KCVC and KCVK values."),
                 ("Print(data)", "Prints the data to the output window:" +
                 "\n- data: The data to print")
             }},

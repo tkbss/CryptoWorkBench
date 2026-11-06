@@ -98,7 +98,7 @@ public class DeriveHkdfIntegrationTests
     }
 
     [Test]
-    public void DeriveUsesCanonicalKeyValueWhenValueFormatIsMissing()
+    public void DeriveUsesCanonicalValueWhenValueFormatIsMissing()
     {
         RegisterIkm("ikm", Ikm, string.Empty);
 
@@ -107,6 +107,21 @@ public class DeriveHkdfIntegrationTests
             $"KEY okm=Derive(hkdf,ikm,0x({Info}))");
 
         AssertRfcCase1Result((KeyVariableDeclaration)result.Statements[1]);
+    }
+
+    [Test]
+    public void DeriveUsesChangedValueOnTheOriginalKey()
+    {
+        RegisterIkm("ikm", new string('0', Ikm.Length), FormatConversions.HEX);
+        var key = (KeyVariableDeclaration)VariableDictionary.Instance().Get("ikm");
+        key.Value = $"0x({Ikm})";
+
+        Execute($"PARAM hkdf=Parameters(KDF-HKDF,#HASH:HASH-SHA256,#SALT:0x({Salt}),#OUTLEN:336) " +
+            $"KEY okm=Derive(hkdf,ikm,0x({Info}))");
+
+        AssertRfcCase1Result((KeyVariableDeclaration)VariableDictionary.Instance().Get("okm"));
+        Assert.That(VariableDictionary.Instance().Get("ikm"), Is.SameAs(key));
+        Assert.That(key.Value, Is.EqualTo($"0x({Ikm})"));
     }
 
     [Test]
@@ -180,7 +195,6 @@ public class DeriveHkdfIntegrationTests
         {
             Id = "ikm",
             Value = "invalid-key",
-            KeyValue = "invalid-key",
             Type = new CryptoTypeKey()
         });
 
@@ -264,7 +278,6 @@ public class DeriveHkdfIntegrationTests
         {
             Id = id,
             Value = value,
-            KeyValue = value,
             ValueFormat = valueFormat,
             KeySize = (hex.Length * 4).ToString(),
             Type = new CryptoTypeKey()
@@ -280,7 +293,6 @@ public class DeriveHkdfIntegrationTests
     private static void AssertKeyMetadata(KeyVariableDeclaration okm, string keySize)
     {
         okm.Type.Should().BeOfType<CryptoTypeKey>();
-        okm.Value.Should().Be(okm.KeyValue);
         okm.ValueFormat.Should().Be(FormatConversions.HEX);
         okm.KeySize.Should().Be(keySize);
         okm.KeySizeInBits.Should().Be(new KeySize(int.Parse(keySize)));

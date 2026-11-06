@@ -13,6 +13,13 @@ HKDF-EXPAND performs only the Expand operation from RFC 5869. The KEY argument i
 - **Output Length**: #OUTLEN is specified in bits. It must be positive, divisible by 8 and no greater than 255 times HashLen times 8 bits.
 - **Return Value**: Derive returns a generic KEY. Its Mechanism is empty and its DerivationMechanism is HKDF-EXPAND.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Hmac for the Expand PRK. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The mechanism and its explicit hash/profile determine the computation, independently of declared KEY metadata.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 The following functions are available for HKDF-EXPAND mechanism:
 

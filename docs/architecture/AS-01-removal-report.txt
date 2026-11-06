@@ -1,0 +1,182 @@
+AS-01 – Asymmetrische CryptoScript-Infrastruktur entfernt
+Datum: 2026-11-05 (Europe/Zurich)
+Basiscommit: c3586fe5b07116fb314fddc46148e78d679e808b
+Implementierungsabnahme vor Integration: master, ohne neuen Worktree.
+Die nachfolgende R1-Integration ist in AS-01-R1-review.txt dokumentiert.
+
+Ergebnis
+
+CryptoScript v1 enthält keine asymmetrischen Algorithmusklassen, keine
+RSA-/EC-Schlüsseltypen und keine asymmetrischen DER-Import- oder
+Schlüsselgrössenpfade mehr. Die 68 produktiven Mechanismen bleiben in Namen
+und Reihenfolge unverändert. RSA-OAEP, RSA-PSS und ECDSA bleiben nicht
+implementiert. Die getrennte Worktree-Bereinigung wurde hier nicht ausgeführt.
+
+Bestandsaufnahme und Änderungen
+
+- CryptoScript/CryptoAlgorithm/RSA/Rsa.cs gelöscht: nicht registrierte
+  RSA-Hülle ohne produktive Implementierung.
+- CryptoScript/CryptoAlgorithm/AsymmetricCryptoAlgorithm.cs gelöscht:
+  ungenutzter Basistyp AsymmtricCryptoAlgorithm.
+- Variables/KeyType.cs: KeyAlgorithm.Rsa/Ec, KeyMaterialKind.Public/Private
+  und die Public-/Private-Fabriken entfernt. Unknown=0, Aes=1, Tdea=2,
+  Hmac=3 und Secret=0 bleiben explizit unverändert. KeyType, MaterialKind,
+  KeySize und das bestehende symmetrische JSON-Schema bleiben erhalten.
+- Serialization/KeySnapshotCodec.cs: RSA-/EC-DER-Verarbeitung, mathematische
+  Grössenberechnung, DecodeAsymmetric und dafür nötige Imports entfernt.
+  Nicht unterstützte Algorithmus-/Materialnamen werden explizit verworfen;
+  die öffentliche Snapshot-API behält ihren kontrollierten, datenfreien Fehler.
+- Serialization/SecureManifest.cs: Schlüsselgrössen werden nur noch aus der
+  Materiallänge berechnet; keine PublicKeyFactory/PrivateKeyFactory mehr.
+- Serialization/SecureEnvelope.cs: Manifest-Algorithmen sind auf Unknown,
+  Aes, Tdea und Hmac begrenzt. Andere Werte führen vor der Passwortabfrage
+  zu UnsupportedKeyAlgorithm.
+- CryptoWorkBenchAvalonia/Services/Automation/VariablePresentationCapture.cs:
+  RSA-/EC-Anzeigen entfernt. AutomationProjection.cs gibt keine RSA-/EC-
+  Algorithmen oder Public-/Private-Materialtypen mehr an MCP weiter.
+- Asymmetrische Akzeptanz-/Roundtrip-Tests und ihre RSA-/EC-Generatoren
+  entfernt. Gemeinsame Testhilfen auf symmetrische Typen vereinfacht.
+
+Indirekte Abhängigkeiten und Schutzgrenzen
+
+- KeyVariableDeclaration, KeyMetadataValidator, KeyCheckValueCalculator,
+  SecretSet sowie symmetrische Metadaten-/KCV-Verträge wurden geprüft und
+  nicht geändert. Secret und unbekannte, opaque Schlüssel bleiben erhalten.
+- Parser, Lexer, MechanismRegistry, MechanismList, AlgorithmFactory,
+  Completion und Dokumentationskatalog benötigen keine Registrierungskorrektur:
+  asymmetrische Mechanismen waren bereits ausgeschlossen.
+- Produktive AES-, DES3-, HMAC-, HASH-, KDF-, DUKPT-, EMV-, EP2-, TR-31-,
+  PIN-Block- und Secret-Sharing-Implementierungen sind unverändert.
+- CryptoWorkBench.Mcp einschliesslich LocalMcpIdentity.cs und die bestehenden
+  MCP-Tests sind unverändert; ebenso Automation.Abstractions und Authentisierung.
+- BouncyCastle bleibt für produktive symmetrische Verfahren und Argon2 nötig.
+  Keine Paketabhängigkeiten oder Locks wurden entfernt oder verändert.
+- Die bestehenden Version-2-Roadmaps bleiben vollständig erhalten.
+
+Kompatibilitäts- und Sicherheitsnachweise
+
+As01CompatibilityTests verwendet eine VOR den Produktänderungen erzeugte
+Fixture aus dem Basiscommit. Sie umfasst Unknown, AES-128/192/256,
+TDEA-128/192 und HMAC, Legacy-JSON, strukturierte Snapshots, Manifest-JSON,
+Manifest-Binärframes und gespeicherte GCM-/GMAC-Container. Writer-Ausgaben
+und Containerbytes bleiben identisch; bestehende Container authentisieren
+und laden weiterhin. Die bisherigen plattformabhängigen Zeilenenden der
+eingerückten Snapshot-JSON-Ausgabe bleiben unverändert.
+
+Numerische Altwerte 4/5 und Materialwerte 1/2 sowie Namen Rsa/Ec und
+Public/Private werden über Konstruktor, Legacy-JSON und Snapshots abgelehnt.
+Die bisherigen Fälle mit defektem ASN.1/DER bleiben als kontrollierte
+Ablehnungsregressionen erhalten, ohne noch einen DER-Parser aufzurufen.
+
+Neue SecureLoad-Tests prüfen die Ablehnung vor Passwortabfrage und die
+atomare Ablehnung authentisierter Payloads mit alten Metadaten, auch wenn
+der betroffene Schlüssel nicht zum Laden ausgewählt wurde. Kein Teilimport
+verändert das Dictionary. Neue GUI-Tests prüfen symmetrische Präsentation
+und unterbinden die Weitergabe veralteter asymmetrischer Präsentationsdaten.
+
+Die bisherigen EMV-/GenerateKey-Guards behalten Tests für die numerischen
+Altwerte als ungültige Enums. Metadaten-Konflikttests für weiterhin erlaubte
+symmetrische Typen bleiben bestehen. Der allgemeine Metadaten-Roundtrip
+in KeyDeclarationTests verwendet jetzt AES-256 statt RSA.
+
+Verbleibende RSA-/EC-Verwendungen und Einordnung
+
+1. CryptoWorkBench.Mcp/LocalMcpIdentity.cs erzeugt unverändert RSA-Schlüssel
+   für die lokale TLS-Identität. B4F2SecurityTests prüft RSA/CNG-Key-Cleanup.
+   Dies ist Server-TLS und gehört ausdrücklich nicht zu CryptoScript.
+2. CryptoScript/Antlr/TR31Lexer.g4 enthält die standardisierten optionalen
+   Blockkennungen AL/CT und lexikalisch bekannte Algorithmuskennungen.
+   Die generierten Lexerartefakte bleiben unverändert. Diese Grammatik-
+   kompatibilität implementiert weder RSA noch EC-Schlüsselverwaltung.
+3. WrapperTests.WrapperTr31UnwrapNormalStringRSAKeyTest bleibt unverändert
+   und besteht: authentisierter TR-31-Inhalt wird als opakes Material gelesen.
+   RSA-markierter Inhalt bleibt Secret(Unknown), ohne DER-Interpretation.
+4. AlgorithmFactoryTests, MechanismListTests, MechanismRegistryTests,
+   InfoDocumentationProviderTests und GUI-InfoCompletionProviderTests
+   behalten RSA-OAEP/RSA-PSS/ECDSA ausdrücklich als nicht implementiert.
+   InfoViewModelTests verwendet RSA-PSS weiter als undokumentierten Eintrag.
+5. Neue/erhaltene Negativtests enthalten Rsa/Ec/Public/Private als abzulehnende
+   Eingabedaten; dies sind keine Schlüsselimplementierungen.
+6. CryptoScript/InfoDocs/MechanismRoadmap.md sowie TR-31-Dokumentation und
+   historische Architektur-/Migrationsbelege bleiben erhalten.
+7. docs/architecture/evidence/G03/bc-java verwendet Algorithm.RSA als Wahl
+   eines GF(256)-Reduktionspolynoms für Shamir. Fachlich geprüft und nicht
+   verändert; keine asymmetrische RSA-Implementierung von CryptoScript.
+8. GUI-Testpräfixe wie AES-EC sind Teilstrings von AES-ECB und kein EC.
+
+Validierung auf Windows, .NET SDK 10.0.401
+
+Builds über eng/prism/Build.ps1 mit gesperrtem Restore und unverändertem
+offiziellem Prism-Pin 358118cd640d9a22ff8cf21c8ad197fa038b7990:
+
+Konfiguration / Solution                Ergebnis          Warnungen / Fehler
+Debug / Avalonia-Solution                bestanden         6 / 0
+Debug / Root-Solution                    bestanden         0 / 0
+Release / Avalonia-Solution              bestanden         90 / 0
+Release / Root-Solution                  bestanden         0 / 0
+
+Die Warnungen betreffen bestehende Compiler-/Prism-/Avalonia-Stellen;
+die unterschiedlichen Zahlen entstehen auch durch inkrementelle Builds.
+
+Testsuite (Debug, kompletter Standardlauf) Bestanden  Fehler  Nicht ausgeführt
+CryptoScriptUnitTest                      11508      0       27
+CryptoWorkBenchGuiTest                      797      0        0
+CryptoWorkBench.Mcp.Tests                   176      0       13
+Summe                                    12481      0       40
+
+Die 27 Core-Fälle umfassen 18 Tests ohne Windows-Symlink-Berechtigung,
+8 macOS-spezifische Tests und 1 expliziten manuellen Hardwarebenchmark.
+Der dotnet-Kurzbericht zählt den expliziten Benchmark nicht mit und zeigt
+deshalb 26 übersprungene Tests. Die 13 MCP-Fälle sind explizite Installed-
+Codex-/Desktop-Abnahmen mit separater Einrichtung bzw. lokaler GUI-Freigabe;
+sie werden im Standardlauf nicht gestartet und erscheinen nicht in dessen
+Kurzsumme. Diese 40 Fälle sind NICHT als bestanden gewertet. Keine Linux-/
+macOS-Ausführung und keine interaktive Installed-Codex-Abnahme beansprucht.
+
+Alle ausgeführten Serialisierungs-, SecureManifest-/SecureLoad-, Registry-,
+Factory-, Completion-, TR-31-Kompatibilitäts- und MCP-TLS-Tests bestanden.
+PreservesExactNamesAndOrder und EveryProductiveMechanismResolvesToAConcreteAlgorithm
+prüfen die unveränderten 68 produktiven Mechanismen.
+
+Der erste Baseline-Testhost hing in der Sandbox; ausserhalb der Sandbox
+bestand die Fixture-Erzeugung (1/1). Im ersten fokussierten Lauf bestand
+69/70; der neue Test setzte irrtümlich einen vollständigen Legacy-Type-
+Roundtrip voraus. Nur der Test wurde an das unveränderte Altverhalten
+angepasst. Der erste Debug-Build fand einen fehlenden NUnit-Import im neuen
+GUI-Test; nach Korrektur bestanden beide Builds und alle Standardtests.
+
+Statische Abschlussprüfung und Review
+
+- Keine Verweise auf entfernte Enumwerte, Public-/Private-Fabriken oder
+  AsymmtricCryptoAlgorithm in Produkt-/Testcode.
+- Keine RSA-/EC-/ECDSA-/ECDH-/DSA-/ElGamal-/Ed25519-/X25519-Implementierung
+  oder asymmetrische DER-Factory im produktiven CryptoScript-Code gefunden.
+- Produktionsdiff begrenzt auf die zwei entfernten Klassen, KeyType,
+  KeySnapshotCodec, SecureManifest, SecureEnvelope und zwei GUI-Projektoren.
+- Geschützte MCP-, Parser-, Mechanismen-, Secret-Sharing-, Dokumentations-
+  und Paketdateien gegen den Basiscommit geprüft: unverändert.
+- git diff --check erfolgreich. Eigenreview der Produkt- und Testdiffs
+  abgeschlossen; keine offenen Befunde im AS-01-Änderungsumfang.
+- Zum Zeitpunkt der Implementierungsabnahme lag der Arbeitsstand uncommittet
+  auf master; der HEAD entsprach dem Basiscommit.
+
+Reproduzierbare Befehle ab Repositorywurzel
+
+pwsh ./eng/prism/Build.ps1 -Configuration Debug
+pwsh ./eng/prism/Build.ps1 -Configuration Release
+dotnet test CryptoScriptUnitTest/CryptoScriptUnitTest.csproj -c Debug --no-build --no-restore
+dotnet test CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj -c Debug --no-build --no-restore
+dotnet test CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj -c Debug --no-build --no-restore
+
+Lokale Evidenz ausserhalb des Repositorys
+
+C:/Users/stefa/.codex/visualizations/2026/11/05/01a1ab2a-5d26-76f2-899c-17822b16e4b5/
+  build-debug-final.log, build-release.log
+  core-debug.log/.trx, gui-debug.log/.trx, mcp-debug.log/.trx
+  test-summary.json (sämtliche Nichtausführungsgründe)
+  remaining-asymmetric-references.txt, final-audit.json
+  as01-baseline.json, as01-baseline.trx, as01-focused.trx
+
+Versionierte Vergleichsdaten:
+CryptoScriptUnitTest/Fixtures/AS01/symmetric-baseline.json
+CryptoScriptUnitTest/Fixtures/AS01/README.txt

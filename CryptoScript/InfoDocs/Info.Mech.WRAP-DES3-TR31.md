@@ -6,7 +6,7 @@ WRAP-DES3-TR31 creates and reads ANSI X9.143-2022 TR-31 key blocks protected wit
 
 ## Key Features
 
-- **TDEA Keys**: The KBPK and wrapped TDEA key can contain 128 or 192 bits (16 or 24 bytes, including parity bits). GenerateKey rejects weak keys and keys that degenerate to single DES.
+- **TDEA Keys**: The KBPK and wrapped TDEA key can contain 128 or 192 bits (16 or 24 bytes, including parity bits). Technically valid weak or degenerate keys remain executable for analysis, with quality warnings on the KBPK.
 - **Key-Length Obfuscation**: TDEA keys shorter than 192 bits are padded to 24 key bytes before padding to the 8-byte TDEA block boundary.
 - **Binding by Version**:
 
@@ -19,6 +19,13 @@ WRAP-DES3-TR31 creates and reads ANSI X9.143-2022 TR-31 key blocks protected wit
 - **Authentication**: Unwrap authenticates the header and encrypted key data before returning the key. A changed header, ciphertext, authentication value or KBPK is rejected.
 - **Return Value**: Wrap returns a VAR in composite form: `"header"0x(ciphertext)0x(authentication-value)`. Unwrap accepts this form or a quoted complete TR-31 wire block and returns a KEY.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Tdea on the KBPK. Expected KeyUsage: `WrapKey for Wrap; UnwrapKey for Unwrap`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. These usages apply to the protection key only. The transported KEY needs neither WrapKey nor UnwrapKey. Structured calls preserve original KEY identity; legacy identifiers or unambiguous projected values are accepted, while ambiguous values fail. Unwrap never mutates the input VAR. Header algorithm and key usage are authenticated protocol fields, not freely replaceable metadata. Version, header integrity, KBEK/KBAK, lengths, obfuscation and authentication remain unchanged. DES quality warnings are reported on the original KBPK. The explicitly enabled analysis operation also processes internal KBEK/KBAK with their actual effective bits; internal keys do not generate additional warnings.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 The following functions are available for WRAP-DES3-TR31 mechanism:
 
@@ -30,7 +37,7 @@ The following functions are available for WRAP-DES3-TR31 mechanism:
 ## Parameters
 These parameters are used with the WRAP-DES3-TR31 mechanism:
 - **#MECH**: Set to `WRAP-DES3-TR31` in a directly declared PARAM.
-- **#BLKH**: Required by Wrap. Supply a complete Version A, B or C header, including Optional Blocks when present. The header is authenticated and its declared total length must describe the resulting wire block.
+- **#BLKH**: Required by Wrap. Supply a TR31H reference in a direct PARAM declaration for automatic KBLEN, or a complete Version A, B or C raw header including Optional Blocks. The raw header is authenticated unchanged and its declared total length must describe the resulting wire block. Typed Unwrap compares the authenticated header to the definition with only KBLEN resolved from the verified wire.
 - **#RND**: Optional hexadecimal filler in wire order: key-length obfuscation first, then TDEA block padding. A 128-bit wrapped TDEA key uses 8 bytes of obfuscation and 6 bytes of block padding, for 14 bytes total. A 192-bit key uses no obfuscation and 6 bytes of block padding, for 6 bytes total. If omitted or supplied with another length, CryptoWorkBench generates the complete filler with a cryptographically secure random generator.
 - **Input and Output**: Wrap accepts Versions A, B and C only. No external IV or configurable padding is used by this mechanism.
 
@@ -60,3 +67,15 @@ PARAM unwrapParametersB = #MECH:WRAP-DES3-TR31
 KEY recoveredWireB = Unwrap(unwrapParametersB, kbpkB, wireBlockB)
 
 ---
+### TDEA test and analysis keys
+
+`DesParityViolation` (10) and `WeakDes3Key` (11) are non-blocking Warning diagnostics. Weak or semi-weak DES components and effective K1=K2 or K2=K3 are reported independently of parity; K1=K3 alone is not single-DES degeneration. Each quality category is reported at most once per operation on the original KEY, after any KeyTypeConflict and KeyUsageConflict metadata warnings. No KEY bytes or parity bits are changed. Technically valid calls also work without a diagnostic sink.
+
+This support is for test and analysis and makes no suitability claim for production payment systems. Invalid key lengths, malformed data and protocol errors remain blocking. ARQC verification and TR-31 authentication remain mandatory; failed verification stops execution without a successful result. AES behavior and the approved algorithm selectors remain unchanged.
+
+
+### Typed TR-31 headers
+
+See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
+
+`TR31H header = CreateHeader(KBVID:B, KEYU:D0, ALGO:T, MODEU:B, EXP:E)` creates a reusable definition. Pass it as `#BLKH:header`; Wrap computes KBLEN without modifying the definition. WRAP-DES3-TR31 supports A/B/C and ALGO:T.

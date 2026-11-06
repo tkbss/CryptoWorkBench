@@ -42,6 +42,24 @@ namespace CryptoScriptUnitTest
             Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
             Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(128)));
             Assert.That(restored.KeySize, Is.EqualTo("128"));
+            Assert.That(restored.Value, Is.EqualTo("0x(00000000000000000000000000000000)"));
+            Assert.That(JObject.Parse(restored.Serialize()).Property("KeyValue"), Is.Null);
+        }
+
+        [Test]
+        public void RemovedLegacyFieldCannotOverrideCanonicalMaterial()
+        {
+            const string material = "0x(000102030405060708090A0B0C0D0E0F)";
+            var json = new JObject
+            {
+                ["Value"] = material,
+                ["KeyValue"] = "0x(FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)"
+            };
+
+            var restored = KeyVariableDeclaration.Deserialize(json.ToString());
+
+            Assert.That(restored.Value, Is.EqualTo(material));
+            Assert.That(JObject.Parse(restored.Serialize()).Property("KeyValue"), Is.Null);
         }
 
         [Test]
@@ -49,16 +67,16 @@ namespace CryptoScriptUnitTest
         {
             var key = new KeyVariableDeclaration
             {
-                KeyType = KeyType.Private(KeyAlgorithm.Rsa),
-                KeySizeInBits = new KeySize(2048),
-                KeySize = "2048"
+                KeyType = KeyType.Secret(KeyAlgorithm.Aes),
+                KeySizeInBits = new KeySize(256),
+                KeySize = "256"
             };
 
             var restored = KeyVariableDeclaration.Deserialize(key.Serialize());
 
-            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Private(KeyAlgorithm.Rsa)));
-            Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(2048)));
-            Assert.That(restored.KeySize, Is.EqualTo("2048"));
+            Assert.That(restored.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
+            Assert.That(restored.KeySizeInBits, Is.EqualTo(new KeySize(256)));
+            Assert.That(restored.KeySize, Is.EqualTo("256"));
         }
 
         [TestCase("AES-CBC", KeyAlgorithm.Aes)]

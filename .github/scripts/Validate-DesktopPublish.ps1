@@ -1,0 +1,133 @@
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)]
+    [ValidateSet('win-x64', 'linux-x64', 'osx-arm64', 'osx-x64')]
+    [string] $RuntimeIdentifier,
+
+    [Parameter(Mandatory)]
+    [string] $PublishDirectory
+)
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+$publishRoot = (Resolve-Path -LiteralPath $PublishDirectory).Path
+$repositoryRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+$sourceDocsRoot = Join-Path $repositoryRoot 'CryptoScript/InfoDocs'
+$appName = 'CryptoWorkBenchAvalonia.Desktop'
+
+# Ordinal comparisons catch incorrect casing even on Windows and default macOS
+# filesystems. All lookups are relative to the deployed application directory.
+$publishedFiles = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+foreach ($file in Get-ChildItem -LiteralPath $publishRoot -File -Recurse) {
+    $relativePath = [IO.Path]::GetRelativePath($publishRoot, $file.FullName).Replace('\', '/')
+    [void] $publishedFiles.Add($relativePath)
+}
+
+function Assert-PublishedFile([string] $RelativePath) {
+    if (-not $publishedFiles.Contains($RelativePath)) {
+        throw "Missing publish file (exact casing required): $RelativePath"
+    }
+    $path = Join-Path $publishRoot $RelativePath
+    if ((Get-Item -LiteralPath $path).Length -eq 0) {
+        throw "Empty publish file: $RelativePath"
+    }
+}
+
+$executable = if ($RuntimeIdentifier -eq 'win-x64') { "$appName.exe" } else { $appName }
+foreach ($file in @($executable, "$appName.dll", "$appName.deps.json",
+        "$appName.runtimeconfig.json", 'CryptoWorkBenchAvalonia.dll', 'CryptoScript.dll', 'CryptoWorkBench.Mcp.dll')) {
+    Assert-PublishedFile $file
+}
+if ($RuntimeIdentifier -ne 'win-x64') {
+    & test -x (Join-Path $publishRoot $executable)
+    if ($LASTEXITCODE -ne 0) { throw "Apphost is not executable: $executable" }
+}
+
+$runtimeConfig = Get-Content -LiteralPath (Join-Path $publishRoot "$appName.runtimeconfig.json") -Raw |
+    ConvertFrom-Json -AsHashtable
+foreach ($name in 'Microsoft.NETCore.App', 'Microsoft.AspNetCore.App') {
+    $framework = @($runtimeConfig.runtimeOptions.frameworks | Where-Object name -CEQ $name)
+    if ($framework.Count -ne 1 -or $framework[0].version -notlike '10.0.*') {
+        throw "Desktop publish must require shared framework $name 10.0."
+    }
+}
+
+$deps = Get-Content -LiteralPath (Join-Path $publishRoot "$appName.deps.json") -Raw |
+    ConvertFrom-Json -AsHashtable
+$targetName = $deps.runtimeTarget.name
+if (-not $targetName.EndsWith("/$RuntimeIdentifier", [StringComparison]::Ordinal)) {
+    throw "Unexpected dependency target: $targetName"
+}
+
+# RID-specific publish flattens managed/native assets into the app directory;
+# satellite resources retain their locale subdirectory. Check the SDK manifest
+# rather than maintaining a second list of NuGet dependency versions.
+$nativeCount = 0
+foreach ($library in $deps.targets[$targetName].Values) {
+    foreach ($kind in @('runtime', 'native', 'resources')) {
+        if (-not $library.ContainsKey($kind)) { continue }
+        foreach ($asset in $library[$kind].GetEnumerator()) {
+            $fileName = ($asset.Key -split '/')[-1]
+            if ($fileName -eq '_._') { continue }
+            $relativePath = if ($kind -eq 'resources') {
+                "$($asset.Value.locale)/$fileName"
+            } else { $fileName }
+            Assert-PublishedFile $relativePath
+            if ($kind -eq 'native') { $nativeCount++ }
+        }
+    }
+}
+if ($nativeCount -eq 0) { throw 'No platform-native dependencies were validated.' }
+
+if ($RuntimeIdentifier.StartsWith('osx-', [StringComparison]::Ordinal)) {
+    # Project content is intentionally not a NuGet native asset in deps.json.
+    $shimName = 'libCryptoScript.FileSystem.dylib'
+    Assert-PublishedFile $shimName
+    $shimPath = Join-Path $publishRoot $shimName
+    # -verify_arch consumes every remaining argument as an architecture name.
+    & xcrun lipo $shimPath -verify_arch x86_64 arm64
+    if ($LASTEXITCODE -ne 0) { throw 'CWE shim must contain both macOS architectures.' }
+    Write-Host 'Validated CWE shim architectures: x86_64, arm64.'
+    & codesign --verify --strict $shimPath
+    if ($LASTEXITCODE -ne 0) { throw 'CWE shim code signature is invalid.' }
+    Write-Host 'Validated CWE shim code signature.'
+    # otool defaults to the host slice. Validate the allowlist on each slice.
+    foreach ($architecture in @('x86_64', 'arm64')) {
+        $linkedLibraries = & xcrun otool -arch $architecture -L $shimPath
+        if ($LASTEXITCODE -ne 0) { throw "Cannot inspect CWE shim dependencies ($architecture)." }
+        $dependencyNames = @($linkedLibraries | Where-Object { $_ -match '\(compatibility version' } |
+            ForEach-Object { ($_.Trim() -split '\s+')[0] } | Sort-Object -Unique)
+        if ($dependencyNames.Count -ne 2 -or
+            '@rpath/libCryptoScript.FileSystem.dylib' -notin $dependencyNames -or
+            '/usr/lib/libSystem.B.dylib' -notin $dependencyNames) {
+            throw "Unexpected CWE native dependencies ($architecture): $dependencyNames"
+        }
+        Write-Host "Validated CWE shim dependencies ($architecture): $dependencyNames"
+    }
+    # Absolute-path load from the deployed directory, plus both required exports.
+    $shimHandle = [Runtime.InteropServices.NativeLibrary]::Load($shimPath)
+    try {
+        [void] [Runtime.InteropServices.NativeLibrary]::GetExport($shimHandle, 'cwe_openat')
+        [void] [Runtime.InteropServices.NativeLibrary]::GetExport($shimHandle, 'cwe_getpath')
+        Write-Host 'Loaded CWE shim from publish directory; both native exports resolved.'
+    }
+    finally { [Runtime.InteropServices.NativeLibrary]::Free($shimHandle) }
+    $nativeCount++
+}
+
+$sourceDocs = @(Get-ChildItem -LiteralPath $sourceDocsRoot -File -Recurse)
+if ($sourceDocs.Count -eq 0) { throw 'Source InfoDocs directory is empty.' }
+foreach ($source in $sourceDocs) {
+    $relativePath = 'InfoDocs/' + [IO.Path]::GetRelativePath($sourceDocsRoot, $source.FullName).Replace('\', '/')
+    Assert-PublishedFile $relativePath
+    $deployed = Join-Path $publishRoot $relativePath
+    if ((Get-FileHash -LiteralPath $source.FullName).Hash -ne (Get-FileHash -LiteralPath $deployed).Hash) {
+        throw "Published documentation differs from source: $relativePath"
+    }
+    # Exercise readability from the deployed layout used by FileInfoDocumentationProvider.
+    [void] [IO.File]::ReadAllText($deployed)
+}
+
+Write-Host "Validated $RuntimeIdentifier apphost, managed dependencies, $nativeCount native assets and $($sourceDocs.Count) InfoDocs files."
+Write-Host 'This validates publish contents; it does not launch or smoke-test the graphical application.'

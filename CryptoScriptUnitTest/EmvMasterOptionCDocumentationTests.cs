@@ -74,9 +74,9 @@ public class EmvMasterOptionCDocumentationTests
         Execute(example);
         var icc = (KeyVariableDeclaration)VariableDictionary.Instance().Get("ICC");
         var session = (KeyVariableDeclaration)VariableDictionary.Instance().Get("sessionKey");
-        Assert.That(icc.KeyValue, Is.EqualTo("0x(35C006583E2B417207AE5B166C0EA6EF)").IgnoreCase);
+        Assert.That(icc.Value, Is.EqualTo("0x(35C006583E2B417207AE5B166C0EA6EF)").IgnoreCase);
         Assert.That(icc.DerivationMechanism, Is.EqualTo(Mechanism));
-        Assert.That(session.KeyValue, Is.EqualTo("0x(1E955EB21AFFA73F01DBED4D41BD25F4)").IgnoreCase);
+        Assert.That(session.Value, Is.EqualTo("0x(1E955EB21AFFA73F01DBED4D41BD25F4)").IgnoreCase);
         Assert.That(session.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Aes)));
         Assert.That(session.KeySizeInBits, Is.EqualTo(new KeySize(128)));
         Assert.That(session.DerivationMechanism, Is.EqualTo("KDF-EMV-AC-SESSION"));

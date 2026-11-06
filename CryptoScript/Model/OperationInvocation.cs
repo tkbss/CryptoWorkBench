@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
 
 namespace CryptoScript.Model;
@@ -13,7 +14,9 @@ public enum ResolvedCallArgumentKind
     Variable,
     Parameter,
     Info,
-    Empty
+    Empty,
+    HeaderAttribute,
+    SnapshotSelector
 }
 
 public sealed record ResolvedCallArgument
@@ -47,6 +50,17 @@ public sealed class OperationInvocation
     private readonly ReadOnlyCollection<ResolvedCallArgument> arguments;
 
     public OperationInvocation(IEnumerable<ResolvedCallArgument> arguments)
+        : this(arguments, null)
+    {
+    }
+
+    public OperationInvocation(IEnumerable<ResolvedCallArgument> arguments,
+        ISemanticDiagnosticSink? diagnosticSink) : this(arguments, diagnosticSink, default)
+    {
+    }
+
+    public OperationInvocation(IEnumerable<ResolvedCallArgument> arguments,
+        ISemanticDiagnosticSink? diagnosticSink, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         ResolvedCallArgument[] copiedArguments = arguments.ToArray();
@@ -54,9 +68,14 @@ public sealed class OperationInvocation
             throw new ArgumentException("Resolved arguments must not contain null entries.", nameof(arguments));
 
         this.arguments = Array.AsReadOnly(copiedArguments);
+        DiagnosticSink = diagnosticSink;
+        CancellationToken = cancellationToken;
     }
 
     public IReadOnlyList<ResolvedCallArgument> Arguments => arguments;
+
+    public ISemanticDiagnosticSink? DiagnosticSink { get; }
+    public CancellationToken CancellationToken { get; }
 
     // Compatibility projection for operations and algorithms that still use the legacy string[] contract.
     public string[] Values => arguments.Select(argument => argument.Value!).ToArray();

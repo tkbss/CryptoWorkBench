@@ -6,6 +6,8 @@ namespace CryptoScript.Model
     {
         public static StatementNode? Map(CryptoScriptParser.StatementContext context)
         {
+            if (context.assignment() is { } assignment)
+                return AntlrToAssignment.Map(assignment);
             if (context.functionCall() is { } call)
                 return new FunctionCallStatementNode(AntlrToFunctionCallExpression.Map(call));
             if (context.declaration() is { } declaration)

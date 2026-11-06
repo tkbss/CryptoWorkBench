@@ -1,6 +1,6 @@
 # Mechnisms
 
-List of all cryptograhic algorithms implemented in CRYPTO-SCRIPT.   
+List of all cryptograhic algorithms implemented in CRYPTO-SCRIPT.
 
 ---
 Every mechanism is specifying a certain cryptographic algorithm. Detailed information about each mechanism can be obtained through Info(mechanism).
@@ -19,6 +19,11 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - DES3-CBC : Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.
 - DES3-RETAIL : Symmetric Triple Data Encryption Standard in Retail mode.
 - DES3-CMAC : Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.
+- EP2-DATA-ENCRYPTION : EP2 AES-128 CTR encryption with a 12-byte nonce, field offset and 24-bit counter.
+- EP2-MESSAGE-MAC : EP2 message MAC: leftmost eight bytes of HMAC-SHA256 over SHA-256 of message bytes.
+- EP2-PAN-RECEIPT-ENCRYPTION : EP2 PAN receipt AES-128 ECB encryption with mandatory ISO-7816 padding and an already derived transaction key.
+- EP2-TR31-KEY-BLOCK : EP2 TR-31 Version D authenticated transport of 128-bit H material with the fixed Table 11 header profile.
+- EP2-TRANSACTION-CERTIFICATE : EP2 transaction certificate: leftmost eight bytes of HMAC-SHA256 over prepared DOL bytes.
 - HMAC-SHA1 : Keyed-Hash Message Authentication Code using SHA-1.
 - HMAC-SHA224 : Keyed-Hash Message Authentication Code using SHA-224.
 - HMAC-SHA256 : Keyed-Hash Message Authentication Code using SHA-256.
@@ -57,6 +62,10 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - KDF-EP2-PAN-RECEIPT-TRX : ep2 8.12 direct Expand using SHA-256(DOL) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-RECEIPT-TRM : ep2 8.13 Extract-and-Expand using SHA-256(Terminal Properties) as info and returning the leftmost 16 of 32 bytes.
 - KDF-EP2-PAN-SURROGATE-TRX : ep2 8.14 direct Expand using raw DOL as info and returning all 32 bytes.
+- MAC-EMV-AC : EMV eight-byte Application Cryptogram using TDEA Algorithm 3 or AES-CMAC.
+- MAC-EMV-AC-VERIFY : Fail-closed verification of an eight-byte EMV Application Cryptogram.
+- MAC-EMV-ARPC-METHOD-1 : EMV eight-byte ARPC Method 1 using an AC Session Key, ARQC and binary ARC.
+- MAC-EMV-ARPC-METHOD-2 : EMV four-byte ARPC Method 2 with optional complete Issuer Authentication Data output.
 - WRAP-AES-PINBLOCK-4 : ISO 9564 format 4 PIN-block wrapping and unwrapping with AES.
 - WRAP-AES-TR31 : TR-31 Version D key wrapping with AES Key Derivation Binding.
 - WRAP-DES3-PINBLOCK-0 : ISO 9564 format 0 PIN-block wrapping and unwrapping with TDEA.
@@ -64,6 +73,10 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 - WRAP-DES3-PINBLOCK-2 : ISO 9564 format 2 PIN-block wrapping and unwrapping with TDEA for EMV offline PIN verification.
 - WRAP-DES3-PINBLOCK-3 : ISO 9564 format 3 PIN-block wrapping and unwrapping with TDEA.
 - WRAP-DES3-TR31 : TR-31 Version A/B/C key wrapping with TDEA Variant or Derivation Binding.
+
+## Workbench AES/DES3 key diagnostics
+
+General AES/DES3 Encrypt, Decrypt and Mac operations can use technically valid key bytes despite conflicting declared KeyType or KeyUsage metadata. KeyTypeConflict and KeyUsageConflict are non-blocking warnings, in that order. Unknown KeyAlgorithm and Unspecified usage do not conflict. When a diagnostic sink is absent (including legacy string[] calls), these semantic conflicts still do not block execution; no global diagnostics are stored. Technical validation, including AEAD authentication, remains mandatory. Mechanism selection never follows contradictory key metadata automatically. DES3 additionally reports parity and weak-key quality warnings; see its mechanism pages. No warning constitutes a PCI/EP2 conformity assessment or a recommendation for production payment use.
 
 ## ep2 KDF Comparison
 
@@ -73,3 +86,8 @@ Every mechanism is specifying a certain cryptographic algorithm. Detailed inform
 | 8.12 | no | SHA-256(DOL) | leftmost 16 of 32 Byte |
 | 8.13 | yes | SHA-256(Terminal Properties) | leftmost 16 of 32 Byte |
 | 8.14 | no | raw DOL | full 32 Byte |
+
+## Secret sharing
+
+- SECRET_SHAMIR : Shamir k-of-n sharing over GF(256).
+- SECRET_SPLIT : XOR n-of-n key components.

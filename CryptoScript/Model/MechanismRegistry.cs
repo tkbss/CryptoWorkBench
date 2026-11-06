@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
+using CryptoScript.Variables;
 
 namespace CryptoScript.Model;
 
@@ -10,12 +11,22 @@ public sealed record MechanismRegistryEntry
         string description,
         string documentationFileName,
         IEnumerable<CryptoScriptFunction> supportedFunctions,
-        IEnumerable<MechanismFunctionMetadata>? functionMetadata = null)
+        IEnumerable<MechanismFunctionMetadata>? functionMetadata = null,
+        KeyAlgorithm? generatedKeyAlgorithm = null)
     {
         CanonicalName = canonicalName;
         Description = description;
         DocumentationFileName = documentationFileName;
         SupportedFunctions = supportedFunctions.ToFrozenSet();
+        if (SupportedFunctions.Contains(CryptoScriptFunction.GenerateKey) != generatedKeyAlgorithm.HasValue ||
+            generatedKeyAlgorithm.HasValue &&
+            generatedKeyAlgorithm is not (KeyAlgorithm.Aes or KeyAlgorithm.Tdea or KeyAlgorithm.Hmac))
+        {
+            throw new ArgumentException(
+                "GenerateKey support requires exactly one defined symmetric key algorithm; unsupported functions must not declare one.",
+                nameof(generatedKeyAlgorithm));
+        }
+        GeneratedKeyAlgorithm = generatedKeyAlgorithm;
 
         MechanismFunctionMetadata[] copiedFunctionMetadata =
             (functionMetadata ?? Array.Empty<MechanismFunctionMetadata>()).ToArray();
@@ -35,6 +46,7 @@ public sealed record MechanismRegistryEntry
     public string Description { get; }
     public string DocumentationFileName { get; }
     public IReadOnlySet<CryptoScriptFunction> SupportedFunctions { get; }
+    public KeyAlgorithm? GeneratedKeyAlgorithm { get; }
     public IReadOnlyDictionary<CryptoScriptFunction, MechanismFunctionMetadata> FunctionMetadata { get; }
     internal bool StrictMechanismParameterContract { get; init; }
 
@@ -66,7 +78,8 @@ public enum MechanismParameterDataType
     BinaryData,
     Integer,
     HexString,
-    Padding
+    Padding,
+    Secret
 }
 
 public enum MechanismParameterInputForm
@@ -228,11 +241,46 @@ public enum CryptoScriptFunction
     Derive,
     Wrap,
     Unwrap,
-    BlockHeader
+    BlockHeader,
+    PinBlockTranslate,
+    Share, Secret, Restore
 }
 
 public static class MechanismRegistry
 {
+    private static MechanismFunctionMetadata[] SecretFunctionMetadata(bool shamir)
+    {
+        var named = new List<MechanismParameterMetadata>
+        {
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Secret sharing mechanism.", shamir ? "SECRET_SHAMIR" : "SECRET_SPLIT"),
+            NamedParameter("#PARTS", true, MechanismParameterDirection.Input, MechanismParameterDataType.Integer,
+                "Total number of shares.", "2..255"),
+            NamedParameter("#SHAREFORMAT", false, MechanismParameterDirection.Input, MechanismParameterDataType.Data,
+                "External share representation.", "Quoted X-Y, Y-X or SEPARATE-X.", MechanismParameterDefaultKind.Literal, "\"X-Y\"")
+        };
+        if (shamir)
+        {
+            named.Add(NamedParameter("#MINPARTS", true, MechanismParameterDirection.Input, MechanismParameterDataType.Integer,
+                "Reconstruction threshold.", "2..PARTS"));
+            named.Add(NamedParameter("#POLYNOM", false, MechanismParameterDirection.Input, MechanismParameterDataType.Data,
+                "GF(256) representation, independent of the key algorithm.", "Quoted SHAMIR-GF256-11B or SHAMIR-GF256-11D.",
+                MechanismParameterDefaultKind.Literal, "\"SHAMIR-GF256-11B\""));
+        }
+        var parameter = Argument("parameters", true, MechanismParameterDirection.Input, [MechanismParameterDataType.ParameterSet],
+            "Typed PARAM reference.", "Validated secret sharing parameters.");
+        return
+        [
+            new(CryptoScriptFunction.Parameters, named),
+            new(CryptoScriptFunction.Share, new[] { parameter,
+                Argument("key", true, MechanismParameterDirection.Input, [MechanismParameterDataType.Key], "Symmetric KEY reference.", "Nonempty key bytes.") }.Concat(named)),
+            new(CryptoScriptFunction.Secret, new[] { parameter,
+                Argument("shares", true, MechanismParameterDirection.Input, [MechanismParameterDataType.BinaryData, MechanismParameterDataType.Integer],
+                    "Repeated positional HEX shares or integer/HEX pairs.", "Unique indices 1..255; equal nonempty payload lengths; may be below threshold.") }.Concat(named)),
+            new(CryptoScriptFunction.Restore, [Argument("secret", true, MechanismParameterDirection.Input, [MechanismParameterDataType.Secret],
+                "Typed SECRET reference.", "At least MinParts consistent shares; uses container metadata only.")])
+        ];
+    }
     private static MechanismParameterMetadata Argument(
         string name,
         bool required,
@@ -405,6 +453,212 @@ public static class MechanismRegistry
         CryptoScriptFunction.Parameters,
         CryptoScriptFunction.Derive
     };
+
+    private static MechanismFunctionMetadata[] Ep2Tr31FunctionMetadata()
+    {
+        var mech = NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+            "Consistent mechanism selector.", "Exactly EP2-TR31-KEY-BLOCK.");
+        MechanismParameterMetadata Header(bool required) => NamedParameter("#BLKH", required, MechanismParameterDirection.Input,
+            MechanismParameterDataType.Data, "Complete EP2 Table 11 header; expected authenticated header for Unwrap.",
+            "D011299HX00N0000, D01129AHG00N0000 or D01129BHG00N0000.",
+            inputForms: new[] { MechanismParameterInputForm.StringLiteral, MechanismParameterInputForm.VariableReference });
+        var random = NamedParameter("#RND", false, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
+            "Optional deterministic filler; omitted means cryptographically secure random bytes.", "Exactly 14 HEX bytes; forbidden for Unwrap.",
+            inputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference });
+        var common = new[] {
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
+                "Genuine matching PARAM reference.", "Position 0; no nested or reconstructed objects."),
+            Argument("kbpk", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                "Genuine AES KBPK KEY reference.", "16 bytes; consistent known size. WrapKey/UnwrapKey metadata conflicts warn.") };
+        return new[] {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[] {
+                Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
+                    "Selects EP2 TR-31.", "EP2-TR31-KEY-BLOCK."), Header(false), random }),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Wrap, common.Concat(new[] {
+                Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                    "Genuine transported KEY reference.", "Exactly 16 bytes; HMAC classification conflicts warn. Header determines role."),
+                mech, Header(true), random })),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Unwrap, common.Concat(new[] {
+                Argument("block", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Data },
+                    "Genuine VAR holding a complete wire or composite block.", "112 ASCII wire characters; authenticated before key release."),
+                mech, Header(false) })) };
+    }
+
+    private static MechanismFunctionMetadata[] Ep2PanReceiptFunctionMetadata()
+    {
+        const string mechanism = "EP2-PAN-RECEIPT-ENCRYPTION";
+        var arguments = new[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
+                "Genuine matching PARAM reference at position 0.", "Only MECH; no reconstructed objects or nested results."),
+            Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                "Genuine Key PAN Receipt Trx KEY reference at position 1, already derived by the caller.",
+                "Exactly 16 bytes; known size must agree. AES and Encrypt/Decrypt usage conflicts warn."),
+            new MechanismParameterMetadata("data", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input,
+                true, new[] { MechanismParameterDataType.BinaryData }, "Already encoded PAN bytes or ciphertext; no PAN conversion.",
+                "Direct HEX literal or genuine HEX VAR; mandatory ISO-7816 padding. Decrypt requires positive 16-byte multiples and valid padding.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + "; no additional or duplicate parameters.")
+        };
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[] {
+                Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
+                    "Selects EP2 PAN receipt encryption.", mechanism + " or #MECH:" + mechanism + ".") }),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Encrypt, arguments),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Decrypt, arguments)
+        };
+    }
+
+    private static MechanismFunctionMetadata[] Ep2EncryptionFunctionMetadata()
+    {
+        var consumed = new[]
+        {
+            NamedParameter("#NONCE", true, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
+                "Caller-supplied nonce; no automatic generation or session management.", "Exactly 12 HEX bytes.",
+                inputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#OFFSET", true, MechanismParameterDirection.Input, MechanismParameterDataType.BinaryData,
+                "EP2 Table 10 field offset.", "Exactly one HEX byte: SEND 00–07; RECEIVE 00–01; other values are RFU.",
+                inputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#DIRECTION", true, MechanismParameterDirection.Input, MechanismParameterDataType.Data,
+                "Message direction relative to the master, independent of Encrypt or Decrypt.",
+                "Normal string literal SEND (from master) or RECEIVE (to master).",
+                inputForms: new[] { MechanismParameterInputForm.StringLiteral, MechanismParameterInputForm.VariableReference })
+        };
+        var arguments = new[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.ParameterSet },
+                "Genuine PARAM reference at position 0.", "No reconstructed objects or nested results."),
+            Argument("key", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Key },
+                "Genuine KEY reference at position 1.", "Exactly 16 bytes with consistent known size; AES and Encrypt/Decrypt usage conflicts warn."),
+            new MechanismParameterMetadata("data", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input,
+                true, new[] { MechanismParameterDataType.BinaryData }, "Byte-exact plaintext or ciphertext.",
+                "Direct HEX literal or genuine HEX VAR; at most 2^24 blocks, no padding or nested results.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly EP2-DATA-ENCRYPTION; no additional or duplicate parameters.")
+        };
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[]
+            {
+                Argument("mechanism", true, MechanismParameterDirection.Input, new[] { MechanismParameterDataType.Mechanism },
+                    "Selects EP2 data encryption.", "EP2-DATA-ENCRYPTION or #MECH:EP2-DATA-ENCRYPTION.")
+            }.Concat(consumed)),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Encrypt, arguments.Concat(consumed)),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Decrypt, arguments.Concat(consumed))
+        };
+    }
+
+    private static MechanismFunctionMetadata[] Ep2MacFunctionMetadata(string mechanism) => new[]
+    {
+        new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, new[]
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism }, "Selects EP2 MAC processing.", mechanism + ".")
+        }),
+        new MechanismFunctionMetadata(CryptoScriptFunction.Mac, new[]
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet }, "Genuine PARAM reference at position 0.",
+                "No reconstructed objects or nested results; only the selected MECH is allowed."),
+            Argument("key", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key }, "Genuine KEY reference at position 1.",
+                "Exactly 32 bytes; known size metadata must agree. HMAC/MacGenerate metadata conflicts warn."),
+            new MechanismParameterMetadata("data", MechanismParameterKind.PositionalArgument,
+                MechanismParameterDirection.Input, true, new[] { MechanismParameterDataType.BinaryData },
+                mechanism == "EP2-MESSAGE-MAC" ? "Unchanged bytes after the message MAC field." : "Already prepared DOL value bytes.",
+                "Direct HEX literal or genuine HEX VAR; no nested results or implicit conversions. Output is eight bytes.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + "; no additional or duplicate parameters.")
+        })
+    };
+
+    private static MechanismFunctionMetadata[] EmvAcFunctionMetadata(string mechanism, bool verify)
+    {
+        var generation = new List<MechanismParameterMetadata>
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism }, "Selects EMV AC processing.", mechanism + ".")
+        };
+        var mac = new List<MechanismParameterMetadata>
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet }, "Genuine PARAM variable reference.",
+                "Original Variable argument; no reconstructed PARAM or direct MECH selector."),
+            Argument("sessionKey", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key }, "Genuine Secret AES or TDEA KEY reference.",
+                "TDEA exactly 16 bytes; AES 16, 24 or 32 bytes; known size metadata must agree."),
+            new("transactionData", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input, true,
+                new[] { MechanismParameterDataType.BinaryData }, "Already assembled binary transaction data.",
+                "Direct HEX literal or HEX VAR reference; no implicit conversion or nested function result.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + ".")
+        };
+        if (verify)
+        {
+            // Parameter transport establishes the resolved value, not its original AST origin.
+            var expected = NamedParameter("#EXPECTED", true, MechanismParameterDirection.Input,
+                MechanismParameterDataType.BinaryData, "Expected Application Cryptogram.",
+                "HEX value with exactly 16 hex digits (eight bytes); no implicit ASCII or Base64 conversion.");
+            generation.Add(expected);
+            mac.Add(expected);
+        }
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, generation),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Mac, mac)
+        };
+    }
+
+    private static MechanismFunctionMetadata[] EmvArpcFunctionMetadata(string mechanism, bool method2)
+    {
+        var named = new List<MechanismParameterMetadata>
+        {
+            NamedParameter(method2 ? "#CSU" : "#ARC", true, MechanismParameterDirection.Input,
+                MechanismParameterDataType.BinaryData, method2 ? "Binary Card Status Update." : "Binary Authorisation Response Code.",
+                method2 ? "Exactly four bytes as a resolved HEX value." : "Exactly two bytes as a resolved HEX value.")
+        };
+        if (method2)
+        {
+            named.Add(NamedParameter("#ADATA", false, MechanismParameterDirection.Input,
+                MechanismParameterDataType.BinaryData, "Proprietary Authentication Data.",
+                "Resolved HEX value of one to eight bytes; omission means empty data."));
+            named.Add(NamedParameter("#VARIANT", false, MechanismParameterDirection.Input,
+                MechanismParameterDataType.Data, "Selects complete Issuer Authentication Data output.",
+                "Only the explicit normal string IAD; omission returns four-byte ARPC.",
+                inputForms: new[] { MechanismParameterInputForm.StringLiteral }));
+        }
+        var generation = new List<MechanismParameterMetadata>
+        {
+            Argument("mechanism", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Mechanism }, "Selects the EMV ARPC method.", mechanism + ".")
+        };
+        generation.AddRange(named);
+        var mac = new List<MechanismParameterMetadata>
+        {
+            Argument("parameters", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.ParameterSet }, "Genuine PARAM variable reference.", "No reconstruction or direct MECH argument."),
+            Argument("sessionKey", true, MechanismParameterDirection.Input,
+                new[] { MechanismParameterDataType.Key }, "Already derived AC Session KEY.",
+                "Genuine Secret TDEA 16-byte or AES 16/24/32-byte KEY reference; known size metadata must match."),
+            new("arqc", MechanismParameterKind.PositionalArgument, MechanismParameterDirection.Input, true,
+                new[] { MechanismParameterDataType.BinaryData }, "Received ARQC; not automatically verified.",
+                "Exactly eight bytes from a direct HEX literal or HEX VAR reference; no nested function result.",
+                acceptedInputForms: new[] { MechanismParameterInputForm.HexLiteral, MechanismParameterInputForm.VariableReference }),
+            NamedParameter("#MECH", true, MechanismParameterDirection.Input, MechanismParameterDataType.Mechanism,
+                "Consistent mechanism selector.", "Exactly " + mechanism + ".")
+        };
+        mac.AddRange(named);
+        return new[]
+        {
+            new MechanismFunctionMetadata(CryptoScriptFunction.Parameters, generation),
+            new MechanismFunctionMetadata(CryptoScriptFunction.Mac, mac)
+        };
+    }
 
     private static readonly MechanismFunctionMetadata[] EmvAcSessionFunctionMetadata =
     {
@@ -669,22 +923,39 @@ public static class MechanismRegistry
     private static readonly ReadOnlyCollection<MechanismRegistryEntry> RegistryEntries =
         Array.AsReadOnly(new MechanismRegistryEntry[]
         {
-            new("AES-CBC", "Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.AES-CBC.md", CipherFunctions, AesCbcFunctionMetadata),
-            new("AES-CBC-MAC", "AES Cipher Block Chaining Message Authentication Code with selectable deterministic padding and left truncation.", "Info.Mech.AES-CBC-MAC.md", MacFunctions, AesCbcMacFunctionMetadata),
-            new("AES-CCM", "Symmetric Advanced Encryption Standard in Counter with CBC-MAC mode.", "Info.Mech.AES-CCM.md", CipherFunctions),
-            new("AES-CMAC", "Symmetric Advanced Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.AES-CMAC.md", MacFunctions),
-            new("AES-CTR", "Symmetric Advanced Encryption Standard in Counter mode.", "Info.Mech.AES-CTR.md", CipherFunctions),
-            new("AES-ECB", "Symmetric Advanced Encryption Standard in Electronic Codebook mode.", "Info.Mech.AES-ECB.md", CipherFunctions),
-            new("AES-GCM", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GCM.md", CipherFunctions),
-            new("AES-GMAC", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GMAC.md", MacFunctions),
-            new("DES3-CBC", "Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.DES3-CBC.md", Des3CbcFunctions),
-            new("DES3-CMAC", "Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.DES3-CMAC.md", MacFunctions),
-            new("DES3-ECB", "Symmetric Triple Data Encryption Standard in Electronic Codebook mode.", "Info.Mech.DES3-ECB.md", CipherFunctions),
-            new("DES3-RETAIL", "Symmetric Triple Data Encryption Standard in Retail mode.", "Info.Mech.DES3-RETAIL.md", MacFunctions),
+            new("AES-CBC", "Symmetric Advanced Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.AES-CBC.md", CipherFunctions, AesCbcFunctionMetadata, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CBC-MAC", "AES Cipher Block Chaining Message Authentication Code with selectable deterministic padding and left truncation.", "Info.Mech.AES-CBC-MAC.md", MacFunctions, AesCbcMacFunctionMetadata, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CCM", "Symmetric Advanced Encryption Standard in Counter with CBC-MAC mode.", "Info.Mech.AES-CCM.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CMAC", "Symmetric Advanced Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.AES-CMAC.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-CTR", "Symmetric Advanced Encryption Standard in Counter mode.", "Info.Mech.AES-CTR.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-ECB", "Symmetric Advanced Encryption Standard in Electronic Codebook mode.", "Info.Mech.AES-ECB.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-GCM", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GCM.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("AES-GMAC", "Symmetric Advanced Encryption Standard in Galois/Counter mode.", "Info.Mech.AES-GMAC.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Aes),
+            new("DES3-CBC", "Symmetric Triple Data Encryption Standard in Cipher Block Chaining mode.", "Info.Mech.DES3-CBC.md", Des3CbcFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
+            new("DES3-CMAC", "Symmetric Triple Data Encryption Standard in Cipher-based Message Authentication Code mode.", "Info.Mech.DES3-CMAC.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
+            new("DES3-ECB", "Symmetric Triple Data Encryption Standard in Electronic Codebook mode.", "Info.Mech.DES3-ECB.md", CipherFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
+            new("DES3-RETAIL", "Symmetric Triple Data Encryption Standard in Retail mode.", "Info.Mech.DES3-RETAIL.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Tdea),
             new("DUKPT-AES-INITIAL-KEY", "ANSI X9.24-3-2017 derivation of an AES DUKPT Initial Key from an AES BDK and 64-bit IKID.", "Info.Mech.DUKPT-AES-INITIAL-KEY.md", DerivationFunctions),
             new("DUKPT-AES-WORKING-KEY", "ANSI X9.24-3-2017 stateless host derivation of a directly usable Working Key from an AES DUKPT Initial Key and complete 96-bit KSN.", "Info.Mech.DUKPT-AES-WORKING-KEY.md", DerivationFunctions),
             new("DUKPT-TDEA-INITIAL-KEY", "Legacy ANSI X9.24 double-length TDEA DUKPT Initial Key derivation from a 16-byte BDK and complete 80-bit KSN.", "Info.Mech.DUKPT-TDEA-INITIAL-KEY.md", DerivationFunctions),
             new("DUKPT-TDEA-WORKING-KEY", "ANSI X9.24-3 Annex C stateless host derivation of a double-length TDEA Working Key from a TDEA Initial Key and complete 80-bit KSN.", "Info.Mech.DUKPT-TDEA-WORKING-KEY.md", DerivationFunctions),
+            new("EP2-DATA-ENCRYPTION", "EP2 AES-128 CTR encryption with a 12-byte nonce, field offset and 24-bit counter.", "Info.Mech.EP2-DATA-ENCRYPTION.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Encrypt, CryptoScriptFunction.Decrypt }, Ep2EncryptionFunctionMetadata())
+            { StrictMechanismParameterContract = true },
+            new("EP2-MESSAGE-MAC", "EP2 message MAC: leftmost eight bytes of HMAC-SHA256 over SHA-256 of message bytes.", "Info.Mech.EP2-MESSAGE-MAC.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, Ep2MacFunctionMetadata("EP2-MESSAGE-MAC"))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("EP2-PAN-RECEIPT-ENCRYPTION", "EP2 PAN receipt AES-128 ECB encryption with mandatory ISO-7816 padding and an already derived transaction key.", "Info.Mech.EP2-PAN-RECEIPT-ENCRYPTION.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Encrypt, CryptoScriptFunction.Decrypt }, Ep2PanReceiptFunctionMetadata())
+            { StrictMechanismParameterContract = true },
+            new("EP2-TR31-KEY-BLOCK", "EP2 TR-31 Version D authenticated transport of 128-bit H material with the fixed Table 11 header profile.", "Info.Mech.EP2-TR31-KEY-BLOCK.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Wrap, CryptoScriptFunction.Unwrap }, Ep2Tr31FunctionMetadata())
+            { StrictMechanismParameterContract = true },
+            new("EP2-TRANSACTION-CERTIFICATE", "EP2 transaction certificate: leftmost eight bytes of HMAC-SHA256 over prepared DOL bytes.", "Info.Mech.EP2-TRANSACTION-CERTIFICATE.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, Ep2MacFunctionMetadata("EP2-TRANSACTION-CERTIFICATE"))
+            {
+                StrictMechanismParameterContract = true
+            },
             new("HASH-SHA1", "Unkeyed message digest using SHA-1.", "Info.Mech.HASH-SHA1.md", HashFunctions),
             new("HASH-SHA224", "Unkeyed message digest using SHA-224.", "Info.Mech.HASH-SHA224.md", HashFunctions),
             new("HASH-SHA256", "Unkeyed message digest using SHA-256.", "Info.Mech.HASH-SHA256.md", HashFunctions),
@@ -698,17 +969,17 @@ public static class MechanismRegistry
             new("HASH-SHA512-256", "Unkeyed message digest using SHA-512/256.", "Info.Mech.HASH-SHA512-256.md", HashFunctions),
             new("HKDF-EXPAND", "RFC 5869 HKDF Expand operation only; derives output keying material from an existing PRK.", "Info.Mech.HKDF-EXPAND.md", DerivationFunctions),
             new("HKDF-EXTRACT", "RFC 5869 HKDF Extract operation only; returns the pseudorandom key (PRK).", "Info.Mech.HKDF-EXTRACT.md", DerivationFunctions),
-            new("HMAC-SHA1", "Keyed-Hash Message Authentication Code using SHA-1.", "Info.Mech.HMAC-SHA1.md", MacFunctions),
-            new("HMAC-SHA224", "Keyed-Hash Message Authentication Code using SHA-224.", "Info.Mech.HMAC-SHA224.md", MacFunctions),
-            new("HMAC-SHA256", "Keyed-Hash Message Authentication Code using SHA-256.", "Info.Mech.HMAC-SHA256.md", MacFunctions),
-            new("HMAC-SHA3-224", "Keyed-Hash Message Authentication Code using SHA3-224.", "Info.Mech.HMAC-SHA3-224.md", MacFunctions),
-            new("HMAC-SHA3-256", "Keyed-Hash Message Authentication Code using SHA3-256.", "Info.Mech.HMAC-SHA3-256.md", MacFunctions),
-            new("HMAC-SHA3-384", "Keyed-Hash Message Authentication Code using SHA3-384.", "Info.Mech.HMAC-SHA3-384.md", MacFunctions),
-            new("HMAC-SHA3-512", "Keyed-Hash Message Authentication Code using SHA3-512.", "Info.Mech.HMAC-SHA3-512.md", MacFunctions),
-            new("HMAC-SHA384", "Keyed-Hash Message Authentication Code using SHA-384.", "Info.Mech.HMAC-SHA384.md", MacFunctions),
-            new("HMAC-SHA512", "Keyed-Hash Message Authentication Code using SHA-512.", "Info.Mech.HMAC-SHA512.md", MacFunctions),
-            new("HMAC-SHA512-224", "Keyed-Hash Message Authentication Code using SHA-512/224.", "Info.Mech.HMAC-SHA512-224.md", MacFunctions),
-            new("HMAC-SHA512-256", "Keyed-Hash Message Authentication Code using SHA-512/256.", "Info.Mech.HMAC-SHA512-256.md", MacFunctions),
+            new("HMAC-SHA1", "Keyed-Hash Message Authentication Code using SHA-1.", "Info.Mech.HMAC-SHA1.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA224", "Keyed-Hash Message Authentication Code using SHA-224.", "Info.Mech.HMAC-SHA224.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA256", "Keyed-Hash Message Authentication Code using SHA-256.", "Info.Mech.HMAC-SHA256.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-224", "Keyed-Hash Message Authentication Code using SHA3-224.", "Info.Mech.HMAC-SHA3-224.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-256", "Keyed-Hash Message Authentication Code using SHA3-256.", "Info.Mech.HMAC-SHA3-256.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-384", "Keyed-Hash Message Authentication Code using SHA3-384.", "Info.Mech.HMAC-SHA3-384.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA3-512", "Keyed-Hash Message Authentication Code using SHA3-512.", "Info.Mech.HMAC-SHA3-512.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA384", "Keyed-Hash Message Authentication Code using SHA-384.", "Info.Mech.HMAC-SHA384.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA512", "Keyed-Hash Message Authentication Code using SHA-512.", "Info.Mech.HMAC-SHA512.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA512-224", "Keyed-Hash Message Authentication Code using SHA-512/224.", "Info.Mech.HMAC-SHA512-224.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
+            new("HMAC-SHA512-256", "Keyed-Hash Message Authentication Code using SHA-512/256.", "Info.Mech.HMAC-SHA512-256.md", MacFunctions, generatedKeyAlgorithm: KeyAlgorithm.Hmac),
             new("KDF-EMV-AC-SESSION", "EMV Common Session Key Derivation for ATC-based Application Cryptogram and ARPC processing.", "Info.Mech.KDF-EMV-AC-SESSION.md", DerivationFunctions, EmvAcSessionFunctionMetadata)
             {
                 StrictMechanismParameterContract = true
@@ -731,6 +1002,26 @@ public static class MechanismRegistry
             new("KDF-EP2-SESSION", "ep2 8.11 Extract-and-Expand derivation of a selected Session Key Variant.", "Info.Mech.KDF-EP2-SESSION.md", DerivationFunctions),
             new("KDF-HKDF", "HMAC-based Extract-and-Expand Key Derivation Function specified in RFC 5869.", "Info.Mech.KDF-HKDF.md", DerivationFunctions),
             new("KDF-SP800-108-COUNTER", "NIST SP 800-108 Rev. 1 Update 1 Counter Mode KDF using a supported HMAC PRF or AES-CMAC.", "Info.Mech.KDF-SP800-108-COUNTER.md", DerivationFunctions),
+            new("MAC-EMV-AC", "EMV eight-byte Application Cryptogram using TDEA Algorithm 3 or AES-CMAC.", "Info.Mech.MAC-EMV-AC.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvAcFunctionMetadata("MAC-EMV-AC", false))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("MAC-EMV-AC-VERIFY", "Fail-closed verification of an eight-byte EMV Application Cryptogram.", "Info.Mech.MAC-EMV-AC-VERIFY.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvAcFunctionMetadata("MAC-EMV-AC-VERIFY", true))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("MAC-EMV-ARPC-METHOD-1", "EMV eight-byte ARPC Method 1 using an AC Session Key, ARQC and binary ARC.", "Info.Mech.MAC-EMV-ARPC-METHOD-1.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvArpcFunctionMetadata("MAC-EMV-ARPC-METHOD-1", false))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("MAC-EMV-ARPC-METHOD-2", "EMV four-byte ARPC Method 2 with optional complete Issuer Authentication Data output.", "Info.Mech.MAC-EMV-ARPC-METHOD-2.md", new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Mac }, EmvArpcFunctionMetadata("MAC-EMV-ARPC-METHOD-2", true))
+            {
+                StrictMechanismParameterContract = true
+            },
+            new("SECRET_SHAMIR", "Shamir k-of-n sharing over GF(256).", "Info.Mech.SECRET_SHAMIR.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Share, CryptoScriptFunction.Secret, CryptoScriptFunction.Restore }, SecretFunctionMetadata(true)),
+            new("SECRET_SPLIT", "XOR n-of-n key components.", "Info.Mech.SECRET_SPLIT.md",
+                new[] { CryptoScriptFunction.Parameters, CryptoScriptFunction.Share, CryptoScriptFunction.Secret, CryptoScriptFunction.Restore }, SecretFunctionMetadata(false)),
             // BlockHeader is supported only through CryptoOperations' internal
             // BLOCKHEADER-WRAP-AES-TR31 dispatch and its populated one-argument overload.
             new("WRAP-AES-PINBLOCK-4", "ISO 9564 format 4 PIN-block wrapping and unwrapping with AES.", "Info.Mech.WRAP-AES-PINBLOCK-4.md", WrapFunctions, PinBlockFormat4FunctionMetadata),

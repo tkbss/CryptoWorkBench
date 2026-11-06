@@ -118,7 +118,7 @@ public class DukptAesInitialKeyTests
     {
         VariableDictionary.Instance().Add(new KeyVariableDeclaration
         {
-            Id = "bdk", Value = "0x()", KeyValue = "0x()", ValueFormat = FormatConversions.HEX,
+            Id = "bdk", Value = "0x()", ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey()
         });
 
@@ -156,7 +156,7 @@ public class DukptAesInitialKeyTests
         string value = $"0x({hex})";
         VariableDictionary.Instance().Add(new KeyVariableDeclaration
         {
-            Id = id, Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
+            Id = id, Value = value, ValueFormat = FormatConversions.HEX,
             KeySize = (hex.Length * 4).ToString(), Type = new CryptoTypeKey()
         });
     }
@@ -164,7 +164,6 @@ public class DukptAesInitialKeyTests
     private static void AssertResult(KeyVariableDeclaration result, string expectedHex, int bits)
     {
         result.Value.Should().BeEquivalentTo($"0x({expectedHex})", options => options.IgnoringCase());
-        result.KeyValue.Should().Be(result.Value);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
         result.KeySize.Should().Be(bits.ToString());
         result.KeySizeInBits.Should().Be(new KeySize(bits));

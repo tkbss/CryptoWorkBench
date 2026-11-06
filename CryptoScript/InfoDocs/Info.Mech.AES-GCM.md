@@ -12,6 +12,10 @@ AES-GCM provides authenticated encryption with AES. It encrypts plaintext and au
 - **Authentication**: Decrypt verifies the appended tag. A changed key, nonce, associated data or authenticated input causes authentication failure.
 - **Return Value**: Encrypt and Decrypt return a VAR containing hexadecimal bytes in 0x(...) format. Decrypt returns plaintext bytes, including when the original input was text. Encrypt returns ciphertext followed by the tag; the tag is also stored in the result's GMAC property.
 
+### Key Generation and Import
+
+GenerateKey(AES-GCM, ...) supports random generation and explicit hexadecimal import. The registry fixes the resulting KeyType to Secret(Aes) for both variants. Valid key lengths: 128, 192 or 256 bits (16, 24 or 32 bytes). Imported bytes are preserved exactly. The mechanism selects the key algorithm and does not restrict the resulting KEY to its original mode or HMAC digest; other compatible mechanisms of the same family may consume it.
+
 ## Functions
 The following functions are available for AES-GCM mechanism:
 
@@ -32,6 +36,14 @@ These parameters are used with the AES-GCM mechanism:
 - **Authentication Tag**: Fixed at 16 bytes (128 bits), appended to the ciphertext. #MACLEN does not change it. Pass the complete ciphertext and tag to Decrypt; input shorter than the tag or an invalid tag is rejected.
 
 ---
+### File processing (F05)
+
+Encrypt/Decrypt with a declared PATH stream this mechanism using CWE 1.0.
+See [Encrypt](cryptoscript-info://function/Encrypt) and
+[Decrypt](cryptoscript-info://function/Decrypt) for the file contract.
+The exact binary CWE header is AAD; #ADATA is stored inside that authenticated
+header. A separate 16-byte tag is verified before plaintext publication.
+
 ## Example Usage
 ### AES-GCM Encryption and Decryption
 KEY k0         = GenerateKey(AES-GCM, 256)  

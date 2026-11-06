@@ -208,8 +208,7 @@ public class Tr31ScriptIntegrationTests
         var r = (KeyVariableDeclaration)VariableDictionary.Instance().Get("r");
         Assert.Multiple(() =>
         {
-            Assert.That(r.KeyValue, Is.EqualTo($"0x({key})").IgnoreCase);
-            Assert.That(r.Value, Is.EqualTo(r.KeyValue));
+            Assert.That(r.Value, Is.EqualTo($"0x({key})").IgnoreCase);
             Assert.That(r.KeySize, Is.EqualTo((key.Length * 4).ToString()));
             Assert.That(r.KeySizeInBits, Is.EqualTo(new KeySize(key.Length * 4)));
             Assert.That(r.KeyType, Is.EqualTo(KeyType.Secret(KeyAlgorithm.Tdea)));

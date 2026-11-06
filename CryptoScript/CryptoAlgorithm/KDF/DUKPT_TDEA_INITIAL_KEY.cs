@@ -37,10 +37,15 @@ public sealed class DUKPT_TDEA_INITIAL_KEY : CryptoAlgorithm
         if (parameter.GetParameters().Keys.Any(name => !name.Equals("#MECH", StringComparison.OrdinalIgnoreCase)))
             throw new ArgumentException($"{MechanismName} does not support additional parameters.");
 
-        byte[] bdk = ResolveKeyBytes(KdfArgumentResolver.ResolveKey(parameters, 1));
+        KeyVariableDeclaration sourceKey = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(sourceKey, KeyAlgorithm.Tdea, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
+        byte[] bdk = ResolveKeyBytes(sourceKey);
         if (bdk.Length != 16)
             throw new ArgumentException($"{MechanismName} BDK must be exactly 128 bits (16 bytes).");
 
+        CryptoScript.CryptoAlgorithm.DES3.Des3KeyQuality.Report(bdk, sourceKey.Id,
+            "Derive", MechanismName, parameters.DiagnosticSink);
         byte[] ksn = ResolveDataBytes(parameters.Arguments[2].Value!);
         if (ksn.Length != 10)
             throw new ArgumentException($"{MechanismName} KSN must be exactly 80 bits (10 bytes).");
@@ -52,7 +57,6 @@ public sealed class DUKPT_TDEA_INITIAL_KEY : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = (initialKey.Length * 8).ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
@@ -79,7 +83,6 @@ public sealed class DUKPT_TDEA_INITIAL_KEY : CryptoAlgorithm
         var key = new KeyVariableDeclaration
         {
             Value = keyValue,
-            KeyValue = keyValue,
             ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey()
         };
@@ -90,13 +93,13 @@ public sealed class DUKPT_TDEA_INITIAL_KEY : CryptoAlgorithm
         };
         var des3Parameters = new ParameterVariableDeclaration { Mechanism = "DES3-ECB" };
         des3Parameters.SetParameter("PAD", "NONE");
-        StringVariableDeclaration encrypted = new DES3_ECB().ModeEncryption(des3Parameters, key, data);
+        StringVariableDeclaration encrypted = new DES3_ECB(analysisKeys: true).ModeEncryption(des3Parameters, key, data);
         return FormatConversions.ToByteArray(encrypted.Value, encrypted.ValueFormat);
     }
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && key.ValueFormat == FormatConversions.HEX)
             format = key.ValueFormat;

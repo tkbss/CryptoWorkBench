@@ -1,0 +1,30 @@
+[
+  {
+    "Keylen": 256,
+    "IVlen": 96,
+    "PTlen": 0,
+    "AADlen": 128,
+    "Taglen": 128,
+    "Count": "0",
+    "Key": "78dc4e0aaf52d935c3c01eea57428f00ca1fd475f5da86a49c8dd73d68c8e223",
+    "IV": "d79cf22d504cc793c3fb6c8a",
+    "PT": "",
+    "AAD": "b96baa8c1c75a671bfb2d08d06be5f36",
+    "CT": "",
+    "Tag": "3e5d486aa2e30b22e040b85723a06e76"
+  },
+  {
+    "Keylen": 256,
+    "IVlen": 96,
+    "PTlen": 128,
+    "AADlen": 128,
+    "Taglen": 128,
+    "Count": "0",
+    "Key": "92e11dcdaa866f5ce790fd24501f92509aacf4cb8b1339d50c9c1240935dd08b",
+    "IV": "ac93a1a6145299bde902f21a",
+    "PT": "2d71bcfa914e4ac045b2aa60955fad24",
+    "AAD": "1e0889016f67601c8ebea4943bc23ad6",
+    "CT": "8995ae2e6df3dbf96fac7b7137bae67f",
+    "Tag": "eca5aa77d51d4a0a14d9c51e1da474ab"
+  }
+]

@@ -12,6 +12,17 @@ HMAC-SHA3-256 calculates a keyed message authentication code using the HMAC cons
 - **MAC Length**: Mac always returns the complete 32-byte HMAC-SHA3-256 tag.
 - **Return Value**: Mac returns a VAR containing hexadecimal MAC bytes in 0x(...) format.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: Hmac. Expected KeyUsage: `MacGenerate`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The selected HMAC mechanism fixes the hash. Structured calls diagnose the original KEY object even when another KEY has identical bytes. Legacy value-only calls keep their existing compatibility behavior.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
+### Key Generation and Import
+
+GenerateKey(HMAC-SHA3-256, ...) supports random generation and explicit hexadecimal import. The registry fixes the resulting KeyType to Secret(Hmac) for both variants. Valid key lengths: any positive multiple of 8 bits; imported hexadecimal material must not be empty. Imported bytes are preserved exactly. The mechanism selects the key algorithm and does not restrict the resulting KEY to its original mode or HMAC digest; other compatible mechanisms of the same family may consume it.
+
 ## Functions
 The following functions are available for HMAC-SHA3-256 mechanism:
 

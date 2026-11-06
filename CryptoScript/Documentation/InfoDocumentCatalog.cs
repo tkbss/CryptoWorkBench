@@ -52,6 +52,8 @@ public static class InfoDocumentCatalog
     {
         var entries = new List<InfoDocumentCatalogEntry>
         {
+            new(InfoDocumentId.CreateTr31Overview(), "Info.TR31.md", "TR-31"),
+            new(InfoDocumentId.CreateTr31Attributes(), "Info.TR31Attributes.md", "TR-31 attributes"),
             new(
                 InfoDocumentId.CreateMechanismsOverview(),
                 "Info.Mechanisms.md",
@@ -88,6 +90,20 @@ public static class InfoDocumentCatalog
                 mechanism.CanonicalName));
         }
 
+        entries.Add(new(InfoDocumentId.CreatePinTranslationsOverview(), "Info.PinTranslations.md", "PIN translations"));
+        foreach (var rule in CryptoAlgorithm.PINBLOCK.PinBlockTranslationRules.Entries)
+            entries.Add(new(InfoDocumentId.CreatePinTranslation(rule.SourceFormat, rule.TargetFormat),
+                $"Info.PinTranslation.{rule.SourceFormat}-{rule.TargetFormat}.md",
+                $"PIN translation {rule.SourceFormat} to {rule.TargetFormat}"));
+        foreach (string function in new[] { "Hash", "MacPack", "MacVerify", "Encrypt", "Decrypt", "Share", "Secret", "Restore", "CreateHeader", "Save", "Load", "SecureSave", "SecureLoad", "Delete" })
+            entries.Add(new(InfoDocumentId.CreateFunction(function), $"Info.Func.{function}.md", function));
+        entries.Add(new(InfoDocumentId.CreateType("SECRET"), "Info.Type.SECRET.md", "SECRET"));
+        foreach (string parameter in new[] { "PARTS", "MINPARTS", "POLYNOM", "SHAREFORMAT" })
+            entries.Add(new(InfoDocumentId.CreateMechanismParameter("SECRET_SHAMIR", parameter),
+                $"Info.Param.SECRET_SHAMIR.{parameter}.md", "#" + parameter));
+        foreach (string parameter in new[] { "PARTS", "SHAREFORMAT" })
+            entries.Add(new(InfoDocumentId.CreateMechanismParameter("SECRET_SPLIT", parameter),
+                $"Info.Param.SECRET_SPLIT.{parameter}.md", "#" + parameter));
         ValidateEntries(entries);
         return Array.AsReadOnly(entries.ToArray());
     }
@@ -137,6 +153,11 @@ public static class InfoDocumentCatalog
     private static string GetExpectedFileName(InfoDocumentId documentId) =>
         documentId.Kind switch
         {
+            InfoDocumentKind.Tr31Overview => "Info.TR31.md",
+            InfoDocumentKind.Tr31Attributes => "Info.TR31Attributes.md",
+            InfoDocumentKind.Type => $"Info.Type.{documentId.TypeName}.md",
+            InfoDocumentKind.PinTranslationsOverview => "Info.PinTranslations.md",
+            InfoDocumentKind.PinTranslation => $"Info.PinTranslation.{documentId.SourceFormat}-{documentId.TargetFormat}.md",
             InfoDocumentKind.MechanismsOverview => "Info.Mechanisms.md",
             InfoDocumentKind.FunctionsOverview => "Info.Functions.md",
             InfoDocumentKind.ParametersOverview => "Info.Parameters.md",

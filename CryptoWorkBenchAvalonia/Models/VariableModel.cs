@@ -11,6 +11,9 @@ namespace CryptoWorkBenchAvalonia.Models
 {
     public class VariableModel: ViewModelBase
     {
+        // Identity only. A displayed draft must not retain a retired interpreter declaration.
+        internal WeakReference<VariableDeclaration>? Origin { get; init; }
+
         ObservableCollection<ParameterModel> parameters = new ObservableCollection<ParameterModel>();
         public ObservableCollection<ParameterModel> Parameters
         {

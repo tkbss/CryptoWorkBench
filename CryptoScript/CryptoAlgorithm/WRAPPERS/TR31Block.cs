@@ -1,4 +1,4 @@
-﻿using CryptoScript.Variables;
+using CryptoScript.Variables;
 using System.Text;
 
 namespace CryptoScript.CryptoAlgorithm.WRAPPERS
@@ -39,63 +39,60 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             optionalBlocks.Insert(0, hdr); // Add header as the first element
             return optionalBlocks;
         }
+        /// <summary>Parses a complete wire block. Header-only and truncated inputs are not key blocks.</summary>
         public static TR31Block FromString(string tr31)
         {
-            var block = new TR31Block { OptionalBlocks = new List<OptionalBlock>() };
+            ArgumentNullException.ThrowIfNull(tr31);
+            if (tr31.Length < 16 || tr31.Length > 9999 || tr31[0] is not ('A' or 'B' or 'C' or 'D') ||
+                tr31.AsSpan(1, 4).IndexOfAnyExcept("0123456789") >= 0 ||
+                tr31.AsSpan(12, 2).IndexOfAnyExcept("0123456789") >= 0 ||
+                int.Parse(tr31.AsSpan(1, 4), System.Globalization.CultureInfo.InvariantCulture) != tr31.Length)
+                throw new ArgumentException("TR-31 requires a supported version and an exact complete wire length.");
 
-            // Extract fixed-length Key Block Header (16 bytes)
-            block.Header = tr31.Substring(0, 16);
-            if(tr31.Length < 17)
+            var block = new TR31Block { Header = tr31[..16], OptionalBlocks = new List<OptionalBlock>() };
+            int count = int.Parse(tr31.AsSpan(12, 2), System.Globalization.CultureInfo.InvariantCulture);
+            int position = 16;
+            for (int i = 0; i < count; i++)
             {
-                block.HeaderDataToMac = FormatConversions.StringToByteArray(block.Header);
-                return block;
-            }
-
-            // Parse the total length of the TR31 block from header (bytes 1-4)
-            int totalLength = int.Parse(tr31.Substring(1, 4));
-
-            // Parse number of optional blocks from header (bytes 12-13)
-            int optionalBlockCount = int.Parse(tr31.Substring(12, 2));
-
-            int currentPosition = 16;
-
-            // Parse optional blocks
-            for (int i = 0; i < optionalBlockCount; i++)
-            {
-                string id = tr31.Substring(currentPosition, 2);
-                currentPosition += 2;
-
-                int length = Convert.ToInt32(tr31.Substring(currentPosition, 2), 16);
-                currentPosition += 2;
-                int dataLength = length - 4; // Length minus ID and length fields
-                if (length == 0) 
+                if (position + 4 > tr31.Length)
+                    throw new ArgumentException("Incomplete TR-31 Optional Block.");
+                string id = tr31.Substring(position, 2);
+                if (!id.All(char.IsAsciiLetterOrDigit))
+                    throw new ArgumentException("Invalid TR-31 Optional Block identifier.");
+                int length = ReadHexLength(tr31.AsSpan(position + 2, 2));
+                int prefix = 4;
+                if (length == 0)
                 {
-                    length= Convert.ToInt32(tr31.Substring(currentPosition, 2), 16);
-                    currentPosition += 2;
-                    length= Convert.ToInt32(tr31.Substring(currentPosition, 4), 16);
-                    currentPosition += 4;
-                    dataLength = length-4-6 ; // Length minus ID and length fields
-                }                
-                string dataString = tr31.Substring(currentPosition, dataLength);
-                currentPosition += dataLength;
-                //byte[] data = DecodeOptionalBlockData(id, dataString);
-                block.OptionalBlocks.Add(new OptionalBlock { ID = id, Data = dataString });
+                    prefix = 10;
+                    if (position + prefix > tr31.Length || tr31.Substring(position + 4, 2) != "04")
+                        throw new ArgumentException("Invalid extended Optional Block length.");
+                    length = ReadHexLength(tr31.AsSpan(position + 6, 4));
+                }
+                if (length < prefix || length > tr31.Length - position)
+                    throw new ArgumentException("Optional Block length exceeds the complete wire block.");
+                block.OptionalBlocks.Add(new OptionalBlock { ID = id, Data = tr31.Substring(position + prefix, length - prefix) });
+                position += length;
             }
-            block.HeaderDataToMac = FormatConversions.StringToByteArray(tr31.Substring(0,currentPosition));
-            // Extract Cryptogram + MAC
-            int cryptogramAndMacLength = totalLength - currentPosition;
-            string cryptogramAndMacHex = tr31.Substring(currentPosition, cryptogramAndMacLength);
-            byte[] cryptogramAndMac = HexStringToByteArray(cryptogramAndMacHex);
-            int authenticationValueLength = GetAuthenticationValueLength(block.Header[0]);
-
-            if (cryptogramAndMac.Length < authenticationValueLength)
-            {
-                // Block contains only header
-                return block;
-            }               
-            block.Mac = cryptogramAndMac.Skip(cryptogramAndMac.Length - authenticationValueLength).ToArray();
-            block.Cryptogram = cryptogramAndMac.Take(cryptogramAndMac.Length - authenticationValueLength).ToArray();
+            string header = tr31[..position];
+            if (header.Any(c => c < ' ' || c > '~'))
+                throw new ArgumentException("TR-31 header must contain printable ASCII.");
+            block.HeaderDataToMac = Encoding.ASCII.GetBytes(header);
+            byte[] data = HexStringToByteArray(tr31[position..]);
+            int macLength = GetAuthenticationValueLength(tr31[0]);
+            int cipherLength = data.Length - macLength;
+            int blockSize = tr31[0] == 'D' ? 16 : 8;
+            if (cipherLength <= 0 || cipherLength % blockSize != 0)
+                throw new ArgumentException("TR-31 requires complete aligned ciphertext and a version-sized MAC.");
+            block.Cryptogram = data[..cipherLength];
+            block.Mac = data[cipherLength..];
             return block;
+        }
+
+        private static int ReadHexLength(ReadOnlySpan<char> text)
+        {
+            if (text.IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0)
+                throw new ArgumentException("Invalid hexadecimal Optional Block length.");
+            return int.Parse(text, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture);
         }
 
         private static byte[] DecodeOptionalBlockData(string id, string data)
@@ -130,9 +127,9 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
 
         private static byte[] HexStringToByteArray(string hex)
         {
-            return Enumerable.Range(0, hex.Length / 2)
-                             .Select(x => Convert.ToByte(hex.Substring(x * 2, 2), 16))
-                             .ToArray();
+            if (hex.Length % 2 != 0 || hex.AsSpan().IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0)
+                throw new ArgumentException("TR-31 ciphertext and MAC require complete hexadecimal bytes.");
+            return Convert.FromHexString(hex);
         }
     }
 }

@@ -48,16 +48,23 @@ public sealed class KDF_EMV_AC_SESSION : CryptoAlgorithm
         if (algorithm is not (KeyAlgorithm.Aes or KeyAlgorithm.Tdea))
             throw new ArgumentException($"{MechanismName} requires an AES or TDEA master KEY.");
 
+        KeyMetadataValidator.Validate(masterKey, KeyAlgorithm.Unknown, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
         byte[] masterKeyBytes = ResolveMasterKeyBytes(masterKey);
         byte[]? sessionKeyBytes = null;
         try
         {
             ValidateMasterKeyLength(algorithm, masterKeyBytes.Length);
             KeySize keySize = ResolveKeySize(masterKey, masterKeyBytes.Length);
+            if (algorithm == KeyAlgorithm.Tdea)
+                CryptoScript.CryptoAlgorithm.DES3.Des3KeyQuality.Report(masterKeyBytes, masterKey.Id,
+                    "Derive", MechanismName, parameters.DiagnosticSink);
             byte[] atc = ResolveAtc(parameters, 2);
             try
             {
-                sessionKeyBytes = EmvAcSessionKeyDerivation.Derive(algorithm, masterKeyBytes, atc);
+                sessionKeyBytes = algorithm == KeyAlgorithm.Tdea
+                    ? EmvAcSessionKeyDerivation.DeriveForAnalysis(algorithm, masterKeyBytes, atc)
+                    : EmvAcSessionKeyDerivation.Derive(algorithm, masterKeyBytes, atc);
             }
             finally
             {
@@ -68,7 +75,6 @@ public sealed class KDF_EMV_AC_SESSION : CryptoAlgorithm
             return new KeyVariableDeclaration
             {
                 Value = value,
-                KeyValue = value,
                 ValueFormat = FormatConversions.HEX,
                 KeySizeInBits = keySize,
                 KeyType = masterKey.KeyType,
@@ -87,9 +93,7 @@ public sealed class KDF_EMV_AC_SESSION : CryptoAlgorithm
 
     private static byte[] ResolveMasterKeyBytes(KeyVariableDeclaration masterKey)
     {
-        string value = string.IsNullOrEmpty(masterKey.KeyValue)
-            ? masterKey.Value
-            : masterKey.KeyValue;
+        string value = masterKey.Value;
         string format = FormatConversions.ParseString(value);
         if (format != FormatConversions.HEX && masterKey.ValueFormat == FormatConversions.HEX)
             format = masterKey.ValueFormat;

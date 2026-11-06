@@ -1,0 +1,346 @@
+using CryptoScript.Model;
+using System;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Threading;
+using AvaloniaEdit;
+using CryptoWorkBenchAvalonia.Controls;
+using CryptoWorkBench.Automation.Abstractions;
+
+namespace CryptoWorkBenchAvalonia.Services.Automation;
+
+public sealed partial class WorkbenchAutomationService
+{
+    private readonly EditorBridge editorBridge = new();
+    internal bool HasRegisteredEditor => editorBridge.Registered;
+    internal EditorCoordinator EditorCoordinator
+    {
+        get { Dispatcher.UIThread.VerifyAccess(); return editorBridge.Coordinator ?? new EditorCoordinator(editorBridge, () => Volatile.Read(ref stopping) || epochClose != null); }
+    }
+    internal IEditorReplaceConfirmation ReplaceConfirmation { get; set; } = new EditorReplaceConfirmation();
+
+    private async Task<T> OnEditorUiAsync<T>(Func<T> action)
+    {
+        T Run()
+        {
+            try { return action(); }
+            finally { PublishWorkspace(); }
+        }
+        return Dispatcher.UIThread.CheckAccess() ? Run() : await UiDispatch.InvokeAsync(Run);
+    }
+
+    internal EditorBridge.Registration? AttachEditor(TextEditor editor, IEditorExecutionPresentation presentation, bool retainCurrent = false)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        EditorBridge.Registration? outgoing;
+        EditorCoordinator.DrainTicket? retirement;
+        lock (sync)
+        {
+            if (stopping || epochClose != null) return null;
+            var owner = EditorCoordinator;
+            outgoing = editorBridge.ReplacementFor(editor, retainCurrent);
+            retirement = outgoing == null ? null : owner.BeginDrain(MarkWorkspaceChanged);
+        }
+        // Replacement publishes retirement before reading the incoming document again.
+        // An observer may have changed it or initiated shutdown in the meantime.
+        PublishWorkspace();
+        EditorBridge.Registration registration;
+        lock (sync)
+        {
+            if (outgoing != null)
+            {
+                editorBridge.Detach(outgoing);
+                if (!stopping && epochClose == null && !EditorCoordinator.ResumeGui(retirement!, MarkWorkspaceChanged))
+                    throw new ExecutionBusyException();
+            }
+            if (stopping || epochClose != null) throw new ExecutionBusyException();
+            registration = editorBridge.Attach(editor, presentation, retainCurrent, MarkWorkspaceChanged);
+        }
+        PublishWorkspace();
+        lock (sync)
+        {
+            if (stopping || !editorBridge.IsSelected(registration)) throw new ExecutionBusyException();
+            return registration;
+        }
+    }
+    internal void ActivateEditor(EditorBridge.Registration view)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        lock (sync)
+        {
+            if (stopping || epochClose != null) throw new ExecutionBusyException();
+            editorBridge.Activate(view, MarkWorkspaceChanged);
+        }
+        PublishWorkspace();
+        if (!editorBridge.IsSelected(view)) throw new ExecutionBusyException();
+    }
+    internal void DetachEditor(EditorBridge.Registration registration)
+    {
+        try
+        {
+            lock (sync)
+                if (lease is { } owned && owned.Slot.Editor == registration.Id) EndLease(owned, ReleaseReason.Detached);
+            editorBridge.Detach(registration);
+            lock (sync) CheckLease();
+        }
+        finally { PublishWorkspace(); }
+    }
+    internal bool IsEditorLive(EditorBridge.Registration registration, Guid id) => editorBridge.IsLive(registration, id);
+
+    private bool GuiOwnsSlotOrDraining => editorBridge.Coordinator is { } owner &&
+        (epochClose != null || owner.Active || owner.ObserverDepth != 0 || owner.Phase is EditorControlPhase.Mcp or EditorControlPhase.Releasing or EditorControlPhase.Faulted);
+
+    private AutomationErrorCode? CheckEditor(AutomationCaller caller, string permission, Guid? instance = null)
+    {
+        if (!Authorized(caller, permission)) return AutomationErrorCode.Forbidden;
+        if (instance.HasValue && instance != InstanceId) return AutomationErrorCode.InstanceMismatch;
+        if (stopping) return AutomationErrorCode.ShuttingDown;
+        if (permission == AutomationPermissions.EditorWrite && GuiOwnsSlotOrDraining) return AutomationErrorCode.Busy;
+        return null;
+    }
+
+    public Task<Reply<EditorSnapshot>> GetEditorAsync(AutomationCaller caller, CancellationToken ct) => OnEditorUiAsync(() =>
+    {
+        ct.ThrowIfCancellationRequested();
+        lock (sync)
+        {
+            if (CheckEditor(caller, AutomationPermissions.EditorRead) is { } error) return Fail<EditorSnapshot>(error);
+            if (editorBridge.Current is not { } registration) return Fail<EditorSnapshot>(AutomationErrorCode.EditorUnavailable);
+            if (registration.Document.TextLength > AutomationContracts.MaxTextLength) return Fail<EditorSnapshot>(AutomationErrorCode.LimitExceeded);
+            return Ok(registration.Snapshot());
+        }
+    });
+
+    private TaskCompletionSource? editCompletion;
+
+    public async Task<Reply<EditorMutation>> UpdateEditorAsync(AutomationCaller caller, EditorEdit request, CancellationToken ct)
+    {
+        IDisposable? reservation = null;
+        EditorBridge.Registration? registration = null;
+        EditorSnapshot? before = null;
+        long generation = 0;
+        TaskCompletionSource? completion = null;
+        try
+        {
+            var initial = await OnEditorUiAsync(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+                lock (sync)
+                {
+                    if (caller.Source != CallerSource.Gui) return AutomationErrorCode.LeaseRequired;
+                    if (CheckEditor(caller, AutomationPermissions.EditorWrite, request.InstanceId) is { } error) return error;
+                    try { AutomationJson.Validate(request); }
+                    catch (JsonException) { return AutomationErrorCode.InvalidArgument; }
+                    registration = editorBridge.Current;
+                    if (registration is null || registration.Id != request.EditorId) return AutomationErrorCode.EditorUnavailable;
+                    if (registration.Document.IsInUpdate) return AutomationErrorCode.Busy;
+                    if (!EditorCoordinator.CanStartGui) return AutomationErrorCode.Busy;
+                    generation = EditorCoordinator.WorkspaceGeneration;
+                    before = registration.Snapshot();
+                    if (before.Revision != request.ExpectedRevision) return AutomationErrorCode.RevisionConflict;
+                    if (request.Mode == EditorEditMode.Insert && !AutomationContracts.IsValidInsertionOffset(before.Text, request.Offset!.Value))
+                        return AutomationErrorCode.InvalidRange;
+                    if ((long)(request.Mode == EditorEditMode.Replace ? 0 : before.Length) + request.Text.Length > AutomationContracts.MaxTextLength)
+                        return AutomationErrorCode.LimitExceeded;
+                    try { reservation = InterpreterHostQueue.Reserve(); }
+                    catch (ExecutionBusyException) { return AutomationErrorCode.Busy; }
+                    editCompletion = completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                    return (AutomationErrorCode?)null;
+                }
+            });
+            if (initial.HasValue) return Fail<EditorMutation>(initial.Value);
+            bool noOp = request.Mode == EditorEditMode.Replace ? before!.Text == request.Text : request.Text.Length == 0;
+            if (!noOp && request.Mode == EditorEditMode.Replace && (before!.Length != 0 || before.DirtyState != DirtyState.Clean))
+            {
+                bool? confirmed;
+                try { confirmed = await ReplaceConfirmation.ConfirmAsync(registration!.Editor,
+                    new(caller.PrincipalId, InstanceId, before, request), ct); }
+                catch (OperationCanceledException) { throw; }
+                catch { return Fail<EditorMutation>(AutomationErrorCode.ConfirmationUnavailable); }
+                if (confirmed != true) return Fail<EditorMutation>(confirmed == false
+                    ? AutomationErrorCode.ConfirmationDenied : AutomationErrorCode.ConfirmationUnavailable);
+            }
+            EditorCoordinator.OperationTicket? ticket = null;
+            var reply = await OnEditorUiAsync(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+                lock (sync)
+                {
+                    if (CheckEditor(caller, AutomationPermissions.EditorWrite, request.InstanceId) is { } error) return Fail<EditorMutation>(error);
+                    if (!editorBridge.IsLive(registration!, request.EditorId)) return Fail<EditorMutation>(AutomationErrorCode.EditorUnavailable);
+                    if (generation != EditorCoordinator.WorkspaceGeneration || !editorBridge.Matches(registration!, before!)) return Fail<EditorMutation>(AutomationErrorCode.RevisionConflict);
+                    if (registration!.Document.IsInUpdate) return Fail<EditorMutation>(AutomationErrorCode.Busy);
+                    if (noOp)
+                    {
+                        var unchanged = registration.Snapshot();
+                        return Ok(new EditorMutation(request.EditorId, before!.Revision, unchanged.Revision, unchanged.Length, unchanged.DirtyState));
+                    }
+                    ticket = EditorCoordinator.TryBegin();
+                    if (ticket == null || !EditorCoordinator.TryStartCommit(ticket))
+                    {
+                        ticket?.Dispose();
+                        return Fail<EditorMutation>(AutomationErrorCode.Busy);
+                    }
+                }
+                var doc = ticket.Document;
+                var originalVersion = doc.Version;
+                EditorSnapshot? after = null;
+                Exception? callbackFailure = null;
+                EditorCoordinator.FinishCommit(ticket, () =>
+                {
+                    var guarded = registration.Editor as WorkbenchTextEditor
+                        ?? throw new InvalidOperationException("Editor does not support an identity lease.");
+                    using var identity = guarded.LockIdentity();
+                    try
+                    {
+                        using (doc.RunUpdate())
+                        {
+                            guarded.AllowSingleEditChange();
+                            if (request.Mode == EditorEditMode.Replace) doc.Replace(0, doc.TextLength, request.Text);
+                            else doc.Insert(request.Mode == EditorEditMode.Append ? doc.TextLength : request.Offset!.Value, request.Text);
+                        }
+                    }
+                    catch (Exception callbackError) { callbackFailure = callbackError; }
+                    finally
+                    {
+                        // Changed/UpdateFinished can throw after the text
+                        // effect. Close any still-open library update;
+                        // never undo an already applied document change.
+                        if (doc.IsInUpdate) doc.EndUpdate();
+                    }
+                    if (ReferenceEquals(originalVersion, doc.Version))
+                    {
+                        ticket.Error = EditorOperationError.MutationFailed;
+                        return;
+                    }
+                    try { registration.Editor.IsModified = true; }
+                    catch (Exception callbackError) { callbackFailure = callbackError; }
+                    after = registration.Snapshot();
+                    if (callbackFailure != null) ticket.Error = EditorOperationError.CallbackFailed;
+                }, expectedText: null);
+                return after == null ? Fail<EditorMutation>(callbackFailure is ExecutionBusyException
+                    ? AutomationErrorCode.Busy : AutomationErrorCode.InternalError)
+                    : Ok(new EditorMutation(request.EditorId, before!.Revision, after.Revision, after.Length, after.DirtyState));
+            });
+            if (ticket != null) await ticket.Completion.ConfigureAwait(false);
+            return reply;
+        }
+        finally
+        {
+            lock (sync)
+            {
+                reservation?.Dispose();
+                if (ReferenceEquals(editCompletion, completion)) editCompletion = null;
+                completion?.TrySetResult();
+            }
+        }
+    }
+
+    public async Task<Reply<ExecutionResult>> ExecuteEditorAsync(AutomationCaller caller, EditorExecution request, CancellationToken requestCancellation)
+    {
+        requestCancellation.ThrowIfCancellationRequested();
+        lock (sync)
+        {
+            // Preserve the existing unavailable-editor error for the host with
+            // no editor. An available editor still never opens external execution
+            // before MCP-01.5, even with an authenticated execution.run grant.
+            if (caller.Source != CallerSource.Gui)
+                return Fail<ExecutionResult>(Authorized(caller, AutomationPermissions.ExecutionRun) && !editorBridge.Available
+                    ? AutomationErrorCode.EditorUnavailable : AutomationErrorCode.Forbidden);
+        }
+        Job? accepted = null;
+        var reply = await OnEditorUiAsync(() =>
+        {
+            requestCancellation.ThrowIfCancellationRequested();
+            lock (sync)
+            {
+                // External execution remains closed until MCP-01.5 supplies local
+                // execution approval and authenticated credentials. Grants alone do not suffice.
+                if (!Authorized(caller, AutomationPermissions.ExecutionRun) || caller.Source != CallerSource.Gui)
+                    return Fail<ExecutionResult>(AutomationErrorCode.Forbidden);
+                if (request.InstanceId != InstanceId) return Fail<ExecutionResult>(AutomationErrorCode.InstanceMismatch);
+                try { AutomationJson.Validate(request); }
+                catch (JsonException) { return Fail<ExecutionResult>(AutomationErrorCode.InvalidArgument); }
+                if (request.ExecutionId == Guid.Empty) return Fail<ExecutionResult>(AutomationErrorCode.InvalidArgument);
+                if (request.OutputPolicy == OutputPolicy.IncludeText) return Fail<ExecutionResult>(AutomationErrorCode.Forbidden);
+                string fingerprint = Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request with
+                    { TimeoutMs = request.TimeoutMs ?? AutomationContracts.DefaultTimeoutMs, OutputPolicy = OutputPolicy.MetadataOnly }, AutomationJson.Options)));
+                Prune();
+                var key = new JobKey(caller, request.ExecutionId);
+                if (tombstones.Contains(key)) return Fail<ExecutionResult>(AutomationErrorCode.ResultExpired);
+                if (jobs.TryGetValue(key, out var previous))
+                {
+                    if (!Owns(caller, previous)) return Fail<ExecutionResult>(AutomationErrorCode.NotFound);
+                    if (previous.Expired) return Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, previous.Id);
+                    return previous.Fingerprint == fingerprint ? Ok(previous.Result) : Fail<ExecutionResult>(AutomationErrorCode.InvalidArgument);
+                }
+                if (stopping) return Fail<ExecutionResult>(AutomationErrorCode.ShuttingDown);
+                if (GuiOwnsSlotOrDraining) return Fail<ExecutionResult>(AutomationErrorCode.Busy);
+                var registration = editorBridge.Current;
+                if (registration is null || registration.Id != request.EditorId) return Fail<ExecutionResult>(AutomationErrorCode.EditorUnavailable);
+                if (registration.Document.IsInUpdate) return Fail<ExecutionResult>(AutomationErrorCode.Busy);
+                var snapshot = registration.Snapshot();
+                if (snapshot.Revision != request.ExpectedRevision) return Fail<ExecutionResult>(AutomationErrorCode.RevisionConflict);
+                if (snapshot.Length > AutomationContracts.MaxTextLength) return Fail<ExecutionResult>(AutomationErrorCode.LimitExceeded);
+                if (request.ExpectedStateVersion != Version) return Fail<ExecutionResult>(AutomationErrorCode.StateConflict);
+                if (jobs.Count + tombstones.Count >= AutomationContracts.MaxExecutionIds) return Fail<ExecutionResult>(AutomationErrorCode.LimitExceeded);
+                IDisposable reservation;
+                try { reservation = InterpreterHostQueue.Reserve(); }
+                catch (ExecutionBusyException) { return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
+                EditorCoordinator.ExecutionIntent intent;
+                try { intent = new(EditorCoordinator, null); }
+                catch (ExecutionBusyException) { reservation.Dispose(); return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
+                try
+                {
+                    accepted = Accept(reservation, caller, request.ExecutionId, fingerprint, ExecutionSource.Editor,
+                        request.TimeoutMs ?? AutomationContracts.DefaultTimeoutMs, requestCancellation, default, async pipeline =>
+                    {
+                        using var password = new PasswordDialogHost();
+                        bool ContinueEditor()
+                        {
+                            if (intent.DestinationLive) return true;
+                            lock (sync)
+                            {
+                                RequestCancel(accepted!, CancellationReason.User);
+                                accepted!.Outcome = ExecutionState.Cancelled;
+                            }
+                            return false;
+                        }
+                        if (!await OnEditorUiAsync(() =>
+                        {
+                            if (!ContinueEditor()) return false;
+                            registration.Presentation?.BeginExecution();
+                            return ContinueEditor();
+                        }).ConfigureAwait(false)) return false;
+                        return await ExecuteScriptBookAsync(pipeline, snapshot.Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'),
+                            password.RequestAsync,
+                            (line, _) => OnEditorUiAsync(() =>
+                            {
+                                if (!ContinueEditor()) return false;
+                                registration.Presentation?.Begin(line);
+                                return ContinueEditor();
+                            }),
+                            (line, number, result) => OnEditorUiAsync(() =>
+                            {
+                                // Suppress stale presentation. A subsequent parse
+                                // unit is stopped by beforeLine; a successfully
+                                // finished final unit keeps its completed outcome.
+                                if (!intent.DestinationLive) return true;
+                                if (result is null) return true;
+                                return registration.Presentation?.Present(result, number) ?? true;
+                            }), pipeline.ExecutionToken).ConfigureAwait(false);
+                    }, () => intent.Current, intent).Job;
+                }
+                catch (ExecutionBusyException) { intent.Dispose(); return Fail<ExecutionResult>(AutomationErrorCode.Busy); }
+                catch { intent.Dispose(); throw; }
+                accepted.Result = accepted.Result with { EditorId = snapshot.EditorId, SourceRevision = snapshot.Revision };
+                return (Reply<ExecutionResult>?)null;
+            }
+        });
+        if (reply is not null) return reply;
+        await accepted!.Task.WaitAsync(requestCancellation).ConfigureAwait(false);
+        lock (sync) return accepted.Expired ? Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, accepted.Id) : Ok(accepted.Result);
+    }
+}

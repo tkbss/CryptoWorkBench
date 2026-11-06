@@ -217,18 +217,23 @@ public class PinBlockFormat4AlgorithmIntegrationTests
     }
 
     [Test]
-    public void WrongKeyAlgorithmAndMissingKeyMaterialDoNotMutateParameters()
+    public void WrongKeyAlgorithmWarnsAndMissingKeyMaterialStillFailsWithoutParameterMutation()
     {
         ParameterVariableDeclaration parameters = Parameters("p", Pan, Random);
         string before = parameters.Value;
         KeyVariableDeclaration tdeaKey = Key(Key128);
         tdeaKey.KeyType = KeyType.Secret(KeyAlgorithm.Tdea);
         KeyVariableDeclaration missingKey = Key(string.Empty);
+        string expected = Algorithm().Wrap(Arguments(parameters, Key(Key128), Var("0x(1234)"))).Value;
+        var sink = new SemanticDiagnosticSink();
+        var result = Algorithm().Wrap(new AlgorithmCallArguments(
+            Arguments(parameters, tdeaKey, Var("0x(1234)")).Arguments, sink));
 
         Assert.Multiple(() =>
         {
-            Assert.That(() => Algorithm().Wrap(
-                Arguments(parameters, tdeaKey, Var("0x(1234)"))), Throws.ArgumentException);
+            Assert.That(result.Value, Is.EqualTo(expected));
+            Assert.That(sink.GetSnapshot().Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyTypeConflict));
+            Assert.That(tdeaKey.KeyType.Algorithm, Is.EqualTo(KeyAlgorithm.Tdea));
             Assert.That(parameters.Value, Is.EqualTo(before));
             Assert.That(() => Algorithm().Wrap(
                 Arguments(parameters, missingKey, Var("0x(1234)"))), Throws.Exception);

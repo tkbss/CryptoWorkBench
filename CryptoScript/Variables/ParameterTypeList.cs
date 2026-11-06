@@ -12,7 +12,8 @@ namespace CryptoScript.Variables
         ParameterTypeList()
         {
             Paddings = AntlrLanguageMetadata.GetPaddings();
-            ParameterTypes = AntlrLanguageMetadata.GetParameters();
+            // Load's call option is language metadata, never a PARAM/mechanism field.
+            ParameterTypes = AntlrLanguageMetadata.GetParameters().Where(name => name != "#ONCONFLICT").ToList();
             Mechanism = AntlrLanguageMetadata.GetMechanisms();
             if (!ParameterTypes.Contains("#MACLEN"))
                 ParameterTypes.Add("#MACLEN");

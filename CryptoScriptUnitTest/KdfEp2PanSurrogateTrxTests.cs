@@ -145,7 +145,6 @@ public class KdfEp2PanSurrogateTrxTests
         result.KeySize.Should().Be("256");
         result.KeySizeInBits.Should().Be(new KeySize(256));
         result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Unknown));
-        result.Value.Should().Be(result.KeyValue);
         result.ValueFormat.Should().Be(FormatConversions.HEX);
         result.Type.Should().BeOfType<CryptoTypeKey>();
         result.DerivationMechanism.Should().Be(Mechanism);

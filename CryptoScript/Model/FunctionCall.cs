@@ -33,19 +33,25 @@ namespace CryptoScript.Model
 
         internal void Call(SemanticDiagnosticExecution? execution)
         {
-            Invocation = new OperationInvocation(Arguments.Select(ResolveArgument));
             if (Location is not null)
                 Location = Location with
                 {
                     Mechanism = Arguments.OfType<ArgumentMechanism>().FirstOrDefault()?.Mechanism?.Value
                 };
+            Invocation = new OperationInvocation(Arguments.Select(ResolveArgument),
+                execution?.CreateSink(Location!), execution?.CancellationToken ?? default);
             execution?.BeforeOperation(this);
-            var function = OperationFactory.CreateInvocationOperation(Name);
+            var function = execution is null ? OperationFactory.CreateInvocationOperation(Name)
+                : execution.CreateOperation(Name);
             ReturnVariable = function(Invocation);
         }
 
         private static ResolvedCallArgument ResolveArgument(Argument argument) => argument switch
         {
+            ArgumentSnapshotSelector selector => new ResolvedCallArgument(
+                selector.Identifier, ResolvedCallArgumentKind.SnapshotSelector),
+            ArgumentHeaderAttribute field => new ResolvedCallArgument(
+                field.Name + ":" + field.RawValue, ResolvedCallArgumentKind.HeaderAttribute),
             ArgumentMechanism mechanism => new ResolvedCallArgument(
                 mechanism.Mechanism!.Value, ResolvedCallArgumentKind.Mechanism),
             ArgumentExpression expression => new ResolvedCallArgument(

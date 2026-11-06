@@ -85,7 +85,7 @@ public class HashSetupTests
         Action act = () => Execute("KEY k=GenerateKey(HASH-SHA256,256)");
 
         act.Should().Throw<SemanticErrorException>()
-            .Where(exception => exception.SemanticError!.Message.Contains("HASH does not support key generation."));
+            .Where(exception => exception.SemanticError!.Message.Contains("Mechanism HASH-SHA256 does not support function GenerateKey."));
     }
 
     private static CryptoScriptProgram Execute(string input)

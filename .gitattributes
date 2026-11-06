@@ -61,3 +61,11 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+# G03: retain upstream licence bytes and original verification transcripts.
+# Their upstream whitespace and transcript EOF spacing are intentional evidence.
+CryptoScript/SecretSharing/BouncyCastle-LICENSE.html -text -whitespace
+docs/architecture/evidence/G03/bc-java/LICENSE.html -text -whitespace
+docs/architecture/evidence/G03/verification.txt -text -whitespace
+docs/architecture/evidence/G03/reference-verification.txt -text -whitespace
+docs/architecture/evidence/G03/security-final/verification.txt -text -whitespace

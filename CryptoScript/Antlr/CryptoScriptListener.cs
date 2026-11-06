@@ -61,6 +61,16 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDeclaration([NotNull] CryptoScriptParser.DeclarationContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.assignment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAssignment([NotNull] CryptoScriptParser.AssignmentContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.assignment"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAssignment([NotNull] CryptoScriptParser.AssignmentContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.declareparam"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -70,6 +80,26 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitDeclareparam([NotNull] CryptoScriptParser.DeclareparamContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.polynomialValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPolynomialValue([NotNull] CryptoScriptParser.PolynomialValueContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.shareFormatValue"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitShareFormatValue([NotNull] CryptoScriptParser.ShareFormatValueContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.type"/>.
 	/// </summary>
@@ -101,6 +131,16 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTr31Field([NotNull] CryptoScriptParser.Tr31FieldContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerAttribute"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterHeaderAttribute([NotNull] CryptoScriptParser.HeaderAttributeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.headerAttribute"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitHeaderAttribute([NotNull] CryptoScriptParser.HeaderAttributeContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -121,6 +161,56 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFunctionCall([NotNull] CryptoScriptParser.FunctionCallContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.functionTopic"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.functionTopic"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFunctionTopic([NotNull] CryptoScriptParser.FunctionTopicContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLoadArguments([NotNull] CryptoScriptParser.LoadArgumentsContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.loadArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLoadArgument([NotNull] CryptoScriptParser.LoadArgumentContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.onConflictParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOnConflictParameter([NotNull] CryptoScriptParser.OnConflictParameterContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterHeaderArguments([NotNull] CryptoScriptParser.HeaderArgumentsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.headerArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitHeaderArguments([NotNull] CryptoScriptParser.HeaderArgumentsContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="CryptoScriptParser.arguments"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -140,4 +230,34 @@ public interface ICryptoScriptListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitArgument([NotNull] CryptoScriptParser.ArgumentContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSecureArguments([NotNull] CryptoScriptParser.SecureArgumentsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureArguments"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSecureArguments([NotNull] CryptoScriptParser.SecureArgumentsContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSecureArgument([NotNull] CryptoScriptParser.SecureArgumentContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureArgument"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSecureArgument([NotNull] CryptoScriptParser.SecureArgumentContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="CryptoScriptParser.secureOption"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSecureOption([NotNull] CryptoScriptParser.SecureOptionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="CryptoScriptParser.secureOption"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSecureOption([NotNull] CryptoScriptParser.SecureOptionContext context);
 }

@@ -1,0 +1,34 @@
+diff --git a/src/HeadlessUnitTestSession.cs b/src/HeadlessUnitTestSession.cs
+index 65f648b..c4e9214 100644
+--- a/src/HeadlessUnitTestSession.cs
++++ b/src/HeadlessUnitTestSession.cs
+@@ -179,8 +179,8 @@ public sealed class HeadlessUnitTestSession : IDisposable
+     public void Dispose()
+     {
+         _cancellationTokenSource.Cancel();
+-        _queue.CompleteAdding();
+         _dispatchTask.Wait();
++        _queue.CompleteAdding();
+         _cancellationTokenSource.Dispose();
+     }
+ 
+@@ -218,7 +218,7 @@ public sealed class HeadlessUnitTestSession : IDisposable
+         var queue = new BlockingCollection<(Action, ExecutionContext?)>();
+ 
+         Task? task = null;
+-        task = Task.Run(() =>
++        task = new Task(() =>
+         {
+             try
+             {
+@@ -258,8 +258,9 @@ public sealed class HeadlessUnitTestSession : IDisposable
+                 {
+                 }
+             }
+-        });
++        }, TaskCreationOptions.DenyChildAttach);
+ 
++        task.Start(TaskScheduler.Default);
+         return tcs.Task.GetAwaiter().GetResult();
+     }
+ 

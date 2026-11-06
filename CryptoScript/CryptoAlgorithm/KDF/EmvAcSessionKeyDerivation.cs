@@ -12,6 +12,12 @@ internal static class EmvAcSessionKeyDerivation
     private const int TdeaKeyLengthBytes = 16;
 
     internal static byte[] Derive(KeyAlgorithm algorithm, byte[] masterKey, byte[] atc)
+        => DeriveCore(algorithm, masterKey, atc, analysisKeys: false);
+
+    internal static byte[] DeriveForAnalysis(KeyAlgorithm algorithm, byte[] masterKey, byte[] atc)
+        => DeriveCore(algorithm, masterKey, atc, analysisKeys: true);
+
+    private static byte[] DeriveCore(KeyAlgorithm algorithm, byte[] masterKey, byte[] atc, bool analysisKeys)
     {
         ArgumentNullException.ThrowIfNull(masterKey);
         ArgumentNullException.ThrowIfNull(atc);
@@ -28,7 +34,7 @@ internal static class EmvAcSessionKeyDerivation
 
             return algorithm switch
             {
-                KeyAlgorithm.Tdea => DeriveTdea(masterKeySnapshot, atcSnapshot),
+                KeyAlgorithm.Tdea => DeriveTdea(masterKeySnapshot, atcSnapshot, analysisKeys),
                 KeyAlgorithm.Aes => DeriveAes(masterKeySnapshot, atcSnapshot),
                 _ => throw new ArgumentException(
                     "EMV AC session key derivation supports only TDEA and AES master keys.",
@@ -44,7 +50,7 @@ internal static class EmvAcSessionKeyDerivation
         }
     }
 
-    private static byte[] DeriveTdea(byte[] masterKey, byte[] atc)
+    private static byte[] DeriveTdea(byte[] masterKey, byte[] atc, bool analysisKeys)
     {
         if (masterKey.Length != TdeaKeyLengthBytes)
             throw new ArgumentException(
@@ -52,19 +58,23 @@ internal static class EmvAcSessionKeyDerivation
                 nameof(masterKey));
 
         Des3Algorithm.ValidateKeyLength(masterKey);
-        Des3Algorithm.ValidateUsableKey(masterKey);
+        if (!analysisKeys) Des3Algorithm.ValidateUsableKey(masterKey);
 
         byte[] firstInput = CreateTdeaInput(atc, 0xF0);
         byte[] secondInput = CreateTdeaInput(atc, 0x0F);
         byte[] sessionKey = new byte[TdeaKeyLengthBytes];
         byte[]? firstBlock = null;
         byte[]? secondBlock = null;
+        bool returned = false;
         try
         {
-            firstBlock = DES3_ECB.EncryptNoPadding(masterKey, firstInput);
-            secondBlock = DES3_ECB.EncryptNoPadding(masterKey, secondInput);
+            firstBlock = analysisKeys ? DES3_ECB.EncryptNoPaddingForAnalysis(masterKey, firstInput)
+                : DES3_ECB.EncryptNoPadding(masterKey, firstInput);
+            secondBlock = analysisKeys ? DES3_ECB.EncryptNoPaddingForAnalysis(masterKey, secondInput)
+                : DES3_ECB.EncryptNoPadding(masterKey, secondInput);
             firstBlock.CopyTo(sessionKey, 0);
             secondBlock.CopyTo(sessionKey, 8);
+            returned = true;
             return sessionKey;
         }
         finally
@@ -73,6 +83,9 @@ internal static class EmvAcSessionKeyDerivation
                 CryptographicOperations.ZeroMemory(firstBlock);
             if (secondBlock is not null)
                 CryptographicOperations.ZeroMemory(secondBlock);
+            CryptographicOperations.ZeroMemory(firstInput);
+            CryptographicOperations.ZeroMemory(secondInput);
+            if (!returned) CryptographicOperations.ZeroMemory(sessionKey);
         }
     }
 

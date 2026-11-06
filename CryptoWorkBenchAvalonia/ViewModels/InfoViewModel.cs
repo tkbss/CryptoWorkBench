@@ -11,9 +11,10 @@ using System.Text;
 
 namespace CryptoWorkBenchAvalonia.ViewModels
 {
-    public class InfoViewModel : BindableBase, INavigationAware
+    public class InfoViewModel : WorkbenchBindable, INavigationAware, IDisposable
     {
         private readonly IHistoryService? _history;
+        private bool disposed;
         private readonly IInfoDocumentationProvider _documentationProvider;
         private readonly Stack<InternalNavigationEntry> _internalNavigation = new();
         private string _infoText;
@@ -130,8 +131,14 @@ namespace CryptoWorkBenchAvalonia.ViewModels
 
         private void OnHistoryChanged(object? sender, string entry)
         {
-            EndInternalNavigation();
-            ShowCommandResult(entry);
+            if (!disposed) Publish(() => { EndInternalNavigation(); ShowCommandResult(entry); });
+        }
+
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            if (_history != null) _history.InfoHistoryChanged -= OnHistoryChanged;
         }
 
         private void ShowCommandResult(string text)

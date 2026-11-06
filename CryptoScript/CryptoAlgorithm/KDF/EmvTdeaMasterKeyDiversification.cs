@@ -7,7 +7,8 @@ namespace CryptoScript.CryptoAlgorithm.KDF;
 internal static class EmvTdeaMasterKeyDiversification
 {
     // Borrowed inputs: the caller validates the IMK and owns/clears both inputs.
-    internal static byte[] Derive(byte[] validatedImkSnapshot, ReadOnlySpan<byte> diversificationBlock)
+    internal static byte[] Derive(byte[] validatedImkSnapshot, ReadOnlySpan<byte> diversificationBlock,
+        bool analysisKeys = false)
     {
         ArgumentNullException.ThrowIfNull(validatedImkSnapshot);
         if (validatedImkSnapshot.Length != 16)
@@ -26,8 +27,10 @@ internal static class EmvTdeaMasterKeyDiversification
             // The existing primitive needs an array; this copy is owned by this method.
             firstInput = diversificationBlock.ToArray();
             complement = CreateComplement(firstInput);
-            firstBlock = DES3_ECB.EncryptNoPadding(validatedImkSnapshot, firstInput);
-            secondBlock = DES3_ECB.EncryptNoPadding(validatedImkSnapshot, complement);
+            firstBlock = analysisKeys ? DES3_ECB.EncryptNoPaddingForAnalysis(validatedImkSnapshot, firstInput)
+                : DES3_ECB.EncryptNoPadding(validatedImkSnapshot, firstInput);
+            secondBlock = analysisKeys ? DES3_ECB.EncryptNoPaddingForAnalysis(validatedImkSnapshot, complement)
+                : DES3_ECB.EncryptNoPadding(validatedImkSnapshot, complement);
             result = new byte[16];
             firstBlock.CopyTo(result, 0);
             secondBlock.CopyTo(result, 8);

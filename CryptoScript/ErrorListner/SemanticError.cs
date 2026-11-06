@@ -12,6 +12,9 @@ namespace CryptoScript.ErrorListner
         public SemanticDiagnosticSeverity Severity { get; set; } = SemanticDiagnosticSeverity.Error;
         public SemanticDiagnosticCode DiagnosticCode { get; set; } = SemanticDiagnosticCode.Unclassified;
         public DiagnosticLocation? Location { get; set; }
+        // Reference provenance only: replacing Location explicitly supplies fresh metadata.
+        // Instance-owned and non-public; never serialized as part of the public diagnostic.
+        internal DiagnosticLocation? ExecutionAssignedLocation { get; set; }
         
        
         public string Message { get; set; }=string.Empty;

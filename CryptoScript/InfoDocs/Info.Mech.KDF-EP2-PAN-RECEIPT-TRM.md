@@ -15,6 +15,13 @@ KDF-EP2-PAN-RECEIPT-TRM derives Key PAN Receipt Trm as defined by ep2 Security S
 
 HKDF-Extract-SHA256 derives a PRK from Salt PAN Receipt Acq and Key PAN Receipt Acq. Separately, SHA-256 hashes the complete Terminal Properties byte sequence. HKDF-Expand-SHA256 uses the PRK and this digest as info to produce 32 bytes, which are truncated to the leftmost 16 bytes.
 
+### Semantic diagnostics
+
+Expected KeyType metadata: no algorithm restriction on raw input keying material. Expected KeyUsage: `DeriveKey`.
+Declarative conflicts emit non-blocking `KeyTypeConflict` then `KeyUsageConflict` warnings where a fixed expected algorithm exists. Correct metadata emits no conflict warning; Unknown KeyType and Unspecified usage impose no diagnostic restriction. These checks do not mutate KEY or PARAM and work without a diagnostic sink. The HMAC Extract key is the salt; the IKM is not required to be typed Hmac. No KeyTypeConflict is produced for this input. Hash, salt, variant and output-length contracts are unchanged.
+
+Malformed key bytes, unsupported key lengths, invalid parameters and mandatory protocol or authentication checks remain blocking. Warnings do not establish PCI or EP2 conformity; the EP2 security matrix remains open.
+
 ## Functions
 
 | Functions | Parameters | Input | Output | Key Length |

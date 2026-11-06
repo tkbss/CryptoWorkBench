@@ -213,7 +213,6 @@ public class DeriveArgumentResolutionTests
         {
             Id = id,
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = (hex.Length * 4).ToString(),
             KeyType = KeyType.Secret(algorithm),

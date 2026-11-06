@@ -109,7 +109,7 @@ public class DukptAesWorkingKeyTests
 
         result.KeyType.Should().Be(KeyType.Secret(algorithm));
         result.KeySizeInBits.Should().Be(new KeySize(bits));
-        FormatConversions.HexStringToByteArray(result.KeyValue).Should().HaveCount(bits / 8);
+        FormatConversions.HexStringToByteArray(result.Value).Should().HaveCount(bits / 8);
     }
 
     [Test]
@@ -119,7 +119,7 @@ public class DukptAesWorkingKeyTests
 
         result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Aes));
         result.KeySizeInBits.Should().Be(new KeySize(192));
-        FormatConversions.HexStringToByteArray(result.KeyValue).Should().HaveCount(24);
+        FormatConversions.HexStringToByteArray(result.Value).Should().HaveCount(24);
     }
 
     [TestCase(InitialKey128, "TDEA-2")]
@@ -184,7 +184,6 @@ public class DukptAesWorkingKeyTests
         {
             Id = "wrongType",
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = "128",
             KeyType = KeyType.Secret(KeyAlgorithm.Tdea),
@@ -195,7 +194,6 @@ public class DukptAesWorkingKeyTests
         {
             Id = "selected",
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = "128",
             KeyType = KeyType.Secret(KeyAlgorithm.Aes),
@@ -210,9 +208,11 @@ public class DukptAesWorkingKeyTests
         ((KeyVariableDeclaration)result.Statements[1]).Value.Should().BeEquivalentTo(
             "0x(AF8CB133A78F8DC2D1359F18527593FB)", options => options.IgnoringCase());
 
-        Action wrongSelection = () => Execute($"KEY rejected=Derive(p,wrongType,0x({Ksn1}))");
-        wrongSelection.Should().Throw<SemanticErrorException>()
-            .Where(exception => exception.SemanticError!.Message.Contains("AES Initial Key"));
+        var conflicting = Execute($"KEY warned=Derive(p,wrongType,0x({Ksn1}))");
+        ((KeyVariableDeclaration)VariableDictionary.Instance().Get("warned")).Value.Should().BeEquivalentTo(
+            "0x(AF8CB133A78F8DC2D1359F18527593FB)", options => options.IgnoringCase());
+        conflicting.Diagnostics.Select(d => d.DiagnosticCode).Should().Equal(SemanticDiagnosticCode.KeyTypeConflict);
+        conflicting.Diagnostics[0].Identifier.Should().Be("wrongType");
     }
 
     [TestCase("1234567890123456000000")]

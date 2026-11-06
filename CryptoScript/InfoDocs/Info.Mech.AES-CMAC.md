@@ -12,6 +12,10 @@ AES-CMAC calculates a message authentication code (MAC) using AES and internal p
 - **MAC Length**: Mac always returns the full 16-byte MAC.
 - **Return Value**: Mac returns a VAR containing hexadecimal MAC bytes in 0x(...) format.
 
+### Key Generation and Import
+
+GenerateKey(AES-CMAC, ...) supports random generation and explicit hexadecimal import. The registry fixes the resulting KeyType to Secret(Aes) for both variants. Valid key lengths: 128, 192 or 256 bits (16, 24 or 32 bytes). Imported bytes are preserved exactly. The mechanism selects the key algorithm and does not restrict the resulting KEY to its original mode or HMAC digest; other compatible mechanisms of the same family may consume it.
+
 ## Functions
 The following functions are available for AES-CMAC mechanism:
 

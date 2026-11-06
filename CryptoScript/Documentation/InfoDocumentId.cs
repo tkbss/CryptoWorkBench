@@ -12,7 +12,12 @@ public enum InfoDocumentKind
     MechanismFunction,
     MechanismParameter,
     PaddingsOverview,
-    Padding
+    Padding,
+    PinTranslationsOverview,
+    PinTranslation,
+    Type,
+    Tr31Overview,
+    Tr31Attributes
 }
 
 public sealed record InfoDocumentId
@@ -22,20 +27,38 @@ public sealed record InfoDocumentId
         string? mechanism = null,
         string? padding = null,
         string? function = null,
-        string? parameter = null)
+        string? parameter = null,
+        int? sourceFormat = null, int? targetFormat = null, string? typeName = null)
     {
+        SourceFormat = sourceFormat;
+        TargetFormat = targetFormat;
         Kind = kind;
         Mechanism = mechanism;
         Padding = padding;
         Function = function;
         Parameter = parameter;
+        TypeName = typeName;
     }
 
+    public int? SourceFormat { get; }
+    public int? TargetFormat { get; }
+    public static InfoDocumentId CreatePinTranslationsOverview() => new(InfoDocumentKind.PinTranslationsOverview);
+    public static InfoDocumentId CreateTr31Overview() => new(InfoDocumentKind.Tr31Overview);
+    public static InfoDocumentId CreateTr31Attributes() => new(InfoDocumentKind.Tr31Attributes);
+    public static InfoDocumentId CreatePinTranslation(int source, int target)
+    {
+        CryptoAlgorithm.PINBLOCK.PinBlockTranslationRules.Get(source, target);
+        return new(InfoDocumentKind.PinTranslation, sourceFormat: source, targetFormat: target);
+    }
     public InfoDocumentKind Kind { get; }
     public string? Mechanism { get; }
     public string? Padding { get; }
     public string? Function { get; }
     public string? Parameter { get; }
+    public string? TypeName { get; }
+    public static InfoDocumentId CreateType(string type) => type == "SECRET"
+        ? new(InfoDocumentKind.Type, typeName: type)
+        : throw new ArgumentException("Unknown documented type.", nameof(type));
 
     public static InfoDocumentId CreateMechanismsOverview() =>
         new(InfoDocumentKind.MechanismsOverview);

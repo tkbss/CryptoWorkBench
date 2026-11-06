@@ -1,4 +1,4 @@
-﻿using CryptoScript.Operations;
+using CryptoScript.Operations;
 using CryptoScript.Variables;
 
 namespace CryptoScript.Model
@@ -7,16 +7,39 @@ namespace CryptoScript.Model
 
     public class OperationFactory
     { 
-        public static Func<OperationInvocation, VariableDeclaration> CreateInvocationOperation(string operation)
+        internal static Func<PreparedSecureSave, AsyncOperationContext, Task> CreateAsyncOperation(string name) =>
+            SecureSaveOperations.IsSecureSave(name) ? SecureSaveOperations.ExecuteAsync :
+            throw new ArgumentException("Unknown asynchronous function.");
+
+        internal static Func<PreparedSecureLoad, AsyncOperationContext, Task> CreateSecureLoadOperation(string name) =>
+            SecureLoadOperations.IsSecureLoad(name) ? SecureLoadOperations.ExecuteAsync :
+            throw new ArgumentException("Unknown asynchronous function.");
+
+        public static Func<OperationInvocation, VariableDeclaration?> CreateInvocationOperation(string operation)
+            => CreateInvocationOperation(operation, null);
+
+        internal static Func<OperationInvocation, VariableDeclaration?> CreateInvocationOperation(string operation,
+            Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory)
         {
             operation = operation.ToLower();
-            var op = new CryptoOperations();
+            if (operation == "secureload") return _ => throw new Serialization.SecureLoadException("AsyncExecutionRequired");
+            if (operation == "securesave") return _ => throw new Serialization.SecureSaveException("AsyncExecutionRequired");
+            if (operation == "delete") return DeleteOperations.Delete;
+            if (operation == "save") return SnapshotOperations.Save;
+            if (operation == "load") return SnapshotOperations.Load;
+            if (operation == "createheader") return HeaderOperations.CreateHeader;
+            var op = algorithmFactory is null ? new CryptoOperations() : new CryptoOperations(algorithmFactory);
+            if (operation == "macpack") return invocation => FileEncryption.CwmCoordinator.Execute(invocation, false);
+            if (operation == "macverify") return invocation => FileEncryption.CwmCoordinator.Execute(invocation, true);
+            if (operation == "share") return SecretOperations.Share;
+            if (operation == "secret") return SecretOperations.Secret;
+            if (operation == "restore") return SecretOperations.Restore;
             switch (operation)
             {
-                case "sign":
-                    return op.Sign;
                 case "mac":
                     return op.Mac;
+                case "pinblocktranslate":
+                    return op.PinBlockTranslate;
                 case "hash":
                     return op.Hash;
                 case "derive":
@@ -39,6 +62,8 @@ namespace CryptoScript.Model
                     return op.Unwrap;
                 case "blockheader":
                     return op.BlockHeader;
+                case "check":
+                    return KeyCheckOperations.Check;
                 case "compare":
                     return GeneralOperations.Compare;
                 default:
@@ -49,13 +74,21 @@ namespace CryptoScript.Model
         public static Func<string[], VariableDeclaration> CreateOperation(string operation)
         { 
             operation = operation.ToLower();
+            if (operation is "macpack" or "macverify") return _ => throw new ArgumentException("CWM functions require typed references.");
+            if (operation == "secureload") return _ => throw new Serialization.SecureLoadException("AsyncExecutionRequired");
+            if (operation == "securesave") return _ => throw new Serialization.SecureSaveException("AsyncExecutionRequired");
+            if (operation == "delete") return _ => throw new ArgumentException("Delete requires typed variable references.");
+            if (operation == "save") return _ => throw new ArgumentException("Save requires typed variable references.");
+            if (operation == "load") return _ => throw new ArgumentException("Load requires a typed PATH reference and snapshot selectors.");
+            if (operation == "createheader") return _ => throw new ArgumentException("CreateHeader requires named attributes.");
+            if (operation is "share" or "secret" or "restore") return SecretOperations.RequireTypedArguments;
             var op = new CryptoOperations();             
             switch (operation)
             {
-                case "sign":                                  
-                    return op.Sign;
                 case "mac":
                     return op.Mac;
+                case "pinblocktranslate":
+                    return op.PinBlockTranslate;
                 case "hash":
                     return op.Hash;
                 case "derive":
@@ -78,6 +111,8 @@ namespace CryptoScript.Model
                     return op.Unwrap;
                 case "blockheader":
                     return op.BlockHeader;
+                case "check":
+                    return KeyCheckOperations.Check;
                 case "compare":
                     return GeneralOperations.Compare;
                 default:

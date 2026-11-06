@@ -1,9 +1,20 @@
-﻿using Prism.Mvvm;
+using Prism.Mvvm;
+using System;
+using System.ComponentModel;
+using CryptoWorkBenchAvalonia.Services.Automation;
 using Prism.Navigation.Regions;
 
 namespace CryptoWorkBenchAvalonia.ViewModels;
 
-public class ViewModelBase :  BindableBase, INavigationAware
+public class WorkbenchBindable : BindableBase
+{
+    internal WorkbenchAutomationService Automation { get; set; } = WorkbenchAutomationService.Shared;
+    internal void Publish(Action action) => Automation.ObservePresentation(action);
+    protected override void OnPropertyChanged(PropertyChangedEventArgs args) =>
+        Publish(() => base.OnPropertyChanged(args));
+}
+
+public class ViewModelBase : WorkbenchBindable, INavigationAware
 {
     private string _title = string.Empty;
 

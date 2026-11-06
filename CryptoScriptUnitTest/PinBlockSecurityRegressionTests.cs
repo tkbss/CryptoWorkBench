@@ -6,6 +6,7 @@ using CryptoScript.Model;
 using CryptoScript.Variables;
 using AesAlgorithm = CryptoScript.CryptoAlgorithm.AES.AES;
 using Des3Algorithm = CryptoScript.CryptoAlgorithm.DES3.DES3;
+using CryptoScript.ErrorListner;
 
 namespace CryptoScriptUnitTest;
 
@@ -33,7 +34,7 @@ public class PinBlockSecurityRegressionTests
 
     [TestCase("WRAP-DES3-PINBLOCK-2", KeyAlgorithm.Tdea, Des3Key)]
     [TestCase("WRAP-AES-PINBLOCK-4", KeyAlgorithm.Aes, AesKey)]
-    public void PinBlocksRequirePinEncryptButAcceptPinEncryptAndUnspecified(
+    public void PinBlocksWarnForOtherUsageButAcceptPinEncryptAndUnspecified(
         string mechanism,
         KeyAlgorithm keyAlgorithm,
         string keyValue)
@@ -50,6 +51,11 @@ public class PinBlockSecurityRegressionTests
             parameters, pinKey, Var("0x(01234)")));
         StringVariableDeclaration unrestrictedWrapped = algorithm.Wrap(Arguments(
             parameters, unrestrictedKey, Var("0x(01234)")));
+        var sink = new SemanticDiagnosticSink();
+        StringVariableDeclaration warnedWrapped = algorithm.Wrap(new AlgorithmCallArguments(
+            Arguments(parameters, wrongUsageKey, Var("0x(01234)")).Arguments, sink));
+        var warnedPin = algorithm.Unwrap(new AlgorithmCallArguments(
+            Arguments(parameters, wrongUsageKey, pinWrapped).Arguments, sink));
 
         Assert.Multiple(() =>
         {
@@ -57,10 +63,15 @@ public class PinBlockSecurityRegressionTests
                 parameters, pinKey, pinWrapped))).Value, Is.EqualTo("0x(01234)"));
             Assert.That(((StringVariableDeclaration)algorithm.Unwrap(Arguments(
                 parameters, unrestrictedKey, unrestrictedWrapped))).Value, Is.EqualTo("0x(01234)"));
-            Assert.That(() => algorithm.Wrap(Arguments(
-                parameters, wrongUsageKey, Var("0x(01234)"))), Throws.ArgumentException);
-            Assert.That(() => algorithm.Unwrap(Arguments(
-                parameters, wrongUsageKey, pinWrapped)), Throws.ArgumentException);
+            Assert.That(warnedWrapped.Value, Is.EqualTo(pinWrapped.Value));
+            Assert.That(warnedPin.Value, Is.EqualTo("0x(01234)"));
+            Assert.That(sink.GetSnapshot().Select(d => d.DiagnosticCode), Is.EqualTo(new[]
+            {
+                SemanticDiagnosticCode.KeyUsageConflict, SemanticDiagnosticCode.KeyUsageConflict
+            }));
+            Assert.That(sink.GetSnapshot().Select(d => d.Location!.FunctionName),
+                Is.EqualTo(new[] { "Wrap", "Unwrap" }));
+            Assert.That(wrongUsageKey.Usage, Is.EqualTo(KeyUsagePolicy.Restricted(KeyUsage.Encrypt)));
         });
 
         var legacyPin = Var("0x(01234)");
@@ -76,13 +87,14 @@ public class PinBlockSecurityRegressionTests
     [TestCase("DES3-ECB", "Encrypt")]
     [TestCase("DES3-ECB", "Decrypt")]
     [TestCase("DES3-CMAC", "Mac")]
-    public void PinEncryptOnlyKeysAreRejectedByGeneralAesAndDes3Operations(
+    public void PinEncryptOnlyKeysWarnInGeneralAesAndDes3OperationsButKeepTheirPolicy(
         string mechanism,
         string function)
     {
         bool aes = mechanism.StartsWith("AES", StringComparison.Ordinal);
         CryptoAlgorithm algorithm = aes ? new AesAlgorithm() : new Des3Algorithm();
         ParameterVariableDeclaration parameters = algorithm.GenerateParameters(mechanism);
+        parameters.SetParameter("PAD", "NONE");
         parameters.Id = "p";
         KeyVariableDeclaration key = Key(
             aes ? AesKey : Des3Key,
@@ -90,7 +102,8 @@ public class PinBlockSecurityRegressionTests
             KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt));
         StringVariableDeclaration data = Var(
             aes ? "0x(00112233445566778899AABBCCDDEEFF)" : "0x(0011223344556677)");
-        AlgorithmCallArguments arguments = Arguments(parameters, key, data);
+        var sink = new SemanticDiagnosticSink();
+        AlgorithmCallArguments arguments = new(Arguments(parameters, key, data).Arguments, sink);
 
         Action operation = function switch
         {
@@ -99,7 +112,9 @@ public class PinBlockSecurityRegressionTests
             _ => () => algorithm.Mac(arguments)
         };
 
-        Assert.That(operation, Throws.ArgumentException.With.Message.Contains("usage policy"));
+        Assert.DoesNotThrow(operation);
+        Assert.That(sink.GetSnapshot().Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyUsageConflict));
+        Assert.That(key.Usage, Is.EqualTo(KeyUsagePolicy.Restricted(KeyUsage.PinEncrypt)));
 
         VariableDictionary.Instance().Add(parameters);
         VariableDictionary.Instance().Add(key);
@@ -110,7 +125,7 @@ public class PinBlockSecurityRegressionTests
             "Decrypt" => () => algorithm.Decrypt(new[] { "p", "k", "data" }),
             _ => () => algorithm.Mac(new[] { "p", "k", "data" })
         };
-        Assert.That(legacyOperation, Throws.ArgumentException.With.Message.Contains("usage policy"));
+        Assert.DoesNotThrow(legacyOperation);
     }
 
     [Test]
@@ -326,7 +341,6 @@ public class PinBlockSecurityRegressionTests
         {
             Id = "k",
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey(),
             KeyType = KeyType.Secret(algorithm),

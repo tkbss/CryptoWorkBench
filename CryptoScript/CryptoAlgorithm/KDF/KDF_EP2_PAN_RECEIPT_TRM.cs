@@ -56,7 +56,10 @@ public sealed class KDF_EP2_PAN_RECEIPT_TRM : CryptoAlgorithm
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Derive requires {MechanismName} parameters.");
 
-        byte[] key = ResolveKeyBytes(KdfArgumentResolver.ResolveKey(parameters, 1));
+        KeyVariableDeclaration sourceKey = KdfArgumentResolver.ResolveKey(parameters, 1);
+        KeyMetadataValidator.Validate(sourceKey, KeyAlgorithm.Unknown, KeyUsage.DeriveKey,
+            "Derive", MechanismName, parameters.DiagnosticSink);
+        byte[] key = ResolveKeyBytes(sourceKey);
         if (key.Length != KeyLengthBytes)
             throw new ArgumentException($"{MechanismName} acquirer key must be exactly 16 bytes.");
 
@@ -76,7 +79,6 @@ public sealed class KDF_EP2_PAN_RECEIPT_TRM : CryptoAlgorithm
         return new KeyVariableDeclaration
         {
             Value = value,
-            KeyValue = value,
             ValueFormat = FormatConversions.HEX,
             KeySize = (OutputLengthBytes * 8).ToString(CultureInfo.InvariantCulture),
             KeyType = KeyType.Secret(KeyAlgorithm.Unknown),
@@ -96,7 +98,7 @@ public sealed class KDF_EP2_PAN_RECEIPT_TRM : CryptoAlgorithm
 
     private static byte[] ResolveKeyBytes(KeyVariableDeclaration key)
     {
-        string value = string.IsNullOrEmpty(key.KeyValue) ? key.Value : key.KeyValue;
+        string value = key.Value;
         string format = FormatConversions.ParseString(value);
         if (!IsDataFormat(format) && IsDataFormat(key.ValueFormat))
             format = key.ValueFormat;

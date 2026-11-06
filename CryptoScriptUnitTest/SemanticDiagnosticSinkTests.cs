@@ -26,10 +26,16 @@ public class SemanticDiagnosticSinkTests
         Assert.That(Enum.GetValues<SemanticDiagnosticSeverity>().Select(value => (int)value),
             Is.EqualTo(new[] { 0, 1 }));
         Assert.That(Enum.GetValues<SemanticDiagnosticCode>().Select(value => (int)value),
-            Is.EqualTo(new[] { 0, 1, 2, 3, 4, 5, 6, 7 }));
+            Is.EqualTo(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 }));
+        Assert.That((int)SemanticDiagnosticCode.AssignmentTypeMismatch, Is.EqualTo(18));
+        Assert.That((int)SemanticDiagnosticCode.InvalidAssignmentInitializer, Is.EqualTo(19));
+        Assert.That((int)SemanticDiagnosticCode.MissingReturnValue, Is.EqualTo(20));
+        Assert.That((int)SemanticDiagnosticCode.AsyncExecutionRequired, Is.EqualTo(17));
         Assert.That((int)SemanticDiagnosticSeverity.Error, Is.Zero);
         Assert.That((int)SemanticDiagnosticSeverity.Warning, Is.EqualTo(1));
         Assert.That((int)SemanticDiagnosticCode.Unclassified, Is.Zero);
+        Assert.That((int)SemanticDiagnosticCode.KeyCheckValueNotFound, Is.EqualTo(12));
+        Assert.That((int)SemanticDiagnosticCode.KeyCheckValueAmbiguous, Is.EqualTo(13));
         Assert.That((int)SemanticDiagnosticCode.UnknownFunction, Is.EqualTo(1));
         Assert.That((int)SemanticDiagnosticCode.UnknownVariable, Is.EqualTo(2));
         Assert.That((int)SemanticDiagnosticCode.InvalidMechanism, Is.EqualTo(3));
@@ -37,6 +43,10 @@ public class SemanticDiagnosticSinkTests
         Assert.That((int)SemanticDiagnosticCode.FunctionExecutionFailed, Is.EqualTo(5));
         Assert.That((int)SemanticDiagnosticCode.InvalidDeclaration, Is.EqualTo(6));
         Assert.That((int)SemanticDiagnosticCode.InvalidParameter, Is.EqualTo(7));
+        Assert.That((int)SemanticDiagnosticCode.KeyUsageConflict, Is.EqualTo(8));
+        Assert.That((int)SemanticDiagnosticCode.KeyTypeConflict, Is.EqualTo(9));
+        Assert.That((int)SemanticDiagnosticCode.DesParityViolation, Is.EqualTo(10));
+        Assert.That((int)SemanticDiagnosticCode.WeakDes3Key, Is.EqualTo(11));
     }
 
     [Test]

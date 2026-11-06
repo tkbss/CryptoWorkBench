@@ -166,9 +166,9 @@ public class AlgorithmCallArgumentsTests
 
         Assert.Throws<NotSupportedException>(() => algorithm.Wrap(
             Arguments(parameter, "missing-key", "missing-key")));
-        Exception error = Assert.Throws<Exception>(() => algorithm.Unwrap(
+        Exception error = Assert.Throws<ArgumentException>(() => algorithm.Unwrap(
             Arguments(parameter, "missing-key", "missing-block")))!;
-        Assert.That(error.Message, Does.StartWith("Protection key variable not found"));
+        Assert.That(error.Message, Is.EqualTo("Key variable not found."));
     }
 
     [Test]
@@ -183,7 +183,7 @@ public class AlgorithmCallArgumentsTests
             Is.EqualTo("Key variable not found."));
         Assert.That(Assert.Throws<ArgumentException>(() => algorithm.Unwrap(
             Arguments(parameter, "missing-key", "not-a-block")))!.Message,
-            Does.StartWith("Expected a TR-31 string"));
+            Is.EqualTo("Key variable not found."));
     }
 
     [Test]

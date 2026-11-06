@@ -153,7 +153,7 @@ public class DukptTdeaWorkingKeyTests
     {
         KeyVariableDeclaration result = Derive("PIN", "FFFF9876543210FFFFFF");
 
-        result.KeyValue.Should().MatchRegex("^0x\\([0-9a-f]{32}\\)$");
+        result.Value.Should().MatchRegex("^0x\\([0-9a-f]{32}\\)$");
         result.KeyType.Should().Be(KeyType.Secret(KeyAlgorithm.Tdea));
         result.KeySizeInBits.Should().Be(new KeySize(128));
     }
@@ -169,16 +169,11 @@ public class DukptTdeaWorkingKeyTests
 
     [TestCase(KeyAlgorithm.Aes)]
     [TestCase(KeyAlgorithm.Hmac)]
-    [TestCase(KeyAlgorithm.Rsa)]
-    [TestCase(KeyAlgorithm.Ec)]
-    public void RejectsNonTdeaInitialKeyTypes(KeyAlgorithm algorithm)
+    public void NonTdeaInitialKeyTypesDoNotChangeTheTdeaDerivation(KeyAlgorithm algorithm)
     {
-        KeyType keyType = algorithm is KeyAlgorithm.Rsa or KeyAlgorithm.Ec
-            ? KeyType.Public(algorithm)
-            : KeyType.Secret(algorithm);
-        Action action = () => DeriveWithRegisteredKey(InitialKey, keyType);
-        action.Should().Throw<SemanticErrorException>()
-            .Where(exception => exception.SemanticError!.Message.Contains("TDEA Initial Key"));
+        KeyType keyType = KeyType.Secret(algorithm);
+        DeriveWithRegisteredKey(InitialKey, keyType).Value.Should().BeEquivalentTo(
+            "0x(042666B49184CF5C68DE9628D0397B36)", options => options.IgnoringCase());
     }
 
     [Test]
@@ -199,7 +194,7 @@ public class DukptTdeaWorkingKeyTests
         string value = $"0x({key})";
         VariableDictionary.Instance().Add(new KeyVariableDeclaration
         {
-            Id = "initial", Value = value, KeyValue = value, ValueFormat = FormatConversions.HEX,
+            Id = "initial", Value = value, ValueFormat = FormatConversions.HEX,
             KeyType = keyType, Type = new CryptoTypeKey()
         });
         return Execute($"PARAM p=Parameters({Mechanism},#USAGE:PIN) " +

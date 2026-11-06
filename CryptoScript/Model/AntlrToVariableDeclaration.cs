@@ -15,7 +15,9 @@ namespace CryptoScript.Model
                     context.functionCall() is { } call ? AntlrToFunctionCallExpression.Map(call) : null,
                 new ParameterListInitializerNode(
                     Array.AsReadOnly(context.declareparam().Select(AntlrToParameterInitializer.Map).ToArray())),
-                context.tr31Header() is { } header ? new Tr31HeaderInitializerNode(header.GetText()) : null);
+                context.tr31Header() is { } header ? new Tr31HeaderInitializerNode(header.GetText(),
+                    Array.AsReadOnly(header.tr31Field().Select(f => new HeaderAttributeArgumentNode(
+                        f.headerAttribute().GetChild(0).GetText(), f.headerAttribute().GetChild(2).GetText())).ToArray())) : null);
         }
     }
 }

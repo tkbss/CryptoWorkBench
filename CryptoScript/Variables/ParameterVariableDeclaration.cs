@@ -14,9 +14,55 @@ namespace CryptoScript.Variables
     
     public class ParameterVariableDeclaration : VariableDeclaration
     {
+        public BlockHeaderVariableDeclaration? HeaderReference { get; private set; }
         private readonly List<string> explicitParameterNames = new();
 
         internal IReadOnlyList<string> ExplicitParameterNames => explicitParameterNames;
+
+        // Some legacy AES factories normalize explicit padding. File operations must
+        // still reject an invalid declaration without changing existing VAR behavior.
+        internal string? OriginalExplicitPadding { get; set; }
+
+        // Snapshot restoration deliberately bypasses setters and BuildValue: those paths
+        // rebuild text, change provenance and may add parameters.
+        internal static ParameterVariableDeclaration FromSnapshot(string mechanism,
+            IEnumerable<KeyValuePair<string, string>> parameters, IEnumerable<string> explicitNames,
+            string value, BlockHeaderVariableDeclaration? header)
+        {
+            var result = new ParameterVariableDeclaration { _mechanism = mechanism };
+            result.ParameterTypeValue = new Dictionary<string, string>(parameters, StringComparer.Ordinal);
+            result.explicitParameterNames.AddRange(explicitNames);
+            result.Value = value;
+            result.HeaderReference = header;
+            return result;
+        }
+
+        // Private staging preserves declaration provenance without parsing serialized values.
+        internal ParameterVariableDeclaration StagePinTranslation()
+        {
+            var stage = new ParameterVariableDeclaration { Id = Id, _mechanism = _mechanism };
+            stage.ParameterTypeValue = new Dictionary<string, string>(ParameterTypeValue);
+            stage.explicitParameterNames.AddRange(explicitParameterNames);
+            stage.Value = Value;
+            return stage;
+        }
+
+        internal static void CommitPinTranslation(ParameterVariableDeclaration source,
+            ParameterVariableDeclaration sourceStage, ParameterVariableDeclaration target,
+            ParameterVariableDeclaration targetStage)
+        {
+            // All allocation, validation and virtual setters run on private stages before here.
+            // The interpreter is synchronous. These non-throwing reference assignments publish
+            // the pair without callbacks or fallible SetParameter/rollback operations.
+            source.PublishPinTranslation(sourceStage);
+            target.PublishPinTranslation(targetStage);
+        }
+
+        private void PublishPinTranslation(ParameterVariableDeclaration stage)
+        {
+            ParameterTypeValue = stage.ParameterTypeValue;
+            base.Value = stage.Value;
+        }
 
         internal void RecordExplicitParameter(string type)
         {
@@ -29,6 +75,7 @@ namespace CryptoScript.Variables
 
         public void SetInstance(string parameters)
         {            
+            MechanismParameterContractValidator.ValidateSerializedEmvCryptogramParameters(parameters);
             MechanismParameterContractValidator.ValidateSerializedEmvMasterParameters(parameters);
             
             // Split by '#' and remove empty entries
@@ -50,6 +97,7 @@ namespace CryptoScript.Variables
             }
 
             MechanismParameterContractValidator.ValidatePsnSupport(Mechanism, this);
+            MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(Mechanism, this);
          }
         string _mechanism = string.Empty;
         public string Mechanism 
@@ -99,6 +147,7 @@ namespace CryptoScript.Variables
                 item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase));
             if (t == null)
                 throw new ArgumentException($"Unknown parameter name '{type}'.", nameof(type));
+            if (t == "#BLKH") HeaderReference = null;
 
             if (ParameterTypeValue.ContainsKey(t))
             {
@@ -139,7 +188,9 @@ namespace CryptoScript.Variables
         }
         public void SetParameter(ArgumentParameter p)
         {
-            SetParameter(p.Type, p.Value);            
+            SetParameter(p.Type, p.Value);
+            if (p.Type.Equals("#BLKH", StringComparison.OrdinalIgnoreCase))
+                HeaderReference = p.HeaderReference;
 
         }
         public void ParseToDictionary(string input)

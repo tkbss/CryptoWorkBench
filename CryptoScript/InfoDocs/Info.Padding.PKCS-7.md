@@ -83,3 +83,8 @@ CryptoScript calls this selection `PKCS-7`. Its padding rule is the rule describ
 
 - [PKCS #7 Version 1.5, Section 10.3](https://www.rfc-editor.org/rfc/rfc2315.html#section-10.3)
 - [RFC 5652, Cryptographic Message Syntax (CMS), Section 6.3](https://www.rfc-editor.org/rfc/rfc5652.html#section-6.3)
+
+## File processing (F05)
+
+AES-CBC and DES3-CBC/ECB support this padding for PATH operations. It is
+applied once to the entire message, including across input-buffer boundaries.

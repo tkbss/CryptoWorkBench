@@ -10,6 +10,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
 
         public override KeyVariableDeclaration GenerateKey(string mechanism, string Size)
         {
+            mechanism = GenerateKeyContract.RequireMechanism(mechanism, KeyAlgorithm.Aes).CanonicalName;
             if(FormatConversions.ParseString(Size)== FormatConversions.HEX)
             {
                 return CreateExistingKey(Size,mechanism);
@@ -26,9 +27,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
                 byte[] aesKey = aesAlg.Key; // Getting the generated AES key
                 string keyValue = FormatConversions.ByteArrayToHexString(aesKey);
                 key.Value = keyValue;
-                key.KeyValue = keyValue;
                 key.ValueFormat = FormatConversions.ParseString(keyValue);
-                key.KeySize = Size;
+                key.KeySizeInBits = new KeySize(keySize);
                 key.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
                 key.Type = new CryptoTypeKey();
             }
@@ -39,12 +39,11 @@ namespace CryptoScript.CryptoAlgorithm.AES
             var k = new KeyVariableDeclaration();
             k.Value = key;
             k.ValueFormat = FormatConversions.ParseString(key);
-            var keySize = FormatConversions.ToByteArray(key,FormatConversions.HEX).Length*8;
+            var keySize = GenerateKeyContract.DecodeImport(key).Length * 8;
             if (keySize != 128 && keySize != 192 && keySize != 256)
                 throw new ArgumentException("wrong key size");
             k.KeySize = keySize.ToString();
             k.KeyType = KeyType.Secret(KeyAlgorithm.Aes);
-            k.KeyValue = key;
             k.Type = new CryptoTypeKey();
             return k;
         }
@@ -93,8 +92,11 @@ namespace CryptoScript.CryptoAlgorithm.AES
             foreach (var p in parameters)
             {
                 param.SetParameter(p);
+                param.RecordExplicitParameter(p.Split(':', 2)[0]);
                 
             }
+            if (param.ExplicitParameterNames.Contains("#PAD", StringComparer.OrdinalIgnoreCase))
+                param.OriginalExplicitPadding = param.GetParameter("PAD");
             SetDefaultParameterValues(param);
             if (param.Mechanism.Equals("AES-CBC", StringComparison.OrdinalIgnoreCase))
                 AES_CBC.ValidateAndDecodeIv(param.GetParameter("IV"));
@@ -193,7 +195,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
 
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.MacGenerate);
+            KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.MacGenerate,
+                "Mac", parameter!.Mechanism, parameters.DiagnosticSink);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if (mode.IsMACAlgorithm(parameter.Mechanism))
             {
@@ -215,7 +218,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         {
 
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.Encrypt);
+            KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.Encrypt,
+                "Encrypt", parameter!.Mechanism, parameters.DiagnosticSink);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if(mode.IsMACAlgorithm(parameter.Mechanism))
             {
@@ -263,7 +267,8 @@ namespace CryptoScript.CryptoAlgorithm.AES
         public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
             ParseArguments(parameters);
-            key!.Usage.EnsureAllows(KeyUsage.Decrypt);
+            KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.Decrypt,
+                "Decrypt", parameter!.Mechanism, parameters.DiagnosticSink);
             var mode = CreateMode(parameter.Mechanism) as EncryptionMode;
             if(mode.IsMACAlgorithm(parameter.Mechanism))
             {

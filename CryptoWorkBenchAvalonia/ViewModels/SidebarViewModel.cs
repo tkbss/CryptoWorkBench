@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CryptoScript.ErrorListner;
 using CryptoScript.Variables;
@@ -23,8 +23,8 @@ public class SidebarViewModel : ViewModelBase
 
     ////private readonly IRegionNavigationJournal? _journal;
     private readonly IRegionManager _regionManager;
-    public DelegateCommand OpenScriptBookCommand { get; }
-    public DelegateCommand SaveScriptBookCommand { get; }
+    public AsyncDelegateCommand OpenScriptBookCommand { get; }
+    public AsyncDelegateCommand SaveScriptBookCommand { get; }
     public DelegateCommand ShowVariableViewCommand { get; }
     public DelegateCommand ShowInfoViewCommand { get; }
     public DelegateCommand CmdFlyoutMenu => new(() =>
@@ -44,12 +44,14 @@ public class SidebarViewModel : ViewModelBase
   {
         _regionManager = regionManager;
         _cseVm = cseVm;
+        Automation = cseVm.Automation;
         _container = container;
         Title = "Navigation";
         FlyoutWidth = Collapsed;
-        _windowIcon = new WindowIcon("./Assets/avalonia-logo.ico");
-        OpenScriptBookCommand = new DelegateCommand(async () => await OpenScriptBook());
-        SaveScriptBookCommand = new DelegateCommand(async () => await SaveScriptBook());
+        using (var icon = Avalonia.Platform.AssetLoader.Open(new System.Uri("avares://CryptoWorkBenchAvalonia/Assets/avalonia-logo.ico")))
+            _windowIcon = new WindowIcon(icon);
+        OpenScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(OpenScriptBook));
+        SaveScriptBookCommand = new AsyncDelegateCommand(() => GuardAsync(SaveScriptBook));
         ShowVariableViewCommand = new DelegateCommand(ShowVariableView);
         ShowInfoViewCommand = new DelegateCommand(ShowInfoView);
     }
@@ -66,66 +68,84 @@ public class SidebarViewModel : ViewModelBase
     }
 
 
-    private async Task SaveScriptBook() 
+    private Task SaveScriptBook() => _cseVm.SaveScriptBookAsync(SelectSaveTargetAsync);
+
+    private async Task<CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.SaveTarget?> SelectSaveTargetAsync(CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService.SaveIntent intent)
     {
-        
-        var docPath= await _window!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+
+        bool Current() => Automation.IsFileIntentCurrent(intent);
+        using var docPath = await _window!.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         // Create the CryptoScript folder path
-        var CryptoScriptFolderPath =await docPath!.CreateFolderAsync("CryptoScript");           
+        if (docPath == null || !Current()) return null;
+        using var CryptoScriptFolderPath = await Automation.StartFileIntentStep(intent, () => docPath.CreateFolderAsync("CryptoScript"));
+        if (!Current()) return null;
         var options = new FilePickerSaveOptions
         {
             Title = "Save a file",
             DefaultExtension = "sbk",
-            SuggestedFileName = "ScriptBook",   
+            SuggestedFileName = "ScriptBook",
             SuggestedStartLocation = CryptoScriptFolderPath,
             ShowOverwritePrompt = false
         };
 
-        var result = await _window.StorageProvider.SaveFilePickerAsync(options);
+        var result = await Automation.StartFileIntentStep(intent, () => _window.StorageProvider.SaveFilePickerAsync(options));
         if (result != null)
         {
-            var filePath = result.Path.LocalPath;
-            if (File.Exists(filePath))
+            bool transferred = false;
+            try
             {
-                var p=new MessageBoxCustomParams
+                if (!Current()) return null;
+                var filePath = result.Path.LocalPath;
+                bool overwrite = File.Exists(filePath);
+                bool confirmed = false;
+                if (overwrite)
                 {
-                    ButtonDefinitions = new List<ButtonDefinition>
+                    var p=new MessageBoxCustomParams
                     {
-                        new ButtonDefinition { Name = "Yes", },
-                        new ButtonDefinition { Name = "No", },                        
-                    },
-                    WindowIcon = _windowIcon,
-                    ContentTitle = "OVERWRITE PROMPT",
-                    ContentMessage = "The file already exists. Do you want to overwrite it?",
-                    Icon = MsBox.Avalonia.Enums.Icon.Question,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                };
-                // Prompt the user for confirmation
-                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);   
-                    
-                var r = await messageBoxStandardWindow.ShowAsync();
+                        ButtonDefinitions = new List<ButtonDefinition>
+                        {
+                            new ButtonDefinition { Name = "Yes", },
+                            new ButtonDefinition { Name = "No", },
+                        },
+                        WindowIcon = _windowIcon,
+                        ContentTitle = "OVERWRITE PROMPT",
+                        ContentMessage = "The file already exists. Do you want to overwrite it?",
+                        Icon = MsBox.Avalonia.Enums.Icon.Question,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                    };
+                    // Prompt the user for confirmation
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);
 
-                if (r == "No")
-                {
-                    _cseVm.Status.StatusString = "Save operation canceled by the user.";
-                    return;
+                    var r = _window is Window owner
+                        ? await messageBoxStandardWindow.ShowWindowDialogAsync(owner)
+                        : await messageBoxStandardWindow.ShowAsync();
+
+                    if (!Current()) return null;
+                    if (r != "Yes")
+                    {
+                        _cseVm.Status.StatusString = "Save operation canceled by the user.";
+                        return null;
+                    }
+                    else
+                    {
+                        confirmed = true;
+                    }
                 }
-                else
-                {                    
-                    await result.DeleteAsync();
-                }
+                transferred = true;
+                return new(filePath, confirmed, overwrite ? () => result.DeleteAsync() : null, result);
             }
-            _cseVm.SaveScriptBook(filePath);
-            _cseVm.Status.StatusString = "Script book saved in: "+ filePath;
+            finally { if (!transferred) result.Dispose(); }
         }
         else
         {
-            _cseVm.Status.StatusString = "Script book not saving canceld";
+            if (Current()) _cseVm.Status.StatusString = "Script book save cancelled.";
+            return null;
         }
     }
 
-    private async Task OpenScriptBook()
+    private Task OpenScriptBook() => _cseVm.WithFileDialogAsync(async intent =>
     {
+        if (_cseVm.IsExecuting) return;
         var options = new FilePickerOpenOptions
         {
             Title = "Select a file",
@@ -136,10 +156,12 @@ public class SidebarViewModel : ViewModelBase
                 new FilePickerFileType("All Files") { Patterns = new[] { "*.*" } }
             }
         };
-        
-        var result = await _window.StorageProvider.OpenFilePickerAsync(options);
-        if (result.Count > 0)
+
+        var result = await _window!.StorageProvider.OpenFilePickerAsync(options);
+        using var selected = result.Count == 0 ? null : result[0];
+        if (selected != null && Automation.IsFileIntentCurrent(intent))
         {
+            bool clear = false;
             if (_cseVm.IsTextEditorEmpty() == false)
             {
                 var p = new MessageBoxCustomParams
@@ -148,6 +170,7 @@ public class SidebarViewModel : ViewModelBase
                     {
                         new ButtonDefinition { Name = "Yes", },
                         new ButtonDefinition { Name = "No", },
+                        new ButtonDefinition { Name = "Cancel", IsCancel = true },
                     },
                     WindowIcon = _windowIcon,
                     ContentTitle = "EDITOR WINDOW CLEARENCE",
@@ -156,16 +179,17 @@ public class SidebarViewModel : ViewModelBase
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 };
                 var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxCustom(p);
-                var r = await messageBoxStandardWindow.ShowAsync();
-                if (r == "Yes")
-                {
-                    _cseVm.TextEditor!.Document.Text = string.Empty;
-                    VariableDictionary.Instance().Clear();
-                }
+                var r = _window is Window owner
+                    ? await messageBoxStandardWindow.ShowWindowDialogAsync(owner)
+                    : await messageBoxStandardWindow.ShowAsync();
+                // Closing the dialog (including Escape) is not consent to import.
+                if (r is not ("Yes" or "No")) return;
+                clear = r == "Yes";
             }
             try
             {
-                _cseVm.OpenScriptBook(result[0].Path.LocalPath);
+                if (!Automation.IsFileIntentCurrent(intent)) return;
+                await _cseVm.OpenScriptBookAsync(selected.Path.LocalPath, clear);
             }
             catch (SemanticErrorException ex)
             {
@@ -173,15 +197,24 @@ public class SidebarViewModel : ViewModelBase
                 _cseVm.Status.StatusString = "Script book loading aborted (semantic error).";
                 return;
             }
-            SetScriptBookCompletionStatus();
+            if (Automation.EditorCoordinator.WorkspaceGeneration == intent.WorkspaceGeneration && !Automation.IsStopping)
+                SetScriptBookCompletionStatus();
         }
-        
-    } 
+
+    });
 
     private void SetScriptBookCompletionStatus()
     {
         if (_cseVm.LastScriptBookSucceeded)
             _cseVm.Status.StatusString = "Script book loaded and all lines successfull parsed";
+    }
+
+    private async Task GuardAsync(System.Func<Task> operation)
+    {
+        long generation = Automation.EditorCoordinator.WorkspaceGeneration;
+        try { await operation(); }
+        catch (System.Exception) when (Automation.IsStopping || generation != Automation.EditorCoordinator.WorkspaceGeneration) { }
+        catch (System.Exception) { _cseVm.Status.StatusString = "Script book operation failed."; }
     }
 
   public int FlyoutWidth { get => _flyoutWidth; set => SetProperty(ref _flyoutWidth, value); }

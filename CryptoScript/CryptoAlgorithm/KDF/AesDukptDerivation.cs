@@ -69,7 +69,6 @@ internal static class AesDukptDerivation
         var key = new KeyVariableDeclaration
         {
             Value = keyValue,
-            KeyValue = keyValue,
             ValueFormat = FormatConversions.HEX,
             Type = new CryptoTypeKey()
         };

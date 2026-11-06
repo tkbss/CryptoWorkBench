@@ -2,8 +2,9 @@
 
 List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' followed by the parameter name and a colon: '#'PARAMETER_NAME ':' PARAMETER_VALUE
 
----   
-    
+---
+
+- ONCONFLICT: [Load](cryptoscript-info://function/Load) only; `REJECT` (default) or `REPLACE`. At most once, as the final argument. Not accepted in PARAM declarations or by cryptographic mechanisms.
 - MECH: Mechanism parameter specifying the cryptographic algorithm used. Information about each mechanism can be obtained through Info(mechanism).
     - MECHANISM VALUES:
         - AES-CBC
@@ -54,6 +55,12 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
         - KDF-EMV-MASTER-A
         - KDF-EMV-MASTER-B
         - KDF-EMV-MASTER-C
+        - MAC-EMV-AC
+        - MAC-EMV-AC-VERIFY
+        - MAC-EMV-ARPC-METHOD-1
+        - MAC-EMV-ARPC-METHOD-2
+        - EP2-PAN-RECEIPT-ENCRYPTION
+        - EP2-DATA-ENCRYPTION
         - KDF-EP2-SESSION
         - KDF-EP2-PAN-RECEIPT-TRX
         - KDF-EP2-PAN-RECEIPT-TRM
@@ -119,5 +126,39 @@ List of all parameters used in CRYPTO-SCRIPT. A parameter is defined by a '#' fo
 - NONCE: Unique nonce value for symmetric encryption used in certain modes.
 - COUNTER: Counter value for symmetric encryption for certain modes.
 - ADATA: Additional authenticated data used in certain modes.
-- BLKH: TR-31 Key Block Header used by Wrap. The header is authenticated, and its declared total length must match the resulting key-block structure.
+- BLKH: TR-31 header used by Wrap. A direct PARAM declaration accepts a genuine TR31H reference (`#BLKH:header`) for automatic length calculation, or a quoted complete raw header whose declared length must match the generated block. Typed references are supported by WRAP-AES-TR31 and WRAP-DES3-TR31; EP2 retains its strict raw-header profile.
+- ARC: Required only by [ARPC Method 1](cryptoscript-info://mechanism/MAC-EMV-ARPC-METHOD-1).
+  Exactly two bytes as a resolved HEX value, for example `#ARC:0x(3030)`; no implicit ASCII or integer conversion.
+- CSU: Required only by [ARPC Method 2](cryptoscript-info://mechanism/MAC-EMV-ARPC-METHOD-2).
+  Exactly four binary bytes as a resolved HEX value. No card-state interpretation.
+- ARPC Method 2 uses optional ADATA for one to eight proprietary binary bytes; omit it for zero bytes.
+  Its optional `#VARIANT:"IAD"` returns ARPC || CSU || Proprietary Authentication Data, without Tag 91 or BER-TLV.
+  Without VARIANT it returns the four-byte ARPC. Other variants are rejected; other mechanisms retain their own VARIANT contracts.
+  The two ARPC mechanisms reject duplicate or inconsistent MECH and all unsupported parameters, including PAD, IV and MACLEN.
+  Named binary values are validated by value and length, not by an unavailable original-variable provenance proof.
+- EXPECTED: Required by [MAC-EMV-AC-VERIFY](cryptoscript-info://mechanism/MAC-EMV-AC-VERIFY).
+  Resolved HEX value with exactly 16 hex digits (eight bytes). No implicit ASCII, integer or Base64
+  conversion. The parameter transport does not establish original variable provenance.
+  Missing, malformed, duplicate or contradictory parameters are rejected. MAC-EMV-AC accepts
+  only MECH; MAC-EMV-AC-VERIFY accepts only MECH and EXPECTED. Neither accepts PAD, IV or MACLEN.
 - RND: Optional random bytes used by TR-31 Wrap for key-length obfuscation and cipher-block padding. The required length depends on the wrapped-key algorithm and size; an omitted or wrong-sized value is replaced with generated random filler.
+
+- [EP2-DATA-ENCRYPTION](cryptoscript-info://mechanism/EP2-DATA-ENCRYPTION) requires #NONCE (12 HEX bytes), #OFFSET (one HEX byte: SEND 00–07, RECEIVE 00–01) and #DIRECTION (normal string literal "SEND" or "RECEIVE", relative to the master). No defaults, extra or duplicate parameters; #IV, #COUNTER and #PAD are forbidden. Nonce generation and lifecycle belong to the caller. #OFFSET and #DIRECTION are reserved for this mechanism.
+
+## EP2 TR-31 profile
+
+EP2-TR31-KEY-BLOCK accepts only MECH, BLKH and RND. BLKH is required for Wrap;
+for Unwrap it optionally constrains the authenticated header. RND is exactly 14 HEX
+bytes when supplied to Wrap, securely generated when omitted, and forbidden for
+Unwrap. See [EP2-TR31-KEY-BLOCK](cryptoscript-info://mechanism/EP2-TR31-KEY-BLOCK).
+
+## Secret sharing parameters
+
+[PARTS](cryptoscript-info://parameter/SECRET_SHAMIR/PARTS), [MINPARTS](cryptoscript-info://parameter/SECRET_SHAMIR/MINPARTS), [POLYNOM](cryptoscript-info://parameter/SECRET_SHAMIR/POLYNOM), [SHAREFORMAT](cryptoscript-info://parameter/SECRET_SHAMIR/SHAREFORMAT). MINPARTS and POLYNOM are forbidden for SECRET_SPLIT.
+
+
+## Typed TR-31 headers
+
+See [TR-31](cryptoscript-info://overview/tr31), [CreateHeader](cryptoscript-info://function/CreateHeader) and the [complete attribute reference](cryptoscript-info://overview/tr31attributes).
+
+`TR31H header = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)` creates a reusable definition. Pass it as `#BLKH:header`; Wrap computes KBLEN without modifying the definition. For WRAP-DES3-TR31 use A/B/C and ALGO:T.

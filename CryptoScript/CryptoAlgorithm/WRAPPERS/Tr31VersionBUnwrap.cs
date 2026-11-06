@@ -7,7 +7,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS;
 /// <summary>Version-B authentication and key extraction, without header semantics or script integration.</summary>
 internal static class Tr31VersionBUnwrap
 {
-    internal static byte[] Unwrap(string header, byte[] ciphertext, byte[] receivedMac, byte[] kbpk)
+    internal static byte[] Unwrap(string header, byte[] ciphertext, byte[] receivedMac, byte[] kbpk, bool analysisKeys = false)
     {
         ArgumentNullException.ThrowIfNull(header);
         ArgumentNullException.ThrowIfNull(kbpk);
@@ -19,14 +19,31 @@ internal static class Tr31VersionBUnwrap
         if (ciphertext.Length == 0 || ciphertext.Length % authenticationBytes != 0)
             throw new ArgumentException("Ciphertext must be a non-zero multiple of 8 bytes.", nameof(ciphertext));
 
-        var (kbek, kbak) = Tr31TdeaKeyDerivation.DeriveKeys(kbpk);
-        byte[] confidentialData = DES3_CBC.DecryptNoPadding(kbek, receivedMac, ciphertext);
-        byte[] dataToAuthenticate = [.. Encoding.ASCII.GetBytes(header), .. confidentialData];
-        byte[] calculatedMac = DES3_CMAC.Compute(kbak, dataToAuthenticate);
-        if (!CryptographicOperations.FixedTimeEquals(calculatedMac, receivedMac))
-            throw new CryptographicException("TR-31 version B authentication failed.");
+        var (kbek, kbak) = analysisKeys ? Tr31TdeaKeyDerivation.DeriveKeysForAnalysis(kbpk)
+            : Tr31TdeaKeyDerivation.DeriveKeys(kbpk);
+        byte[]? confidentialData = null;
+        byte[]? calculatedMac = null;
+        byte[]? dataToAuthenticate = null;
+        try
+        {
+            confidentialData = analysisKeys ? DES3_CBC.DecryptNoPaddingForAnalysis(kbek, receivedMac, ciphertext)
+                : DES3_CBC.DecryptNoPadding(kbek, receivedMac, ciphertext);
+            dataToAuthenticate = [.. Encoding.ASCII.GetBytes(header), .. confidentialData];
+            calculatedMac = analysisKeys ? DES3_CMAC.ComputeForAnalysis(kbak, dataToAuthenticate)
+                : DES3_CMAC.Compute(kbak, dataToAuthenticate);
+            if (!CryptographicOperations.FixedTimeEquals(calculatedMac, receivedMac))
+                throw new CryptographicException("TR-31 version B authentication failed.");
 
-        // No key extraction or successful result before authentication.
-        return Tr31ConfidentialData.ExtractKey(confidentialData);
+            // No key extraction or successful result before authentication.
+            return Tr31ConfidentialData.ExtractKey(confidentialData);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(kbek);
+            CryptographicOperations.ZeroMemory(kbak);
+            if (confidentialData is not null) CryptographicOperations.ZeroMemory(confidentialData);
+            if (calculatedMac is not null) CryptographicOperations.ZeroMemory(calculatedMac);
+            if (dataToAuthenticate is not null) CryptographicOperations.ZeroMemory(dataToAuthenticate);
+        }
     }
 }

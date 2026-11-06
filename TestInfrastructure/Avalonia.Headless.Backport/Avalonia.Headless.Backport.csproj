@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Source dependency of the net10 testhost, never of the desktop product. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>Avalonia.Headless</AssemblyName>
+    <PackageId>Avalonia.Headless.Backport</PackageId>
+    <AssemblyVersion>11.3.20.0</AssemblyVersion>
+    <FileVersion>11.3.20.1</FileVersion>
+    <Version>11.3.20-cwb.1</Version>
+    <InformationalVersion>11.3.20-cwb.1+upstream.984c3b833f29806eb159fb7f12a6132e936b75df.pr22222</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign>true</PublicSign>
+    <AssemblyOriginatorKeyFile>Avalonia.public.snk</AssemblyOriginatorKeyFile>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- Use the explicit project-local PathMap, not ambient checkout paths/HEAD. -->
+    <DeterministicSourcePaths>false</DeterministicSourcePaths>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+    <PathMap>$(MSBuildProjectDirectory)=/_/Avalonia.Headless.Backport</PathMap>
+    <IsPackable>false</IsPackable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode>true</RestoreLockedMode>
+    <DefineConstants>$(DefineConstants);NET7SDK</DefineConstants>
+    <CweBackportHashFile>$([System.IO.Path]::GetFullPath('$(BaseIntermediateOutputPath)', '$(MSBuildProjectDirectory)'))/backport/$(Configuration)/Avalonia.Headless.Backport.sha256</CweBackportHashFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Avalonia's public ref/ facade intentionally hides implementable internal
+         contracts. Compile this friend assembly against the matching lib/ DLLs,
+         exactly as the upstream project-to-project build does. -->
+    <PackageReference Include="Avalonia" Version="[11.3.20]" GeneratePathProperty="true" ExcludeAssets="compile" />
+    <Reference Include="Avalonia.Base" HintPath="$(PkgAvalonia)/lib/net8.0/Avalonia.Base.dll" Private="false" />
+    <Reference Include="Avalonia.Controls" HintPath="$(PkgAvalonia)/lib/net8.0/Avalonia.Controls.dll" Private="false" />
+    <AssemblyMetadata Include="CryptoWorkBench.HeadlessBackport" Value="11.3.20-cwb.1" />
+    <AssemblyMetadata Include="UpstreamCommit" Value="984c3b833f29806eb159fb7f12a6132e936b75df" />
+    <None Include="LICENSE.md" CopyToOutputDirectory="PreserveNewest" TargetPath="Licenses/Avalonia.Headless.Backport.LICENSE.md" />
+    <None Include="$(CweBackportHashFile)" Link="Avalonia.Headless.Backport.sha256" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Import Project="VerifiedInputs.props" />
+  <ItemGroup><Compile Include="@(CweVerifiedSource)" /></ItemGroup>
+  <Target Name="VerifyVendoredHeadlessInputs" BeforeTargets="CoreCompile">
+    <GetFileHash Files="@(CweVerifiedSource);@(CweVerifiedMetadata)" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="_CweHashedInput" />
+    </GetFileHash>
+    <Error Condition="'%(_CweHashedInput.FileHash)' != '%(_CweHashedInput.ExpectedHash)'"
+           Text="Headless backport input hash mismatch: %(_CweHashedInput.Identity)" />
+  </Target>
+  <Target Name="WriteBackportAssemblyHash" AfterTargets="CoreCompile">
+    <GetFileHash Files="$(IntermediateOutputPath)$(TargetName).dll" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="_CweBuiltAssembly" />
+    </GetFileHash>
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(CweBackportHashFile)'))" />
+    <WriteLinesToFile File="$(CweBackportHashFile)" Lines="%(_CweBuiltAssembly.FileHash)" Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="UTF-8" />
+    <ItemGroup><FileWrites Include="$(CweBackportHashFile)" /></ItemGroup>
+  </Target>
+</Project>

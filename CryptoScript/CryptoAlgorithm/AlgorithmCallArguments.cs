@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CryptoScript.ErrorListner;
 using CryptoScript.Model;
 using CryptoScript.Variables;
 
@@ -36,9 +37,15 @@ public sealed class AlgorithmCallArguments
     {
     }
 
+    public AlgorithmCallArguments(IEnumerable<AlgorithmCallArgument> arguments,
+        ISemanticDiagnosticSink? diagnosticSink)
+        : this(arguments, isLegacyDeriveCall: false, diagnosticSink)
+    {
+    }
+
     internal AlgorithmCallArguments(
         IEnumerable<AlgorithmCallArgument> arguments,
-        bool isLegacyDeriveCall)
+        bool isLegacyDeriveCall, ISemanticDiagnosticSink? diagnosticSink = null)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         AlgorithmCallArgument[] copiedArguments = arguments.ToArray();
@@ -47,9 +54,12 @@ public sealed class AlgorithmCallArguments
 
         this.arguments = Array.AsReadOnly(copiedArguments);
         IsLegacyDeriveCall = isLegacyDeriveCall;
+        DiagnosticSink = diagnosticSink;
     }
 
     public IReadOnlyList<AlgorithmCallArgument> Arguments => arguments;
+
+    public ISemanticDiagnosticSink? DiagnosticSink { get; }
 
     internal bool IsLegacyDeriveCall { get; }
 
@@ -73,6 +83,6 @@ public sealed class AlgorithmCallArguments
         {
             HasReconstructedSourceVariable = true
         };
-        return new AlgorithmCallArguments(updated, IsLegacyDeriveCall);
+        return new AlgorithmCallArguments(updated, IsLegacyDeriveCall, DiagnosticSink);
     }
 }

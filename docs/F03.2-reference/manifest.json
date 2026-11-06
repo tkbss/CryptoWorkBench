@@ -1,0 +1,41 @@
+{
+  "nistArchiveSha256": "f9fc479e134cde2980b3bb7cddbcb567b2cd96fd753835243ed067699f26a023",
+  "files": {
+    "aligned.bin": {
+      "bytes": 32,
+      "sha256": "630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd"
+    },
+    "empty.bin": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nist-128-aad0.bin": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nist-128-aad128.bin": {
+      "bytes": 16,
+      "sha256": "386bca78291faf1ce19ad6483fc089b4263c35c9bb4f17e9d3d1df11af5e1d8c"
+    },
+    "nist-192-aad0.bin": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nist-192-aad128.bin": {
+      "bytes": 16,
+      "sha256": "5dc139fba2ac0e4fcd590a29a7e9d23c861d06718f14554394c8ee88c314aebc"
+    },
+    "nist-256-aad0.bin": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nist-256-aad128.bin": {
+      "bytes": 16,
+      "sha256": "a76d63b59e81677742a7e01632274d0673657d011d559b68f767fa3315d805d3"
+    },
+    "records.bin": {
+      "bytes": 270,
+      "sha256": "70cb1c987d49ae1af9e08b0e25cebcb120bd0f20a467bcdae372afa79851ce34"
+    }
+  }
+}
