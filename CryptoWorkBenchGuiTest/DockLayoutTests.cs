@@ -138,21 +138,62 @@ public sealed class DockLayoutTests
         var json = layout.Capture(Bounds);
         var path = Temp(); var store = new DockLayoutStore(path);
         Assert.That(store.Save(json), Is.True, store.LastError);
-        var bytes = File.ReadAllBytes(path);
         layout.Close(DockShellState.InfoId);
         var next = layout.Capture(Bounds);
+        Assert.That(next, Is.Not.EqualTo(json));
+        int replacementBoundaries = 0;
+        var replacing = new DockLayoutStore(path)
+        {
+            BeforeReplace = () =>
+            {
+                replacementBoundaries++;
+                // The old destination must still exist when the complete new file is ready.
+                AssertLayoutFile(path, json);
+                var temporary = Directory.GetFiles(Path.GetDirectoryName(path)!, "*.tmp");
+                Assert.That(temporary, Has.Length.EqualTo(1));
+                AssertLayoutFile(temporary.Single(), next);
+                if (interrupted) throw new IOException("Interrupted");
+            }
+        };
         if (interrupted)
         {
-            var failing = new DockLayoutStore(path) { BeforeReplace = () => throw new IOException("Interrupted") };
-            Assert.That(failing.Save(next), Is.False);
+            // Deterministic failure at the atomic boundary on every platform.
+            Assert.That(replacing.Save(next), Is.False);
+            Assert.That(replacing.LastError, Is.Not.Null);
+            AssertLayoutFile(path, json);
         }
         else
         {
-            using var locked = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            Assert.That(store.Save(next), Is.False);
+            using var opened = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (OperatingSystem.IsWindows())
+            {
+                // No FileShare.Delete: Windows denies replacing this open destination.
+                Assert.That(replacing.Save(next), Is.False);
+                Assert.That(replacing.LastError, Is.Not.Null);
+                AssertLayoutFile(path, json);
+            }
+            else
+            {
+                // Unix rename replaces the directory entry; the old open handle stays valid.
+                Assert.That(replacing.Save(next), Is.True, replacing.LastError);
+                Assert.That(replacing.LastError, Is.Null);
+                AssertLayoutFile(path, next);
+            }
+            using var previous = new MemoryStream();
+            opened.CopyTo(previous);
+            Assert.That(previous.ToArray(), Is.EqualTo(System.Text.Encoding.UTF8.GetBytes(json)));
         }
-        Assert.That(File.ReadAllBytes(path), Is.EqualTo(bytes));
+        Assert.That(replacementBoundaries, Is.EqualTo(1));
         Assert.That(Directory.GetFiles(Path.GetDirectoryName(path)!, "*.tmp"), Is.Empty);
+
+        static void AssertLayoutFile(string file, string expected)
+        {
+            Assert.That(File.Exists(file), Is.True);
+            Assert.That(File.ReadAllBytes(file), Is.EqualTo(System.Text.Encoding.UTF8.GetBytes(expected)));
+            var actual = File.ReadAllText(file);
+            Assert.That(actual, Is.EqualTo(expected));
+            Assert.That(DockLayoutStore.Decode(actual).MainWindow, Is.EqualTo(Bounds));
+        }
     });
 
     [TestCase(DockShellState.DocumentId)][TestCase(DockShellState.VariablesId)][TestCase(DockShellState.InfoId)]

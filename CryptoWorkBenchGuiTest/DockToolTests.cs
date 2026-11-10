@@ -247,12 +247,20 @@ public sealed class DockToolTests
         await window.Clipboard!.SetTextAsync("sentinel");
         h.Pump(); Assert.That(await window.Clipboard!.TryGetTextAsync(), Is.EqualTo("sentinel"));
         code.TextArea.Focus(); code.Select(0, 7);
-        window.KeyPress(Key.C, RawInputModifiers.Control, PhysicalKey.C, "c");
+        Assert.That(code.SelectedText, Is.EqualTo(example[..7]));
+        // Keep the historical test name, but exercise AvaloniaEdit's actual platform shortcut.
+        var gesture = ApplicationCommands.Copy.Gesture;
+        Assert.That(gesture.Key, Is.EqualTo(Key.C));
+        Assert.That(gesture.KeyModifiers, Is.EqualTo(OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control));
+        var modifiers = OperatingSystem.IsMacOS() ? RawInputModifiers.Meta : RawInputModifiers.Control;
+        window.KeyPress(gesture.Key, modifiers, PhysicalKey.C, "c");
+        window.KeyRelease(gesture.Key, modifiers, PhysicalKey.C, "c");
         await Task.Delay(30); Assert.That(await window.Clipboard!.TryGetTextAsync(), Is.EqualTo(example[..7]));
         var pad = code.GetVisualAncestors().Single(c => c.GetType().Name == "CodePad");
         var copy = (Button)pad.GetType().GetProperty("ExandableMenu")!.GetValue(pad)!;
         copy.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         await Task.Delay(30); Assert.That(await window.Clipboard!.TryGetTextAsync(), Is.EqualTo(example));
+        Assert.That(code.IsReadOnly, Is.True); Assert.That(code.Text, Is.EqualTo(example));
         Assert.That(h.Service.CaptureSaveIntent()!.Snapshot, Is.EqualTo(original));
         Assert.That(InterpreterHostQueue.StateRevision, Is.EqualTo(revision));
     });
