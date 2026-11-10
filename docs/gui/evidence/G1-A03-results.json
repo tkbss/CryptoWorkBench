@@ -1,0 +1,1243 @@
+{
+  "task": "G1-A03",
+  "date": "2026-11-09",
+  "branch": "feature/gui-g1",
+  "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+  "status": "Implemented and validated within A03 scope; B4 and mouse acceptance remain open",
+  "validationCompleteWithinAutomatedScope": true,
+  "a04Recommendation": "CONDITIONAL GO after explicit owner acceptance; retain B4 and the documented F03/manual/platform boundaries; A04 not started",
+  "report": {
+    "path": "docs/gui/G1-A03-persistence-cleanup-roles.md",
+    "sha256": "9B85AA5AA228B7317E2918927BD013B9DF7BFC64CC0D7AEA948B59DF701E3357"
+  },
+  "baseline": {
+    "files": 1125,
+    "branch": {
+      "path": "artifacts/g1-a03/baseline/branch.txt",
+      "sha256": "BC5677E8DE5369959285A05440882F97DAF04364533FD86AF3E766E914859A47"
+    },
+    "head": {
+      "path": "artifacts/g1-a03/baseline/head.txt",
+      "sha256": "B071826253764EF24D5D3F053CF609ADAEC67249DF92F1DAC9B636B253771D0D"
+    },
+    "status": {
+      "path": "artifacts/g1-a03/baseline/status.txt",
+      "sha256": "7C6AB108342666D80F5981526FD1821EA254B7FB59741A24D01B2A1C7D4D05D3"
+    },
+    "sourceManifest": {
+      "path": "artifacts/g1-a03/baseline/files.json",
+      "sha256": "FBC75D2B599177B2606B5D937FA382AFCF7501BFCD57FC8CB58D19AFB20E4444"
+    },
+    "binaries": {
+      "path": "artifacts/g1-a03/baseline/binaries.json",
+      "sha256": "38D3250A4CFC6937FB19992BC7CF5C10C393A98656F762A73036E1698E309BE4"
+    },
+    "a01a02Artifacts": {
+      "path": "artifacts/g1-a03/baseline/a01-a02-artifacts.json",
+      "sha256": "F4DBB58799E311EFF33C9F93E762757104E70739F057C59B6EE739A7D586DD7E"
+    },
+    "preimplementationMatrix": {
+      "path": "artifacts/g1-a03/baseline/preimplementation-role-matrix.md",
+      "sha256": "5A37695FCE85974792633540CE098A2A4998A8852119BE233820BFD2F442B539"
+    }
+  },
+  "historicalFixture": {
+    "source": {
+      "path": "artifacts/g1-07/native-Release-layout.json.layout.json",
+      "sha256": "7E54E250BA7F791968E4522C53BBB15771E1B9251A134CEA2504A086BE29F34F"
+    },
+    "embedded": {
+      "path": "CryptoWorkBenchGuiTest/Fixtures/dock-schema1-pre-a02.json",
+      "sha256": "7E54E250BA7F791968E4522C53BBB15771E1B9251A134CEA2504A086BE29F34F"
+    },
+    "schema": 1,
+    "compatibility": "Empty non-main-root IDocks get an identity before full validation; nonempty IDs and business panes are never renamed"
+  },
+  "red": {
+    "matrix": {
+      "suite": "A02 baseline red",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a03/red/red.trx",
+        "sha256": "99D37763D816AD92964E9E53233C279854CA55E6DFCEEDD999EDA522F76EC60B"
+      },
+      "total": 26,
+      "passed": 12,
+      "failed": 14,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Failed"
+    },
+    "legacyEmptyHosts": 12,
+    "historicalBlankIdRejected": 1,
+    "incorrectFloatingRoles": 1,
+    "existingGuidSequencesPassed": 12,
+    "archivedTests": {
+      "path": "artifacts/g1-a03/red/DockPersistenceCleanupTests.cs",
+      "sha256": "8D37EBB1F917BA41806056BD116DC7C2A58F153A3958CA6540E17A0B89D874F0"
+    },
+    "startupFailureEvidence": "artifacts/g1-a03/native-first"
+  },
+  "architecture": {
+    "target": "B with C responsibility separation, operations contract deferred to A04",
+    "roles": "Actual main-tree reachability, expected type and root; Add/Insert initialization also checks intended main-tree owner before insertion",
+    "protected": "Main root, main proportional structure and three real return anchors",
+    "dynamic": "All other supported structural containers, including floating former anchors, collapse normally",
+    "identity": "A02 dock:container:<GUID> unchanged",
+    "cleanup": "Ordinary source-only Dock CollapseDock/RemoveWindow; global CloseEmptyHosts removed",
+    "startup": "Existing Root.ShowWindows at product owner Opened; fixture repair removed",
+    "f01": "Owned empty-window closing permission unchanged",
+    "f03": "Synchronous composite cleanup unchanged; historical-ID collapse exception replaced by actual roles",
+    "business": "Six singleton panes and original per-process session",
+    "schema": 1,
+    "reentrancy": "B4 remains A04; mutationDepth, Allowed, Change and ChangeLayout not expanded"
+  },
+  "suites": [
+    {
+      "suite": "GUI",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/CryptoWorkBenchGuiTest-Debug.trx",
+        "sha256": "A569B474BEF2C768E5D8152DE7AF041BD4616BC72748A584AC27415006BE745F"
+      },
+      "total": 1087,
+      "passed": 1087,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "MCP",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/CryptoWorkBench.Mcp.Tests-Debug.trx",
+        "sha256": "87DB61C726572778A610A1B88F3C1BA374B1C74949FEC0CB77834EB0159A6A5D"
+      },
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "Core",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/CryptoScriptUnitTest-Debug.trx",
+        "sha256": "A359E70705CCC4F660A2743EF94E69A80F0D6674406F7F90C50FDA2EB236A65F"
+      },
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "G1-01 Headless",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/G1DockFeasibility.Tests-Debug.trx",
+        "sha256": "9513F0A911E4EA8965C4B338D6DEFE48B189C584C50A39B457137F0C0B5D3B6A"
+      },
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "GUI",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/CryptoWorkBenchGuiTest-Release.trx",
+        "sha256": "585EA5391CC931CC8D550E90A63B1718BC6DB65E74C13BDBF190BE839A8B6263"
+      },
+      "total": 1087,
+      "passed": 1087,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "MCP",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/CryptoWorkBench.Mcp.Tests-Release.trx",
+        "sha256": "4F22E71C54C88073C506E49B7FBA04D0658C0AC8868F26C01A150E1F40AEBE0C"
+      },
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "Core",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/CryptoScriptUnitTest-Release.trx",
+        "sha256": "8E44A3F357B05ECD621E408B9508B1A906D5DCA12A20DEF4B1B823925E3B8157"
+      },
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "G1-01 Headless",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a03/regression-final/G1DockFeasibility.Tests-Release.trx",
+        "sha256": "E3C2B856562EAE819BDD63FF68CF6DF3EEBB11CDFE77EECBE980283605D4E579"
+      },
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    }
+  ],
+  "independentRepeat": [
+    {
+      "suite": "A03 independent repeat",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a03/independent/A03-repeat-Debug.trx",
+        "sha256": "DA843531CCA224A77D4AC6A5D7029C5EA9D58293930293DE85F4D2AFAEA5FBD3"
+      },
+      "total": 44,
+      "passed": 44,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "A03 independent repeat",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a03/independent/A03-repeat-Release.trx",
+        "sha256": "43EE2999B33A7D906B7D21733E8163C0129D513218E13D08583F7A7A70BC9951"
+      },
+      "total": 44,
+      "passed": 44,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    }
+  ],
+  "native": [
+    {
+      "name": "Debug-layout-roles",
+      "mode": "layout-roles",
+      "scenario": null,
+      "passed": 194,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 3972,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-layout-roles.json",
+        "sha256": "8C000423B33B3D7F56456EADE245576D9AAF51CEAAD4704266B5A23A49911F0A"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-layout",
+      "mode": "layout",
+      "scenario": null,
+      "passed": 48,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 38600,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-layout.json",
+        "sha256": "B2F87DA6BF85FE99968A99DE0BBE65C9773B89918308544950692C70D323A0D3"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-layout-restart",
+      "mode": "layout-restart",
+      "scenario": null,
+      "passed": 56,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 4660,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-layout-restart.json",
+        "sha256": "E83AF36A99A6193F0DC14CF0F98796D81E4AD4977B12DD4B9CDD491FF3C25844"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-layout-invalid",
+      "mode": "layout-invalid",
+      "scenario": null,
+      "passed": 49,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 36672,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-layout-invalid.json",
+        "sha256": "14972E7663E98584A3D6358B7C5A8289DA2B833AD2E11E86A7B50509BDFCCB1C"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-redock",
+      "mode": "redock",
+      "scenario": null,
+      "passed": 134,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 29876,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-redock.json",
+        "sha256": "C8260EA1A34DD33EEDDEB7F737180ED89674D50D26E431CF6202190EB56B759A"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-editor",
+      "mode": "editor",
+      "scenario": null,
+      "passed": 54,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 33612,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-editor.json",
+        "sha256": "8C072B4C22F82E9451DE9A6537FB78E6B1BFAA2C8AE967B8AD64F853B805A8F3"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-integration",
+      "mode": "integration",
+      "scenario": null,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 8900,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-integration.json",
+        "sha256": "2D7978C77D0E23D340233D98CC65BF1654CA7F886D663710C8F175B18C9100BF"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-single-save",
+      "mode": "cleanup-save",
+      "scenario": "single",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 27572,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-single-save.json",
+        "sha256": "2FFC19510771BBE5FA49AC5830D4D2B90DC0A2AD2D37D27BC03B47222A5DDBFA"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-single-current",
+      "mode": "cleanup-restore",
+      "scenario": "single",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 10008,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-single-current.json",
+        "sha256": "99F8C06701967EE731B4FC67EBE19FB8B4AD2FED2234971E49B6B773E21BFC73"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-single-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "single",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 10236,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-single-legacy.json",
+        "sha256": "5CD34F7DDCC116000D167CA4CFF6C48EB6DFEC25BAA1E42D6977D2CB64FACEE4"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-multiple-save",
+      "mode": "cleanup-save",
+      "scenario": "multiple",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 16152,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-multiple-save.json",
+        "sha256": "9D9431D14D605E5EBA86C1FB6CEE8C0EE7C7FFA72A8419314E90BD08D1CFD8F9"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-multiple-current",
+      "mode": "cleanup-restore",
+      "scenario": "multiple",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 7372,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-multiple-current.json",
+        "sha256": "F38EA63B8952AA4B1D8BD21008647FDCBB01AF818A0C6534454D0992862C6572"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-multiple-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "multiple",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 41244,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-multiple-legacy.json",
+        "sha256": "D40B0652660081D5C666EE8D42F81F09119D5F5D7356AFA47DCC80CD43210B72"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-anchor-save",
+      "mode": "cleanup-save",
+      "scenario": "anchor",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 20472,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-anchor-save.json",
+        "sha256": "C9CDEC4636102F51F7C96133C8C7B5E82F79C21406A776ED4F0677D38950CFB6"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-anchor-current",
+      "mode": "cleanup-restore",
+      "scenario": "anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 17908,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-anchor-current.json",
+        "sha256": "D246A694ACC1554C4FADF083C2B3A4C05F8B91E1B482D91C2444D96BE3B14A73"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-anchor-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 24892,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-anchor-legacy.json",
+        "sha256": "A7F11439E92ED257091417B96F271D1D189192DCCD6018BA9B0B6CDBF4979356"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-document-save",
+      "mode": "cleanup-save",
+      "scenario": "document",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 7284,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-document-save.json",
+        "sha256": "F4EDBC2B6D88ACC9B4677FB48F5C2DA3A23D7ABA11AF783211DF8C8184DDC253"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-document-current",
+      "mode": "cleanup-restore",
+      "scenario": "document",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 19840,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-document-current.json",
+        "sha256": "38C3E0C8CDFCD2A9F33C119E77F1E711CE6987FE1452CD2DD5CF6B6570504B24"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-document-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "document",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 33564,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-document-legacy.json",
+        "sha256": "FAAB4A48653BF1CB1BB9474FD53BC1F944BA719C821F61254AF27223DE290063"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-document-anchor-save",
+      "mode": "cleanup-save",
+      "scenario": "document-anchor",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 25632,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-document-anchor-save.json",
+        "sha256": "2C3F761BBC9B3F6810FFCC8A34BE4D7F0125DE307A6287106A5ACE260C9BA900"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-document-anchor-current",
+      "mode": "cleanup-restore",
+      "scenario": "document-anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 40680,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-document-anchor-current.json",
+        "sha256": "16F159576348B5F4E8F6CD0FB784C42326950FB33E98C02F6AB4DB92A6AA50C6"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-document-anchor-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "document-anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 41212,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-document-anchor-legacy.json",
+        "sha256": "BCE6746F23B5C9A9387A3FDCD9B9A495BF77A05DCBC8AB0873F220E98F2EB82E"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-nested-save",
+      "mode": "cleanup-save",
+      "scenario": "nested",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 36616,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-nested-save.json",
+        "sha256": "CD148899F3A2CBE0EAE44C75A37AF05668AA9BA649BB389A54216AF5519524E6"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-nested-current",
+      "mode": "cleanup-restore",
+      "scenario": "nested",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 22076,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-nested-current.json",
+        "sha256": "0FFE6A868569F815207BEB287EF17B739D0F154732ECAB218A85748BA6AE8615"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-nested-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "nested",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 18340,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-nested-legacy.json",
+        "sha256": "6A410FFCD28DA91C742775625CEE4C98DE08A978693E8A4C4A6448D9559765ED"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-historical-1",
+      "mode": "cleanup-restore",
+      "scenario": "historical",
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 34568,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-historical-1.json",
+        "sha256": "75E3C9F91E49102618D50D287083858B80F518ED3A6BA621910F77703E1110CA"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Debug-cleanup-historical-2",
+      "mode": "cleanup-restore",
+      "scenario": "historical",
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 30252,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Debug-cleanup-historical-2.json",
+        "sha256": "43DDFB5BDA40C25C0DB4420824FC9AD860CE3235556231541E44914F0C6A9096"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout-roles",
+      "mode": "layout-roles",
+      "scenario": null,
+      "passed": 194,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 5008,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-layout-roles.json",
+        "sha256": "8C000423B33B3D7F56456EADE245576D9AAF51CEAAD4704266B5A23A49911F0A"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout",
+      "mode": "layout",
+      "scenario": null,
+      "passed": 48,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 20248,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-layout.json",
+        "sha256": "B2F87DA6BF85FE99968A99DE0BBE65C9773B89918308544950692C70D323A0D3"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout-restart",
+      "mode": "layout-restart",
+      "scenario": null,
+      "passed": 56,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 41256,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-layout-restart.json",
+        "sha256": "E83AF36A99A6193F0DC14CF0F98796D81E4AD4977B12DD4B9CDD491FF3C25844"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout-invalid",
+      "mode": "layout-invalid",
+      "scenario": null,
+      "passed": 49,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 20764,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-layout-invalid.json",
+        "sha256": "14972E7663E98584A3D6358B7C5A8289DA2B833AD2E11E86A7B50509BDFCCB1C"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-redock",
+      "mode": "redock",
+      "scenario": null,
+      "passed": 134,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 39044,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-redock.json",
+        "sha256": "C8260EA1A34DD33EEDDEB7F737180ED89674D50D26E431CF6202190EB56B759A"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-editor",
+      "mode": "editor",
+      "scenario": null,
+      "passed": 54,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 20184,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-editor.json",
+        "sha256": "8C072B4C22F82E9451DE9A6537FB78E6B1BFAA2C8AE967B8AD64F853B805A8F3"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-integration",
+      "mode": "integration",
+      "scenario": null,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 42180,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-integration.json",
+        "sha256": "2D7978C77D0E23D340233D98CC65BF1654CA7F886D663710C8F175B18C9100BF"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-single-save",
+      "mode": "cleanup-save",
+      "scenario": "single",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 23432,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-single-save.json",
+        "sha256": "55977288C15DB47D0A973365E1B25BC9AF1F2154230EEB3B16CC43DDF9167FD8"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-single-current",
+      "mode": "cleanup-restore",
+      "scenario": "single",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 38400,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-single-current.json",
+        "sha256": "50CD99DA3135203836BDC4986EE526162730941D07B2F63F78F62874CE12FEBC"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-single-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "single",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 34080,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-single-legacy.json",
+        "sha256": "C12D67A0CE4351E669CD5BE515F41E8A9946B4C3437513D2BB21AB414E3E1A27"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-multiple-save",
+      "mode": "cleanup-save",
+      "scenario": "multiple",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 40440,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-multiple-save.json",
+        "sha256": "175F9B1B924AE1728BDE717CF21F6E0F37AA2423DCA21D14FAD4F2531A4716DB"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-multiple-current",
+      "mode": "cleanup-restore",
+      "scenario": "multiple",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 2476,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-multiple-current.json",
+        "sha256": "227CDD7EFA98AD6915FE94F03D42BA8B8FAC5C35C82B8C4982425A18E273367F"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-multiple-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "multiple",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 23196,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-multiple-legacy.json",
+        "sha256": "C736874032F25661D86BFAAB2085741461CE86356C0628651584EBF18886168D"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-anchor-save",
+      "mode": "cleanup-save",
+      "scenario": "anchor",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 14076,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-anchor-save.json",
+        "sha256": "D6D07B42C87E7858C974B220DDEC56DD8BCFE51B842F5563F8B72C1399258F8F"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-anchor-current",
+      "mode": "cleanup-restore",
+      "scenario": "anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 2196,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-anchor-current.json",
+        "sha256": "AB76D2815E00DE3B561B0B7C3957B9730381FE524C4C05E3866F98F27BC4A9F4"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-anchor-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 12024,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-anchor-legacy.json",
+        "sha256": "2F5AF712F9BDFDA1DD6DAEC3A276FABCDB52231FF7C2B5A7276D355519FF5FD0"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-document-save",
+      "mode": "cleanup-save",
+      "scenario": "document",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 9784,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-document-save.json",
+        "sha256": "1DAFEAE3DD93AAABAD482593C634D049E93DD1C61FCF26E891E69B893998A544"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-document-current",
+      "mode": "cleanup-restore",
+      "scenario": "document",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 38712,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-document-current.json",
+        "sha256": "A14CAD4F1DFB7033C9C3BCFE56897E88CD2D11C067EC02D37ED21D88F6052265"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-document-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "document",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 22764,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-document-legacy.json",
+        "sha256": "25626BFDC3C0ACE43117DE258AF0302B231C0343E768E8ED2F8CBBFDB4A0DB26"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-document-anchor-save",
+      "mode": "cleanup-save",
+      "scenario": "document-anchor",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 4844,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-document-anchor-save.json",
+        "sha256": "D9E29418445DEA49CF9F7ECAF698F8191564C37AD2007509866A4F62B4047F49"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-document-anchor-current",
+      "mode": "cleanup-restore",
+      "scenario": "document-anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 38372,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-document-anchor-current.json",
+        "sha256": "E056DE254989D95CC57A1E8ED31086A3A21D9D062F2947A8A8A9BB31F9CF40EE"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-document-anchor-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "document-anchor",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 30340,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-document-anchor-legacy.json",
+        "sha256": "95569DBF516E7AC4883696313666DFE75AD7E0D7BDADF7599E7CE2E6640B25E3"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-nested-save",
+      "mode": "cleanup-save",
+      "scenario": "nested",
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 41088,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-nested-save.json",
+        "sha256": "FDB98F7997DC45D49EDE521A0C11EFA0B0F98C473621DC918C68C3590F8AC97C"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-nested-current",
+      "mode": "cleanup-restore",
+      "scenario": "nested",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 27300,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-nested-current.json",
+        "sha256": "B14434C89E2DDBDBCF982D093E8125545AB7FC5479DC7EEE35B2FAD5D98ADEE4"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-nested-legacy",
+      "mode": "cleanup-restore",
+      "scenario": "nested",
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 30856,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-nested-legacy.json",
+        "sha256": "E723ACAD576EEBC97AD17A40E0484A0E018B53A77EF1851B10876B4C21412691"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-historical-1",
+      "mode": "cleanup-restore",
+      "scenario": "historical",
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 22556,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-historical-1.json",
+        "sha256": "98F3A796D8F127068174CBDAA0ED6C25F7FE662BA7FE4AAC0C5418C93D7B29B2"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    },
+    {
+      "name": "Release-cleanup-historical-2",
+      "mode": "cleanup-restore",
+      "scenario": "historical",
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 5072,
+      "file": {
+        "path": "artifacts/g1-a03/native-resumed/Release-cleanup-historical-2.json",
+        "sha256": "17E44100B4DC9CC31C0D7D74F961C9F12C8DC91E2BE1A18A79319FD3CD249D45"
+      },
+      "input": "native Windows process; programmatic operations, not mouse acceptance"
+    }
+  ],
+  "nativeIncomplete": [],
+  "exclusions": {
+    "mcpExplicit": 13,
+    "coreSkipped": 26,
+    "coreExplicit": 1,
+    "disabledExistingTests": 0,
+    "removedExistingAssertions": 0
+  },
+  "interimRuns": {
+    "green1": "15 proportion failures before return-anchor pre-insertion role correction",
+    "green2": "163 passed targeted tests",
+    "green3": "41 passed, two invalid negative-test fixtures corrected",
+    "green4": "44 passed before strengthening output/diagnostic content checks",
+    "nativeFirst": "Restored hosts created but not presented; direct native red evidence",
+    "nativeSecond": "20 A03 processes, 488 passed checks; existing role probe foreground timeout",
+    "foreground": "Read-only desktop-state.json records another foreground application",
+    "interruptedNative": "native-final stopped after user Escape; one Debug integration window was activated with Computer Use, no docking gestures",
+    "stopRecord": {
+      "path": "artifacts/g1-a03/user-stop.json",
+      "sha256": "948065E74EF276EE0371300B8ADBD93FE1126879097870358AAD123B1EF18D08"
+    },
+    "resumed": "After user reported unlocked idle desktop, native-resumed ran without Computer Use or additional product edits"
+  },
+  "open": [
+    "A04 B4 independent reentrant callbacks",
+    "General Dock exception/partial-state transaction contract",
+    "F03 completion-in-floating-host",
+    "F03 completion-retired-on-relocation",
+    "Incomplete external clipboard/output/diagnostics/layout input matrix",
+    "Complete native mouse acceptance",
+    "Linux/macOS desktop acceptance"
+  ],
+  "integrity": {
+    "changedExisting": 10,
+    "newFiles": 6,
+    "removedOriginalFiles": 0,
+    "historicalReportsEvidenceAndLocks": 92,
+    "historicalUnchanged": true,
+    "a01a02ArtifactCount": 748,
+    "a01a02Unchanged": true,
+    "historicalRawCount": 451,
+    "historicalRawUnchanged": true,
+    "userLayout": {
+      "path": "C:/Users/stefa/AppData/Local/CryptoWorkBench/dock-layout-v1.json",
+      "sha256": "A505774C3DC0A3AB96DCC70AABA48CEDE2BF994F351554B1EED20BC8821E039D",
+      "unchanged": true
+    },
+    "oldAssertions": [
+      {
+        "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+        "unchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockToolTests.cs",
+        "unchanged": true
+      }
+    ],
+    "gitDiffCheckExitCode": 0,
+    "newWhitespaceIssues": 0
+  },
+  "sourceFileHashes": [
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockContainerIdentity.cs",
+      "sha256": "C20EA16404CE891226A3734D0BC5B9D8B6DC265DC65A78A086F32189C26568D4"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockLayoutStore.cs",
+      "sha256": "F5AA14C9319B000930F71E547055D0A4054BAF89009CBA0938DDBFB0DB142753"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+      "sha256": "3BFDD5AF4DA5DD58565A3ACD85338D3F7F2251C922FC04704468DDCC8311E7D7"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+      "sha256": "7852C752FDE3FC1ED4F2D4A137220F3CF786B22FF9A4D75ABCE1E43AFCEF9C34"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+      "sha256": "3FCA61CB3D0DF4A693D941AD8799F29E134E2A11387C592E2A02E381F4F820EE"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+      "sha256": "DA903AEAD061E0B3A7526F66FDCF6350DD670B3892A0E2630A2936EE0C51C379"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+      "sha256": "72AFFB57B2D1D5509CED2E4AA092569C3C44E31C7C45D09F62C373C0D3A4AD32"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockToolTests.cs",
+      "sha256": "B001F7B362C3CE34439321D92A719058774A836A104697E360D99109EBB537B9"
+    },
+    {
+      "path": "eng/gui/native/Program.cs",
+      "sha256": "5CB684CEF0498408E1065BEC4F00474AA6C153C8CB04A5AD7FCD20467A6C70AC"
+    },
+    {
+      "path": "eng/gui/Validate-G1LayoutRoles.ps1",
+      "sha256": "A4C52DD39546A25AA3AC0B331690396B9FFBC0AEFF96741A8E265199A1315FBA"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockContainerRoles.cs",
+      "sha256": "866491B9D33434A75F7AD4C2F96CE4AF0CE08DED850B33FF651D4465ED1EB491"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockPersistenceCleanupTests.cs",
+      "sha256": "A6D69096C6CB17BEE7632A1EE6FBC9F9E400EC6E6BF9F544A5EA7339C74A0E89"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockPersistenceNativeProbe.cs",
+      "sha256": "235E1F56A950608063DD61D88E834FDC8E1B108AB88E91F6A768180E3B504D17"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/Fixtures/dock-schema1-pre-a02.json",
+      "sha256": "7E54E250BA7F791968E4522C53BBB15771E1B9251A134CEA2504A086BE29F34F"
+    },
+    {
+      "path": "docs/gui/G1-A03-persistence-cleanup-roles.md",
+      "sha256": "9B85AA5AA228B7317E2918927BD013B9DF7BFC64CC0D7AEA948B59DF701E3357"
+    }
+  ],
+  "manifests": {
+    "finalSources": "artifacts/g1-a03/final-source-manifest.json",
+    "finalArtifacts": "artifacts/g1-a03/final-artifact-manifest.json",
+    "integrity": "artifacts/g1-a03/integrity-result.json",
+    "historicalRaw": "artifacts/g1-a03/historical-raw-integrity.json",
+    "finalGitStatus": "artifacts/g1-a03/final-status.txt",
+    "a03OnlyDiff": "artifacts/g1-a03/a03-only.patch",
+    "finalBinaries": "artifacts/g1-a03/final-binaries.json",
+    "binaryParity": "artifacts/g1-a03/binary-parity.json"
+  },
+  "commitsPushesMerges": "none",
+  "standardGuiChanged": false,
+  "packageUpgrades": false,
+  "upstreamFork": false,
+  "l1Imported": false,
+  "a04Started": false
+}
