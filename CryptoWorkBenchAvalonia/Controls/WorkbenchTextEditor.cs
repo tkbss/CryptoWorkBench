@@ -26,6 +26,7 @@ public sealed class WorkbenchTextEditor : TextEditor
     internal CryptoWorkBenchAvalonia.Services.Automation.EditorCoordinator? Coordinator { get; set; }
 
     private readonly AvaloniaEdit.Editing.IReadOnlySectionProvider unrestricted;
+    private Avalonia.Controls.ScrollViewer? templateScrollViewer;
 
     internal long? PermissionRevision(AvaloniaEdit.Editing.IReadOnlySectionProvider provider) =>
         ReferenceEquals(provider, unrestricted) ? 0L : (provider as IRevisionedSectionProvider)?.PermissionRevision;
@@ -48,6 +49,11 @@ public sealed class WorkbenchTextEditor : TextEditor
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         SearchPanel?.Uninstall();
+        // AvaloniaEdit retains the TextArea across templates. Release the old
+        // template's presenter before the new ScrollViewer adopts that same area.
+        // This changes visual ownership only, never the document or coordinator.
+        if (templateScrollViewer != null) templateScrollViewer.Content = null;
+        templateScrollViewer = e.NameScope.Find("PART_ScrollViewer") as Avalonia.Controls.ScrollViewer;
         base.OnApplyTemplate(e);
         var panel = SearchPanel!;
         // If native DoCanExecute declines an obsolete panel's binding, its

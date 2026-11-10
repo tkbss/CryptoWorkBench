@@ -6,6 +6,12 @@ namespace CryptoScript.Model
     {
         public static FunctionCallExpressionNode Map(CryptoScriptParser.FunctionCallContext context)
         {
+            var token = context.FN().Symbol;
+            return MapCore(context) with { Source = new SourcePosition(token.Line, token.Column + 1) };
+        }
+
+        private static FunctionCallExpressionNode MapCore(CryptoScriptParser.FunctionCallContext context)
+        {
             if (context.secureArguments() is { } secure)
                 return new FunctionCallExpressionNode(context.FN().GetText(), context.GetText(),
                     Array.AsReadOnly(secure.secureArgument().Select(argument =>

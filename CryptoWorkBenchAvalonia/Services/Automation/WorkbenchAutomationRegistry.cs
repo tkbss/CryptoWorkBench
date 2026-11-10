@@ -433,6 +433,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                         job.Result = job.Result with { Variables = variables with { Stale = true } };
                     }
                     var pipeline = new WorkbenchExecutionPipeline {
+                        ExecutionId = job.Id,
                         ValidateJob = () =>
                         {
                             lock (sync) if (!ReferenceEquals(current.Value, job) || !ReferenceEquals(active, job) || job.ResourcesReleased)
