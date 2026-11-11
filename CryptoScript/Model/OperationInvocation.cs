@@ -76,6 +76,7 @@ public sealed class OperationInvocation
 
     public ISemanticDiagnosticSink? DiagnosticSink { get; }
     public CancellationToken CancellationToken { get; }
+    public Ast.SourcePosition? Source { get; init; }
 
     // Compatibility projection for operations and algorithms that still use the legacy string[] contract.
     public string[] Values => arguments.Select(argument => argument.Value!).ToArray();

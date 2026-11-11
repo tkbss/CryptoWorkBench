@@ -67,6 +67,50 @@
           "Avalonia": "12.0.0"
         }
       },
+      "Dock.Avalonia": {
+        "type": "Direct",
+        "requested": "[12.1.0.13, )",
+        "resolved": "12.1.0.13",
+        "contentHash": "3bqkMsexXcxe+u4pvP+LT0oQSKEu9dnL08tnmEV5Sb6UxKJZ2PBQCDtdlOwbA9YlB9ZqmvY2QqL9t4Hwp8dZcg==",
+        "dependencies": {
+          "Avalonia": "12.1.4",
+          "Dock.Controls.DeferredContentControl": "12.1.0.13",
+          "Dock.Controls.ProportionalStackPanel": "12.1.0.13",
+          "Dock.Controls.Recycling": "12.1.0.13",
+          "Dock.MarkupExtension": "12.1.0.13",
+          "Dock.Model": "12.1.0.13",
+          "Dock.Settings": "12.1.0.13"
+        }
+      },
+      "Dock.Avalonia.Themes.Fluent": {
+        "type": "Direct",
+        "requested": "[12.1.0.13, )",
+        "resolved": "12.1.0.13",
+        "contentHash": "MTdVpKdzGN7PXShWnD0qaRyl+qOrXAbe3X5OKEOTcq/Pty9lHRtQlhjKScpLjIwZM19GFL2CuI/dJ6ySX0wEaQ==",
+        "dependencies": {
+          "Avalonia": "12.1.4",
+          "Dock.Avalonia": "12.1.0.13"
+        }
+      },
+      "Dock.Model.Mvvm": {
+        "type": "Direct",
+        "requested": "[12.1.0.13, )",
+        "resolved": "12.1.0.13",
+        "contentHash": "yL3o43uAhOMNyGczG72BE6fV8reWbmS8RsuppCcFIo3c6UduioC/ApsKdOnBpETsL1z92gv0Y9YosV0ZHqe4rg==",
+        "dependencies": {
+          "CommunityToolkit.Mvvm": "8.4.0",
+          "Dock.Model": "12.1.0.13"
+        }
+      },
+      "Dock.Serializer.SystemTextJson": {
+        "type": "Direct",
+        "requested": "[12.1.0.13, )",
+        "resolved": "12.1.0.13",
+        "contentHash": "SI1Zv+U9QeXFyd/KijEwdjhRBrL9xiD6ARJjyWuoy2PIcQUEqk9cRaTtOzSUh59cPOnqMtNe8g+S6vaRCdz7yw==",
+        "dependencies": {
+          "Dock.Model": "12.1.0.13"
+        }
+      },
       "FluentIcons.Avalonia": {
         "type": "Direct",
         "requested": "[2.1.344, )",
@@ -144,6 +188,66 @@
         "contentHash": "mUmQFWakT0/nrPmi54RETLqkuaY3CkErYMtrrf3A93loy5B+uZonun/9sWhJHwCVYRWdouETIo66cua7MLyMUg==",
         "dependencies": {
           "Avalonia": "12.0.0"
+        }
+      },
+      "CommunityToolkit.Mvvm": {
+        "type": "Transitive",
+        "resolved": "8.4.0",
+        "contentHash": "tqVU8yc/ADO9oiTRyTnwhFN68hCwvkliMierptWOudIAvWY1mWCh5VFh+guwHJmpMwfg0J0rY+yyd5Oy7ty9Uw=="
+      },
+      "Dock.Controls.DeferredContentControl": {
+        "type": "Transitive",
+        "resolved": "12.1.0.13",
+        "contentHash": "IcIgRzXWcDDvnY//1lH33DCz9n6loW8eUGf2NYp4zX5Yp9pMMLSMo4fKjXLLhDcokmfRjm0enIKi6oWDAZCL+Q==",
+        "dependencies": {
+          "Avalonia": "12.1.4"
+        }
+      },
+      "Dock.Controls.ProportionalStackPanel": {
+        "type": "Transitive",
+        "resolved": "12.1.0.13",
+        "contentHash": "+g6Iqf2P7yTxKwQitBwRFOQNM6b3X12BitRnW45JEegQXWbdDxIwKbPvFnxSd31rn7HXE4cwf0iv+F4LDdjhgw==",
+        "dependencies": {
+          "Avalonia": "12.1.4"
+        }
+      },
+      "Dock.Controls.Recycling": {
+        "type": "Transitive",
+        "resolved": "12.1.0.13",
+        "contentHash": "LYGjdMKlob0/BpI+sXgK66KISndTcbFbrXQIQoWEjHHALxeODoeHGufLCk3k82vPQN0jQQwi+mFi8NCpxYJ8FA==",
+        "dependencies": {
+          "Avalonia": "12.1.4",
+          "Dock.Controls.Recycling.Model": "12.1.0.13"
+        }
+      },
+      "Dock.Controls.Recycling.Model": {
+        "type": "Transitive",
+        "resolved": "12.1.0.13",
+        "contentHash": "0rJRdqA3rH2PpFqvt6a+hb6r1Vd6P3MiPIFlmBSH9pjtQhtlkDKLD92TvocqnFcIBC/HcGRmsJI7sL5xpIuXdA=="
+      },
+      "Dock.MarkupExtension": {
+        "type": "Transitive",
+        "resolved": "12.1.0.13",
+        "contentHash": "UzyZ5zU99VEx54hg0tySsr275PfnnDHyd0O88gF+GHMSRPVRbJihYqH0phUyDGHeRb94WuJM6LvidvpjMEPNdg==",
+        "dependencies": {
+          "Avalonia": "12.1.4"
+        }
+      },
+      "Dock.Model": {
+        "type": "Transitive",
+        "resolved": "12.1.0.13",
+        "contentHash": "CK+TY4GX57GDh6Vz4ucc3T4zOKJE9KYarKubULszpinaoYtH/TtcfVlKXpGUJ7Uww3w7hF4d0qX5jpjFvYCKxQ==",
+        "dependencies": {
+          "Dock.Controls.Recycling.Model": "12.1.0.13"
+        }
+      },
+      "Dock.Settings": {
+        "type": "Transitive",
+        "resolved": "12.1.0.13",
+        "contentHash": "3e2G9AFhZ/YcmrjzFTfxbGq9aJufqYUJJlDRdq6Yl2JVY7qolJP2O4pqgcueINGSGg21UGFVe3i0i1/ZcE/6vQ==",
+        "dependencies": {
+          "Avalonia": "12.1.4",
+          "Dock.Model": "12.1.0.13"
         }
       },
       "DryIoc.dll": {

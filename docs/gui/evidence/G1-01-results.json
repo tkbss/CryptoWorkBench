@@ -1,0 +1,1540 @@
+{
+  "date": "2026-11-05",
+  "baselineCommit": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+  "branch": "feature/gui-g1",
+  "dockSourceCommit": "78da173545501e796f37bc8528e9e55d9cbfd991",
+  "prismSourceCommit": "358118cd640d9a22ff8cf21c8ad197fa038b7990",
+  "sdk": "10.0.401",
+  "testRuns": [
+    {
+      "phase": "baseline",
+      "suite": "CryptoScriptUnitTest-Debug",
+      "total": 11535,
+      "passed": 11508,
+      "failed": 0,
+      "notExecuted": 27,
+      "raw": "artifacts/g1/baseline/CryptoScriptUnitTest-Debug.trx"
+    },
+    {
+      "phase": "baseline",
+      "suite": "CryptoScriptUnitTest-Release",
+      "total": 11535,
+      "passed": 11508,
+      "failed": 0,
+      "notExecuted": 27,
+      "raw": "artifacts/g1/baseline/CryptoScriptUnitTest-Release.trx"
+    },
+    {
+      "phase": "baseline",
+      "suite": "CryptoWorkBench.Mcp.Tests-Debug",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "raw": "artifacts/g1/baseline/CryptoWorkBench.Mcp.Tests-Debug.trx"
+    },
+    {
+      "phase": "baseline",
+      "suite": "CryptoWorkBench.Mcp.Tests-Release",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "raw": "artifacts/g1/baseline/CryptoWorkBench.Mcp.Tests-Release.trx"
+    },
+    {
+      "phase": "baseline",
+      "suite": "CryptoWorkBenchGuiTest-Debug",
+      "total": 797,
+      "passed": 797,
+      "failed": 0,
+      "notExecuted": 0,
+      "raw": "artifacts/g1/baseline/CryptoWorkBenchGuiTest-Debug.trx"
+    },
+    {
+      "phase": "baseline",
+      "suite": "CryptoWorkBenchGuiTest-Release",
+      "total": 797,
+      "passed": 797,
+      "failed": 0,
+      "notExecuted": 0,
+      "raw": "artifacts/g1/baseline/CryptoWorkBenchGuiTest-Release.trx"
+    },
+    {
+      "phase": "regression",
+      "suite": "CryptoScriptUnitTest-Debug",
+      "total": 11535,
+      "passed": 11508,
+      "failed": 0,
+      "notExecuted": 27,
+      "raw": "artifacts/g1/regression/CryptoScriptUnitTest-Debug.trx"
+    },
+    {
+      "phase": "regression",
+      "suite": "CryptoScriptUnitTest-Release",
+      "total": 11535,
+      "passed": 11508,
+      "failed": 0,
+      "notExecuted": 27,
+      "raw": "artifacts/g1/regression/CryptoScriptUnitTest-Release.trx"
+    },
+    {
+      "phase": "regression",
+      "suite": "CryptoWorkBench.Mcp.Tests-Debug",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "raw": "artifacts/g1/regression/CryptoWorkBench.Mcp.Tests-Debug.trx"
+    },
+    {
+      "phase": "regression",
+      "suite": "CryptoWorkBench.Mcp.Tests-Release",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "raw": "artifacts/g1/regression/CryptoWorkBench.Mcp.Tests-Release.trx"
+    },
+    {
+      "phase": "regression",
+      "suite": "CryptoWorkBenchGuiTest-Debug",
+      "total": 797,
+      "passed": 797,
+      "failed": 0,
+      "notExecuted": 0,
+      "raw": "artifacts/g1/regression/CryptoWorkBenchGuiTest-Debug.trx"
+    },
+    {
+      "phase": "regression",
+      "suite": "CryptoWorkBenchGuiTest-Release",
+      "total": 797,
+      "passed": 797,
+      "failed": 0,
+      "notExecuted": 0,
+      "raw": "artifacts/g1/regression/CryptoWorkBenchGuiTest-Release.trx"
+    },
+    {
+      "phase": "prototype",
+      "suite": "prototype-Debug",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "tests": [
+        {
+          "name": "SaveRestorePreservesIdsAndRebindsApplicationState",
+          "outcome": "Passed"
+        },
+        {
+          "name": "FloatingLayoutRoundTripRebindsSameDocument",
+          "outcome": "Passed"
+        },
+        {
+          "name": "RetiredEditorVisualCanBeCollectedWhileDocumentLives",
+          "outcome": "Passed"
+        },
+        {
+          "name": "MovingToolsDoesNotDuplicateState",
+          "outcome": "Passed"
+        },
+        {
+          "name": "InvalidIdentityLayoutLeavesCurrentWorkspaceIntact",
+          "outcome": "Passed"
+        },
+        {
+          "name": "FloatRedockPreservesDocumentTextCaretAndLogicalIdentity",
+          "outcome": "Passed"
+        },
+        {
+          "name": "LayoutHasDocumentAndTwoDistinctTools",
+          "outcome": "Passed"
+        },
+        {
+          "name": "ClosingFloatKeepsSingletonAlive",
+          "outcome": "Passed"
+        },
+        {
+          "name": "WholeToolGroupCanReturnAfterItsMainAnchorWasMoved",
+          "outcome": "Passed"
+        },
+        {
+          "name": "ShutdownReleasesHostsViewsAndDocumentSubscriptions",
+          "outcome": "Passed"
+        },
+        {
+          "name": "PrismResolvesSingletonsAndSharedState",
+          "outcome": "Passed"
+        },
+        {
+          "name": "ActivationSelectsDockable",
+          "outcome": "Passed"
+        }
+      ],
+      "raw": "artifacts/g1/verified/prototype-Debug.trx"
+    },
+    {
+      "phase": "prototype",
+      "suite": "prototype-Release",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "tests": [
+        {
+          "name": "RetiredEditorVisualCanBeCollectedWhileDocumentLives",
+          "outcome": "Passed"
+        },
+        {
+          "name": "InvalidIdentityLayoutLeavesCurrentWorkspaceIntact",
+          "outcome": "Passed"
+        },
+        {
+          "name": "FloatRedockPreservesDocumentTextCaretAndLogicalIdentity",
+          "outcome": "Passed"
+        },
+        {
+          "name": "MovingToolsDoesNotDuplicateState",
+          "outcome": "Passed"
+        },
+        {
+          "name": "LayoutHasDocumentAndTwoDistinctTools",
+          "outcome": "Passed"
+        },
+        {
+          "name": "FloatingLayoutRoundTripRebindsSameDocument",
+          "outcome": "Passed"
+        },
+        {
+          "name": "ClosingFloatKeepsSingletonAlive",
+          "outcome": "Passed"
+        },
+        {
+          "name": "ShutdownReleasesHostsViewsAndDocumentSubscriptions",
+          "outcome": "Passed"
+        },
+        {
+          "name": "SaveRestorePreservesIdsAndRebindsApplicationState",
+          "outcome": "Passed"
+        },
+        {
+          "name": "PrismResolvesSingletonsAndSharedState",
+          "outcome": "Passed"
+        },
+        {
+          "name": "ActivationSelectsDockable",
+          "outcome": "Passed"
+        },
+        {
+          "name": "WholeToolGroupCanReturnAfterItsMainAnchorWasMoved",
+          "outcome": "Passed"
+        }
+      ],
+      "raw": "artifacts/g1/verified/prototype-Release.trx"
+    }
+  ],
+  "nonExecutedBaselineDebug": [
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"expired\")",
+      "reason": "OneTimeSetUp: Requires installed Codex."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential",
+      "reason": "Requires installed Codex and the built desktop adapter."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest",
+      "reason": "Requires installed Codex and the built desktop adapter."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"ssl\")",
+      "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"different\")",
+      "reason": "OneTimeSetUp: Requires installed Codex."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"isolated\")",
+      "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"bundle\")",
+      "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexCompletesDesktopAesAndRejectsTakeover",
+      "reason": "Requires a paired disposable desktop, local execution approval, and subsequent GUI disconnect."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexDiscoversAndCallsStatus",
+      "reason": "Requires CRYPTOWORKBENCH_CODEX_PATH pointing to the installed local Codex executable."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexCompletesDesktopAes",
+      "reason": "Requires a paired disposable desktop editor with the exact B4 AES seed and local execution approval."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexRejectsPortTakeoverOverHttps",
+      "reason": "Requires installed Codex."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"missing\")",
+      "reason": "OneTimeSetUp: Requires installed Codex."
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"proxy\")",
+      "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",False)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-563ff6834f0344dbb62bc9e593398b2a\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SymlinkRejected",
+      "reason": "Symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F03-0ee7d0060fd8490ca7419858a53cc280\\input.bin'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",False)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-3a834eff07f14f4fa758f80359bb5daf\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",True)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-4c636353793843f6978f1cc6f4135994\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "TargetSymlinksIncludingDanglingLinksAreRejected(True)",
+      "reason": "Symbolic-link creation privilege is unavailable."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SymlinksRejected",
+      "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWM-9d95e34b8af741cb854fc07808d74fea\\alias.cwm'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",True)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-e4550b1898184f17a4a0b999e222863f\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "OpenAtTraversesDirectoriesAndGetPathReturnsBoundDirectory",
+      "reason": "Darwin native ABI regression."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceSymlinkIsRejected",
+      "reason": "Symbolic link privilege unavailable."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "NativeFailurePreservesErrnoAndAllowsCleanup",
+      "reason": "Darwin native ABI regression."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "OpenAtCreatesPrivateFileAndLinkAtPublishesWithoutOverwrite",
+      "reason": "Darwin native ABI regression."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "MeasureLocalHardware",
+      "reason": "Manual hardware measurement; no timing assertions or routine CI execution."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "OpenAtExclusiveCreatePreservesExistingSymlinkAndTarget",
+      "reason": "Darwin native ABI regression."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SymlinkFileOrAncestorRejected(False)",
+      "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-eaa58a9acc5c4045842dc409ce8389f9\\input.bin'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "OpenAtReadsSourceThroughBoundDirectory",
+      "reason": "Darwin native ABI regression."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "GetPathTracksRenamedOpenDirectory",
+      "reason": "Darwin native ABI regression."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorSymlinksAreRejected(False)",
+      "reason": "Symbolic link privilege unavailable."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",False)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-276b07f5f66c47f2a8521d2d268b40fa\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "MacOsInheritedExtendedAclIsRemovedBeforePublication",
+      "reason": "Darwin extended ACLs."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SymlinkFileOrAncestorRejected(True)",
+      "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-1b26e3a252d9433bb7afdbc360c51fd2\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",True)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-12dad583a94c4ca781f375db8b655758\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",True)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-603324afd9e94dd68f02607c57850842\\link'."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "OpenAtRejectsDirectoryAndSourceSymlinks",
+      "reason": "Darwin native ABI regression."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorSymlinksAreRejected(True)",
+      "reason": "Symbolic link privilege unavailable."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "NativePublicationDoesNotFollowLateSymlink",
+      "reason": "Symbolic-link creation privilege is unavailable."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "TargetSymlinksIncludingDanglingLinksAreRejected(False)",
+      "reason": "Symbolic-link creation privilege is unavailable."
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",False)",
+      "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-9e97ea88d18c48308e08cf87f8e24ab2\\link'."
+    }
+  ],
+  "native": [
+    {
+      "configuration": "Debug",
+      "result": {
+        "platform": "Microsoft Windows 10.0.26200",
+        "framework": ".NET 10.0.12",
+        "headless": false,
+        "utc": "2026-11-05T19:45:00.9759102+01:00",
+        "results": [
+          {
+            "name": "native-main-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "native-main-foreground",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "prism-region-host",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "494, 494",
+              "child": "2169, 524"
+            }
+          },
+          {
+            "name": "float-0-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-0-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 5245418,
+              "actual": 5245418
+            }
+          },
+          {
+            "name": "redock-0-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-0-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-0-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "494, 494",
+              "child": "2169, 524"
+            }
+          },
+          {
+            "name": "float-1-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-1-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 5310954,
+              "actual": 5310954
+            }
+          },
+          {
+            "name": "redock-1-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-1-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-1-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "494, 494",
+              "child": "2169, 524"
+            }
+          },
+          {
+            "name": "float-2-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-2-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 5376490,
+              "actual": 5376490
+            }
+          },
+          {
+            "name": "redock-2-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-2-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-2-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "494, 494",
+              "child": "2169, 524"
+            }
+          },
+          {
+            "name": "float-3-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-3-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 5442026,
+              "actual": 5442026
+            }
+          },
+          {
+            "name": "redock-3-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-3-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-3-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "494, 494",
+              "child": "2169, 524"
+            }
+          },
+          {
+            "name": "float-4-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-4-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 5507562,
+              "actual": 5507562
+            }
+          },
+          {
+            "name": "redock-4-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-4-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-4-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "floating-tool-close",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "singleton-survives-tool-close",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "layout-restores-context",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "main-close-closes-native-floats",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "shutdown-detaches-editor",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "shutdown-unregisters-controls",
+            "passed": true,
+            "detail": {
+              "controls": 0,
+              "windows": 0
+            }
+          },
+          {
+            "name": "document-disposed-once",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "lifecycle": {
+          "InstanceId": "9e9d60b0-f917-4423-b55f-80e018346dac",
+          "AttachCount": 14,
+          "DetachCount": 14,
+          "ViewCount": 13,
+          "AttachedViews": 0,
+          "DisposeCount": 1
+        }
+      }
+    },
+    {
+      "configuration": "Release",
+      "result": {
+        "platform": "Microsoft Windows 10.0.26200",
+        "framework": ".NET 10.0.12",
+        "headless": false,
+        "utc": "2026-11-05T19:45:31.970729+01:00",
+        "results": [
+          {
+            "name": "native-main-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "native-main-foreground",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "prism-region-host",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "380, 380",
+              "child": "2055, 410"
+            }
+          },
+          {
+            "name": "float-0-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-0-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-0-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 986276,
+              "actual": 986276
+            }
+          },
+          {
+            "name": "redock-0-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-0-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-0-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "380, 380",
+              "child": "2055, 410"
+            }
+          },
+          {
+            "name": "float-1-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-1-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-1-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 920744,
+              "actual": 920744
+            }
+          },
+          {
+            "name": "redock-1-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-1-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-1-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "380, 380",
+              "child": "2055, 410"
+            }
+          },
+          {
+            "name": "float-2-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-2-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-2-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 986280,
+              "actual": 986280
+            }
+          },
+          {
+            "name": "redock-2-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-2-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-2-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "380, 380",
+              "child": "2055, 410"
+            }
+          },
+          {
+            "name": "float-3-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-3-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-3-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 1051816,
+              "actual": 1051816
+            }
+          },
+          {
+            "name": "redock-3-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-3-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-3-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-distinct-native-handle",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-avalonia-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-win32-owner",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-independent-position",
+            "passed": true,
+            "detail": {
+              "main": "380, 380",
+              "child": "2055, 410"
+            }
+          },
+          {
+            "name": "float-4-text-caret-identity",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "float-4-focus",
+            "passed": true,
+            "detail": {
+              "editorFocus": true,
+              "windowActive": true
+            }
+          },
+          {
+            "name": "float-4-foreground",
+            "passed": true,
+            "detail": {
+              "expected": 1117352,
+              "actual": 1117352
+            }
+          },
+          {
+            "name": "redock-4-closed-floating",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-4-editor-state",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "redock-4-focus",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "floating-tool-close",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "singleton-survives-tool-close",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "layout-restores-context",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "main-close-closes-native-floats",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "shutdown-detaches-editor",
+            "passed": true,
+            "detail": null
+          },
+          {
+            "name": "shutdown-unregisters-controls",
+            "passed": true,
+            "detail": {
+              "controls": 0,
+              "windows": 0
+            }
+          },
+          {
+            "name": "document-disposed-once",
+            "passed": true,
+            "detail": null
+          }
+        ],
+        "lifecycle": {
+          "InstanceId": "f052f10b-f06c-4248-87de-985cc6643e3a",
+          "AttachCount": 14,
+          "DetachCount": 14,
+          "ViewCount": 13,
+          "AttachedViews": 0,
+          "DisposeCount": 1
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "Avalonia.AvaloniaEdit",
+      "type": "Direct",
+      "version": "12.0.0"
+    },
+    {
+      "id": "Avalonia.Desktop",
+      "type": "Direct",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.Markup.Xaml.Loader",
+      "type": "Direct",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.Themes.Fluent",
+      "type": "Direct",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Dock.Avalonia",
+      "type": "Direct",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Avalonia.Themes.Fluent",
+      "type": "Direct",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Model.Mvvm",
+      "type": "Direct",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Serializer.SystemTextJson",
+      "type": "Direct",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Avalonia",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.Angle.Windows.Natives",
+      "type": "Transitive",
+      "version": "2.1.27548.20260419"
+    },
+    {
+      "id": "Avalonia.BuildServices",
+      "type": "Transitive",
+      "version": "11.3.2"
+    },
+    {
+      "id": "Avalonia.FreeDesktop",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.FreeDesktop.AtSpi",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.HarfBuzz",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.Native",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.Remote.Protocol",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.Skia",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.Win32",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "Avalonia.X11",
+      "type": "Transitive",
+      "version": "12.1.4"
+    },
+    {
+      "id": "CommunityToolkit.Mvvm",
+      "type": "Transitive",
+      "version": "8.4.0"
+    },
+    {
+      "id": "Dock.Controls.DeferredContentControl",
+      "type": "Transitive",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Controls.ProportionalStackPanel",
+      "type": "Transitive",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Controls.Recycling",
+      "type": "Transitive",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Controls.Recycling.Model",
+      "type": "Transitive",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.MarkupExtension",
+      "type": "Transitive",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Model",
+      "type": "Transitive",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "Dock.Settings",
+      "type": "Transitive",
+      "version": "12.1.0.13"
+    },
+    {
+      "id": "DryIoc.dll",
+      "type": "Transitive",
+      "version": "5.4.3"
+    },
+    {
+      "id": "HarfBuzzSharp",
+      "type": "Transitive",
+      "version": "8.3.1.3"
+    },
+    {
+      "id": "HarfBuzzSharp.NativeAssets.Linux",
+      "type": "Transitive",
+      "version": "8.3.1.3"
+    },
+    {
+      "id": "HarfBuzzSharp.NativeAssets.macOS",
+      "type": "Transitive",
+      "version": "8.3.1.3"
+    },
+    {
+      "id": "HarfBuzzSharp.NativeAssets.WebAssembly",
+      "type": "Transitive",
+      "version": "8.3.1.3"
+    },
+    {
+      "id": "HarfBuzzSharp.NativeAssets.Win32",
+      "type": "Transitive",
+      "version": "8.3.1.3"
+    },
+    {
+      "id": "MicroCom.Runtime",
+      "type": "Transitive",
+      "version": "0.11.6"
+    },
+    {
+      "id": "Microsoft.Extensions.DependencyInjection.Abstractions",
+      "type": "Transitive",
+      "version": "8.0.1"
+    },
+    {
+      "id": "Microsoft.NETFramework.ReferenceAssemblies",
+      "type": "Transitive",
+      "version": "1.0.3"
+    },
+    {
+      "id": "Microsoft.NETFramework.ReferenceAssemblies.net461",
+      "type": "Transitive",
+      "version": "1.0.3"
+    },
+    {
+      "id": "Microsoft.Sbom.Targets",
+      "type": "Transitive",
+      "version": "4.1.5"
+    },
+    {
+      "id": "Prism.Container.Abstractions",
+      "type": "Transitive",
+      "version": "9.0.114"
+    },
+    {
+      "id": "Prism.Container.DryIoc",
+      "type": "Transitive",
+      "version": "9.0.114"
+    },
+    {
+      "id": "SkiaSharp",
+      "type": "Transitive",
+      "version": "3.119.4"
+    },
+    {
+      "id": "SkiaSharp.NativeAssets.Linux",
+      "type": "Transitive",
+      "version": "3.119.4"
+    },
+    {
+      "id": "SkiaSharp.NativeAssets.macOS",
+      "type": "Transitive",
+      "version": "3.119.4"
+    },
+    {
+      "id": "SkiaSharp.NativeAssets.WebAssembly",
+      "type": "Transitive",
+      "version": "3.119.4"
+    },
+    {
+      "id": "SkiaSharp.NativeAssets.Win32",
+      "type": "Transitive",
+      "version": "3.119.4"
+    },
+    {
+      "id": "System.Configuration.ConfigurationManager",
+      "type": "Transitive",
+      "version": "10.0.0"
+    },
+    {
+      "id": "System.Diagnostics.EventLog",
+      "type": "Transitive",
+      "version": "10.0.0"
+    },
+    {
+      "id": "System.Security.Cryptography.ProtectedData",
+      "type": "Transitive",
+      "version": "10.0.0"
+    },
+    {
+      "id": "Tmds.DBus.Protocol",
+      "type": "Transitive",
+      "version": "0.94.1"
+    },
+    {
+      "id": "prism.avalonia",
+      "type": "Project",
+      "version": null
+    },
+    {
+      "id": "prism.core",
+      "type": "Project",
+      "version": null
+    },
+    {
+      "id": "prism.dryioc.avalonia",
+      "type": "Project",
+      "version": null
+    },
+    {
+      "id": "prism.events",
+      "type": "Project",
+      "version": null
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+      "sha256": "3D68F8601C46664E9E5E7B0A28EC0F80A97F2B6646C2211A304BF5EB2D77597D"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/NativeProbe.cs",
+      "sha256": "7011700C7EDAA7293B0B237E7BE5774DCF8E8141A3A995E0C2C37FA9208194E5"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+      "sha256": "2F373F5A7E9A1A6BC9877602DB4E6C19182ACAFB03C6C94F02967E4D23F02AA4"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Program.cs",
+      "sha256": "5B073ED25B44101735D739255589DC0D1A5EE0864B99489D1479DF66569DE467"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/README.md",
+      "sha256": "D3D48790B195A93CB065AC0E9008A246CDF4E4DD379CE7C0AB7FD45EB440B713"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Session.cs",
+      "sha256": "139A65C11E74CE1022478B764D98527C1FD0EDB09D7BE84C2E20C048BCD6EC1F"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Tests/DockTests.cs",
+      "sha256": "9F3CB56EF36A434630D75725DFA5165D094562417928A74CCB8E16B313CF58E3"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+      "sha256": "B0EFBC6D644F68551984F84829D7D28F285ACF26AF14407DCAA5C2777F9A4A87"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Tests/packages.lock.json",
+      "sha256": "5BEB6552042194EE0DF6B66988FCECC9BF65CC1195E96CFC26D53B89F82352F5"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Validate.ps1",
+      "sha256": "74E81F39A6D401228A8827A6BB1EDF83B3A92EDC2B912A17338F8ECAC16531D3"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Views.cs",
+      "sha256": "F68F989F367094F758B241BF1E48EE390225448394223D2DFBA56840FBA47B94"
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/packages.lock.json",
+      "sha256": "E22CF10C0E534616890A860205A7D595E4953D9F935F92D947569D4F8AC5ED3D"
+    }
+  ],
+  "earlierNativeBackgroundRun": {
+    "path": "artifacts/g1/final-v3",
+    "eachConfigurationPassed": 54,
+    "eachConfigurationFailed": 5,
+    "reason": "Win32 foreground remained at another app while Avalonia reported active; bounded initial activation gate added."
+  },
+  "nativeBindingDiagnostics": {
+    "countPerFinalRun": 90,
+    "limitations": [
+      "Dock host overlay IHostOverlayServices cast bindings",
+      "Null Document.Text watermark while detaching",
+      "Null Window.Topmost while closing"
+    ]
+  },
+  "platformLimits": [
+    "No Linux/WSL runner",
+    "No macOS runner",
+    "Cross-window mouse redock not executed: Computer Use drag endpoint must stay within selected window"
+  ],
+  "buildSummaries": [
+    {
+      "phase": "baseline",
+      "configuration": "Debug",
+      "avaloniaWarnings": 84,
+      "rootWarnings": 0,
+      "errors": 0
+    },
+    {
+      "phase": "baseline",
+      "configuration": "Release",
+      "avaloniaWarnings": 90,
+      "rootWarnings": 0,
+      "errors": 0
+    },
+    {
+      "phase": "regression",
+      "configuration": "Debug",
+      "avaloniaWarnings": 84,
+      "rootWarnings": 0,
+      "errors": 0
+    },
+    {
+      "phase": "regression",
+      "configuration": "Release",
+      "avaloniaWarnings": 84,
+      "rootWarnings": 0,
+      "errors": 0
+    }
+  ]
+}

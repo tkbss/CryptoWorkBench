@@ -1,0 +1,1600 @@
+{
+  "task": "G1-A04-R4",
+  "ownerAuthorized": true,
+  "branch": "feature/gui-g1",
+  "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+  "decision": "CONDITIONAL GO",
+  "matrix": [
+    {
+      "suite": "CryptoWorkBenchGuiTest",
+      "configuration": "Debug",
+      "total": 1103,
+      "passed": 1103,
+      "failed": 0,
+      "notExecuted": 0,
+      "removed": [],
+      "added": [
+        {
+          "name": "FailureAfterValidMovePreservesErrorWithoutLatchingFault",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "FailureBeforeMutationDoesNotFaultValidLayout",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "GroupFailureIsValidatedAfterItsExistingCompletionScope",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(False)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(True)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "UnverifiableEndStateLatchesFaultWithoutReplacingOriginal",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        }
+      ],
+      "changedOutcomes": [
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "before": "Failed",
+          "after": "Passed"
+        }
+      ],
+      "retainedA04": [
+        {
+          "name": "ClosingMustRejectIndependentOtherHostClose(False)",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "LeaseRejectsIndependentFactoryAndManagerBeforeMutation",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "LegitimateSourceCleanupCompletesInsideObserver",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PropertyChangedRejectsReset",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PublicHookDisposeExceptionMasksOriginalManagerException",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PublicHookNullScopeDoesNotVetoManagerMutation",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        }
+      ],
+      "a03Passed": 1087,
+      "rawRemoved": [],
+      "rawAdded": [
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|FailureAfterValidMovePreservesErrorWithoutLatchingFault|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|FailureBeforeMutationDoesNotFaultValidLayout|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|GroupFailureIsValidatedAfterItsExistingCompletionScope|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|RealTraceWriteFailureDoesNotInterruptMove(False)|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|RealTraceWriteFailureDoesNotInterruptMove(True)|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|UnverifiableEndStateLatchesFaultWithoutReplacingOriginal|#1"
+      ],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/gui-final-accepted/CryptoWorkBenchGuiTest-Debug.trx"
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "configuration": "Debug",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "retainedA04": [],
+      "a03Passed": null,
+      "rawRemoved": [
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:17:44 +00:00, DeadlineAt = 09/11/2026 17:18:14 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:17:44 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:17:44 +00:00, DeadlineAt = 09/11/2026 17:18:14 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:17:44 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:17:44 +00:00, DeadlineAt = 09/11/2026 17:18:14 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:17:44 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:17:44 +00:00, DeadlineAt = 09/11/2026 17:18:14 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:17:44 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:17:44 +00:00, DeadlineAt = 09/11/2026 17:18:14 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:17:44 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:17:44 +00:00, DeadlineAt = 09/11/2026 17:18:14 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:17:44 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:17:44 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1"
+      ],
+      "rawAdded": [
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:23:39 +00:00, DeadlineAt = 09/11/2026 18:24:09 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:23:39 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:23:39 +00:00, DeadlineAt = 09/11/2026 18:24:09 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:23:39 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:23:39 +00:00, DeadlineAt = 09/11/2026 18:24:09 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:23:39 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:23:39 +00:00, DeadlineAt = 09/11/2026 18:24:09 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:23:39 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:23:39 +00:00, DeadlineAt = 09/11/2026 18:24:09 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:23:39 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:23:39 +00:00, DeadlineAt = 09/11/2026 18:24:09 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:23:39 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:23:39 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1"
+      ],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/regression/CryptoWorkBench.Mcp.Tests-Debug.trx"
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "configuration": "Debug",
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "retainedA04": [],
+      "a03Passed": null,
+      "rawRemoved": [],
+      "rawAdded": [],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/regression/CryptoScriptUnitTest-Debug.trx"
+    },
+    {
+      "suite": "G1DockFeasibility.Tests",
+      "configuration": "Debug",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "retainedA04": [],
+      "a03Passed": null,
+      "rawRemoved": [],
+      "rawAdded": [],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/regression/G1DockFeasibility.Tests-Debug.trx"
+    },
+    {
+      "suite": "CryptoWorkBenchGuiTest",
+      "configuration": "Release",
+      "total": 1103,
+      "passed": 1103,
+      "failed": 0,
+      "notExecuted": 0,
+      "removed": [],
+      "added": [
+        {
+          "name": "FailureAfterValidMovePreservesErrorWithoutLatchingFault",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "FailureBeforeMutationDoesNotFaultValidLayout",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "GroupFailureIsValidatedAfterItsExistingCompletionScope",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(False)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(True)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "UnverifiableEndStateLatchesFaultWithoutReplacingOriginal",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        }
+      ],
+      "changedOutcomes": [
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "before": "Failed",
+          "after": "Passed"
+        }
+      ],
+      "retainedA04": [
+        {
+          "name": "ClosingMustRejectIndependentOtherHostClose(False)",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "LeaseRejectsIndependentFactoryAndManagerBeforeMutation",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "LegitimateSourceCleanupCompletesInsideObserver",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PropertyChangedRejectsReset",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PublicHookDisposeExceptionMasksOriginalManagerException",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PublicHookNullScopeDoesNotVetoManagerMutation",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        }
+      ],
+      "a03Passed": 1087,
+      "rawRemoved": [],
+      "rawAdded": [
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|FailureAfterValidMovePreservesErrorWithoutLatchingFault|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|FailureBeforeMutationDoesNotFaultValidLayout|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|GroupFailureIsValidatedAfterItsExistingCompletionScope|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|RealTraceWriteFailureDoesNotInterruptMove(False)|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|RealTraceWriteFailureDoesNotInterruptMove(True)|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure|#1",
+        "CryptoWorkBenchGuiTest.DockPartialFailureTests|UnverifiableEndStateLatchesFaultWithoutReplacingOriginal|#1"
+      ],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/gui-final-accepted/CryptoWorkBenchGuiTest-Release.trx"
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "configuration": "Release",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "retainedA04": [],
+      "a03Passed": null,
+      "rawRemoved": [
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:20:42 +00:00, DeadlineAt = 09/11/2026 17:21:12 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:20:42 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:20:42 +00:00, DeadlineAt = 09/11/2026 17:21:12 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:20:42 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:20:42 +00:00, DeadlineAt = 09/11/2026 17:21:12 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:20:42 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:20:42 +00:00, DeadlineAt = 09/11/2026 17:21:12 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:20:42 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:20:42 +00:00, DeadlineAt = 09/11/2026 17:21:12 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:20:42 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 17:20:42 +00:00, DeadlineAt = 09/11/2026 17:21:12 +00:00, StartedAt = , FinishedAt = 09/11/2026 17:20:42 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 17:20:42 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1"
+      ],
+      "rawAdded": [
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:26:47 +00:00, DeadlineAt = 09/11/2026 18:27:17 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:26:47 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:26:47 +00:00, DeadlineAt = 09/11/2026 18:27:17 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:26:47 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:26:47 +00:00, DeadlineAt = 09/11/2026 18:27:17 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:26:47 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RequiredNullableAndUnknownFields(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:26:47 +00:00, DeadlineAt = 09/11/2026 18:27:17 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:26:47 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(Reply { SchemaVersion = 1, InstanceId = 12345678-1234-1234-1234-123456789abc, Ok = True, Data = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:26:47 +00:00, DeadlineAt = 09/11/2026 18:27:17 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:26:47 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = ExecutionResult { ExecutionId = 12345678-1234-1234-1234-123456789abc, State = Completed, AcceptedAt = 09/11/2026 18:26:47 +00:00, DeadlineAt = 09/11/2026 18:27:17 +00:00, StartedAt = , FinishedAt = 09/11/2026 18:26:47 +00:00, CancellationReason = , Source = Text, EditorId = , SourceRevision = , StateVersion = 1, HasErrors = False, Effects = None, Diagnostics = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Diagnostic], Outputs = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.Output], Variables = VariableSnapshot { StateVersion = 1, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Truncated = False, Error =  }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(ResultV2 { ContractVersion = 2, InstanceId = 12345678-1234-1234-1234-123456789abc, Result = VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False }, Error =  })|#1",
+        "CryptoWorkBench.Mcp.Tests.ContractTests|RoundtripAndSchema(VariableSnapshot { StateVersion = 0, CapturedAt = 09/11/2026 18:26:47 +00:00, Stale = False, Items = System.Collections.Immutable.ImmutableArray`1[CryptoWorkBench.Automation.Abstractions.VariableInfo], Truncated = False })|#1"
+      ],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/regression/CryptoWorkBench.Mcp.Tests-Release.trx"
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "configuration": "Release",
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "retainedA04": [],
+      "a03Passed": null,
+      "rawRemoved": [],
+      "rawAdded": [],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/regression/CryptoScriptUnitTest-Release.trx"
+    },
+    {
+      "suite": "G1DockFeasibility.Tests",
+      "configuration": "Release",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "retainedA04": [],
+      "a03Passed": null,
+      "rawRemoved": [],
+      "rawAdded": [],
+      "normalization": "UTC display timestamps only in ContractTests VariableSnapshot/ExecutionResult arguments; no source or test modification",
+      "evidence": "artifacts/g1-a04-r4/regression/G1DockFeasibility.Tests-Release.trx"
+    }
+  ],
+  "native": [
+    {
+      "group": "native-critical-development",
+      "name": "Debug-partial-failure-1",
+      "processId": 18364,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-critical-development\\Debug-partial-failure-1.json"
+    },
+    {
+      "group": "native-critical-development",
+      "name": "Debug-partial-failure-2",
+      "processId": 27224,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-critical-development\\Debug-partial-failure-2.json"
+    },
+    {
+      "group": "native-critical-development",
+      "name": "Debug-operation-contract-1",
+      "processId": 19508,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-critical-development\\Debug-operation-contract-1.json"
+    },
+    {
+      "group": "native-critical-development",
+      "name": "Debug-operation-contract-2",
+      "processId": 20672,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-critical-development\\Debug-operation-contract-2.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-partial-failure-1",
+      "processId": 19264,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 22,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-partial-failure-1.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-partial-failure-2",
+      "processId": 13136,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 22,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-partial-failure-2.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-layout-roleslayout layout-restart layout-invalid redock editor integration",
+      "processId": 25156,
+      "exitCode": 2,
+      "timedOut": false,
+      "passed": null,
+      "failed": null,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-layout-roleslayout layout-restart layout-invalid redock editor integration.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-operation-contract-1",
+      "processId": 23684,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-operation-contract-1.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-operation-contract-2",
+      "processId": 35792,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-operation-contract-2.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-single-save",
+      "processId": 42140,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-single-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-single-current",
+      "processId": 39616,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-single-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-single-legacy",
+      "processId": 28932,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-single-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-multiple-save",
+      "processId": 3796,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-multiple-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-multiple-current",
+      "processId": 2084,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-multiple-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-multiple-legacy",
+      "processId": 22404,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-multiple-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-anchor-save",
+      "processId": 12976,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-anchor-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-anchor-current",
+      "processId": 24496,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-anchor-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-anchor-legacy",
+      "processId": 32240,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-anchor-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-document-save",
+      "processId": 42376,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-document-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-document-current",
+      "processId": 29164,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-document-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-document-legacy",
+      "processId": 36140,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-document-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-document-anchor-save",
+      "processId": 41864,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-document-anchor-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-document-anchor-current",
+      "processId": 13132,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-document-anchor-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-document-anchor-legacy",
+      "processId": 12244,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-document-anchor-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-nested-save",
+      "processId": 25200,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-nested-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-nested-current",
+      "processId": 23008,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-nested-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-nested-legacy",
+      "processId": 18348,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-nested-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-historical-1",
+      "processId": 4112,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-historical-1.json"
+    },
+    {
+      "group": "native",
+      "name": "Debug-cleanup-historical-2",
+      "processId": 37296,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-cleanup-historical-2.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-partial-failure-1",
+      "processId": 31292,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 22,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-partial-failure-1.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-partial-failure-2",
+      "processId": 16980,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 22,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-partial-failure-2.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-layout-roleslayout layout-restart layout-invalid redock editor integration",
+      "processId": 22268,
+      "exitCode": 2,
+      "timedOut": false,
+      "passed": null,
+      "failed": null,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-layout-roleslayout layout-restart layout-invalid redock editor integration.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-operation-contract-1",
+      "processId": 24924,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-operation-contract-1.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-operation-contract-2",
+      "processId": 42044,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 21,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-operation-contract-2.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-single-save",
+      "processId": 24792,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-single-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-single-current",
+      "processId": 40240,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-single-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-single-legacy",
+      "processId": 13060,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-single-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-multiple-save",
+      "processId": 26068,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-multiple-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-multiple-current",
+      "processId": 36436,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-multiple-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-multiple-legacy",
+      "processId": 13904,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-multiple-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-anchor-save",
+      "processId": 36896,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-anchor-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-anchor-current",
+      "processId": 40964,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-anchor-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-anchor-legacy",
+      "processId": 30856,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-anchor-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-document-save",
+      "processId": 16504,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-document-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-document-current",
+      "processId": 19700,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-document-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-document-legacy",
+      "processId": 37032,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-document-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-document-anchor-save",
+      "processId": 13808,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-document-anchor-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-document-anchor-current",
+      "processId": 31540,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-document-anchor-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-document-anchor-legacy",
+      "processId": 22576,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-document-anchor-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-nested-save",
+      "processId": 27612,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 14,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-nested-save.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-nested-current",
+      "processId": 38220,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-nested-current.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-nested-legacy",
+      "processId": 14616,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 29,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-nested-legacy.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-historical-1",
+      "processId": 26392,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-historical-1.json"
+    },
+    {
+      "group": "native",
+      "name": "Release-cleanup-historical-2",
+      "processId": 41284,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-cleanup-historical-2.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Debug-layout-roles",
+      "processId": 3652,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 194,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Debug-layout-roles.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Debug-layout",
+      "processId": 17416,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 48,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Debug-layout.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Debug-layout-restart",
+      "processId": 4816,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 56,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Debug-layout-restart.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Debug-layout-invalid",
+      "processId": 13412,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 49,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Debug-layout-invalid.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Debug-redock",
+      "processId": 5216,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 134,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Debug-redock.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Debug-editor",
+      "processId": 41336,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 54,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Debug-editor.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Debug-integration",
+      "processId": 13172,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Debug-integration.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Release-layout-roles",
+      "processId": 16628,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 194,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Release-layout-roles.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Release-layout",
+      "processId": 9816,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 48,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Release-layout.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Release-layout-restart",
+      "processId": 16072,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 56,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Release-layout-restart.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Release-layout-invalid",
+      "processId": 33808,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 49,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Release-layout-invalid.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Release-redock",
+      "processId": 6232,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 134,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Release-redock.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Release-editor",
+      "processId": 40724,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 54,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Release-editor.json"
+    },
+    {
+      "group": "native-legacy",
+      "name": "Release-integration",
+      "processId": 40608,
+      "exitCode": 0,
+      "timedOut": false,
+      "passed": 28,
+      "failed": 0,
+      "failedChecks": [],
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native-legacy\\Release-integration.json"
+    }
+  ],
+  "nativeSummary": {
+    "acceptanceRuns": 62,
+    "passedRuns": 62,
+    "failedRuns": 0,
+    "dispatchFailures": [
+      {
+        "group": "native",
+        "name": "Debug-layout-roleslayout layout-restart layout-invalid redock editor integration",
+        "processId": 25156,
+        "exitCode": 2,
+        "timedOut": false,
+        "passed": null,
+        "failed": null,
+        "failedChecks": [],
+        "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Debug-layout-roleslayout layout-restart layout-invalid redock editor integration.json"
+      },
+      {
+        "group": "native",
+        "name": "Release-layout-roleslayout layout-restart layout-invalid redock editor integration",
+        "processId": 22268,
+        "exitCode": 2,
+        "timedOut": false,
+        "passed": null,
+        "failed": null,
+        "failedChecks": [],
+        "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a04-r4\\native\\Release-layout-roleslayout layout-restart layout-invalid redock editor integration.json"
+      }
+    ],
+    "developmentRuns": 4
+  },
+  "repeat": [
+    {
+      "configuration": "Debug",
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "UnverifiableEndStateLatchesFaultWithoutReplacingOriginal",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "FailureBeforeMutationDoesNotFaultValidLayout",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "GroupFailureIsValidatedAfterItsExistingCompletionScope",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "FailureAfterValidMovePreservesErrorWithoutLatchingFault",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(True)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(False)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "UnverifiableEndStateLatchesFaultWithoutReplacingOriginal",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "FailureBeforeMutationDoesNotFaultValidLayout",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "FailureAfterValidMovePreservesErrorWithoutLatchingFault",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(False)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(True)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        },
+        {
+          "name": "GroupFailureIsValidatedAfterItsExistingCompletionScope",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed"
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "baselineSourceCount": 1138,
+    "unchangedSourceCount": 1130,
+    "changed": [
+      "CryptoWorkBenchAvalonia.Desktop/NativeDockWindowTrace.cs",
+      "CryptoWorkBenchAvalonia/Shell/DockLayoutAction.cs",
+      "CryptoWorkBenchAvalonia/Shell/DockLifecycleTrace.cs",
+      "CryptoWorkBenchAvalonia/Shell/DockShellLayout.Persistence.cs",
+      "CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+      "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+      "eng/gui/native/Program.cs",
+      "eng/gui/Validate-G1LayoutRoles.ps1"
+    ],
+    "added": [
+      "CryptoWorkBenchAvalonia/Shell/DockTraceOutput.cs",
+      "CryptoWorkBenchGuiTest/DockPartialFailureNativeProbe.cs",
+      "CryptoWorkBenchGuiTest/DockPartialFailureTests.cs",
+      "docs/gui/evidence/G1-A04-R4-results.json",
+      "docs/gui/G1-A04-R4-partial-failure-correction.md"
+    ],
+    "missing": [],
+    "historicalCount": 12392,
+    "historicalChanged": [],
+    "existingA04TestFileByteIdentical": true,
+    "existingA04NativeProbeByteIdentical": true
+  },
+  "git": {
+    "branch": "feature/gui-g1",
+    "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+    "diffCheckExit": 0,
+    "diffCheckOutput": [],
+    "r4DiffChecks": [
+      {
+        "path": "CryptoWorkBenchAvalonia.Desktop/NativeDockWindowTrace.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockLayoutAction.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockLifecycleTrace.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockShellLayout.Persistence.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "eng/gui/native/Program.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "eng/gui/Validate-G1LayoutRoles.ps1",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockTraceOutput.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockPartialFailureNativeProbe.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockPartialFailureTests.cs",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "docs/gui/evidence/G1-A04-R4-results.json",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "docs/gui/G1-A04-R4-partial-failure-correction.md",
+        "exitCode": 1,
+        "output": []
+      }
+    ],
+    "statusLines": 144,
+    "status": [
+      " M CryptoScript/Model/AntlrToFunctionCallExpression.cs",
+      " M CryptoScript/Model/Ast/FunctionCallExpressionNode.cs",
+      " M CryptoScript/Model/FunctionCall.cs",
+      " M CryptoScript/Model/FunctionCallEvaluator.cs",
+      " M CryptoScript/Model/OperationInvocation.cs",
+      " M CryptoScript/Operations/OutputOperations.cs",
+      " M CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+      " M CryptoWorkBenchAvalonia.Desktop/Program.cs",
+      " M CryptoWorkBenchAvalonia/App.axaml.cs",
+      " M CryptoWorkBenchAvalonia/Controls/WorkbenchTextArea.cs",
+      " M CryptoWorkBenchAvalonia/Controls/WorkbenchTextEditor.cs",
+      " M CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+      " M CryptoWorkBenchAvalonia/Models/DiagnosticDisplayItem.cs",
+      " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+      " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+      " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+      " M CryptoWorkBenchAvalonia/Services/InfoCompletionController.cs",
+      " M CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+      " M CryptoWorkBenchAvalonia/ViewModels/StatusViewModel.cs",
+      " M CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml.cs",
+      " M CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+      " M CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.cs",
+      " M CryptoWorkBenchGuiTest/WorkbenchReviewRegressionTests.cs",
+      " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+      " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+      " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+      "?? CryptoScriptUnitTest/PrintSourceTests.cs",
+      "?? CryptoWorkBenchAvalonia.Desktop/NativeDockWindowTrace.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockContainerIdentity.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockContainerRoles.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockDiagnosticsView.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockDocumentWindowChrome.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockLayoutAction.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockLayoutStore.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockLifecycleTrace.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockOutputService.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockOutputView.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.Persistence.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockTraceOutput.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockVariablesView.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockWindowGeometry.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/SourceNavigationResult.cs",
+      "?? CryptoWorkBenchGuiTest/DockDiagnosticsNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockDiagnosticsTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockEditorTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockFinalIntegrationTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockGroupDocumentRedockTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockIntegrationNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockLayoutFailureTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockLayoutNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockLayoutRoleNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockLayoutRoleTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockLayoutTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockMouseRedockTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockOperationContractTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockOperationNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockOutputNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockOutputTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockPartialFailureNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockPartialFailureTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockPersistenceCleanupTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockPersistenceNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockRedockNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockShellTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockToolNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockToolTests.cs",
+      "?? CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.G108.cs",
+      "?? CryptoWorkBenchGuiTest/Fixtures/dock-schema1-pre-a02.json",
+      "?? docs/gui/G1-01-dock-feasibility.md",
+      "?? docs/gui/G1-02-shell-implementation.md",
+      "?? docs/gui/G1-03-editor-mcp-integration.md",
+      "?? docs/gui/G1-04-variables-info-integration.md",
+      "?? docs/gui/G1-05-output-pipeline.md",
+      "?? docs/gui/G1-06-diagnostics-navigation.md",
+      "?? docs/gui/G1-07-layout-persistence.md",
+      "?? docs/gui/G1-08-final-validation.md",
+      "?? docs/gui/G1-08-native-acceptance-checklist.md",
+      "?? docs/gui/G1-A01-docking-architecture-review.md",
+      "?? docs/gui/G1-A02-maximize-layout-roles.md",
+      "?? docs/gui/G1-A03-persistence-cleanup-roles.md",
+      "?? docs/gui/G1-A04-R1-actual-callback-audit.md",
+      "?? docs/gui/G1-A04-R2-test-cleanup.md",
+      "?? docs/gui/G1-A04-R3-partial-failure-audit.md",
+      "?? docs/gui/G1-A04-R4-partial-failure-correction.md",
+      "?? docs/gui/G1-A04-dock-operation-contract.md",
+      "?? docs/gui/G1-N1-F01-F2-native-window-investigation.md",
+      "?? docs/gui/G1-N1-F01-mouse-redock-correction.md",
+      "?? docs/gui/G1-N1-F03-group-document-redock.md",
+      "?? docs/gui/evidence/G1-01-results.json",
+      "?? docs/gui/evidence/G1-02-results.json",
+      "?? docs/gui/evidence/G1-03-results.json",
+      "?? docs/gui/evidence/G1-04-results.json",
+      "?? docs/gui/evidence/G1-05-results.json",
+      "?? docs/gui/evidence/G1-06-results.json",
+      "?? docs/gui/evidence/G1-07-results.json",
+      "?? docs/gui/evidence/G1-08-results.json",
+      "?? docs/gui/evidence/G1-A02-results.json",
+      "?? docs/gui/evidence/G1-A03-results.json",
+      "?? docs/gui/evidence/G1-A04-R4-results.json",
+      "?? docs/gui/evidence/G1-A04-results.json",
+      "?? docs/gui/evidence/G1-N1-F01-F2-results.json",
+      "?? docs/gui/evidence/G1-N1-F01-results.json",
+      "?? docs/gui/evidence/G1-N1-F03-results.json",
+      "?? eng/gui/Test-DockNativeTrace.ps1",
+      "?? eng/gui/Validate-G1LayoutRoles.ps1",
+      "?? eng/gui/Validate-G1Platform.ps1",
+      "?? eng/gui/Validate-G1Shell.ps1",
+      "?? eng/gui/native/G1ShellProbe.csproj",
+      "?? eng/gui/native/Program.cs",
+      "?? eng/gui/native/packages.lock.json",
+      "?? prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+      "?? prototypes/G1DockFeasibility/NativeProbe.cs",
+      "?? prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+      "?? prototypes/G1DockFeasibility/Program.cs",
+      "?? prototypes/G1DockFeasibility/README.md",
+      "?? prototypes/G1DockFeasibility/Session.cs",
+      "?? prototypes/G1DockFeasibility/Tests/DockTests.cs",
+      "?? prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+      "?? prototypes/G1DockFeasibility/Tests/packages.lock.json",
+      "?? prototypes/G1DockFeasibility/Validate.ps1",
+      "?? prototypes/G1DockFeasibility/Views.cs",
+      "?? prototypes/G1DockFeasibility/packages.lock.json"
+    ],
+    "mainCheckoutStatus": [],
+    "dockSourceStatus": [],
+    "dockHead": "78da173545501e796f37bc8528e9e55d9cbfd991"
+  },
+  "knownLimits": [
+    "No claim of universal rollback",
+    "Host boundary injected; no actual Windows resource exhaustion",
+    "F03 completion, external mouse and cross-platform acceptance remain open",
+    "No A05 work started"
+  ],
+  "developmentEvidence": [
+    "development-Debug.log: no-restore used Release assets for Debug; build failure, corrected via locked Debug restore",
+    "targeted/critical-Debug.trx: 30 passed, 2 new reader-sharing setup failures; corrected",
+    "targeted-fixed/critical-Debug.trx: 34 passed, zero failed",
+    "gui-final: missing namespace import in strengthened tests; build failure retained",
+    "gui-final-verified: 1102 passed, 1 premature asynchronous shutdown assertion; test synchronization corrected",
+    "native: two invalid concatenated mode arguments exited 2 before probe dispatch; native-legacy executes all seven intended modes separately"
+  ]
+}

@@ -1,0 +1,4706 @@
+{
+  "date": "2026-11-06",
+  "decision": "CONDITIONAL GO for G1-06 after explicit owner acceptance; G1-06 not started",
+  "branch": "feature/gui-g1",
+  "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+  "worktree": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1",
+  "report": "docs/gui/G1-05-output-pipeline.md",
+  "versions": {
+    "avalonia": "12.1.4",
+    "prismSource": "358118cd640d9a22ff8cf21c8ad197fa038b7990",
+    "dotnetRuntime": "10.0.12",
+    "dotnetSdk": "10.0.401",
+    "markdownAvalonia": "12.0.2",
+    "avaloniaEdit": "12.0.0",
+    "dock": "12.1.0.13"
+  },
+  "designBeforeEdits": "artifacts/g1-05/dataflow-design.md",
+  "baseline": {
+    "manifest": "artifacts/g1-05/baseline.json",
+    "statusPath": "artifacts/g1-05/initial-status.txt",
+    "modifiedTracked": 21,
+    "untracked": 40
+  },
+  "preservation": [
+    {
+      "path": "CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+      "initialSha256": "099C7AF38A9502F058973661AE3A4B4D00D5C111684D1DCA1FDF72B6FE90A525",
+      "finalSha256": "099C7AF38A9502F058973661AE3A4B4D00D5C111684D1DCA1FDF72B6FE90A525",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia.Desktop/Program.cs",
+      "initialSha256": "04250596393E935D54AB3FC068FDC6F9BFBA01F7A40C5142B762F1838313D6AB",
+      "finalSha256": "04250596393E935D54AB3FC068FDC6F9BFBA01F7A40C5142B762F1838313D6AB",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/App.axaml.cs",
+      "initialSha256": "F756BB9ADE1CB3BC77DB9BAA9FB3353B1B2A359D66C40E7AE508C2CA043DC150",
+      "finalSha256": "F756BB9ADE1CB3BC77DB9BAA9FB3353B1B2A359D66C40E7AE508C2CA043DC150",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+      "initialSha256": "BE9EE2443658A5CBDCA95C3800DA25E6DCD8A0DF9395E0344E0383261961AE3C",
+      "finalSha256": "BE9EE2443658A5CBDCA95C3800DA25E6DCD8A0DF9395E0344E0383261961AE3C",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+      "initialSha256": "9B54C923FBC0EEFF96D3E303E0AF29E289E0347EBBE30FFA4DD4F16DF885FA29",
+      "finalSha256": "9B54C923FBC0EEFF96D3E303E0AF29E289E0347EBBE30FFA4DD4F16DF885FA29",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Services/InfoCompletionController.cs",
+      "initialSha256": "B61B5488BDF8EA901B0509B84B979904FDC06C9F35F415A0C8332B2D5E76A295",
+      "finalSha256": "B61B5488BDF8EA901B0509B84B979904FDC06C9F35F415A0C8332B2D5E76A295",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml.cs",
+      "initialSha256": "ACC989ED4D4BEFE129D23A28F86C079D58C6BFFE502C54F8C355174C4A0EA212",
+      "finalSha256": "62040E661FBDE92D38D6B96F613546F2FD54E09312A4DBD88FDEC993F9BB128C",
+      "unchanged": false
+    },
+    {
+      "path": "eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      "initialSha256": "21C93FEA4466FD020719288557F9323FBAD1455DAD238737A2919DF6F3FEE416",
+      "finalSha256": "21C93FEA4466FD020719288557F9323FBAD1455DAD238737A2919DF6F3FEE416",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+      "initialSha256": "C38D99495B844777EC13BAECCACEA18DB3C27F92BCCF586ACD44E7116DD4B28C",
+      "finalSha256": "C38D99495B844777EC13BAECCACEA18DB3C27F92BCCF586ACD44E7116DD4B28C",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+      "initialSha256": "DD323AB879C720840A545BAD3CFD2A8E93B4F4135150AABD6FC2B6E02F6175E9",
+      "finalSha256": "DD323AB879C720840A545BAD3CFD2A8E93B4F4135150AABD6FC2B6E02F6175E9",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      "initialSha256": "D68B750182A0C0C81697F9F4B9B900FC64843E8BDEF7C95F73569D85D64B5740",
+      "finalSha256": "D68B750182A0C0C81697F9F4B9B900FC64843E8BDEF7C95F73569D85D64B5740",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+      "initialSha256": "91544CCB13E1C68C00453A76404CE1BC1513708688227903DA630E7DAA2F0071",
+      "finalSha256": "91544CCB13E1C68C00453A76404CE1BC1513708688227903DA630E7DAA2F0071",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+      "initialSha256": "C2F4DFEB6C2184449875657363223B63C98244D9E06893A73527C4446E9EEBAD",
+      "finalSha256": "C2F4DFEB6C2184449875657363223B63C98244D9E06893A73527C4446E9EEBAD",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      "initialSha256": "349A2D6FF2EF4D01D1C8003F29769F66F60CA96C1413457F737B474F82C5DAF6",
+      "finalSha256": "349A2D6FF2EF4D01D1C8003F29769F66F60CA96C1413457F737B474F82C5DAF6",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+      "initialSha256": "15FA3D9AA038F8D6BA7B9917D0DA16BB7CDBFD524ACE5FE2E783B9B59783D386",
+      "finalSha256": "15FA3D9AA038F8D6BA7B9917D0DA16BB7CDBFD524ACE5FE2E783B9B59783D386",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      "initialSha256": "0B161D6BEB9A4D11693E2862752168526D623044A4FAD464E4F92F792B317437",
+      "finalSha256": "0B161D6BEB9A4D11693E2862752168526D623044A4FAD464E4F92F792B317437",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+      "initialSha256": "9F256B784EBAB7B238889761D9FB15FB06B74EA1CBC3936680B9FF25FF05B1AC",
+      "finalSha256": "9F256B784EBAB7B238889761D9FB15FB06B74EA1CBC3936680B9FF25FF05B1AC",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      "initialSha256": "D2F935FF363452CCC21F1F996614620E3EB3C8D8E74E2AE2AC373DF1026D60FF",
+      "finalSha256": "D2F935FF363452CCC21F1F996614620E3EB3C8D8E74E2AE2AC373DF1026D60FF",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+      "initialSha256": "8474C60AC21A3D7ACF322C90C6600F622BC283322078B95205803E1E34723895",
+      "finalSha256": "8474C60AC21A3D7ACF322C90C6600F622BC283322078B95205803E1E34723895",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      "initialSha256": "1DD1C158DC75F4B633DE84F8824A6EEEFC24E4F10481392D66C93F44F5C4B428",
+      "finalSha256": "1DD1C158DC75F4B633DE84F8824A6EEEFC24E4F10481392D66C93F44F5C4B428",
+      "unchanged": true
+    },
+    {
+      "path": "eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+      "initialSha256": "C1EA93CD7B54A22B277AED3692B2A49BCDB55EE79AB6CED594F4555592C5E1A7",
+      "finalSha256": "C1EA93CD7B54A22B277AED3692B2A49BCDB55EE79AB6CED594F4555592C5E1A7",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+      "initialSha256": "8E5B12F9809D8C6223A281AA8A645F8C072ED0128FFAD6CAAF4B25D93CA579FE",
+      "finalSha256": "8E5B12F9809D8C6223A281AA8A645F8C072ED0128FFAD6CAAF4B25D93CA579FE",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+      "initialSha256": "DEAB8AFB0E1C8FCD398D80BBC41BF2548FA27CA4FF7CF6B3FE4DCB9CC4EEED37",
+      "finalSha256": "FFF71B4EB7F1BDC21CD985FC74C305911841FCFB37524D5E87F82389BE1E3ED7",
+      "unchanged": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+      "initialSha256": "0189E68E95A94A300B1B12EA9EBEB03E0C7E29F34D238D7F78BE9B2A0192EEC5",
+      "finalSha256": "0189E68E95A94A300B1B12EA9EBEB03E0C7E29F34D238D7F78BE9B2A0192EEC5",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+      "initialSha256": "BEA1DD4971FCEB792067862EE252121C608C120F26C7EB4A16096E8C321E8728",
+      "finalSha256": "9347629DB1F8B0635483042BAC8DB90976713FC515615F17B2D7BD076E6C976C",
+      "unchanged": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+      "initialSha256": "BF836FB34899022E9AD94D6E75C95C78BD4560F1FBE743D09D8D5D48CA6BA3F5",
+      "finalSha256": "BF836FB34899022E9AD94D6E75C95C78BD4560F1FBE743D09D8D5D48CA6BA3F5",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+      "initialSha256": "A4F1DAE1D41C88C76A7CF9C0E3DA63B2E47DBDB53FB858DA708C8CA62ACA4728",
+      "finalSha256": "A4F1DAE1D41C88C76A7CF9C0E3DA63B2E47DBDB53FB858DA708C8CA62ACA4728",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+      "initialSha256": "3D783E9D6EB7531A56BD917684015800C9FD96FAB6D09BA634A1DFECE8C121AD",
+      "finalSha256": "3D783E9D6EB7531A56BD917684015800C9FD96FAB6D09BA634A1DFECE8C121AD",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+      "initialSha256": "A6BAF2A31030F397143AF8AC6BB55BCC782813793818E3594D723ACA68868B03",
+      "finalSha256": "A6BAF2A31030F397143AF8AC6BB55BCC782813793818E3594D723ACA68868B03",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockVariablesView.cs",
+      "initialSha256": "C3B2FD0AC60B7135F96B16FE3AE7A06B182DDE17F291BF510ECBD513DFAFCE30",
+      "finalSha256": "C3B2FD0AC60B7135F96B16FE3AE7A06B182DDE17F291BF510ECBD513DFAFCE30",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+      "initialSha256": "79F7A2D8470262F3F2F962C20E6EFBF2279D05CD0100CC243E0681151B59AA69",
+      "finalSha256": "79F7A2D8470262F3F2F962C20E6EFBF2279D05CD0100CC243E0681151B59AA69",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+      "initialSha256": "E8B0758B33EECF87C8F462628BF7D7CBBF01F939F9B41F6DE52A45A80AE708F2",
+      "finalSha256": "D5138D33FADDDCDC5835FE6B9DEA95A233AEA1E68C12F002C2BE153101CB8380",
+      "unchanged": false
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockEditorTests.cs",
+      "initialSha256": "1CEAEEC6683C369707238927EF9867D62C4ADA60A27E23CC82CB6556F31EA98A",
+      "finalSha256": "1CEAEEC6683C369707238927EF9867D62C4ADA60A27E23CC82CB6556F31EA98A",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+      "initialSha256": "F151C39927F83A8C274761CE54728579A2974547AA18D9BA6DEFB15E3C34F0D2",
+      "finalSha256": "55D15226561EA9C416394A7D05F1C2BF8D6DC08105256924E65EC041352AE28F",
+      "unchanged": false
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockShellTests.cs",
+      "initialSha256": "AFEAA8C9582D4EED2D8C99DBBC1D10C34F12F0AD357ACC5BBE6AD3AC7485F8F9",
+      "finalSha256": "AFEAA8C9582D4EED2D8C99DBBC1D10C34F12F0AD357ACC5BBE6AD3AC7485F8F9",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockToolNativeProbe.cs",
+      "initialSha256": "641800751ACC57009D0B00B3E306C98EFE932BADE0F83F5541CDDB78EA26F138",
+      "finalSha256": "641800751ACC57009D0B00B3E306C98EFE932BADE0F83F5541CDDB78EA26F138",
+      "unchanged": true
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockToolTests.cs",
+      "initialSha256": "F12323A02F9F0E5F2A1A57694A64665389218FB5E5BA40FD7AF0B020287F9C63",
+      "finalSha256": "F12323A02F9F0E5F2A1A57694A64665389218FB5E5BA40FD7AF0B020287F9C63",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/G1-01-dock-feasibility.md",
+      "initialSha256": "6C818CE5C981F3938122FB1C351B17BC74CBDD433194EC1C0224DCE9EFED1133",
+      "finalSha256": "6C818CE5C981F3938122FB1C351B17BC74CBDD433194EC1C0224DCE9EFED1133",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/G1-02-shell-implementation.md",
+      "initialSha256": "4B89820A92CA257AC169704BCB079B2FCE4D42D5AE4538E8D2B9378D5C9DB67A",
+      "finalSha256": "4B89820A92CA257AC169704BCB079B2FCE4D42D5AE4538E8D2B9378D5C9DB67A",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/G1-03-editor-mcp-integration.md",
+      "initialSha256": "64D30D86431AF4BA67E606C58169F14553C3A9B1BDF4F9C472718B0972607674",
+      "finalSha256": "64D30D86431AF4BA67E606C58169F14553C3A9B1BDF4F9C472718B0972607674",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/G1-04-variables-info-integration.md",
+      "initialSha256": "848548D53BB59499A22CF1CB636757CB7DFFD704DFAF80E32986C734DBC60A61",
+      "finalSha256": "848548D53BB59499A22CF1CB636757CB7DFFD704DFAF80E32986C734DBC60A61",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/evidence/G1-01-results.json",
+      "initialSha256": "891A949C0A5BAE8DBA7EFCC93A48D3AD193ADEC10F3FDEF287DE62150EBCAE83",
+      "finalSha256": "891A949C0A5BAE8DBA7EFCC93A48D3AD193ADEC10F3FDEF287DE62150EBCAE83",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/evidence/G1-02-results.json",
+      "initialSha256": "48929BE00AE467718E68D8513980215A7C50823E7C729FB27111F89231B0BEC3",
+      "finalSha256": "48929BE00AE467718E68D8513980215A7C50823E7C729FB27111F89231B0BEC3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/evidence/G1-03-results.json",
+      "initialSha256": "CACF0750FB34765A9C5E6F769A1950F118B601774E861D78976F52EDCA52BBCE",
+      "finalSha256": "CACF0750FB34765A9C5E6F769A1950F118B601774E861D78976F52EDCA52BBCE",
+      "unchanged": true
+    },
+    {
+      "path": "docs/gui/evidence/G1-04-results.json",
+      "initialSha256": "6652EB42455CCE6FD49F2E25AFD7C5345BC31FD34B1DA919BC3F4C362F30AA70",
+      "finalSha256": "6652EB42455CCE6FD49F2E25AFD7C5345BC31FD34B1DA919BC3F4C362F30AA70",
+      "unchanged": true
+    },
+    {
+      "path": "eng/gui/Validate-G1Shell.ps1",
+      "initialSha256": "E605E07770731E0D07917AE15516F7414F763195652CAB73C3AE9DF4FDDE1BB9",
+      "finalSha256": "1156FB1EB9BFAC7CA30B7CA5C194953A092853B56376054D3245810E727611D8",
+      "unchanged": false
+    },
+    {
+      "path": "eng/gui/native/G1ShellProbe.csproj",
+      "initialSha256": "6813CE8C4E8F52738F710235B0BB914556255A384CF17E293B060FEBC8937BD8",
+      "finalSha256": "6813CE8C4E8F52738F710235B0BB914556255A384CF17E293B060FEBC8937BD8",
+      "unchanged": true
+    },
+    {
+      "path": "eng/gui/native/Program.cs",
+      "initialSha256": "EDBA04C9E6BCA61F41A32DAA25C07BF7AD3D062D50D818CCB5C616971DD6984B",
+      "finalSha256": "DD424FE3D28377333068FFA3D9CA51BD83DDF2532749D31AB08E5107A56F0210",
+      "unchanged": false
+    },
+    {
+      "path": "eng/gui/native/packages.lock.json",
+      "initialSha256": "B84E807178B556033C5863DE9E0183D59E2A22F2432EA03F44ABBB37DD9ABF6F",
+      "finalSha256": "B84E807178B556033C5863DE9E0183D59E2A22F2432EA03F44ABBB37DD9ABF6F",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+      "initialSha256": "3D68F8601C46664E9E5E7B0A28EC0F80A97F2B6646C2211A304BF5EB2D77597D",
+      "finalSha256": "3D68F8601C46664E9E5E7B0A28EC0F80A97F2B6646C2211A304BF5EB2D77597D",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/NativeProbe.cs",
+      "initialSha256": "7011700C7EDAA7293B0B237E7BE5774DCF8E8141A3A995E0C2C37FA9208194E5",
+      "finalSha256": "7011700C7EDAA7293B0B237E7BE5774DCF8E8141A3A995E0C2C37FA9208194E5",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+      "initialSha256": "2F373F5A7E9A1A6BC9877602DB4E6C19182ACAFB03C6C94F02967E4D23F02AA4",
+      "finalSha256": "2F373F5A7E9A1A6BC9877602DB4E6C19182ACAFB03C6C94F02967E4D23F02AA4",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Program.cs",
+      "initialSha256": "5B073ED25B44101735D739255589DC0D1A5EE0864B99489D1479DF66569DE467",
+      "finalSha256": "5B073ED25B44101735D739255589DC0D1A5EE0864B99489D1479DF66569DE467",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/README.md",
+      "initialSha256": "D3D48790B195A93CB065AC0E9008A246CDF4E4DD379CE7C0AB7FD45EB440B713",
+      "finalSha256": "D3D48790B195A93CB065AC0E9008A246CDF4E4DD379CE7C0AB7FD45EB440B713",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Session.cs",
+      "initialSha256": "139A65C11E74CE1022478B764D98527C1FD0EDB09D7BE84C2E20C048BCD6EC1F",
+      "finalSha256": "139A65C11E74CE1022478B764D98527C1FD0EDB09D7BE84C2E20C048BCD6EC1F",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Tests/DockTests.cs",
+      "initialSha256": "9F3CB56EF36A434630D75725DFA5165D094562417928A74CCB8E16B313CF58E3",
+      "finalSha256": "9F3CB56EF36A434630D75725DFA5165D094562417928A74CCB8E16B313CF58E3",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+      "initialSha256": "B0EFBC6D644F68551984F84829D7D28F285ACF26AF14407DCAA5C2777F9A4A87",
+      "finalSha256": "B0EFBC6D644F68551984F84829D7D28F285ACF26AF14407DCAA5C2777F9A4A87",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Tests/packages.lock.json",
+      "initialSha256": "5BEB6552042194EE0DF6B66988FCECC9BF65CC1195E96CFC26D53B89F82352F5",
+      "finalSha256": "5BEB6552042194EE0DF6B66988FCECC9BF65CC1195E96CFC26D53B89F82352F5",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Validate.ps1",
+      "initialSha256": "74E81F39A6D401228A8827A6BB1EDF83B3A92EDC2B912A17338F8ECAC16531D3",
+      "finalSha256": "74E81F39A6D401228A8827A6BB1EDF83B3A92EDC2B912A17338F8ECAC16531D3",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/Views.cs",
+      "initialSha256": "F68F989F367094F758B241BF1E48EE390225448394223D2DFBA56840FBA47B94",
+      "finalSha256": "F68F989F367094F758B241BF1E48EE390225448394223D2DFBA56840FBA47B94",
+      "unchanged": true
+    },
+    {
+      "path": "prototypes/G1DockFeasibility/packages.lock.json",
+      "initialSha256": "E22CF10C0E534616890A860205A7D595E4953D9F935F92D947569D4F8AC5ED3D",
+      "finalSha256": "E22CF10C0E534616890A860205A7D595E4953D9F935F92D947569D4F8AC5ED3D",
+      "unchanged": true
+    }
+  ],
+  "protectedArtifactsUnchanged": true,
+  "changedFiles": [
+    {
+      "path": "CryptoScript/Model/AntlrToFunctionCallExpression.cs",
+      "sha256": "EB842F36A4067DB5212F475C2793AE677B50A577A86670C56A3945AA43DA1AF6",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoScript/Model/Ast/FunctionCallExpressionNode.cs",
+      "sha256": "EC3984B326D5CC4D73AA3D3375C51A6CEE61528EE9DB4E62F11F9C2DBC634C8A",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoScript/Model/FunctionCall.cs",
+      "sha256": "483664537304A548D61CBDF5EFBF3B46E3AE305825399552E837F7687AF3A7BF",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoScript/Model/FunctionCallEvaluator.cs",
+      "sha256": "17728618B27B50850F73E112CC348E65E29FA272CC060331D7B028D67381195C",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoScript/Model/OperationInvocation.cs",
+      "sha256": "6268D095D9DAEC0D6F81F6CA79E3CDE941F95BD5DA0FBF1E354941E636898ECB",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoScript/Operations/OutputOperations.cs",
+      "sha256": "7AF9D47741AD665C1D3897583895A2899C44DCC0E1B699B880C56924C24ABC89",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoScriptUnitTest/PrintSourceTests.cs",
+      "sha256": "79106AA2860A1876578273361B7A9EC2F202F3FD7C4D08A33D324520487E78C8",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+      "sha256": "8325AA6C3CBBA98AED60346628C71163084EB512F38B97D69EF8767294AA82B7",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+      "sha256": "335E6D16243FF7328FFE7B39D132234426EE2945BAB39609DFC8D812271AA840",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+      "sha256": "FFF71B4EB7F1BDC21CD985FC74C305911841FCFB37524D5E87F82389BE1E3ED7",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockOutputService.cs",
+      "sha256": "2C16047B2AE070D19E919AAB8C5B298C588A488D9FC5B159A0B9F9882F75A53C",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockOutputView.cs",
+      "sha256": "741E5A9A1919DBEC8993421D53F2D29F7734F05C2BDE95EE80A8DEAFE9BCB1A6",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+      "sha256": "9347629DB1F8B0635483042BAC8DB90976713FC515615F17B2D7BD076E6C976C",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+      "sha256": "24CD5712893FED4066A19827D1EA7B0B4953EEA0DCB9A026C7D719796C68A0BE",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml.cs",
+      "sha256": "62040E661FBDE92D38D6B96F613546F2FD54E09312A4DBD88FDEC993F9BB128C",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+      "sha256": "D5138D33FADDDCDC5835FE6B9DEA95A233AEA1E68C12F002C2BE153101CB8380",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockOutputNativeProbe.cs",
+      "sha256": "D05B76A48718802C8AFCC3674FA133FC42D0D86AFE3DB81931BDCDD330DACADB",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockOutputTests.cs",
+      "sha256": "33663D673878AFD549F2C91C4E1CC464D47736779C3D12CDED24E1CC29272D9F",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+      "sha256": "55D15226561EA9C416394A7D05F1C2BF8D6DC08105256924E65EC041352AE28F",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/WorkbenchReviewRegressionTests.cs",
+      "sha256": "D9549D9A29B7420815C30578E46367DD6A3E74C480F88C84838DE8B6CFC29A4A",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "docs/gui/G1-05-output-pipeline.md",
+      "sha256": "0081DC200A92DD5DB095FF9FCD004A859B2126C89EEFEF7313986EAE6190E8A1",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "docs/gui/evidence/G1-05-results.json",
+      "sha256": null,
+      "selfHashOmitted": true
+    },
+    {
+      "path": "eng/gui/Validate-G1Shell.ps1",
+      "sha256": "1156FB1EB9BFAC7CA30B7CA5C194953A092853B56376054D3245810E727611D8",
+      "selfHashOmitted": false
+    },
+    {
+      "path": "eng/gui/native/Program.cs",
+      "sha256": "DD424FE3D28377333068FFA3D9CA51BD83DDF2532749D31AB08E5107A56F0210",
+      "selfHashOmitted": false
+    }
+  ],
+  "suites": [
+    {
+      "configuration": "Debug",
+      "suite": "GUI",
+      "path": "artifacts/g1-05/GUI-Debug-review.trx",
+      "sha256": "B14283357E3EC6D103E696C254340460542E9284E7D4E2A954B6A003D1BA9D0F",
+      "trxCounters": {
+        "total": "871",
+        "executed": "871",
+        "passed": "871",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 871,
+      "failed": 0,
+      "skipped": 0,
+      "explicitNotRun": 0,
+      "passedDeltaFromG104": 21
+    },
+    {
+      "configuration": "Debug",
+      "suite": "MCP",
+      "path": "artifacts/g1-05/verified/CryptoWorkBench.Mcp.Tests-Debug.trx",
+      "sha256": "97F92C28292C4473C2A77CFBECFCEC2D0AF537E61CBC4F7BB823D808BA0CF67C",
+      "trxCounters": {
+        "total": "189",
+        "executed": "176",
+        "passed": "176",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 176,
+      "failed": 0,
+      "skipped": 0,
+      "explicitNotRun": 13,
+      "passedDeltaFromG104": 0
+    },
+    {
+      "configuration": "Debug",
+      "suite": "Core",
+      "path": "artifacts/g1-05/verified/CryptoScriptUnitTest-Debug.trx",
+      "sha256": "8542C4A9ABA96DEA6DD9E7D1D5235377302B94373382A29FD623894FB885B707",
+      "trxCounters": {
+        "total": "11539",
+        "executed": "11512",
+        "passed": "11512",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 11512,
+      "failed": 0,
+      "skipped": 26,
+      "explicitNotRun": 1,
+      "passedDeltaFromG104": 4
+    },
+    {
+      "configuration": "Debug",
+      "suite": "G1-01 Headless",
+      "path": "artifacts/g1-05/foundation-headless/prototype-Debug.trx",
+      "sha256": "0120D4B1AA130BF67E643DE8E3D19C094577575CFA41D41F7F7436103072FFB4",
+      "trxCounters": {
+        "total": "12",
+        "executed": "12",
+        "passed": "12",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "explicitNotRun": 0,
+      "passedDeltaFromG104": 0
+    },
+    {
+      "configuration": "Release",
+      "suite": "GUI",
+      "path": "artifacts/g1-05/GUI-Release-review.trx",
+      "sha256": "86919EFE8A5FEBB30E8E9365ABD266710B4106E13597900EA395F453B0FCB029",
+      "trxCounters": {
+        "total": "871",
+        "executed": "871",
+        "passed": "871",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 871,
+      "failed": 0,
+      "skipped": 0,
+      "explicitNotRun": 0,
+      "passedDeltaFromG104": 21
+    },
+    {
+      "configuration": "Release",
+      "suite": "MCP",
+      "path": "artifacts/g1-05/release/CryptoWorkBench.Mcp.Tests-Release.trx",
+      "sha256": "CEF3FEB610ECD018E7530B41ADDA3FA37CB4D736479A2CA7F2C3C813846C1D7F",
+      "trxCounters": {
+        "total": "189",
+        "executed": "176",
+        "passed": "176",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 176,
+      "failed": 0,
+      "skipped": 0,
+      "explicitNotRun": 13,
+      "passedDeltaFromG104": 0
+    },
+    {
+      "configuration": "Release",
+      "suite": "Core",
+      "path": "artifacts/g1-05/release/CryptoScriptUnitTest-Release.trx",
+      "sha256": "F13C4378338B8F54193308022A14836D6D817DD63DAF8E04343FEC373811D67A",
+      "trxCounters": {
+        "total": "11539",
+        "executed": "11512",
+        "passed": "11512",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 11512,
+      "failed": 0,
+      "skipped": 26,
+      "explicitNotRun": 1,
+      "passedDeltaFromG104": 4
+    },
+    {
+      "configuration": "Release",
+      "suite": "G1-01 Headless",
+      "path": "artifacts/g1-05/foundation-headless/prototype-Release.trx",
+      "sha256": "80F4F0AE283A062518D823866FC59A811F92FB96ED10B95314FBE25B7ED974FB",
+      "trxCounters": {
+        "total": "12",
+        "executed": "12",
+        "passed": "12",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "explicitNotRun": 0,
+      "passedDeltaFromG104": 0
+    }
+  ],
+  "native": [
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/foundation-native-Debug.json",
+      "sha256": "434C3BB271262C72B79D10315342E05E2C6C2C9F1834F03EDA21DCA9329308F3",
+      "passed": 60,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "native-main-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "native-main-foreground",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "prism-region-host",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "114, 114",
+            "child": "1789, 144"
+          }
+        },
+        {
+          "name": "float-0-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-0-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 4917948,
+            "actual": 4917948
+          }
+        },
+        {
+          "name": "redock-0-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-0-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-0-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "114, 114",
+            "child": "1789, 144"
+          }
+        },
+        {
+          "name": "float-1-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-1-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 4983484,
+            "actual": 4983484
+          }
+        },
+        {
+          "name": "redock-1-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-1-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-1-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "114, 114",
+            "child": "1789, 144"
+          }
+        },
+        {
+          "name": "float-2-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-2-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5049020,
+            "actual": 5049020
+          }
+        },
+        {
+          "name": "redock-2-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-2-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-2-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "114, 114",
+            "child": "1789, 144"
+          }
+        },
+        {
+          "name": "float-3-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-3-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5114556,
+            "actual": 5114556
+          }
+        },
+        {
+          "name": "redock-3-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-3-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-3-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "114, 114",
+            "child": "1789, 144"
+          }
+        },
+        {
+          "name": "float-4-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-4-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5180092,
+            "actual": 5180092
+          }
+        },
+        {
+          "name": "redock-4-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-4-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-4-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "floating-tool-close",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "singleton-survives-tool-close",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "layout-restores-context",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "main-close-closes-native-floats",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "shutdown-detaches-editor",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "shutdown-unregisters-controls",
+          "passed": true,
+          "detail": {
+            "controls": 0,
+            "windows": 0
+          }
+        },
+        {
+          "name": "document-disposed-once",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/verified/native-Debug-dock.json",
+      "sha256": "79C768A82098EC8B9BF6FFA030B5EB324171A2A190419046CE9116D7035F90D9",
+      "passed": 67,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "product-shell-singleton",
+          "passed": true
+        },
+        {
+          "name": "product-state-singleton",
+          "passed": true
+        },
+        {
+          "name": "no-editor-view",
+          "passed": true
+        },
+        {
+          "name": "editor-never-attached",
+          "passed": true
+        },
+        {
+          "name": "native-main-handle",
+          "passed": true
+        },
+        {
+          "name": "main-foreground",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-handle",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-owner",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:independent-position",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "document-native-close-protected",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:output:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:output:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:info:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:info:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:status:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:status:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "shutdown-all-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registries",
+          "passed": true
+        },
+        {
+          "name": "no-execution-lifecycle-effects",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/verified/native-Debug-legacy.json",
+      "sha256": "38CE77CA6163D5287C43C80AF1F0F1F91D4EA75EF9055DBB3C92BBCBD315F5F1",
+      "passed": 10,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/verified/native-Debug-fallback.json",
+      "sha256": "6B856E327424317A519C94CD237A6163F6C07DF23064ECDB9B33C8C769956FEF",
+      "passed": 13,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "failed-layout-disposed",
+          "passed": true
+        },
+        {
+          "name": "failed-hosts-cleaned",
+          "passed": true
+        },
+        {
+          "name": "preview-theme-removed",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/verified/native-Debug-editor.json",
+      "sha256": "8C072B4C22F82E9451DE9A6537FB78E6B1BFAA2C8AE967B8AD64F853B805A8F3",
+      "passed": 54,
+      "failed": 0,
+      "inputSource": "programmatic routed editor input",
+      "checks": [
+        {
+          "name": "product-editor-singleton",
+          "passed": true
+        },
+        {
+          "name": "registered-before-input",
+          "passed": true
+        },
+        {
+          "name": "desktop-mcp-hook-installed",
+          "passed": true
+        },
+        {
+          "name": "float-0-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-0-focus",
+          "passed": true
+        },
+        {
+          "name": "float-0-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-0-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-0-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-1-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-1-focus",
+          "passed": true
+        },
+        {
+          "name": "float-1-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-1-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-1-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-2-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-2-focus",
+          "passed": true
+        },
+        {
+          "name": "float-2-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-2-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-2-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-3-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-3-focus",
+          "passed": true
+        },
+        {
+          "name": "float-3-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-3-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-3-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-4-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-4-focus",
+          "passed": true
+        },
+        {
+          "name": "float-4-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-4-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-4-cleanup",
+          "passed": true
+        },
+        {
+          "name": "unicode",
+          "passed": true
+        },
+        {
+          "name": "undo",
+          "passed": true
+        },
+        {
+          "name": "redo",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "one-history-entry-per-enter",
+          "passed": true
+        },
+        {
+          "name": "line-history",
+          "passed": true
+        },
+        {
+          "name": "completion",
+          "passed": true
+        },
+        {
+          "name": "completion-in-floating-host",
+          "passed": true
+        },
+        {
+          "name": "completion-retired-on-relocation",
+          "passed": true
+        },
+        {
+          "name": "registration-still-original",
+          "passed": true
+        },
+        {
+          "name": "gui-password-blocks-dock-and-host-close",
+          "passed": true
+        },
+        {
+          "name": "gui-password-cancel-settles-original-job",
+          "passed": true
+        },
+        {
+          "name": "load-does-not-execute",
+          "passed": true
+        },
+        {
+          "name": "production-pairing",
+          "passed": true
+        },
+        {
+          "name": "actual-stdio-initialize",
+          "passed": true
+        },
+        {
+          "name": "transport-correct-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-gui",
+          "passed": true
+        },
+        {
+          "name": "transport-edit-original-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-execution-confirmation-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-approved-execution",
+          "passed": true
+        },
+        {
+          "name": "shutdown-waits-for-original-pending-ticket",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-zombie-registration",
+          "passed": true
+        },
+        {
+          "name": "shutdown-revokes-existing-stdio-client",
+          "passed": true
+        },
+        {
+          "name": "stdio-eof-exit",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/verified/native-Debug-startup-failure.json",
+      "sha256": "8BBFEF9B613EFAE8D86B61C30B33672EEEFB0CC9FD674E7E85253A842500ACE9",
+      "passed": 5,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "productive-start-was-reached",
+          "passed": true
+        },
+        {
+          "name": "original-failure-propagated",
+          "passed": true
+        },
+        {
+          "name": "admission-revoked",
+          "passed": true
+        },
+        {
+          "name": "no-replacement-registration",
+          "passed": true
+        },
+        {
+          "name": "unshown-shell-layout-released",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/verified/native-Debug-tools.json",
+      "sha256": "869E017EF70272997B351931082BF95A9FE8EF5643DC3C7BF7F5AD1DBB74770E",
+      "passed": 32,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "variables-prism-singleton",
+          "passed": true
+        },
+        {
+          "name": "variables-gui-snapshot",
+          "passed": true
+        },
+        {
+          "name": "editor-info-prism-identity",
+          "passed": true
+        },
+        {
+          "name": "dynamic-info-result",
+          "passed": true
+        },
+        {
+          "name": "variables-docked-identifier",
+          "passed": true,
+          "expected": "nativeValue",
+          "actual": "nativeValue",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "variables-native-owner",
+          "passed": true
+        },
+        {
+          "name": "variables-same-floating-view",
+          "passed": true
+        },
+        {
+          "name": "variables-floating-value",
+          "passed": true,
+          "expected": "0x(AABB)",
+          "actual": "0x(AABB)",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "variables-readonly-controls",
+          "passed": true
+        },
+        {
+          "name": "parameter-value-copy-readonly",
+          "passed": true
+        },
+        {
+          "name": "variables-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "variables-close-show-identity",
+          "passed": true
+        },
+        {
+          "name": "info-prism-singleton-selection-enabled",
+          "passed": true
+        },
+        {
+          "name": "info-native-owner-and-identity",
+          "passed": true
+        },
+        {
+          "name": "example-exact-True",
+          "passed": true
+        },
+        {
+          "name": "copy-example-floating",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "copy-example-button-clicked-True",
+          "passed": true
+        },
+        {
+          "name": "example-exact-False",
+          "passed": true
+        },
+        {
+          "name": "copy-example-docked",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "copy-example-button-clicked-False",
+          "passed": true
+        },
+        {
+          "name": "info-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "info-link",
+          "passed": true
+        },
+        {
+          "name": "info-back",
+          "passed": true
+        },
+        {
+          "name": "info-close-show-identity-history",
+          "passed": true
+        },
+        {
+          "name": "focus-editor",
+          "passed": true
+        },
+        {
+          "name": "tool-copy-layout-no-editor-or-interpreter-change",
+          "passed": true
+        },
+        {
+          "name": "mcp-v2-output-boundary",
+          "passed": true
+        },
+        {
+          "name": "lease-blocks-refresh-and-tool-relocation",
+          "passed": true
+        },
+        {
+          "name": "post-lease-refresh-same-global-state",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-tools",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registration-and-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-global-subscriptions",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/native-output-Debug3.json",
+      "sha256": "C398C452FEF0F02BD89DAD11C9EB0FBA8755C280E9EED0F4AC08ED2856B05FF0",
+      "passed": 29,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "fixture-source-False",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-False",
+          "passed": true
+        },
+        {
+          "name": "source-position-False",
+          "passed": true
+        },
+        {
+          "name": "undo-False",
+          "passed": true
+        },
+        {
+          "name": "redo-False",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-False",
+          "passed": true
+        },
+        {
+          "name": "fixture-source-True",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-True",
+          "passed": true
+        },
+        {
+          "name": "source-position-True",
+          "passed": true
+        },
+        {
+          "name": "undo-True",
+          "passed": true
+        },
+        {
+          "name": "redo-True",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-True",
+          "passed": true
+        },
+        {
+          "name": "editor-identity",
+          "passed": true
+        },
+        {
+          "name": "copy-False",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-False",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-False",
+          "passed": true
+        },
+        {
+          "name": "copy-True",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-True",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-True",
+          "passed": true
+        },
+        {
+          "name": "navigate",
+          "passed": true
+        },
+        {
+          "name": "navigation-no-effects",
+          "passed": true
+        },
+        {
+          "name": "close-show-no-duplicates",
+          "passed": true
+        },
+        {
+          "name": "clear",
+          "passed": true
+        },
+        {
+          "name": "clear-no-document-effects",
+          "passed": true
+        },
+        {
+          "name": "multiple-prints",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-output",
+          "passed": true
+        },
+        {
+          "name": "shutdown-releases-output",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/native-editor-input-Debug.json",
+      "sha256": "AB224CA5D86D0588E2FCE1540C9A50DDAA3174606D0054B6DBECF302A8EB7DDB",
+      "passed": 54,
+      "failed": 0,
+      "inputSource": "external native Windows keyboard",
+      "checks": [
+        {
+          "name": "product-editor-singleton",
+          "passed": true
+        },
+        {
+          "name": "registered-before-input",
+          "passed": true
+        },
+        {
+          "name": "desktop-mcp-hook-installed",
+          "passed": true
+        },
+        {
+          "name": "float-0-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-0-focus",
+          "passed": true
+        },
+        {
+          "name": "float-0-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-0-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-0-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-1-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-1-focus",
+          "passed": true
+        },
+        {
+          "name": "float-1-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-1-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-1-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-2-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-2-focus",
+          "passed": true
+        },
+        {
+          "name": "float-2-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-2-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-2-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-3-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-3-focus",
+          "passed": true
+        },
+        {
+          "name": "float-3-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-3-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-3-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-4-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-4-focus",
+          "passed": true
+        },
+        {
+          "name": "float-4-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-4-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-4-cleanup",
+          "passed": true
+        },
+        {
+          "name": "unicode",
+          "passed": true
+        },
+        {
+          "name": "undo",
+          "passed": true
+        },
+        {
+          "name": "redo",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "one-history-entry-per-enter",
+          "passed": true
+        },
+        {
+          "name": "line-history",
+          "passed": true
+        },
+        {
+          "name": "completion",
+          "passed": true
+        },
+        {
+          "name": "completion-in-floating-host",
+          "passed": true
+        },
+        {
+          "name": "completion-retired-on-relocation",
+          "passed": true
+        },
+        {
+          "name": "registration-still-original",
+          "passed": true
+        },
+        {
+          "name": "gui-password-blocks-dock-and-host-close",
+          "passed": true
+        },
+        {
+          "name": "gui-password-cancel-settles-original-job",
+          "passed": true
+        },
+        {
+          "name": "load-does-not-execute",
+          "passed": true
+        },
+        {
+          "name": "production-pairing",
+          "passed": true
+        },
+        {
+          "name": "actual-stdio-initialize",
+          "passed": true
+        },
+        {
+          "name": "transport-correct-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-gui",
+          "passed": true
+        },
+        {
+          "name": "transport-edit-original-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-execution-confirmation-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-approved-execution",
+          "passed": true
+        },
+        {
+          "name": "shutdown-waits-for-original-pending-ticket",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-zombie-registration",
+          "passed": true
+        },
+        {
+          "name": "shutdown-revokes-existing-stdio-client",
+          "passed": true
+        },
+        {
+          "name": "stdio-eof-exit",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/native-tools-input-Debug.json",
+      "sha256": "09E6C287DCC0351A1EE981697ACFC04E2874201E57357FBFDB76A524E4DD534C",
+      "passed": 34,
+      "failed": 0,
+      "inputSource": "external native Windows mouse and keyboard at named checkpoints",
+      "checks": [
+        {
+          "name": "variables-prism-singleton",
+          "passed": true
+        },
+        {
+          "name": "variables-gui-snapshot",
+          "passed": true
+        },
+        {
+          "name": "editor-info-prism-identity",
+          "passed": true
+        },
+        {
+          "name": "dynamic-info-result",
+          "passed": true
+        },
+        {
+          "name": "variables-docked-identifier",
+          "passed": true,
+          "expected": "nativeValue",
+          "actual": "nativeValue",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "variables-native-owner",
+          "passed": true
+        },
+        {
+          "name": "variables-same-floating-view",
+          "passed": true
+        },
+        {
+          "name": "variables-floating-value",
+          "passed": true,
+          "expected": "0x(AABB)",
+          "actual": "0x(AABB)",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "variables-readonly-controls",
+          "passed": true
+        },
+        {
+          "name": "parameter-value-copy-readonly",
+          "passed": true
+        },
+        {
+          "name": "variables-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "variables-close-show-identity",
+          "passed": true
+        },
+        {
+          "name": "info-prism-singleton-selection-enabled",
+          "passed": true
+        },
+        {
+          "name": "info-docked-prose",
+          "passed": true,
+          "expected": "Native selection ä€😀",
+          "actual": "Native selection ä€😀\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "info-native-owner-and-identity",
+          "passed": true
+        },
+        {
+          "name": "info-floating-prose",
+          "passed": true,
+          "expected": "Native selection ä€😀",
+          "actual": "Native selection ä€😀\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "example-exact-True",
+          "passed": true
+        },
+        {
+          "name": "copy-example-floating",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "copy-example-button-clicked-True",
+          "passed": true
+        },
+        {
+          "name": "example-exact-False",
+          "passed": true
+        },
+        {
+          "name": "copy-example-docked",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "copy-example-button-clicked-False",
+          "passed": true
+        },
+        {
+          "name": "info-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "info-link",
+          "passed": true
+        },
+        {
+          "name": "info-back",
+          "passed": true
+        },
+        {
+          "name": "info-close-show-identity-history",
+          "passed": true
+        },
+        {
+          "name": "focus-editor",
+          "passed": true
+        },
+        {
+          "name": "tool-copy-layout-no-editor-or-interpreter-change",
+          "passed": true
+        },
+        {
+          "name": "mcp-v2-output-boundary",
+          "passed": true
+        },
+        {
+          "name": "lease-blocks-refresh-and-tool-relocation",
+          "passed": true
+        },
+        {
+          "name": "post-lease-refresh-same-global-state",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-tools",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registration-and-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-global-subscriptions",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "path": "artifacts/g1-05/native-output-input-Debug.json",
+      "sha256": "75561CC1C9A1871137E65DB839C49516006F624D4901AF6F0BA99AEB118B57F6",
+      "passed": 29,
+      "failed": 0,
+      "inputSource": "external Windows mouse/keyboard at named checkpoints",
+      "checks": [
+        {
+          "name": "fixture-source-False",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-False",
+          "passed": true
+        },
+        {
+          "name": "source-position-False",
+          "passed": true
+        },
+        {
+          "name": "undo-False",
+          "passed": true
+        },
+        {
+          "name": "redo-False",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-False",
+          "passed": true
+        },
+        {
+          "name": "fixture-source-True",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-True",
+          "passed": true
+        },
+        {
+          "name": "source-position-True",
+          "passed": true
+        },
+        {
+          "name": "undo-True",
+          "passed": true
+        },
+        {
+          "name": "redo-True",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-True",
+          "passed": true
+        },
+        {
+          "name": "editor-identity",
+          "passed": true
+        },
+        {
+          "name": "copy-False",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-False",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-False",
+          "passed": true
+        },
+        {
+          "name": "copy-True",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-True",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-True",
+          "passed": true
+        },
+        {
+          "name": "navigate",
+          "passed": true
+        },
+        {
+          "name": "navigation-no-effects",
+          "passed": true
+        },
+        {
+          "name": "close-show-no-duplicates",
+          "passed": true
+        },
+        {
+          "name": "clear",
+          "passed": true
+        },
+        {
+          "name": "clear-no-document-effects",
+          "passed": true
+        },
+        {
+          "name": "multiple-prints",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-output",
+          "passed": true
+        },
+        {
+          "name": "shutdown-releases-output",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/foundation-native-Release.json",
+      "sha256": "EE2235734FD23DA2B0493DB51AA98639C080273292DADBB036F1F48CF7081CD0",
+      "passed": 60,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "native-main-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "native-main-foreground",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "prism-region-host",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "38, 38",
+            "child": "1713, 68"
+          }
+        },
+        {
+          "name": "float-0-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-0-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-0-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5376700,
+            "actual": 5376700
+          }
+        },
+        {
+          "name": "redock-0-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-0-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-0-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "38, 38",
+            "child": "1713, 68"
+          }
+        },
+        {
+          "name": "float-1-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-1-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-1-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5442236,
+            "actual": 5442236
+          }
+        },
+        {
+          "name": "redock-1-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-1-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-1-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "38, 38",
+            "child": "1713, 68"
+          }
+        },
+        {
+          "name": "float-2-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-2-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-2-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5507772,
+            "actual": 5507772
+          }
+        },
+        {
+          "name": "redock-2-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-2-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-2-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "38, 38",
+            "child": "1713, 68"
+          }
+        },
+        {
+          "name": "float-3-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-3-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-3-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5573308,
+            "actual": 5573308
+          }
+        },
+        {
+          "name": "redock-3-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-3-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-3-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-distinct-native-handle",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-avalonia-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-win32-owner",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-independent-position",
+          "passed": true,
+          "detail": {
+            "main": "38, 38",
+            "child": "1713, 68"
+          }
+        },
+        {
+          "name": "float-4-text-caret-identity",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "float-4-focus",
+          "passed": true,
+          "detail": {
+            "editorFocus": true,
+            "windowActive": true
+          }
+        },
+        {
+          "name": "float-4-foreground",
+          "passed": true,
+          "detail": {
+            "expected": 5638844,
+            "actual": 5638844
+          }
+        },
+        {
+          "name": "redock-4-closed-floating",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-4-editor-state",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "redock-4-focus",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "floating-tool-close",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "singleton-survives-tool-close",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "layout-restores-context",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "main-close-closes-native-floats",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "shutdown-detaches-editor",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "name": "shutdown-unregisters-controls",
+          "passed": true,
+          "detail": {
+            "controls": 0,
+            "windows": 0
+          }
+        },
+        {
+          "name": "document-disposed-once",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-release/dock.json",
+      "sha256": "79C768A82098EC8B9BF6FFA030B5EB324171A2A190419046CE9116D7035F90D9",
+      "passed": 67,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "product-shell-singleton",
+          "passed": true
+        },
+        {
+          "name": "product-state-singleton",
+          "passed": true
+        },
+        {
+          "name": "no-editor-view",
+          "passed": true
+        },
+        {
+          "name": "editor-never-attached",
+          "passed": true
+        },
+        {
+          "name": "native-main-handle",
+          "passed": true
+        },
+        {
+          "name": "main-foreground",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-handle",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-owner",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:independent-position",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "document-native-close-protected",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:output:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:output:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:info:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:info:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:status:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:status:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "shutdown-all-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registries",
+          "passed": true
+        },
+        {
+          "name": "no-execution-lifecycle-effects",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-release/legacy.json",
+      "sha256": "38CE77CA6163D5287C43C80AF1F0F1F91D4EA75EF9055DBB3C92BBCBD315F5F1",
+      "passed": 10,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-release/fallback.json",
+      "sha256": "6B856E327424317A519C94CD237A6163F6C07DF23064ECDB9B33C8C769956FEF",
+      "passed": 13,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "failed-layout-disposed",
+          "passed": true
+        },
+        {
+          "name": "failed-hosts-cleaned",
+          "passed": true
+        },
+        {
+          "name": "preview-theme-removed",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-release/editor.json",
+      "sha256": "8C072B4C22F82E9451DE9A6537FB78E6B1BFAA2C8AE967B8AD64F853B805A8F3",
+      "passed": 54,
+      "failed": 0,
+      "inputSource": "programmatic routed editor input",
+      "checks": [
+        {
+          "name": "product-editor-singleton",
+          "passed": true
+        },
+        {
+          "name": "registered-before-input",
+          "passed": true
+        },
+        {
+          "name": "desktop-mcp-hook-installed",
+          "passed": true
+        },
+        {
+          "name": "float-0-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-0-focus",
+          "passed": true
+        },
+        {
+          "name": "float-0-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-0-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-0-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-1-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-1-focus",
+          "passed": true
+        },
+        {
+          "name": "float-1-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-1-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-1-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-2-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-2-focus",
+          "passed": true
+        },
+        {
+          "name": "float-2-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-2-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-2-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-3-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-3-focus",
+          "passed": true
+        },
+        {
+          "name": "float-3-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-3-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-3-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-4-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-4-focus",
+          "passed": true
+        },
+        {
+          "name": "float-4-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-4-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-4-cleanup",
+          "passed": true
+        },
+        {
+          "name": "unicode",
+          "passed": true
+        },
+        {
+          "name": "undo",
+          "passed": true
+        },
+        {
+          "name": "redo",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "one-history-entry-per-enter",
+          "passed": true
+        },
+        {
+          "name": "line-history",
+          "passed": true
+        },
+        {
+          "name": "completion",
+          "passed": true
+        },
+        {
+          "name": "completion-in-floating-host",
+          "passed": true
+        },
+        {
+          "name": "completion-retired-on-relocation",
+          "passed": true
+        },
+        {
+          "name": "registration-still-original",
+          "passed": true
+        },
+        {
+          "name": "gui-password-blocks-dock-and-host-close",
+          "passed": true
+        },
+        {
+          "name": "gui-password-cancel-settles-original-job",
+          "passed": true
+        },
+        {
+          "name": "load-does-not-execute",
+          "passed": true
+        },
+        {
+          "name": "production-pairing",
+          "passed": true
+        },
+        {
+          "name": "actual-stdio-initialize",
+          "passed": true
+        },
+        {
+          "name": "transport-correct-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-gui",
+          "passed": true
+        },
+        {
+          "name": "transport-edit-original-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-execution-confirmation-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-approved-execution",
+          "passed": true
+        },
+        {
+          "name": "shutdown-waits-for-original-pending-ticket",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-zombie-registration",
+          "passed": true
+        },
+        {
+          "name": "shutdown-revokes-existing-stdio-client",
+          "passed": true
+        },
+        {
+          "name": "stdio-eof-exit",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-release/startup-failure.json",
+      "sha256": "8BBFEF9B613EFAE8D86B61C30B33672EEEFB0CC9FD674E7E85253A842500ACE9",
+      "passed": 5,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "productive-start-was-reached",
+          "passed": true
+        },
+        {
+          "name": "original-failure-propagated",
+          "passed": true
+        },
+        {
+          "name": "admission-revoked",
+          "passed": true
+        },
+        {
+          "name": "no-replacement-registration",
+          "passed": true
+        },
+        {
+          "name": "unshown-shell-layout-released",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-release/tools.json",
+      "sha256": "869E017EF70272997B351931082BF95A9FE8EF5643DC3C7BF7F5AD1DBB74770E",
+      "passed": 32,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "variables-prism-singleton",
+          "passed": true
+        },
+        {
+          "name": "variables-gui-snapshot",
+          "passed": true
+        },
+        {
+          "name": "editor-info-prism-identity",
+          "passed": true
+        },
+        {
+          "name": "dynamic-info-result",
+          "passed": true
+        },
+        {
+          "name": "variables-docked-identifier",
+          "passed": true,
+          "expected": "nativeValue",
+          "actual": "nativeValue",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "variables-native-owner",
+          "passed": true
+        },
+        {
+          "name": "variables-same-floating-view",
+          "passed": true
+        },
+        {
+          "name": "variables-floating-value",
+          "passed": true,
+          "expected": "0x(AABB)",
+          "actual": "0x(AABB)",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "variables-readonly-controls",
+          "passed": true
+        },
+        {
+          "name": "parameter-value-copy-readonly",
+          "passed": true
+        },
+        {
+          "name": "variables-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "variables-close-show-identity",
+          "passed": true
+        },
+        {
+          "name": "info-prism-singleton-selection-enabled",
+          "passed": true
+        },
+        {
+          "name": "info-native-owner-and-identity",
+          "passed": true
+        },
+        {
+          "name": "example-exact-True",
+          "passed": true
+        },
+        {
+          "name": "copy-example-floating",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "copy-example-button-clicked-True",
+          "passed": true
+        },
+        {
+          "name": "example-exact-False",
+          "passed": true
+        },
+        {
+          "name": "copy-example-docked",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "programmatic copy command"
+        },
+        {
+          "name": "copy-example-button-clicked-False",
+          "passed": true
+        },
+        {
+          "name": "info-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "info-link",
+          "passed": true
+        },
+        {
+          "name": "info-back",
+          "passed": true
+        },
+        {
+          "name": "info-close-show-identity-history",
+          "passed": true
+        },
+        {
+          "name": "focus-editor",
+          "passed": true
+        },
+        {
+          "name": "tool-copy-layout-no-editor-or-interpreter-change",
+          "passed": true
+        },
+        {
+          "name": "mcp-v2-output-boundary",
+          "passed": true
+        },
+        {
+          "name": "lease-blocks-refresh-and-tool-relocation",
+          "passed": true
+        },
+        {
+          "name": "post-lease-refresh-same-global-state",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-tools",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registration-and-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-global-subscriptions",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-release/output.json",
+      "sha256": "C398C452FEF0F02BD89DAD11C9EB0FBA8755C280E9EED0F4AC08ED2856B05FF0",
+      "passed": 29,
+      "failed": 0,
+      "inputSource": "programmatic native UI",
+      "checks": [
+        {
+          "name": "fixture-source-False",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-False",
+          "passed": true
+        },
+        {
+          "name": "source-position-False",
+          "passed": true
+        },
+        {
+          "name": "undo-False",
+          "passed": true
+        },
+        {
+          "name": "redo-False",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-False",
+          "passed": true
+        },
+        {
+          "name": "fixture-source-True",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-True",
+          "passed": true
+        },
+        {
+          "name": "source-position-True",
+          "passed": true
+        },
+        {
+          "name": "undo-True",
+          "passed": true
+        },
+        {
+          "name": "redo-True",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-True",
+          "passed": true
+        },
+        {
+          "name": "editor-identity",
+          "passed": true
+        },
+        {
+          "name": "copy-False",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-False",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-False",
+          "passed": true
+        },
+        {
+          "name": "copy-True",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-True",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-True",
+          "passed": true
+        },
+        {
+          "name": "navigate",
+          "passed": true
+        },
+        {
+          "name": "navigation-no-effects",
+          "passed": true
+        },
+        {
+          "name": "close-show-no-duplicates",
+          "passed": true
+        },
+        {
+          "name": "clear",
+          "passed": true
+        },
+        {
+          "name": "clear-no-document-effects",
+          "passed": true
+        },
+        {
+          "name": "multiple-prints",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-output",
+          "passed": true
+        },
+        {
+          "name": "shutdown-releases-output",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-editor-input-Release.json",
+      "sha256": "AB224CA5D86D0588E2FCE1540C9A50DDAA3174606D0054B6DBECF302A8EB7DDB",
+      "passed": 54,
+      "failed": 0,
+      "inputSource": "external native Windows keyboard",
+      "checks": [
+        {
+          "name": "product-editor-singleton",
+          "passed": true
+        },
+        {
+          "name": "registered-before-input",
+          "passed": true
+        },
+        {
+          "name": "desktop-mcp-hook-installed",
+          "passed": true
+        },
+        {
+          "name": "float-0-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-0-focus",
+          "passed": true
+        },
+        {
+          "name": "float-0-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-0-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-0-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-1-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-1-focus",
+          "passed": true
+        },
+        {
+          "name": "float-1-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-1-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-1-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-2-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-2-focus",
+          "passed": true
+        },
+        {
+          "name": "float-2-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-2-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-2-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-3-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-3-focus",
+          "passed": true
+        },
+        {
+          "name": "float-3-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-3-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-3-cleanup",
+          "passed": true
+        },
+        {
+          "name": "float-4-native-owner",
+          "passed": true
+        },
+        {
+          "name": "float-4-focus",
+          "passed": true
+        },
+        {
+          "name": "float-4-close-protected",
+          "passed": true
+        },
+        {
+          "name": "redock-4-identity",
+          "passed": true
+        },
+        {
+          "name": "redock-4-cleanup",
+          "passed": true
+        },
+        {
+          "name": "unicode",
+          "passed": true
+        },
+        {
+          "name": "undo",
+          "passed": true
+        },
+        {
+          "name": "redo",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "one-history-entry-per-enter",
+          "passed": true
+        },
+        {
+          "name": "line-history",
+          "passed": true
+        },
+        {
+          "name": "completion",
+          "passed": true
+        },
+        {
+          "name": "completion-in-floating-host",
+          "passed": true
+        },
+        {
+          "name": "completion-retired-on-relocation",
+          "passed": true
+        },
+        {
+          "name": "registration-still-original",
+          "passed": true
+        },
+        {
+          "name": "gui-password-blocks-dock-and-host-close",
+          "passed": true
+        },
+        {
+          "name": "gui-password-cancel-settles-original-job",
+          "passed": true
+        },
+        {
+          "name": "load-does-not-execute",
+          "passed": true
+        },
+        {
+          "name": "production-pairing",
+          "passed": true
+        },
+        {
+          "name": "actual-stdio-initialize",
+          "passed": true
+        },
+        {
+          "name": "transport-correct-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-lease-blocks-gui",
+          "passed": true
+        },
+        {
+          "name": "transport-edit-original-editor",
+          "passed": true
+        },
+        {
+          "name": "transport-execution-confirmation-blocks-docking",
+          "passed": true
+        },
+        {
+          "name": "transport-approved-execution",
+          "passed": true
+        },
+        {
+          "name": "shutdown-waits-for-original-pending-ticket",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-zombie-registration",
+          "passed": true
+        },
+        {
+          "name": "shutdown-revokes-existing-stdio-client",
+          "passed": true
+        },
+        {
+          "name": "stdio-eof-exit",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-tools-input-Release.json",
+      "sha256": "09E6C287DCC0351A1EE981697ACFC04E2874201E57357FBFDB76A524E4DD534C",
+      "passed": 34,
+      "failed": 0,
+      "inputSource": "external native Windows mouse and keyboard at named checkpoints",
+      "checks": [
+        {
+          "name": "variables-prism-singleton",
+          "passed": true
+        },
+        {
+          "name": "variables-gui-snapshot",
+          "passed": true
+        },
+        {
+          "name": "editor-info-prism-identity",
+          "passed": true
+        },
+        {
+          "name": "dynamic-info-result",
+          "passed": true
+        },
+        {
+          "name": "variables-docked-identifier",
+          "passed": true,
+          "expected": "nativeValue",
+          "actual": "nativeValue",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "variables-native-owner",
+          "passed": true
+        },
+        {
+          "name": "variables-same-floating-view",
+          "passed": true
+        },
+        {
+          "name": "variables-floating-value",
+          "passed": true,
+          "expected": "0x(AABB)",
+          "actual": "0x(AABB)",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "variables-readonly-controls",
+          "passed": true
+        },
+        {
+          "name": "parameter-value-copy-readonly",
+          "passed": true
+        },
+        {
+          "name": "variables-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "variables-close-show-identity",
+          "passed": true
+        },
+        {
+          "name": "info-prism-singleton-selection-enabled",
+          "passed": true
+        },
+        {
+          "name": "info-docked-prose",
+          "passed": true,
+          "expected": "Native selection ä€😀",
+          "actual": "Native selection ä€😀\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "info-native-owner-and-identity",
+          "passed": true
+        },
+        {
+          "name": "info-floating-prose",
+          "passed": true,
+          "expected": "Native selection ä€😀",
+          "actual": "Native selection ä€😀\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "example-exact-True",
+          "passed": true
+        },
+        {
+          "name": "copy-example-floating",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "copy-example-button-clicked-True",
+          "passed": true
+        },
+        {
+          "name": "example-exact-False",
+          "passed": true
+        },
+        {
+          "name": "copy-example-docked",
+          "passed": true,
+          "expected": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "actual": "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n",
+          "input": "external mouse/keyboard at checkpoint"
+        },
+        {
+          "name": "copy-example-button-clicked-False",
+          "passed": true
+        },
+        {
+          "name": "info-redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "info-link",
+          "passed": true
+        },
+        {
+          "name": "info-back",
+          "passed": true
+        },
+        {
+          "name": "info-close-show-identity-history",
+          "passed": true
+        },
+        {
+          "name": "focus-editor",
+          "passed": true
+        },
+        {
+          "name": "tool-copy-layout-no-editor-or-interpreter-change",
+          "passed": true
+        },
+        {
+          "name": "mcp-v2-output-boundary",
+          "passed": true
+        },
+        {
+          "name": "lease-blocks-refresh-and-tool-relocation",
+          "passed": true
+        },
+        {
+          "name": "post-lease-refresh-same-global-state",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-tools",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registration-and-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-global-subscriptions",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "configuration": "Release",
+      "path": "artifacts/g1-05/native-output-input-Release.json",
+      "sha256": "75561CC1C9A1871137E65DB839C49516006F624D4901AF6F0BA99AEB118B57F6",
+      "passed": 29,
+      "failed": 0,
+      "inputSource": "external Windows mouse/keyboard at named checkpoints",
+      "checks": [
+        {
+          "name": "fixture-source-False",
+          "passed": true
+        },
+        {
+          "name": "return",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-False",
+          "passed": true
+        },
+        {
+          "name": "source-position-False",
+          "passed": true
+        },
+        {
+          "name": "undo-False",
+          "passed": true
+        },
+        {
+          "name": "redo-False",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-False",
+          "passed": true
+        },
+        {
+          "name": "fixture-source-True",
+          "passed": true
+        },
+        {
+          "name": "numpad-enter",
+          "passed": true
+        },
+        {
+          "name": "no-generated-text-True",
+          "passed": true
+        },
+        {
+          "name": "source-position-True",
+          "passed": true
+        },
+        {
+          "name": "undo-True",
+          "passed": true
+        },
+        {
+          "name": "redo-True",
+          "passed": true
+        },
+        {
+          "name": "undo-does-not-reexecute-True",
+          "passed": true
+        },
+        {
+          "name": "editor-identity",
+          "passed": true
+        },
+        {
+          "name": "copy-False",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-False",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-False",
+          "passed": true
+        },
+        {
+          "name": "copy-True",
+          "passed": true
+        },
+        {
+          "name": "copy-exact-True",
+          "passed": true
+        },
+        {
+          "name": "same-global-view-True",
+          "passed": true
+        },
+        {
+          "name": "navigate",
+          "passed": true
+        },
+        {
+          "name": "navigation-no-effects",
+          "passed": true
+        },
+        {
+          "name": "close-show-no-duplicates",
+          "passed": true
+        },
+        {
+          "name": "clear",
+          "passed": true
+        },
+        {
+          "name": "clear-no-document-effects",
+          "passed": true
+        },
+        {
+          "name": "multiple-prints",
+          "passed": true
+        },
+        {
+          "name": "shutdown-floating-output",
+          "passed": true
+        },
+        {
+          "name": "shutdown-releases-output",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "nativeTotalPerConfiguration": 387,
+  "nativeDeltaPerConfiguration": 58,
+  "guiMcpBoundary": "Only admitted GUI Present publishes. MCP V2 retains unchanged receipts and return values; no additional GUI output. No editor polling.",
+  "sourceMapping": "ANTLR token -> nullable AST/invocation source -> structured Print event -> host-local metadata. Native source validated after existing Enter continuation. Exact document identity and version required for navigation.",
+  "checks": {
+    "gitDiffCheck": {
+      "exitCode": 0,
+      "output": ""
+    },
+    "untrackedFiles": [
+      {
+        "path": "CryptoScriptUnitTest/PrintSourceTests.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockOutputService.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockOutputView.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/DockVariablesView.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockEditorTests.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockOutputNativeProbe.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockOutputTests.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockShellTests.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockToolNativeProbe.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockToolTests.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/G1-01-dock-feasibility.md",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/G1-02-shell-implementation.md",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/G1-03-editor-mcp-integration.md",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/G1-04-variables-info-integration.md",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/G1-05-output-pipeline.md",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "docs/gui/evidence/G1-01-results.json",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/evidence/G1-02-results.json",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/evidence/G1-03-results.json",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/evidence/G1-04-results.json",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "docs/gui/evidence/G1-05-results.json",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "eng/gui/Validate-G1Shell.ps1",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "eng/gui/native/G1ShellProbe.csproj",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "eng/gui/native/Program.cs",
+        "issues": [],
+        "inheritedUnchanged": false
+      },
+      {
+        "path": "eng/gui/native/packages.lock.json",
+        "issues": [
+          "no final LF"
+        ],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/NativeProbe.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/Program.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/README.md",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/Session.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/Tests/DockTests.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/Tests/packages.lock.json",
+        "issues": [
+          "no final LF"
+        ],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/Validate.ps1",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/Views.cs",
+        "issues": [],
+        "inheritedUnchanged": true
+      },
+      {
+        "path": "prototypes/G1DockFeasibility/packages.lock.json",
+        "issues": [
+          "no final LF"
+        ],
+        "inheritedUnchanged": true
+      }
+    ],
+    "finalStatus": [
+      " M CryptoScript/Model/AntlrToFunctionCallExpression.cs",
+      " M CryptoScript/Model/Ast/FunctionCallExpressionNode.cs",
+      " M CryptoScript/Model/FunctionCall.cs",
+      " M CryptoScript/Model/FunctionCallEvaluator.cs",
+      " M CryptoScript/Model/OperationInvocation.cs",
+      " M CryptoScript/Operations/OutputOperations.cs",
+      " M CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+      " M CryptoWorkBenchAvalonia.Desktop/Program.cs",
+      " M CryptoWorkBenchAvalonia/App.axaml.cs",
+      " M CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+      " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+      " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+      " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+      " M CryptoWorkBenchAvalonia/Services/InfoCompletionController.cs",
+      " M CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+      " M CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml.cs",
+      " M CryptoWorkBenchGuiTest/WorkbenchReviewRegressionTests.cs",
+      " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+      " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+      " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+      " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+      " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+      "?? CryptoScriptUnitTest/PrintSourceTests.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockOutputService.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockOutputView.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+      "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/DockVariablesView.cs",
+      "?? CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+      "?? CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockEditorTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockOutputNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockOutputTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockShellTests.cs",
+      "?? CryptoWorkBenchGuiTest/DockToolNativeProbe.cs",
+      "?? CryptoWorkBenchGuiTest/DockToolTests.cs",
+      "?? docs/gui/G1-01-dock-feasibility.md",
+      "?? docs/gui/G1-02-shell-implementation.md",
+      "?? docs/gui/G1-03-editor-mcp-integration.md",
+      "?? docs/gui/G1-04-variables-info-integration.md",
+      "?? docs/gui/G1-05-output-pipeline.md",
+      "?? docs/gui/evidence/G1-01-results.json",
+      "?? docs/gui/evidence/G1-02-results.json",
+      "?? docs/gui/evidence/G1-03-results.json",
+      "?? docs/gui/evidence/G1-04-results.json",
+      "?? docs/gui/evidence/G1-05-results.json",
+      "?? eng/gui/Validate-G1Shell.ps1",
+      "?? eng/gui/native/G1ShellProbe.csproj",
+      "?? eng/gui/native/Program.cs",
+      "?? eng/gui/native/packages.lock.json",
+      "?? prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+      "?? prototypes/G1DockFeasibility/NativeProbe.cs",
+      "?? prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+      "?? prototypes/G1DockFeasibility/Program.cs",
+      "?? prototypes/G1DockFeasibility/README.md",
+      "?? prototypes/G1DockFeasibility/Session.cs",
+      "?? prototypes/G1DockFeasibility/Tests/DockTests.cs",
+      "?? prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+      "?? prototypes/G1DockFeasibility/Tests/packages.lock.json",
+      "?? prototypes/G1DockFeasibility/Validate.ps1",
+      "?? prototypes/G1DockFeasibility/Views.cs",
+      "?? prototypes/G1DockFeasibility/packages.lock.json"
+    ],
+    "modifiedTracked": 31,
+    "untracked": 47,
+    "stagedFiles": []
+  },
+  "review": {
+    "semantics": "Final GUI regression uses Print before an aborting Print(missing), not only a continuing diagnostic.",
+    "existingAssertions": "CaptureFailure expected record extended with exact source; native Enter expects print in Output and exact source plus native newline.",
+    "coreExistingTestsChanged": false,
+    "initialFailedRunsPreserved": true
+  },
+  "limitations": [
+    "Linux/macOS native not revalidated",
+    "Mixed DPI/multiple monitors not covered",
+    "No full cross-window mouse redock claim",
+    "No hours-long resource stress",
+    "13 installed-Codex explicit tests and one core hardware explicit test not run",
+    "Output runtime retention is unbounded until Clear/Shutdown; no persistence",
+    "Changed document revisions reject old source navigation"
+  ],
+  "externalInput": {
+    "tool": "computer-use skill / @oai/sky",
+    "output": "Return, KP_Enter, Ctrl+Z/Ctrl+Y; mouse selection or double-click plus Ctrl+A, Ctrl+C; source button and Clear clicks. Floating setup uses Factory.",
+    "baseline": "G1-03 Unicode/history/completion keys and G1-04 variable/info copy, prose mouse selection, Copy Example buttons, link/back/editor focus.",
+    "redock": "Programmatic only; no full external cross-window mouse-redock approval"
+  },
+  "builds": [
+    "artifacts/g1-05/build-Debug-final.log",
+    "artifacts/g1-05/release/build-Release.log",
+    "artifacts/g1-05/review-build2-Debug.log",
+    "artifacts/g1-05/review-build2-Release.log"
+  ]
+}

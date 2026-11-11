@@ -451,7 +451,7 @@ public sealed class InfoCompletionController : IDisposable
         }
     }
 
-    private void CancelAndClose()
+    internal void CancelAndClose()
     {
         _reopenPolicy.Cancel();
         CloseWindow();

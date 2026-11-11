@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -27,10 +26,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationV2
     private DispatcherTimer? leaseTimer;
     private ulong lastLeaseTime;
     private bool clockBroken;
-    [DllImport("kernel32.dll", ExactSpelling = true)]
-    private static extern ulong GetTickCount64();
-    internal Func<ulong> LeaseMilliseconds { get; init; } = () => OperatingSystem.IsWindows()
-        ? GetTickCount64() : throw new PlatformNotSupportedException();
+    internal Func<ulong> LeaseMilliseconds { get; init; } = LeaseClock.Create();
     private const ulong Duration = 600_000;
 
     private ulong? ReadTime()

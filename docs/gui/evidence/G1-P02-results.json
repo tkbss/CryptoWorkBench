@@ -1,0 +1,894 @@
+{
+  "task": "G1-P02",
+  "date": "2026-11-11",
+  "status": "IMPLEMENTED_LOCAL_WINDOWS_VALIDATED_AWAITING_OWNER_ACCEPTANCE",
+  "ownerApproval": "Explicit P02 local implementation and validation approval received; no commit/push/PR authorization",
+  "baseline": {
+    "branch": "codex/g1-i01-composition",
+    "newCommits": 0,
+    "head": "37b0a4b90e0413e7d53b4cff6eeb7b337e20ce1b",
+    "masterBase": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb"
+  },
+  "implementation": {
+    "linux": "clock_gettime(CLOCK_BOOTTIME=7) / x64 LP64",
+    "injection": "Func<ulong> LeaseMilliseconds retained",
+    "utcUsedForAuthorization": false,
+    "windows": "GetTickCount64 / x64",
+    "unit": "ulong milliseconds",
+    "durationMilliseconds": 600000,
+    "nativeErrors": "Propagate to unchanged ReadTime and permanent clockBroken latch",
+    "nativeSelectionFixed": true,
+    "fallbacks": [],
+    "macOS": "mach_continuous_time + checked mach_timebase_info / x64 and ARM64",
+    "abstraction": "LeaseClock",
+    "unsupportedAbisFailClosed": true
+  },
+  "securityReview": {
+    "readTimeAndDeadlineBodyUnchanged": true,
+    "acquireRenewReleaseReplayUnchanged": true,
+    "epochCredentialsDrainAndInterpreterQueueUnchanged": true,
+    "nativeFunctionAvailabilityFailure": "No fallback; missing symbols/libraries remain failures",
+    "linux": "Signed fields validated; checked multiplication and addition; explicit LP64 layout",
+    "macOS": "Native status and nonzero timebase checked; UInt128 product and checked ulong narrowing",
+    "dispatcherTimerRemainsWakeupOnly": true,
+    "lazyMacTimebase": "Initialized during read; cached successful value or failure"
+  },
+  "validation": {
+    "manualExplicitCasesNotExecutedPerConfiguration": 1,
+    "productionNativeClock": [
+      {
+        "cases": [
+          {
+            "class": "CryptoWorkBenchGuiTest.LeaseV2Tests",
+            "outcome": "Passed",
+            "stdout": "Production clock: Microsoft Windows 10.0.26200; OS=X64; process=X64; runtime=.NET 10.0.12; ms=344786515,344786515; lease=0000006f-0000-0000-0000-000000000001",
+            "name": "ProductionLeaseClockRetainsPlatformBoundaryAndGuiAdmission",
+            "message": "",
+            "key": "CryptoWorkBenchGuiTest.LeaseV2Tests|ProductionLeaseClockRetainsPlatformBoundaryAndGuiAdmission|#1"
+          }
+        ],
+        "configuration": "Debug"
+      },
+      {
+        "cases": [
+          {
+            "class": "CryptoWorkBenchGuiTest.LeaseV2Tests",
+            "outcome": "Passed",
+            "stdout": "Production clock: Microsoft Windows 10.0.26200; OS=X64; process=X64; runtime=.NET 10.0.12; ms=345005265,345005265; lease=0000006f-0000-0000-0000-000000000001",
+            "name": "ProductionLeaseClockRetainsPlatformBoundaryAndGuiAdmission",
+            "message": "",
+            "key": "CryptoWorkBenchGuiTest.LeaseV2Tests|ProductionLeaseClockRetainsPlatformBoundaryAndGuiAdmission|#1"
+          }
+        ],
+        "configuration": "Release"
+      }
+    ],
+    "commandCount": 18,
+    "host": "Windows x64",
+    "newCITriggered": false,
+    "compositionPassedPerConfiguration": 7,
+    "nativeDockMatrixRerun": false,
+    "runtime": ".NET 10.0.12",
+    "existingOutcomeChanges": 0,
+    "fullRegression": [
+      {
+        "changedOutcomes": [],
+        "added": [
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|EqualSamplesAndMaximumSafeDeadlineRemainValid(18446744073708951615UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxSampleUsesWholeMilliseconds(0L,0L,ulong.MinValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"FREEBSD\",X64)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(0,uint.MinValue,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"overflow\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxNativeFailureIsNotAZeroSample(1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(1,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|EqualSamplesAndMaximumSafeDeadlineRemainValid(ulong.MinValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(0,1,uint.MinValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"mac-data\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"deadline-overflow\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"WINDOWS\",X86)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(7230000UL,True)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(ulong.MaxValue,125,3)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"WINDOWS\",Arm64)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"linux-data\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacFinalNarrowingCannotWrap|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxSampleUsesWholeMilliseconds(12L,999999L,12000UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|InitialNativeFailureDoesNotTakeControlAndOnlyANewServiceCanRecover|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(ulong.MinValue,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"LINUX\",X86)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"mac-error\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxSampleUsesWholeMilliseconds(12L,999999999L,12999UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxConversionChecksMultiplicationAndAdditionOverflow|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(24000UL,125,3)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(-1,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(599999UL,False)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidLinuxSampleIsRejected(0L,-1L)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(999999UL,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"rollback\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|EqualSamplesAndMaximumSafeDeadlineRemainValid(1000UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"OSX\",X86)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"LINUX\",Arm64)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidLinuxSampleIsRejected(-1L,0L)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|UtcJumpAndReplaysCannotMoveTheAuthorizationDeadline(-24)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"missing-symbol\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(600001UL,True)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"missing-library\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxNativeFailureIsNotAZeroSample(-1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(ulong.MaxValue,uint.MaxValue,uint.MaxValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|NativeStructuresMatchTheSupported64BitAbis|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|UtcJumpAndReplaysCannotMoveTheAuthorizationDeadline(24)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(600000UL,True)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"linux-error\")|#1",
+          "CryptoWorkBenchGuiTest.ManualLeaseClockPowerTests|RealPowerTransitionExpiresBeforeDispatcherCanTick|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidLinuxSampleIsRejected(0L,1000000000L)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|SuspendExpiryCancelsPendingEditAndWaitsForDrainBeforeGuiAdmission|#1"
+        ],
+        "trx": "artifacts/g1-p02/validation-windows/CryptoWorkBenchGuiTest-Debug.trx",
+        "removed": [],
+        "passed": 1164,
+        "failed": 0,
+        "sha256": "D0122F8AB0F555E72E41CCD7BD4D0D1F108F62D4F082C166CD779C8B6727E824",
+        "notExecuted": 1,
+        "configuration": "Debug",
+        "suite": "CryptoWorkBenchGuiTest"
+      },
+      {
+        "changedOutcomes": [],
+        "added": [],
+        "trx": "artifacts/g1-p02/validation-windows/CryptoWorkBench.Mcp.Tests-Debug.trx",
+        "removed": [],
+        "passed": 176,
+        "failed": 0,
+        "sha256": "EB28230DEB4781771641131354B1A46C14063DE21F608B479C061B33DF10CA94",
+        "notExecuted": 13,
+        "configuration": "Debug",
+        "suite": "CryptoWorkBench.Mcp.Tests"
+      },
+      {
+        "changedOutcomes": [],
+        "added": [],
+        "trx": "artifacts/g1-p02/validation-windows/CryptoScriptUnitTest-Debug.trx",
+        "removed": [],
+        "passed": 11723,
+        "failed": 0,
+        "sha256": "AA0134EB6C433D166B7F7B2039ED1F5EF0899BAC064C464DD394F34C56B7D08C",
+        "notExecuted": 27,
+        "configuration": "Debug",
+        "suite": "CryptoScriptUnitTest"
+      },
+      {
+        "changedOutcomes": [],
+        "added": [],
+        "trx": "artifacts/g1-p02/validation-windows/G1DockFeasibility.Tests-Debug.trx",
+        "removed": [],
+        "passed": 12,
+        "failed": 0,
+        "sha256": "93B2E3E39CCED4C1914A86FF4D95F38EF42D6D48A9FE35C457E86DF11F3578AD",
+        "notExecuted": 0,
+        "configuration": "Debug",
+        "suite": "G1DockFeasibility.Tests"
+      },
+      {
+        "changedOutcomes": [],
+        "added": [
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|EqualSamplesAndMaximumSafeDeadlineRemainValid(18446744073708951615UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(1,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"missing-symbol\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"linux-data\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|SuspendExpiryCancelsPendingEditAndWaitsForDrainBeforeGuiAdmission|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"FREEBSD\",X64)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(ulong.MaxValue,uint.MaxValue,uint.MaxValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(600000UL,True)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(ulong.MinValue,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidLinuxSampleIsRejected(-1L,0L)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacFinalNarrowingCannotWrap|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(0,1,uint.MinValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxSampleUsesWholeMilliseconds(0L,0L,ulong.MinValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(999999UL,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(0,uint.MinValue,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(7230000UL,True)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(599999UL,False)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"linux-error\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxSampleUsesWholeMilliseconds(12L,999999L,12000UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"OSX\",X86)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(ulong.MaxValue,125,3)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"WINDOWS\",X86)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxSampleUsesWholeMilliseconds(12L,999999999L,12999UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidLinuxSampleIsRejected(0L,-1L)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidMacTimebaseIsRejected(-1,1,1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"LINUX\",X86)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|NativeStructuresMatchTheSupported64BitAbis|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxNativeFailureIsNotAZeroSample(1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"missing-library\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxNativeFailureIsNotAZeroSample(-1)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"overflow\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"deadline-overflow\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"rollback\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"LINUX\",Arm64)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|InitialNativeFailureDoesNotTakeControlAndOnlyANewServiceCanRecover|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|MacConversionMatchesIntegerRationalArithmetic(24000UL,125,3)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FirstAccessChecksDeadlineWithoutATimerTick(600001UL,True)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|UtcJumpAndReplaysCannotMoveTheAuthorizationDeadline(24)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"mac-error\")|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|EqualSamplesAndMaximumSafeDeadlineRemainValid(ulong.MinValue)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|EqualSamplesAndMaximumSafeDeadlineRemainValid(1000UL)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|InvalidLinuxSampleIsRejected(0L,1000000000L)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|UtcJumpAndReplaysCannotMoveTheAuthorizationDeadline(-24)|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|LinuxConversionChecksMultiplicationAndAdditionOverflow|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockTests|UnsupportedPlatformOrAbiDefersFailureUntilRead(\"WINDOWS\",Arm64)|#1",
+          "CryptoWorkBenchGuiTest.ManualLeaseClockPowerTests|RealPowerTransitionExpiresBeforeDispatcherCanTick|#1",
+          "CryptoWorkBenchGuiTest.LeaseClockContractTests|FailedActiveClockRevokesAndRemainsLatchedAfterRecovery(\"mac-data\")|#1"
+        ],
+        "trx": "artifacts/g1-p02/validation-windows/CryptoWorkBenchGuiTest-Release.trx",
+        "removed": [],
+        "passed": 1164,
+        "failed": 0,
+        "sha256": "E4499EC2A4AE3FAA4741A777CF4D43801AC17782AD5F757BB3E8FEDEC7E784D3",
+        "notExecuted": 1,
+        "configuration": "Release",
+        "suite": "CryptoWorkBenchGuiTest"
+      },
+      {
+        "changedOutcomes": [],
+        "added": [],
+        "trx": "artifacts/g1-p02/validation-windows/CryptoWorkBench.Mcp.Tests-Release.trx",
+        "removed": [],
+        "passed": 176,
+        "failed": 0,
+        "sha256": "83695DEFCA8047789905EF9D5C97049C64D50E9AF991FB6AB9D98100E8D890F3",
+        "notExecuted": 13,
+        "configuration": "Release",
+        "suite": "CryptoWorkBench.Mcp.Tests"
+      },
+      {
+        "changedOutcomes": [],
+        "added": [],
+        "trx": "artifacts/g1-p02/validation-windows/CryptoScriptUnitTest-Release.trx",
+        "removed": [],
+        "passed": 11723,
+        "failed": 0,
+        "sha256": "B8DDBA46D19AA5C5CC74B0A326216F8CEC94C67122FE863B109D71FAD84AC3F4",
+        "notExecuted": 27,
+        "configuration": "Release",
+        "suite": "CryptoScriptUnitTest"
+      },
+      {
+        "changedOutcomes": [],
+        "added": [],
+        "trx": "artifacts/g1-p02/validation-windows/G1DockFeasibility.Tests-Release.trx",
+        "removed": [],
+        "passed": 12,
+        "failed": 0,
+        "sha256": "63D6CA42BD67D491CC39C6B3D95F7D8F38FF36F39297C7ABC1F0753C5CB3B05C",
+        "notExecuted": 0,
+        "configuration": "Release",
+        "suite": "G1DockFeasibility.Tests"
+      }
+    ],
+    "existingCasesRemoved": 0,
+    "newAutomatedCasesPerConfiguration": 46,
+    "commands": [
+      {
+        "startedUtc": "2026-11-11T09:15:15.011483Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/solutions-Debug.log",
+        "endedUtc": "2026-11-11T09:15:50.0362649Z",
+        "arguments": [
+          "Debug"
+        ],
+        "exitCode": 0,
+        "executable": "./eng/prism/Build.ps1",
+        "name": "solutions-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:15:50.0895213Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-CryptoWorkBenchGuiTest-Debug.log",
+        "endedUtc": "2026-11-11T09:15:51.7281115Z",
+        "arguments": [
+          "restore",
+          "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+          "--locked-mode",
+          "-p:Configuration=Debug",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-CryptoWorkBenchGuiTest-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:15:51.7297819Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-CryptoWorkBenchGuiTest-Debug.log",
+        "endedUtc": "2026-11-11T09:17:19.9679673Z",
+        "arguments": [
+          "test",
+          "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+          "-c",
+          "Debug",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=CryptoWorkBenchGuiTest-Debug.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-CryptoWorkBenchGuiTest-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:17:19.9692753Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-CryptoWorkBench.Mcp.Tests-Debug.log",
+        "endedUtc": "2026-11-11T09:17:20.920601Z",
+        "arguments": [
+          "restore",
+          "CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj",
+          "--locked-mode",
+          "-p:Configuration=Debug",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-CryptoWorkBench.Mcp.Tests-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:17:20.9218349Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-CryptoWorkBench.Mcp.Tests-Debug.log",
+        "endedUtc": "2026-11-11T09:17:43.9342861Z",
+        "arguments": [
+          "test",
+          "CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj",
+          "-c",
+          "Debug",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=CryptoWorkBench.Mcp.Tests-Debug.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-CryptoWorkBench.Mcp.Tests-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:17:43.9354419Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-CryptoScriptUnitTest-Debug.log",
+        "endedUtc": "2026-11-11T09:17:44.7130127Z",
+        "arguments": [
+          "restore",
+          "CryptoScriptUnitTest/CryptoScriptUnitTest.csproj",
+          "--locked-mode",
+          "-p:Configuration=Debug",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-CryptoScriptUnitTest-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:17:44.7140784Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-CryptoScriptUnitTest-Debug.log",
+        "endedUtc": "2026-11-11T09:19:04.4482975Z",
+        "arguments": [
+          "test",
+          "CryptoScriptUnitTest/CryptoScriptUnitTest.csproj",
+          "-c",
+          "Debug",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=CryptoScriptUnitTest-Debug.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-CryptoScriptUnitTest-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:19:04.4495536Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-G1DockFeasibility.Tests-Debug.log",
+        "endedUtc": "2026-11-11T09:19:05.9898031Z",
+        "arguments": [
+          "restore",
+          "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+          "--locked-mode",
+          "-p:Configuration=Debug",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-G1DockFeasibility.Tests-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:19:05.9910952Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-G1DockFeasibility.Tests-Debug.log",
+        "endedUtc": "2026-11-11T09:19:14.7857655Z",
+        "arguments": [
+          "test",
+          "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+          "-c",
+          "Debug",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=G1DockFeasibility.Tests-Debug.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-G1DockFeasibility.Tests-Debug"
+      },
+      {
+        "startedUtc": "2026-11-11T09:19:14.7870725Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/solutions-Release.log",
+        "endedUtc": "2026-11-11T09:19:32.7078017Z",
+        "arguments": [
+          "Release"
+        ],
+        "exitCode": 0,
+        "executable": "./eng/prism/Build.ps1",
+        "name": "solutions-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:19:32.7092888Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-CryptoWorkBenchGuiTest-Release.log",
+        "endedUtc": "2026-11-11T09:19:33.8843632Z",
+        "arguments": [
+          "restore",
+          "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+          "--locked-mode",
+          "-p:Configuration=Release",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-CryptoWorkBenchGuiTest-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:19:33.885488Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-CryptoWorkBenchGuiTest-Release.log",
+        "endedUtc": "2026-11-11T09:20:58.5370592Z",
+        "arguments": [
+          "test",
+          "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+          "-c",
+          "Release",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=CryptoWorkBenchGuiTest-Release.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-CryptoWorkBenchGuiTest-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:20:58.5385771Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-CryptoWorkBench.Mcp.Tests-Release.log",
+        "endedUtc": "2026-11-11T09:20:59.3237477Z",
+        "arguments": [
+          "restore",
+          "CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj",
+          "--locked-mode",
+          "-p:Configuration=Release",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-CryptoWorkBench.Mcp.Tests-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:20:59.3248255Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-CryptoWorkBench.Mcp.Tests-Release.log",
+        "endedUtc": "2026-11-11T09:21:22.0146732Z",
+        "arguments": [
+          "test",
+          "CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj",
+          "-c",
+          "Release",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=CryptoWorkBench.Mcp.Tests-Release.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-CryptoWorkBench.Mcp.Tests-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:21:22.0156717Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-CryptoScriptUnitTest-Release.log",
+        "endedUtc": "2026-11-11T09:21:22.7591539Z",
+        "arguments": [
+          "restore",
+          "CryptoScriptUnitTest/CryptoScriptUnitTest.csproj",
+          "--locked-mode",
+          "-p:Configuration=Release",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-CryptoScriptUnitTest-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:21:22.7616695Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-CryptoScriptUnitTest-Release.log",
+        "endedUtc": "2026-11-11T09:22:21.789322Z",
+        "arguments": [
+          "test",
+          "CryptoScriptUnitTest/CryptoScriptUnitTest.csproj",
+          "-c",
+          "Release",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=CryptoScriptUnitTest-Release.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-CryptoScriptUnitTest-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:22:21.7908511Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/restore-G1DockFeasibility.Tests-Release.log",
+        "endedUtc": "2026-11-11T09:22:23.0835625Z",
+        "arguments": [
+          "restore",
+          "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+          "--locked-mode",
+          "-p:Configuration=Release",
+          "-m:1"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "restore-G1DockFeasibility.Tests-Release"
+      },
+      {
+        "startedUtc": "2026-11-11T09:22:23.084633Z",
+        "log": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows/test-G1DockFeasibility.Tests-Release.log",
+        "endedUtc": "2026-11-11T09:22:31.7729629Z",
+        "arguments": [
+          "test",
+          "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+          "-c",
+          "Release",
+          "--no-restore",
+          "-m:1",
+          "--logger",
+          "trx;LogFileName=G1DockFeasibility.Tests-Release.trx",
+          "--results-directory",
+          "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\g1-i01-composition\\artifacts\\g1-p02\\validation-windows"
+        ],
+        "exitCode": 0,
+        "executable": "dotnet",
+        "name": "test-G1DockFeasibility.Tests-Release"
+      }
+    ],
+    "l1PassedPerConfiguration": 214,
+    "leaseCasesPassedPerConfiguration": 63
+  },
+  "preparatoryAttempts": [
+    {
+      "name": "targeted Debug without fresh configuration restore",
+      "reason": "AttachDeveloperTools unavailable in stale/configuration-mismatched restore assets",
+      "status": "BUILD_FAILED_BEFORE_TESTS",
+      "log": "artifacts/g1-p02/targeted-Debug.log",
+      "exitCode": 1
+    },
+    {
+      "name": "Debug locked restore",
+      "note": "NU1900 audit network warning retained",
+      "log": "artifacts/g1-p02/targeted-restore-Debug.log",
+      "exitCode": 0
+    },
+    {
+      "exitCode": 1,
+      "log": "artifacts/g1-p02/targeted-restored-Debug.log",
+      "trx": "artifacts/g1-p02/targeted-restored/targeted-Debug.trx",
+      "status": "TEST_RUN_ABORTED",
+      "name": "targeted Debug sandbox",
+      "reason": "VSTest/testhost connection timed out after unchanged 90 seconds; no test success claimed"
+    },
+    {
+      "exitCode": 0,
+      "passed": 63,
+      "status": "PASSED",
+      "log": "artifacts/g1-p02/targeted-host-Debug.log",
+      "failed": 0,
+      "trx": "artifacts/g1-p02/targeted-host/targeted-Debug.trx",
+      "reason": "Same built assembly, normal host environment",
+      "name": "targeted Debug host"
+    }
+  ],
+  "realPowerAcceptance": {
+    "requires": "Operator authorization, >11 minute real sleep, matching OS events, unique evidence path",
+    "instructions": "docs/gui/G1-P02-cross-platform-lease-clock-implementation.md",
+    "automaticallyExecuted": false,
+    "probe": "CryptoWorkBenchGuiTest.ManualLeaseClockPowerTests.RealPowerTransitionExpiresBeforeDispatcherCanTick",
+    "status": "NOT VERIFIED",
+    "modes": [
+      "suspend",
+      "hibernate"
+    ],
+    "scope": "Actual native clock and product service in headless editor; not MCP transport or native Dock acceptance"
+  },
+  "platformStatus": [
+    {
+      "nativeClockAndProductiveLease": "PASS Debug and Release",
+      "realHibernate": "NOT VERIFIED",
+      "platform": "Windows x64",
+      "realSuspend": "NOT VERIFIED"
+    },
+    {
+      "nativeClockAndProductiveLease": "NOT VERIFIED - no local Linux/WSL installation",
+      "realHibernate": "NOT VERIFIED",
+      "platform": "Linux x64",
+      "realSuspend": "NOT VERIFIED"
+    },
+    {
+      "nativeClockAndProductiveLease": "NOT VERIFIED - no local macOS host",
+      "realHibernate": "NOT VERIFIED",
+      "platform": "macOS x64",
+      "realSuspend": "NOT VERIFIED"
+    },
+    {
+      "nativeClockAndProductiveLease": "NOT VERIFIED - no local macOS host",
+      "realHibernate": "NOT VERIFIED",
+      "platform": "macOS ARM64",
+      "realSuspend": "NOT VERIFIED"
+    }
+  ],
+  "openRequirements": [
+    "Separate owner acceptance of local implementation",
+    "Separately authorized commit and push before four-platform CI",
+    "Non-Windows productive clock validation",
+    "Real suspend and supported hibernate acceptance",
+    "Linux/macOS native G1 acceptance",
+    "Two paired installed-Codex Desktop tests"
+  ],
+  "unchangedDecision": "NO REACHABLE B4 FOUND",
+  "evidence": [
+    {
+      "sha256": "5FCD34819819BAF1862074BAD0814E21E9CCF7C8946DB511301062BAC71337A5",
+      "path": "artifacts/g1-p02/test-inventory.json"
+    },
+    {
+      "sha256": "8F73A8EACC5BF6571980112820029F03A2A21E85C5A9E8E1E739737A122A67F3",
+      "path": "artifacts/g1-p02/regression-summary.json"
+    },
+    {
+      "sha256": "D6A01B0DC2E46606185A9D48786325296775BE9B3C4DCD8CDEB3D6B4C88507B9",
+      "path": "artifacts/g1-p02/l1-results.json"
+    },
+    {
+      "sha256": "D4701E388E5DCB965AB4D4FF27B0C6F9008AD976CC62D0744CD4C5E2ED76EF82",
+      "path": "artifacts/g1-p02/composition-results.json"
+    },
+    {
+      "sha256": "A897FEB3E717D6D19EF49E2B39FD752277E7B538DFC6FE5C0485E5F3CB6053F1",
+      "path": "artifacts/g1-p02/clock-results.json"
+    },
+    {
+      "sha256": "791E3E190112AF87C82A7F9C79166516CE026EAFFCC4EDFA6A6656BFC1514A12",
+      "path": "artifacts/g1-p02/production-clock.json"
+    }
+  ],
+  "integrity": {
+    "leaseSafetyBodyUnchanged": true,
+    "historyRowsVerified": 4452,
+    "cleanIndex": true,
+    "head": "37b0a4b90e0413e7d53b4cff6eeb7b337e20ce1b",
+    "newCommits": 0,
+    "branch": "codex/g1-i01-composition",
+    "commitsAfterMasterBase": 4,
+    "unmodifiedAcceptedFileCount": 1173,
+    "l1Count": 35,
+    "status": "PASS_WITH_AUTHORIZED_LOCAL_CHANGES",
+    "historyUnchanged": true,
+    "l1Unchanged": true,
+    "worktreeClean": false,
+    "sources": [
+      {
+        "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchLeaseV2.cs",
+        "length": 17513,
+        "sha256": "843A0456687688360123F7DC85585DB48506E636A5336AA9FBA38932F2F8242D"
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/LeaseV2Tests.cs",
+        "length": 25977,
+        "sha256": "7F9224EA5C5C872F6411B5527E478EBD922DEE7F11E217B7180CEAEB7BFA8ED3"
+      },
+      {
+        "path": "CryptoWorkBenchAvalonia/Services/Automation/LeaseClock.cs",
+        "length": 4613,
+        "sha256": "4BC2BEB0A4DE54DA5D5C80343B719EADDC316216C51CE9062E1B0DC2D1E84D42"
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/LeaseClockTests.cs",
+        "length": 3718,
+        "sha256": "51D49A6AAE8CF0413BA043655149958EA49FE3A94798646C1A84D6F5A92207B2"
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/LeaseClockContractTests.cs",
+        "length": 12083,
+        "sha256": "65A8EA762DCA929C2A282440AB9E7E2C2CDB90BB9E0DC9732778151FED41C59C"
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/ManualLeaseClockPowerTests.cs",
+        "length": 5283,
+        "sha256": "1AA66B935C44BBD6A6184E25DC5BF020EC99BBAB06433875EDFD12A6F5D8B2C7"
+      },
+      {
+        "path": "docs/gui/G1-P01-cross-platform-lease-clock-feasibility.md",
+        "length": 20263,
+        "sha256": "BEBA2EE5A2BAC95D5B51C56D8A07D98367A8934573928D815E8B247C9218FE71"
+      },
+      {
+        "path": "docs/gui/evidence/G1-P01-feasibility.json",
+        "length": 9106,
+        "sha256": "DE3575CBACEB9950BBEB10735B7A0BAC84BD1E596E916BD3935CC8F7BF7DCBEA"
+      },
+      {
+        "path": "docs/gui/G1-P02-cross-platform-lease-clock-implementation.md",
+        "length": 17334,
+        "sha256": "87AE3848A3AB7A2937EC4AAF13313280FC36AAA5682F9B9F1B90B5F5CF8CF206"
+      }
+    ],
+    "modifiedTrackedPaths": [
+      "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchLeaseV2.cs",
+      "CryptoWorkBenchGuiTest/LeaseV2Tests.cs"
+    ],
+    "whitespace": {
+      "worktree": {
+        "exitCode": 0,
+        "output": []
+      },
+      "historicalRange": {
+        "onlySixApprovedEofExceptions": true,
+        "output": [
+          "CryptoWorkBenchGuiTest/DockOperationContractTests.cs:177: new blank line at EOF.",
+          "CryptoWorkBenchGuiTest/DockOperationNativeProbe.cs:112: new blank line at EOF.",
+          "docs/gui/G1-A04-R1-actual-callback-audit.md:247: new blank line at EOF.",
+          "docs/gui/G1-A04-R2-test-cleanup.md:183: new blank line at EOF.",
+          "docs/gui/G1-A04-R3-partial-failure-audit.md:332: new blank line at EOF.",
+          "docs/gui/G1-A04-dock-operation-contract.md:168: new blank line at EOF."
+        ],
+        "exitCode": 2,
+        "standardCheck": "FAIL"
+      },
+      "newFiles": [
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [
+            "warning: in the working copy of 'CryptoWorkBenchAvalonia/Services/Automation/LeaseClock.cs', LF will be replaced by CRLF the next time Git touches it"
+          ],
+          "exitCode": 1,
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/LeaseClock.cs"
+        },
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [
+            "warning: in the working copy of 'CryptoWorkBenchGuiTest/LeaseClockTests.cs', LF will be replaced by CRLF the next time Git touches it"
+          ],
+          "exitCode": 1,
+          "path": "CryptoWorkBenchGuiTest/LeaseClockTests.cs"
+        },
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [
+            "warning: in the working copy of 'CryptoWorkBenchGuiTest/LeaseClockContractTests.cs', LF will be replaced by CRLF the next time Git touches it"
+          ],
+          "exitCode": 1,
+          "path": "CryptoWorkBenchGuiTest/LeaseClockContractTests.cs"
+        },
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [
+            "warning: in the working copy of 'CryptoWorkBenchGuiTest/ManualLeaseClockPowerTests.cs', LF will be replaced by CRLF the next time Git touches it"
+          ],
+          "exitCode": 1,
+          "path": "CryptoWorkBenchGuiTest/ManualLeaseClockPowerTests.cs"
+        },
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [
+            "warning: in the working copy of 'docs/gui/G1-P01-cross-platform-lease-clock-feasibility.md', LF will be replaced by CRLF the next time Git touches it"
+          ],
+          "exitCode": 1,
+          "path": "docs/gui/G1-P01-cross-platform-lease-clock-feasibility.md"
+        },
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [],
+          "exitCode": 1,
+          "path": "docs/gui/evidence/G1-P01-feasibility.json"
+        },
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [
+            "warning: in the working copy of 'docs/gui/G1-P02-cross-platform-lease-clock-implementation.md', LF will be replaced by CRLF the next time Git touches it"
+          ],
+          "exitCode": 1,
+          "path": "docs/gui/G1-P02-cross-platform-lease-clock-implementation.md"
+        },
+        {
+          "note": "Exit 1 is differences from NUL; no whitespace findings. No Git config changed.",
+          "output": [],
+          "exitCode": 1,
+          "path": "docs/gui/evidence/G1-P02-results.json"
+        }
+      ],
+      "index": {
+        "exitCode": 0,
+        "output": []
+      }
+    },
+    "untrackedPaths": [
+      "CryptoWorkBenchAvalonia/Services/Automation/LeaseClock.cs",
+      "CryptoWorkBenchGuiTest/LeaseClockTests.cs",
+      "CryptoWorkBenchGuiTest/LeaseClockContractTests.cs",
+      "CryptoWorkBenchGuiTest/ManualLeaseClockPowerTests.cs",
+      "docs/gui/G1-P01-cross-platform-lease-clock-feasibility.md",
+      "docs/gui/evidence/G1-P01-feasibility.json",
+      "docs/gui/G1-P02-cross-platform-lease-clock-implementation.md",
+      "docs/gui/evidence/G1-P02-results.json"
+    ],
+    "statusOutput": [
+      " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchLeaseV2.cs",
+      " M CryptoWorkBenchGuiTest/LeaseV2Tests.cs",
+      "?? CryptoWorkBenchAvalonia/Services/Automation/LeaseClock.cs",
+      "?? CryptoWorkBenchGuiTest/LeaseClockContractTests.cs",
+      "?? CryptoWorkBenchGuiTest/LeaseClockTests.cs",
+      "?? CryptoWorkBenchGuiTest/ManualLeaseClockPowerTests.cs",
+      "?? docs/gui/G1-P01-cross-platform-lease-clock-feasibility.md",
+      "?? docs/gui/G1-P02-cross-platform-lease-clock-implementation.md",
+      "?? docs/gui/evidence/G1-P01-feasibility.json",
+      "?? docs/gui/evidence/G1-P02-results.json"
+    ],
+    "protectedWorktrees": [
+      {
+        "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+        "name": "Original G1",
+        "unchanged": true,
+        "fileCount": 1151
+      },
+      {
+        "head": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+        "name": "Master",
+        "unchanged": true,
+        "fileCount": 1055
+      }
+    ],
+    "packagePinsAndLocksUnchanged": true,
+    "checkedUtc": "2026-11-11T09:26:26.3253563Z",
+    "binaries": [
+      {
+        "configuration": "Debug",
+        "path": "CryptoWorkBenchGuiTest/bin/Debug/net10.0/CryptoWorkBenchGuiTest.dll",
+        "sha256": "AC5507B4537AAC56192DBA08FFF5D3E29B4A4295AEB25644F5528CC489CE50FD"
+      },
+      {
+        "configuration": "Debug",
+        "path": "CryptoWorkBenchGuiTest/bin/Debug/net10.0/CryptoWorkBenchAvalonia.dll",
+        "sha256": "87E1DD2438EEEAB43BD28D8AC9B3A64E01FA3C69A6A6347F624EFD1EC25B530A"
+      },
+      {
+        "configuration": "Release",
+        "path": "CryptoWorkBenchGuiTest/bin/Release/net10.0/CryptoWorkBenchGuiTest.dll",
+        "sha256": "C1E7CA7CF0B5C296AF14731686CE35CF554394F5754F3213A4DB105203A056FE"
+      },
+      {
+        "configuration": "Release",
+        "path": "CryptoWorkBenchGuiTest/bin/Release/net10.0/CryptoWorkBenchAvalonia.dll",
+        "sha256": "0FCAA44857AAEB332DF07BCC6B718F9E5A465B14DF9512D744C5B91BAEDF10C6"
+      }
+    ]
+  },
+  "stoppedAfter": "P02; no commit, push, merge, package change or PR mutation"
+}
