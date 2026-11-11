@@ -22,15 +22,26 @@ public class LeaseV2Tests
     [Test]
     public Task ProductionLeaseClockRetainsPlatformBoundaryAndGuiAdmission() => Ui(async () =>
     {
-        // Bypass Host's synthetic default: this must exercise the unchanged production clock.
+        // Bypass Host's synthetic default: exercise the actual OS clock and production admission.
         await using var h = new Host("A", new WorkbenchAutomationService());
         var caller = Activate(h);
         var request = Acquire(h);
         var reply = await h.Service.AcquireEditorAsync(caller, request, default);
-        if (OperatingSystem.IsWindows())
+        var architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
+        bool supported = ((OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) &&
+            architecture == System.Runtime.InteropServices.Architecture.X64) ||
+            (OperatingSystem.IsMacOS() && architecture is System.Runtime.InteropServices.Architecture.X64 or System.Runtime.InteropServices.Architecture.Arm64);
+        if (supported)
         {
             Assert.That(reply.Error, Is.Null);
             Assert.That(reply.Result, Is.Not.Null);
+            ulong first = h.Service.LeaseMilliseconds();
+            ulong second = h.Service.LeaseMilliseconds();
+            Assert.That(second, Is.GreaterThanOrEqualTo(first));
+            Assert.That(h.Owner.CanStartGui, Is.False);
+            TestContext.Out.WriteLine($"Production clock: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}; " +
+                $"OS={System.Runtime.InteropServices.RuntimeInformation.OSArchitecture}; process={architecture}; " +
+                $"runtime={System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}; ms={first},{second}; lease={reply.Result!.LeaseId}");
             await h.Service.ReleaseEditorAsync(caller,
                 new("2", request.InstanceId, request.EditorId, reply.Result!.LeaseId), default);
         }
@@ -40,7 +51,7 @@ public class LeaseV2Tests
             Assert.That(reply.Error!.Code, Is.EqualTo(AutomationErrorCode.TimerUnavailable));
             Assert.That(reply.Result, Is.Null);
             Assert.That((await h.Service.GetStatusV2Async(caller, new("2"), default)).Result!.OwnLease, Is.Null);
-            TestContext.Out.WriteLine("Unmodified production clock: TimerUnavailable, no lease; GUI remains admitted.");
+            TestContext.Out.WriteLine("Unsupported platform/ABI: TimerUnavailable, no lease; GUI remains admitted.");
         }
         Assert.That(h.Owner.CanStartGui, Is.True);
         h.Area.PerformTextInput("!");

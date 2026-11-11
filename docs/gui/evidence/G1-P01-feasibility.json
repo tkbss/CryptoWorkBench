@@ -1,0 +1,237 @@
+{
+  "task": "G1-P01",
+  "checkedUtc": "2026-11-10T19:02:14.0243485Z",
+  "decision": "B - PLATFORM CLOCK REQUIRED",
+  "scope": "Architecture and feasibility only; no implementation or test execution",
+  "baseline": {
+    "commitsAfterBase": 4,
+    "runtimeQualification": "SDK pin does not pin runtime patch; actual runtime must be recorded per future OS test",
+    "sdk": "10.0.401",
+    "masterBase": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+    "branch": "codex/g1-i01-composition",
+    "head": "37b0a4b90e0413e7d53b4cff6eeb7b337e20ce1b",
+    "runtimeSourceTag": "v10.0.12"
+  },
+  "contract": {
+    "clockFailureMustFailClosed": true,
+    "expiryComparison": "now >= Deadline",
+    "utcIsReceiptOnly": true,
+    "equalSamplesAllowed": true,
+    "timerIsWakeupOnly": true,
+    "durationMilliseconds": 600000,
+    "maximumSample": "UInt64.MaxValue - 600000",
+    "rollbackLatchesClockBroken": true,
+    "preserve": [
+      "Acquire/Renew replay and CAS",
+      "ReadTime lastLeaseTime and clockBroken",
+      "Release/Revoke terminal state",
+      "Execution admission and pre-run fence",
+      "Process acquisition identity",
+      "Epoch one-shot activation and closure",
+      "EditorCoordinator drain certificate and native quiescence"
+    ],
+    "suspendAndHibernateMustCount": true
+  },
+  "apiAssessment": [
+    {
+      "reason": "Delegates to Stopwatch; no additional suspend guarantee",
+      "api": "TimeProvider.System.GetTimestamp",
+      "portableContractSatisfied": false
+    },
+    {
+      "reason": "Unix .NET 10 uses CLOCK_MONOTONIC or Apple CLOCK_UPTIME_RAW, excluding suspend",
+      "api": "Stopwatch.GetTimestamp",
+      "portableContractSatisfied": false
+    },
+    {
+      "reason": "Windows .NET 10 includes suspend; Unix .NET 10 uses uptime clocks excluding suspend; Windows behavior changes in .NET 11",
+      "api": "Environment.TickCount64",
+      "portableContractSatisfied": false
+    },
+    {
+      "reason": "Adjustable civil clock cannot provide monotonic fail-closed elapsed time",
+      "api": "DateTimeOffset.UtcNow / TimeProvider.GetUtcNow",
+      "portableContractSatisfied": false
+    },
+    {
+      "reason": "Scheduling is not an independent suspend-inclusive admission clock",
+      "api": "Timer / Task.Delay / TimeProvider timers",
+      "portableContractSatisfied": false
+    }
+  ],
+  "proposedPlatformClocks": [
+    {
+      "platform": "Windows x64",
+      "unit": "milliseconds",
+      "api": "GetTickCount64",
+      "status": "Retain existing implementation"
+    },
+    {
+      "platform": "Linux x64",
+      "conversion": "checked seconds * 1000 + nanoseconds / 1000000",
+      "api": "clock_gettime(CLOCK_BOOTTIME)",
+      "status": "Proposed, not implemented or OS-validated"
+    },
+    {
+      "platform": "macOS x64 / ARM64",
+      "conversion": "UInt128 ticks * numer / denom / 1000000, checked UInt64 narrowing",
+      "api": "mach_continuous_time + mach_timebase_info",
+      "status": "Proposed, not implemented or OS-validated"
+    }
+  ],
+  "failurePolicy": "Native failure, unsupported API, invalid range/timebase or overflow must throw into existing ReadTime fail-closed latch; no UTC/uptime fallback, clamping or zero sentinel",
+  "verification": {
+    "realOSPlan": {
+      "status": "NOT EXECUTED - separate authorization and controlled hosts required",
+      "configurations": [
+        "Debug",
+        "Release"
+      ],
+      "scenarios": [
+        "Awake expiry",
+        "Real suspend beyond deadline",
+        "Supported hibernate beyond deadline",
+        "Admission before timer tick",
+        "Clock adjustment",
+        "Process restart"
+      ],
+      "platforms": [
+        "Windows x64",
+        "Linux x64",
+        "macOS x64",
+        "macOS ARM64"
+      ]
+    },
+    "implementationChanged": false,
+    "newCIExecuted": 0,
+    "newTestsExecuted": 0,
+    "deterministicPlan": [
+      "Deadline boundary",
+      "Renew CAS/replay",
+      "Rollback/equal sample",
+      "Overflow/native errors",
+      "Unticked suspend jump",
+      "UTC jumps",
+      "Epoch/restart",
+      "Acquisition deduplication",
+      "Release/Revoke races",
+      "Drain and native update",
+      "Execution fence",
+      "Timer failure/delay"
+    ]
+  },
+  "openRequirements": [
+    "Linux x64 native G1 acceptance",
+    "macOS x64 native G1 acceptance",
+    "macOS ARM64 native G1 acceptance",
+    "Production non-Windows MCP lease clock implementation and acceptance",
+    "Two paired installed-Codex Desktop tests"
+  ],
+  "integrity": {
+    "cleanIndex": true,
+    "acceptedFilesUnchanged": true,
+    "protectedWorktrees": [
+      {
+        "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+        "name": "Original G1",
+        "hashesAndStatusUnchanged": true,
+        "fileCount": 1151
+      },
+      {
+        "head": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+        "name": "Master",
+        "hashesAndStatusUnchanged": true,
+        "fileCount": 1055
+      }
+    ],
+    "trackedWorktreeClean": true,
+    "acceptedFileCount": 1175,
+    "l1Unchanged": true,
+    "l1Count": 35,
+    "productTestsPinsAndLocksUnchanged": true,
+    "historicalEvidence": [
+      {
+        "fileCount": 3082,
+        "manifestSha256": "D045599BB45E7BB368A995ACBC608011907F85D1856DAF685A79EC0715742DA4",
+        "scope": "g1-i01",
+        "unchanged": true
+      },
+      {
+        "fileCount": 15,
+        "manifestSha256": "3D54E4D0B9625B97A7AEE27361F59C1C24484A847D89A6572879FE8225E75932",
+        "scope": "g1-i02",
+        "unchanged": true
+      },
+      {
+        "fileCount": 141,
+        "manifestSha256": "AA79336295FF4E4206A0B34137699364E32E118257E8E7E26435A93E495ECDB4",
+        "scope": "g1-i05",
+        "unchanged": true
+      },
+      {
+        "fileCount": 63,
+        "manifestSha256": "5673FCA9138A905A00864FC9654703DE501EBFB92EE9397E5491E2653F25EE75",
+        "scope": "g1-i06",
+        "unchanged": true
+      },
+      {
+        "fileCount": 148,
+        "manifestSha256": "5AE9E0FC08E8D28A8CCF00E1B7749F2910680A1D3C12879A2FCA976770022110",
+        "scope": "g1-i07",
+        "unchanged": true
+      }
+    ],
+    "whitespace": {
+      "commitRange": {
+        "output": [
+          "CryptoWorkBenchGuiTest/DockOperationContractTests.cs:177: new blank line at EOF.",
+          "CryptoWorkBenchGuiTest/DockOperationNativeProbe.cs:112: new blank line at EOF.",
+          "docs/gui/G1-A04-R1-actual-callback-audit.md:247: new blank line at EOF.",
+          "docs/gui/G1-A04-R2-test-cleanup.md:183: new blank line at EOF.",
+          "docs/gui/G1-A04-R3-partial-failure-audit.md:332: new blank line at EOF.",
+          "docs/gui/G1-A04-dock-operation-contract.md:168: new blank line at EOF."
+        ],
+        "standardCheck": "FAIL",
+        "onlySixApprovedHistoricalEofExceptions": true,
+        "exitCode": 2
+      },
+      "index": {
+        "output": [],
+        "exitCode": 0
+      },
+      "worktree": {
+        "output": [],
+        "exitCode": 0
+      }
+    },
+    "newDeliverableWhitespace": {
+      "jsonExitCode": 1,
+      "command": "git diff --no-index --check -- NUL <path>",
+      "whitespaceDiagnostics": [],
+      "note": "Exit 1 denotes differences from empty NUL; report emitted only LF-to-CRLF conversion warning. Neither exit is reported as standard PASS.",
+      "reportExitCode": 1
+    },
+    "authorizedUntrackedPaths": [
+      "docs/gui/G1-P01-cross-platform-lease-clock-feasibility.md",
+      "docs/gui/evidence/G1-P01-feasibility.json"
+    ]
+  },
+  "report": {
+    "sha256": "BEBA2EE5A2BAC95D5B51C56D8A07D98367A8934573928D815E8B247C9218FE71",
+    "path": "docs/gui/G1-P01-cross-platform-lease-clock-feasibility.md"
+  },
+  "sources": [
+    "https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/mach/mach_time.h",
+    "https://github.com/dotnet/runtime/blob/v10.0.12/src/libraries/Common/src/System/TimeProvider.cs",
+    "https://github.com/dotnet/runtime/blob/v10.0.12/src/libraries/System.Private.CoreLib/src/System/Diagnostics/Stopwatch.Unix.cs",
+    "https://github.com/dotnet/runtime/blob/v10.0.12/src/libraries/System.Private.CoreLib/src/System/Environment.UnixOrBrowser.cs",
+    "https://github.com/dotnet/runtime/blob/v10.0.12/src/native/libs/System.Native/pal_time.c",
+    "https://github.com/dotnet/runtime/blob/v10.0.12/src/native/minipal/time.c",
+    "https://learn.microsoft.com/en-us/dotnet/api/system.environment.tickcount64?view=net-10.0",
+    "https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/11/environment-tickcount-windows-behavior",
+    "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-gettickcount64",
+    "https://learn.microsoft.com/en-us/windows/win32/sysinfo/acquiring-high-resolution-time-stamps",
+    "https://man7.org/linux/man-pages/man2/clock_gettime.2.html"
+  ],
+  "nextStep": "Stop after P01; separate owner approval required for implementation. No commit, push or PR mutation."
+}
