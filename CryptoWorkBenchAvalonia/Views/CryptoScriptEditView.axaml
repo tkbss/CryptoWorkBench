@@ -5,8 +5,8 @@
 			 xmlns:workbench="clr-namespace:CryptoWorkBenchAvalonia.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CryptoWorkBenchAvalonia.CryptoScriptEditView">
-	<Border BoxShadow="5 5 10 2 DarkGray" Margin="5">
-		<Grid RowDefinitions="*,40">
+	<Border Name="EditorFrame" BoxShadow="5 5 10 2 DarkGray" Margin="5">
+		<Grid Name="EditorGrid" RowDefinitions="*,Auto">
 			<workbench:WorkbenchTextEditor
 				Name="Editor"
 				Text="Hello AvaloniaEdit!"
@@ -14,7 +14,7 @@
 							   FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
 							   HorizontalScrollBarVisibility="Auto"
 							   VerticalScrollBarVisibility="Disabled" Padding="2" WordWrap="True"/>
-			<Border Grid.Row="1" BoxShadow="5 5 10 2 DarkGray" Margin="15,3,5,5">
+			<Border Name="EditorStatusFrame" Grid.Row="1" BoxShadow="5 5 10 2 DarkGray" Margin="15,3,5,5">
 				<StackPanel Name="StatusBar" Background="Purple"  Margin="5">
 					<TextBlock Foreground="White" Name="StatusText" Text="Ready" Margin="5" FontSize="12" />
 				</StackPanel>

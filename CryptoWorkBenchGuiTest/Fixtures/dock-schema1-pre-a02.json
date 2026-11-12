@@ -1,0 +1,172 @@
+{
+  "SchemaVersion": 1,
+  "Dock": {
+    "$id": "1",
+    "$type": "Dock.Model.Mvvm.Controls.RootDock",
+    "Windows": {
+      "$id": "2",
+      "$values": [
+        {
+          "$id": "3",
+          "$type": "Dock.Model.Mvvm.Core.DockWindow",
+          "Id": "IDockWindow",
+          "X": 160,
+          "Y": 180,
+          "Width": 500,
+          "Height": 420,
+          "Layout": {
+            "$id": "4",
+            "$type": "Dock.Model.Mvvm.Controls.RootDock",
+            "Windows": {
+              "$id": "5",
+              "$values": []
+            },
+            "VisibleDockables": {
+              "$id": "6",
+              "$values": [
+                {
+                  "$id": "7",
+                  "$type": "Dock.Model.Mvvm.Controls.ToolDock",
+                  "Alignment": 0,
+                  "VisibleDockables": {
+                    "$id": "8",
+                    "$values": [
+                      {
+                        "$id": "9",
+                        "$type": "Dock.Model.Mvvm.Controls.Tool",
+                        "Id": "tool:info",
+                        "Proportion": "NaN"
+                      }
+                    ]
+                  },
+                  "ActiveDockable": {
+                    "$ref": "9"
+                  },
+                  "Id": "dock:tools",
+                  "Proportion": "NaN"
+                }
+              ]
+            },
+            "ActiveDockable": {
+              "$ref": "7"
+            },
+            "Id": "",
+            "Proportion": "NaN"
+          }
+        }
+      ]
+    },
+    "VisibleDockables": {
+      "$id": "10",
+      "$values": [
+        {
+          "$id": "11",
+          "$type": "Dock.Model.Mvvm.Controls.ProportionalDock",
+          "Orientation": 0,
+          "VisibleDockables": {
+            "$id": "12",
+            "$values": [
+              {
+                "$id": "13",
+                "$type": "Dock.Model.Mvvm.Controls.ToolDock",
+                "Alignment": 0,
+                "VisibleDockables": {
+                  "$id": "14",
+                  "$values": [
+                    {
+                      "$id": "15",
+                      "$type": "Dock.Model.Mvvm.Controls.Tool",
+                      "Id": "tool:variables",
+                      "Proportion": "NaN"
+                    },
+                    {
+                      "$id": "16",
+                      "$type": "Dock.Model.Mvvm.Controls.Tool",
+                      "Id": "tool:output",
+                      "Proportion": "NaN"
+                    }
+                  ]
+                },
+                "ActiveDockable": {
+                  "$ref": "16"
+                },
+                "Id": "dock:tools",
+                "Proportion": 0.3
+              },
+              {
+                "$id": "17",
+                "$type": "Dock.Model.Mvvm.Controls.ProportionalDockSplitter",
+                "Id": "",
+                "Proportion": "NaN"
+              },
+              {
+                "$id": "18",
+                "$type": "Dock.Model.Mvvm.Controls.DocumentDock",
+                "VisibleDockables": {
+                  "$id": "19",
+                  "$values": [
+                    {
+                      "$id": "20",
+                      "$type": "Dock.Model.Mvvm.Controls.Document",
+                      "Id": "document:cryptoscript:primary",
+                      "Proportion": "NaN"
+                    }
+                  ]
+                },
+                "ActiveDockable": {
+                  "$ref": "20"
+                },
+                "Id": "dock:documents",
+                "Proportion": 0.48
+              },
+              {
+                "$id": "21",
+                "$type": "Dock.Model.Mvvm.Controls.ProportionalDockSplitter",
+                "Id": "",
+                "Proportion": "NaN"
+              },
+              {
+                "$id": "22",
+                "$type": "Dock.Model.Mvvm.Controls.ToolDock",
+                "Alignment": 2,
+                "VisibleDockables": {
+                  "$id": "23",
+                  "$values": [
+                    {
+                      "$id": "24",
+                      "$type": "Dock.Model.Mvvm.Controls.Tool",
+                      "Id": "tool:diagnostics",
+                      "Proportion": "NaN"
+                    }
+                  ]
+                },
+                "ActiveDockable": {
+                  "$ref": "24"
+                },
+                "Id": "dock:diagnostics",
+                "Proportion": 0.22
+              }
+            ]
+          },
+          "Id": "dock:main",
+          "Proportion": "NaN"
+        }
+      ]
+    },
+    "ActiveDockable": {
+      "$ref": "11"
+    },
+    "Id": "dock:root",
+    "Proportion": "NaN"
+  },
+  "ClosedTools": [
+    "tool:status"
+  ],
+  "MainWindow": {
+    "X": 80,
+    "Y": 90,
+    "Width": 1000,
+    "Height": 700,
+    "Maximized": false
+  }
+}

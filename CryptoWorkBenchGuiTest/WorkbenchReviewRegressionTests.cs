@@ -172,7 +172,8 @@ public class WorkbenchReviewRegressionTests
         Assert.That(result.Status, Does.Contain(test.Status));
         Assert.That(result.Diagnostics, Has.Count.EqualTo(test.Diagnostics));
         Assert.That(result.Output, Has.Count.EqualTo(test.Outputs));
-        if (test.Outputs != 0) Assert.That(result.Output[0], Is.EqualTo(new ExecutionOutput("print", "out: 0x(02)")));
+        if (test.Outputs != 0) Assert.That(result.Output[0], Is.EqualTo(new ExecutionOutput("print", "out: 0x(02)")
+            { Source = new CryptoScript.Model.Ast.SourcePosition(1, scenario == "continuing" ? 45 : 20) }));
         if (test.Outputs == 2) Assert.That(result.Output[1].Kind, Is.EqualTo("info"));
         Assert.That(result.SyntaxDiagnostics.Any(), Is.EqualTo(test.Syntax));
         Assert.That(result.Variables, Is.Empty); // Explicit failure; never a successful empty snapshot.

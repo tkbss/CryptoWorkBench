@@ -13,18 +13,19 @@ using CryptoWorkBenchAvalonia.Services;
 
 namespace CryptoWorkBenchAvalonia.Desktop;
 
-internal sealed class DesktopMcpSession(MainWindow owner, WorkbenchAutomationService service)
+internal sealed class DesktopMcpSession(Window owner, Button button, WorkbenchAutomationService service)
 {
+    internal DesktopMcpSession(MainWindow owner, WorkbenchAutomationService service)
+        : this(owner, owner?.McpSessionButton!, service) { }
     private LocalMcpHost? host;
     private Task starting = Task.CompletedTask;
     private Task? stopping;
     private McpDisconnect? disconnect;
     private Window? dialog;
 
-    internal static Func<Task> Attach(MainWindow owner, WorkbenchAutomationService service)
+    internal static Func<Task> Attach(Window owner, Button button, WorkbenchAutomationService service)
     {
-        var session = new DesktopMcpSession(owner, service);
-        var button = owner.McpSessionButton;
+        var session = new DesktopMcpSession(owner, button, service);
         // B3's production lease clock currently certifies Windows only.
         button.IsVisible = OperatingSystem.IsWindows();
         button.Click += async (_, _) =>
@@ -105,15 +106,15 @@ internal sealed class DesktopMcpSession(MainWindow owner, WorkbenchAutomationSer
     {
         disconnect ??= new McpDisconnect(() => host?.Revoke(), service.DisableMcpAndDrainAsync, StopTransportAsync, state =>
         {
-            owner.McpSessionButton.IsEnabled = false;
-            owner.McpSessionButton.Content = state switch
+            button.IsEnabled = false;
+            button.Content = state switch
             {
                 McpDisconnectState.Revoking => "Revoking Codex access…",
                 McpDisconnectState.WaitingForDrain => "Access revoked — waiting for editor…",
                 McpDisconnectState.Disconnected => "Disconnected — GUI released",
                 _ => "Access revoked — editor recovery failed"
             };
-            ToolTip.SetTip(owner.McpSessionButton, state == McpDisconnectState.SafeFault
+            ToolTip.SetTip(button, state == McpDisconnectState.SafeFault
                 ? "The editor remains protected. Close the workbench after pending work finishes."
                 : "Access is revoked. Pending work must finish before the editor is released. Pair again in a new workbench process.");
         });

@@ -24,7 +24,16 @@ internal sealed class WorkbenchTextArea : TextArea, IRoutedCommandBindable
     internal Action<TextInputEventArgs, Func<bool>, EditorCoordinator.OperationTicket>? AdmittedInput { private get; set; }
     private bool copying;
     private Action<TextInputEventArgs>? enterContinuation;
+    private Avalonia.Controls.Presenters.ContentPresenter? templatePresenter;
     protected override Type StyleKeyOverride => typeof(TextArea);
+
+    protected override void OnApplyTemplate(Avalonia.Controls.Primitives.TemplateAppliedEventArgs e)
+    {
+        // The TextView is session-owned, whereas PART_CP belongs to a disposable template.
+        if (templatePresenter != null) templatePresenter.Content = null;
+        templatePresenter = e.NameScope.Find("PART_CP") as Avalonia.Controls.Presenters.ContentPresenter;
+        base.OnApplyTemplate(e);
+    }
 
     static WorkbenchTextArea()
     {
