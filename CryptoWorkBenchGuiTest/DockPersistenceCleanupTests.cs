@@ -300,8 +300,9 @@ public sealed class DockPersistenceCleanupTests
         await using var h = new DockToolTests.Host(loaded);
         var host = h.Float(DockShellState.InfoId);
         h.Layout.Dock(DockShellState.InfoId); h.Pump(); Assert.That(host.IsVisible, Is.False);
-        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
+        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
         Assert.That(DockLayoutStore.Decode(h.Layout.Capture(Bounds)), Is.Not.Null);
         return true;
     }, CancellationToken.None);
 }
+

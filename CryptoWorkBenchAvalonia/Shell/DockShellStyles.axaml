@@ -1,0 +1,51 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:deferred="clr-namespace:Dock.Controls.DeferredContentControl;assembly=Dock.Controls.DeferredContentControl" xmlns:recycling="clr-namespace:Avalonia.Controls.Recycling;assembly=Dock.Controls.Recycling" xmlns:dock="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia">
+  <!-- Use the installed Dock theme's light/dark brushes and selection states. -->
+  <!-- Keep a lone tool accessible after close/float. Dock normally hides its tab
+       because the separate grip supplies the title; our grip is hidden. -->
+  <Style Selector="dock|ToolTabStrip:singleitem /template/ ItemsPresenter#PART_ItemsPresenter">
+    <Setter Property="IsVisible" Value="True" />
+  </Style>
+  <!-- The existing fill surface has the group as DataContext. Dock's own
+       drag manager therefore moves the group; individual tabs still move tools. -->
+  <Style Selector="dock|ToolTabStrip /template/ Border#PART_BorderFill">
+    <Setter Property="DockProperties.IsDragArea" Value="True" />
+    <Setter Property="ToolTip.Tip" Value="Drag to move this dock group. Right-click a tab for dock actions." />
+  </Style>
+  <!-- Dock's template assigns Bottom as a local value, which a style setter
+       cannot override. Preserve its drag/drop and deferred presenter contract. -->
+  <Style Selector="dock|ToolControl">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockPanel x:Name="PART_DockPanel" DockProperties.IsDropArea="True" DockProperties.IsDockTarget="True">
+          <dock:ToolTabStrip x:Name="PART_TabStrip" DockPanel.Dock="Top"
+              ItemsSource="{Binding VisibleDockables}" SelectedItem="{Binding ActiveDockable, Mode=TwoWay}"
+              IconTemplate="{TemplateBinding IconTemplate}" HeaderTemplate="{TemplateBinding HeaderTemplate}"
+              ModifiedTemplate="{TemplateBinding ModifiedTemplate}" DockProperties.IsDropArea="True"
+              DockProperties.DockAdornerHost="{Binding #PART_DockPanel}" />
+          <Border x:Name="PART_Border">
+            <dock:DockableControl DataContext="{Binding ActiveDockable}" TrackingMode="Visible">
+              <deferred:DeferredContentControl x:Name="PART_ContentPresenter" Content="{Binding}"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <deferred:DeferredContentControl.ContentTemplate>
+                  <recycling:ControlRecyclingDataTemplate Parent="{Binding #PART_ContentPresenter}" />
+                </deferred:DeferredContentControl.ContentTemplate>
+              </deferred:DeferredContentControl>
+            </dock:DockableControl>
+          </Border>
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="dock|ToolTabStripItem, dock|DocumentTabStripItem">
+    <Setter Property="MinHeight" Value="28" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Padding" Value="6,2" />
+  </Style>
+  <Style Selector="dock|ToolTabStripItem:selected, dock|DocumentTabStripItem:selected">
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+</Styles>
+
+

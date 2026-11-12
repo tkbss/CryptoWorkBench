@@ -26,19 +26,27 @@ public sealed class DockVariablesView : UserControl, IDisposable
         refresh.Bind(IsVisibleProperty, new Binding(nameof(viewModel.IsSnapshotStale)));
         var stale = new TextBlock { Text = "Displayed snapshot is stale.", TextWrapping = TextWrapping.Wrap };
         stale.Bind(IsVisibleProperty, new Binding(nameof(viewModel.IsSnapshotStale)));
-        var header = new StackPanel { Spacing = 4, Children = { new TextBlock { Text = "Variables", FontWeight = FontWeight.Bold }, stale, refresh } };
+        var header = new StackPanel { Spacing = 4, Children = { stale, refresh } };
         var list = new DataGrid { Name = "VariablesGrid", AutoGenerateColumns = false, IsReadOnly = true,
             CanUserReorderColumns = false, GridLinesVisibility = DataGridGridLinesVisibility.All, MinHeight = 100 };
         list.Bind(DataGrid.ItemsSourceProperty, new Binding(nameof(viewModel.DataVariables)));
         list.Bind(DataGrid.SelectedItemProperty, new Binding(nameof(viewModel.SelectedVariable)) { Mode = BindingMode.TwoWay });
-        list.Columns.Add(Column("Type", nameof(VariableModel.Type)));
-        list.Columns.Add(Column("Identifier", nameof(VariableModel.Identifier)));
-        list.Columns.Add(Column("Value", nameof(VariableModel.Value)));
+        list.Columns.Add(SummaryColumn("Type", nameof(VariableModel.Type)));
+        list.Columns.Add(SummaryColumn("Identifier", nameof(VariableModel.Identifier)));
+        list.Columns.Add(SummaryColumn("Value", nameof(VariableModel.Value)));
 
         var details = new ContentControl { Name = "VariableDetails", ContentTemplate = new FuncDataTemplate<VariableModel>((_, _) => Details()) };
         details.Bind(ContentControl.ContentProperty, new Binding(nameof(viewModel.SelectedVariable)) { Mode = BindingMode.OneWay });
         var scroll = new ScrollViewer { Content = details, HorizontalScrollBarVisibility = global::Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
-        var panel = new Grid { Margin = new Thickness(8), RowDefinitions = new RowDefinitions("Auto,2*,3*"), RowSpacing = 8 };
+        scroll.Bind(IsVisibleProperty, new Binding(nameof(viewModel.SelectedVariable))
+            { Converter = Avalonia.Data.Converters.ObjectConverters.IsNotNull });
+        var panel = new Grid { Margin = new Thickness(4), RowDefinitions = new RowDefinitions("Auto,2*,3*"), RowSpacing = 4 };
+        panel.RowDefinitions[2].Bind(RowDefinition.HeightProperty, new Binding(nameof(viewModel.SelectedVariable))
+        {
+            Source = viewModel,
+            Converter = new Avalonia.Data.Converters.FuncValueConverter<VariableModel?, GridLength>(
+                selected => selected == null ? new GridLength(0) : new GridLength(3, GridUnitType.Star))
+        });
         panel.Children.Add(header); Grid.SetRow(list, 1); panel.Children.Add(list); Grid.SetRow(scroll, 2); panel.Children.Add(scroll);
         Content = panel;
     }
@@ -54,6 +62,18 @@ public sealed class DockVariablesView : UserControl, IDisposable
     {
         Header = title, IsReadOnly = true,
         CellTemplate = new FuncDataTemplate<object>((_, _) => Text(path))
+    };
+
+    private static DataGridTemplateColumn SummaryColumn(string title, string path) => new()
+    {
+        Header = title, IsReadOnly = true, Width = new DataGridLength(1, DataGridLengthUnitType.Star), MinWidth = 60,
+        CellTemplate = new FuncDataTemplate<object>((_, _) =>
+        {
+            var cell = Text(path);
+            cell.TextWrapping = TextWrapping.NoWrap;
+            cell.TextTrimming = TextTrimming.CharacterEllipsis;
+            return cell;
+        })
     };
 
     private static Control Details()

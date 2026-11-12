@@ -70,7 +70,7 @@ public sealed partial class DockShellNativeProbe
                 var host = (Window)layout.Root.Windows!.Single().Host!;
                 await Wait(() => ReferenceEquals(TopLevel.GetTopLevel(editor), host));
                 host.Activate(); editor.TextArea.Focus(); await Task.Delay(100);
-                Check($"float-{i}-native-owner", GetWindow(host.TryGetPlatformHandle()!.Handle, 4) == window.TryGetPlatformHandle()!.Handle);
+                Check($"float-{i}-native-owner", GetWindow(host.TryGetPlatformHandle()!.Handle, 4) == 0);
                 Check($"float-{i}-focus", GetForegroundWindow() == host.TryGetPlatformHandle()!.Handle && editor.IsKeyboardFocusWithin);
                 host.Close(); Check($"float-{i}-close-protected", host.IsVisible);
                 layout.Dock(DockShellState.DocumentId);

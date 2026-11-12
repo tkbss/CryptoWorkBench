@@ -19,8 +19,20 @@ internal sealed class EditorDockFactory : Factory, IDockDropPolicy, IDockOperati
     private IDockWindow? _removingEmptyWindow;
     private CompositeDropScope? _compositeDrop;
 
+    public override void InitDockWindow(IDockWindow window, IDockable? owner, IHostWindow? hostWindow)
+    {
+        // Per-shell policy: also applied to restored windows, without changing
+        // process-wide Dock defaults or the persisted layout schema.
+        window.OwnerMode = DockWindowOwnerMode.None;
+        window.ShowInTaskbar = true;
+        base.InitDockWindow(window, owner, hostWindow);
+    }
+
     public override void InitDockable(IDockable dockable, IDockable? owner)
     {
+        // Presentation policy, reapplied to default, restored and newly split tool
+        // groups. GripMode is deliberately not part of our persisted schema.
+        if (dockable is IToolDock tool) tool.GripMode = GripMode.Hidden;
         if (dockable is IDock dock)
         {
             Containers.Initialize(dock);

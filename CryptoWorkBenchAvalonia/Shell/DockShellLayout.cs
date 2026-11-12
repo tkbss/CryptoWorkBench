@@ -23,6 +23,8 @@ public sealed partial class DockShellLayout : IDisposable
     public Factory Factory { get; }
     public IRootDock Root { get; private set; }
     public bool IsDisposed { get; private set; }
+    internal event Action<string>? Feedback;
+    internal void ReportFeedback(string message) => Feedback?.Invoke(message);
 
     public DockShellLayout(DockShellState state)
     {
@@ -38,15 +40,25 @@ public sealed partial class DockShellLayout : IDisposable
         documents.VisibleDockables = Factory.CreateList<IDockable>(document);
         documents.ActiveDockable = document;
         var tools = NewAnchor(Tools);
-        tools.VisibleDockables = Factory.CreateList<IDockable>(Pane(DockShellState.VariablesId), Pane(DockShellState.OutputId), Pane(DockShellState.InfoId));
+        tools.VisibleDockables = Factory.CreateList<IDockable>(Pane(DockShellState.VariablesId), Pane(DockShellState.InfoId));
         tools.ActiveDockable = Pane(DockShellState.VariablesId);
         var diagnostics = NewAnchor(Diagnostics);
-        diagnostics.VisibleDockables = Factory.CreateList<IDockable>(Pane(DockShellState.DiagnosticsId), Pane(DockShellState.StatusId));
-        diagnostics.ActiveDockable = Pane(DockShellState.DiagnosticsId);
+        diagnostics.VisibleDockables = Factory.CreateList<IDockable>(Pane(DockShellState.OutputId), Pane(DockShellState.DiagnosticsId));
+        diagnostics.ActiveDockable = Pane(DockShellState.OutputId);
+        documents.Proportion = .70;
+        tools.Proportion = .30;
+        diagnostics.Proportion = .25;
+        var workspace = new ProportionalDock
+        {
+            Id = "dock:workspace", IsCollapsable = false, Orientation = Orientation.Horizontal, Proportion = .75,
+            VisibleDockables = Factory.CreateList<IDockable>(documents, new ProportionalDockSplitter(), tools),
+            ActiveDockable = documents
+        };
         var main = new ProportionalDock
         {
-            Id = Main, IsCollapsable = false, Orientation = Orientation.Horizontal,
-            VisibleDockables = Factory.CreateList<IDockable>(tools, new ProportionalDockSplitter(), documents, new ProportionalDockSplitter(), diagnostics)
+            Id = Main, IsCollapsable = false, Orientation = Orientation.Vertical,
+            VisibleDockables = Factory.CreateList<IDockable>(workspace, new ProportionalDockSplitter(), diagnostics),
+            ActiveDockable = workspace
         };
         Root = new RootDock
         {
@@ -135,12 +147,12 @@ public sealed partial class DockShellLayout : IDisposable
     }
 
     private static string Home(string id) => id == DockShellState.DocumentId ? Documents
-        : id is DockShellState.DiagnosticsId or DockShellState.StatusId ? Diagnostics : Tools;
+        : id is DockShellState.OutputId or DockShellState.DiagnosticsId or DockShellState.StatusId ? Diagnostics : Tools;
 
     private IDock NewAnchor(string id)
     {
         IDock dock = id == Documents ? new DocumentDock { CanCreateDocument = false }
-            : new ToolDock { Alignment = id == Tools ? Alignment.Left : Alignment.Right, Proportion = .22 };
+            : new ToolDock { Alignment = id == Tools ? Alignment.Right : Alignment.Bottom, Proportion = id == Tools ? .30 : .25 };
         dock.Id = id; dock.IsCollapsable = false; dock.VisibleDockables = Factory.CreateList<IDockable>();
         ((EditorDockFactory)Factory).Containers.Register(dock);
         return dock;
@@ -151,8 +163,12 @@ public sealed partial class DockShellLayout : IDisposable
         // Floating groups may copy their source IDs; anchors must be resolved in the main tree only.
         if (DockContainerRoles.MainAnchors(Root).SingleOrDefault(d => d.Id == id) is { } existing) return existing;
         var main = VisibleTree(Root, false).OfType<IDock>().Single(d => d.Id == Main);
+        // The G2 upper row owns document/right anchors. Legacy saved layouts retain
+        // their original structure and continue to use the main container.
+        if (id != Diagnostics)
+            main = VisibleTree(Root, false).OfType<IDock>().SingleOrDefault(d => d.Id == "dock:workspace") ?? main;
         var anchor = NewAnchor(id);
-        var index = id == Tools ? 0 : main.VisibleDockables!.Count;
+        var index = id == Documents ? 0 : main.VisibleDockables!.Count;
         if (index > 0) Factory.InsertDockable(main, new ProportionalDockSplitter(), index++);
         Factory.InsertDockable(main, anchor, index);
         if (index == 0) Factory.InsertDockable(main, new ProportionalDockSplitter(), 1);
@@ -176,6 +192,7 @@ public sealed partial class DockShellLayout : IDisposable
         _focus = null;
         _focusProportions = null;
         RootChanged = null;
+        Feedback = null;
         ((EditorDockFactory)Factory).Exiting = true;
         ((EditorDockFactory)Factory).LayoutOwner = null;
         Root.ExitWindows.Execute(null);
@@ -189,39 +206,39 @@ public sealed partial class DockShellLayout : IDisposable
 
     private sealed class DocumentSafeHostWindow(DockShellLayout owner) : HostWindow
     {
-        private bool _documentChrome;
+        protected override void OnInitialized()
+        {
+            // A native caption moves only this OS window. Dock tabs retain the
+            // framework's drag/drop route; no replacement content template.
+            WindowDecorations = Avalonia.Controls.WindowDecorations.Full;
+            ExtendClientAreaToDecorationsHint = false;
+            ToolChromeControlsWholeWindow = false;
+            DocumentChromeControlsWholeWindow = false;
+            ShowInTaskbar = true;
+            base.OnInitialized();
+        }
 
         protected override void OnOpened(EventArgs args)
         {
-            UpdateDocumentChrome();
-            LayoutUpdated += RefreshDocumentChrome;
+            UpdateTitle(this, EventArgs.Empty);
+            LayoutUpdated += UpdateTitle;
             base.OnOpened(args);
         }
 
-        private void RefreshDocumentChrome(object? sender, EventArgs args) => UpdateDocumentChrome();
-
-        private void UpdateDocumentChrome()
+        private void UpdateTitle(object? sender, EventArgs args)
         {
-            if (!OperatingSystem.IsWindows() || owner.IsDisposed || owner.LayoutFaulted ||
-                ((EditorDockFactory)owner.Factory).Session == null) return;
-            // Tool implements IDocument too. Only this session's actual document pane
-            // confers document chrome, including in a mixed floating tree.
-            bool document = Window?.Layout is { } floating &&
-                VisibleTree(floating, includeFloating: false).Contains(owner.Pane(DockShellState.DocumentId));
-            if (document == _documentChrome) return;
-            _documentChrome = document;
-            if (document) DockDocumentWindowChrome.Attach(this, () => owner.CanChange);
-            else
-            {
-                // Let the current Dock theme supply tool chrome after the document leaves.
-                ClearValue(ContentTemplateProperty);
-                ClearValue(WindowDecorationsProperty);
-            }
+            if (owner.IsDisposed || owner.LayoutFaulted || Window?.Layout is not { } floating) return;
+            // Restored models have the framework placeholder title "IDockWindow".
+            // Derive a taskbar/caption label from the existing session panes, also
+            // when a floating group gains or loses content. No persisted metadata.
+            var title = string.Join(" · ", VisibleTree(floating, false)
+                .Where(d => d.Context is DockPaneState).Select(d => d.Title));
+            if (!string.IsNullOrEmpty(title) && Title != title) Title = title;
         }
 
         protected override void OnClosed(EventArgs args)
         {
-            LayoutUpdated -= RefreshDocumentChrome;
+            LayoutUpdated -= UpdateTitle;
             base.OnClosed(args);
         }
 
@@ -230,8 +247,8 @@ public sealed partial class DockShellLayout : IDisposable
             DockLifecycleTrace.Write($"host-OnClosing:enter:reason={args.CloseReason}:cancel={args.Cancel}", this);
             try
             {
-                // Native host close does not consult Document.CanClose. Owner/application shutdown
-                // must still pass: Avalonia closes owned hosts before the main window's Closed event.
+                // Native host close does not consult Document.CanClose. Shell disposal
+                // and layout replacement must still be allowed to close unowned hosts.
                 if (!owner.IsDisposed && !owner._replacing && args.CloseReason is Avalonia.Controls.WindowCloseReason.WindowClosing or Avalonia.Controls.WindowCloseReason.Undefined &&
                     (!owner.CanChange && !((EditorDockFactory)owner.Factory).IsCompletingEmptyWindowRemoval(Window) ||
                      Window?.Layout is { } floating && VisibleTree(floating).Contains(owner.Pane(DockShellState.DocumentId))))

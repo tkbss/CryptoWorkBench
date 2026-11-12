@@ -41,6 +41,10 @@ internal static class DockContainerRoles
         var result = MainAnchors(root).ToHashSet();
         result.Add(root);
         if (MainStructure(root) is { } main) result.Add(main);
+        // Keep the G2 upper split available when a whole group is floated.
+        if (MainStructure(root) is { } structure)
+            foreach (var row in DockShellLayout.VisibleTree(structure, false).OfType<IProportionalDock>().Where(d => d.Id == "dock:workspace"))
+                result.Add(row);
         return result;
     }
 }

@@ -25,6 +25,7 @@ public sealed class DockMouseRedockTests
     public Task DropCommitClosesOnlyEmptiedSourceHost(bool group, bool otherHost) => GuiTestSession.Session.Dispatch(async () =>
     {
         await using var h = new DockToolTests.Host();
+        h.Show(DockShellState.StatusId); // Include the optional legacy tool in identity/cleanup coverage.
         var editor = h.Session.Editor; var document = editor.Document; var undo = document.UndoStack;
         var snapshot = h.Service.CaptureSaveIntent()!.Snapshot;
         var generation = h.Service.EditorCoordinator.WorkspaceGeneration;

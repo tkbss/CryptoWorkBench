@@ -16,6 +16,8 @@ internal sealed class DockShellPresentation : IDisposable
 {
     private readonly Application _app;
     private readonly DockFluentTheme _theme = new();
+    private readonly Avalonia.Markup.Xaml.Styling.StyleInclude _styles = new(new Uri("avares://CryptoWorkBenchAvalonia/"))
+    { Source = new Uri("avares://CryptoWorkBenchAvalonia/Shell/DockShellStyles.axaml") };
     private readonly PlaceholderTemplate _template;
     internal DockVariablesView? Variables { get; }
     internal InfoView? Info { get; }
@@ -45,6 +47,7 @@ internal sealed class DockShellPresentation : IDisposable
         _template = new PlaceholderTemplate(this, editor);
         _app = app;
         app.Styles.Add(_theme);
+        app.Styles.Add(_styles);
         app.DataTemplates.Add(_template);
     }
     internal void StartTools() => Variables?.Start();
@@ -65,7 +68,7 @@ internal sealed class DockShellPresentation : IDisposable
         if (_variablesPresenter != null) _variablesPresenter.Content = null;
         if (_infoPresenter != null) _infoPresenter.Content = null;
         _variablesPresenter = _infoPresenter = null;
-        _app.DataTemplates.Remove(_template); _app.Styles.Remove(_theme);
+        _app.DataTemplates.Remove(_template); _app.Styles.Remove(_styles); _app.Styles.Remove(_theme);
     }
     private sealed class PlaceholderTemplate(DockShellPresentation owner, DockEditorSession? editor) : IDataTemplate
     {
@@ -78,21 +81,20 @@ internal sealed class DockShellPresentation : IDisposable
             // is displayed again; constructing a detached template must not steal it.
             var content = new ContentControl();
             content.AttachedToVisualTree += (_, _) => content.Content = BuildContent(data);
-            var actions = new MenuItem { Header = "Layout" };
-            var feedback = new TextBlock { FontSize = 11, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            // Per-pane commands remain available from a compact context menu;
+            // the main View menu also exposes them without consuming a content row.
+            var actions = new ContextMenu();
             void Add(string name, DockLayoutCommand command)
             {
                 var item = new MenuItem { Header = name };
-                item.Click += (_, _) => feedback.Text = layout.ExecuteLayout(command, pane.Id).Message;
+                item.Click += (_, _) => layout.ReportFeedback(layout.ExecuteLayout(command, pane.Id).Message);
                 actions.Items.Add(item);
             }
             Add("Maximize Active View", DockLayoutCommand.Maximize);
             Add("Restore Layout", DockLayoutCommand.Restore);
             Add("Reset to Default Layout", DockLayoutCommand.Reset);
-            var menu = new Menu { Items = { actions } };
-            var bar = new DockPanel { Children = { menu, feedback } };
-            DockPanel.SetDock(bar, Avalonia.Controls.Dock.Top);
-            return new DockPanel { Children = { bar, content } };
+            content.ContextMenu = actions;
+            return content;
         }
         private Control BuildContent(object? data) => data switch
         {

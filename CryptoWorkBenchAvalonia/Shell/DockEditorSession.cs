@@ -68,6 +68,12 @@ public sealed partial class DockEditorSession : IDisposable
         viewModel.CaptureOutputSource = CaptureOutputSource;
         _service = service;
         View = new CryptoScriptEditView(viewModel, sessionOwned: true);
+        // The dock shell displays execution and caret status once, outside Dock.
+        View.FindControl<Border>("EditorStatusFrame")!.IsVisible = false;
+        var frame = View.FindControl<Border>("EditorFrame")!;
+        frame.Margin = new Avalonia.Thickness(0);
+        frame.BoxShadow = default;
+        View.FindControl<TextBlock>("StatusText")!.Text = "Line 1 Column 1";
         // Keep the same gestures in the editor's route, including when its TopLevel is floating.
         View.KeyBindings.Add(new KeyBinding { Gesture = KeyGesture.Parse("Alt+PageUp"), Command = main.LineHistoryBackCommand });
         View.KeyBindings.Add(new KeyBinding { Gesture = KeyGesture.Parse("Alt+PageDown"), Command = main.LineHistoryForwardCommand });

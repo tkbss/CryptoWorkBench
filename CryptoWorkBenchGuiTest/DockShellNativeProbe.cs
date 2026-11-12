@@ -76,6 +76,11 @@ public sealed partial class DockShellNativeProbe : App
 
     private async Task Run(IClassicDesktopStyleApplicationLifetime desktop)
     {
+        if (Mode is "independent-windows" or "independent-restart" or "independent-review") { await RunIndependentWindows(desktop); return; }
+        if (Mode == "corrections-review") { desktop.ShutdownMode = ShutdownMode.OnMainWindowClose; await PrepareVisualExample(); return; }
+        if (Mode == "corrections-layout") { await RunStandardLayout(desktop); return; }
+        if (Mode == "standard-review") { desktop.ShutdownMode = ShutdownMode.OnMainWindowClose; return; }
+        if (Mode == "standard-layout") { await RunStandardLayout(desktop); return; }
         if (Mode is "native-acceptance" or "native-acceptance-input") { await RunNativeAcceptance(desktop); return; }
         if (Mode == "partial-failure") { await RunPartialFailure(desktop); return; }
         if (Mode == "operation-contract") { await RunOperationContract(desktop); return; }
@@ -158,7 +163,7 @@ public sealed partial class DockShellNativeProbe : App
                     await WaitFor(() => floating.GetVisualDescendants().OfType<DockPlaceholderView>().Any());
                     var childHandle = floating.TryGetPlatformHandle()!.Handle;
                     Check(state.Id + ":native-handle", childHandle != 0 && childHandle != handle);
-                    Check(state.Id + ":native-owner", ReferenceEquals(floating.Owner, shell) && GetWindow(childHandle, 4) == handle);
+                    Check(state.Id + ":native-owner", floating.Owner == null && GetWindow(childHandle, 4) == 0);
                     floating.Position = new Avalonia.PixelPoint(shell.Position.X + (int)(shell.Width * shell.RenderScaling) + 25, shell.Position.Y + 30);
                     shell.Activate(); layout.Show(state.Id); View(floating, state.Id).Notes.Focus();
                     await Task.Delay(150);
@@ -208,3 +213,4 @@ public sealed partial class DockShellNativeProbe : App
         }
     }
 }
+

@@ -62,7 +62,8 @@ public sealed partial class DockShellNativeProbe
             }
             else
             {
-                Check("default-six-panes", DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool) == 6);
+                Check("default-five-visible-panes", DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool) == 5);
+                Check("default-status-closed", DockLayoutStore.Decode(layout.Capture(DockLayoutRoleTests.Bounds)).ClosedTools.SequenceEqual(new[] { DockShellState.StatusId }));
                 if (Mode == "layout-invalid") Check("invalid-file-default-without-legacy-fallback", DockShellStartupError == null);
             }
             layout.Show(DockShellState.DocumentId); session.Editor.TextArea.Focus();
@@ -110,10 +111,10 @@ public sealed partial class DockShellNativeProbe
                 shell.Title = "G1-07 INPUT: View > Restore Layout";
                 await Wait(() => !layout.IsMaximized, 180);
                 Check("external-main-restore", !layout.IsMaximized);
-                floating.Activate(); floating.Title = "G1-07 INPUT: Layout > Maximize Active View";
+                floating.Activate(); floating.Title = "G1-07 INPUT: Context menu > Maximize Active View";
                 await Wait(() => layout.IsMaximized, 180);
                 Check("external-floating-maximize", layout.MaximizedPaneId == DockShellState.InfoId);
-                floating.Title = "G1-07 INPUT: Layout > Restore Layout";
+                floating.Title = "G1-07 INPUT: Context menu > Restore Layout";
                 await Wait(() => !layout.IsMaximized, 180);
                 Check("external-floating-restore", !layout.IsMaximized);
                 shell.Activate(); shell.Title = "G1-07 INPUT: View > Reset to Default Layout";
@@ -127,8 +128,10 @@ public sealed partial class DockShellNativeProbe
             await Wait(() => Math.Abs(shell.ClientSize.Width - 1000) < 1 && Math.Abs(shell.ClientSize.Height - 700) < 1);
             layout.Close(DockShellState.StatusId);
             DockShellLayout.VisibleTree(layout.Root, false).Single(p => p.Id == DockShellLayout.Tools).Proportion = .3;
-            DockShellLayout.VisibleTree(layout.Root, false).Single(p => p.Id == DockShellLayout.Documents).Proportion = .48;
-            DockShellLayout.VisibleTree(layout.Root, false).Single(p => p.Id == DockShellLayout.Diagnostics).Proportion = .22;
+            // G2 has independent upper-row and vertical proportions; siblings
+            // in the upper row must still sum to one before native layout runs.
+            DockShellLayout.VisibleTree(layout.Root, false).Single(p => p.Id == DockShellLayout.Documents).Proportion = .7;
+            DockShellLayout.VisibleTree(layout.Root, false).Single(p => p.Id == DockShellLayout.Diagnostics).Proportion = .25;
             await Task.Delay(200);
             layout.Maximize(DockShellState.DocumentId);
             var host = layout.Root.Windows!.Single().Host;
@@ -152,3 +155,4 @@ public sealed partial class DockShellNativeProbe
         }
     }
 }
+

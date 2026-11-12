@@ -177,7 +177,8 @@ public sealed class DockFinalIntegrationTests
         Assert.That(store.LastError, Does.Contain("InvalidDataException"));
         Assert.That(layout.Factory.HostWindows, Is.Empty);
         Assert.That(((EditorDockFactory)layout.Factory).Session, Is.Null);
-        Assert.That(DockShellLayout.VisibleTree(layout.Root).Count(p => DockLayoutStore.PaneIds.Contains(p.Id)), Is.EqualTo(6));
+        Assert.That(DockShellLayout.VisibleTree(layout.Root).Count(p => DockLayoutStore.PaneIds.Contains(p.Id)), Is.EqualTo(5));
         return true;
     }, CancellationToken.None);
 }
+

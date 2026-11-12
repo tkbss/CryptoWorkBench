@@ -7,6 +7,7 @@ using Avalonia.VisualTree;
 using CryptoWorkBench.Automation.Abstractions;
 using CryptoWorkBenchAvalonia.Services.Automation;
 using CryptoWorkBenchAvalonia.Shell;
+using Dock.Avalonia.Controls;
 using Dock.Model;
 using Dock.Model.Controls;
 using Dock.Model.Core;
@@ -17,30 +18,35 @@ namespace CryptoWorkBenchGuiTest;
 [NonParallelizable]
 public sealed class DockGroupDocumentRedockTests
 {
-    [Test]
-    public Task DocumentCaptionStartsDockDragAndRespectsProtectedStates() => GuiTestSession.Session.Dispatch(async () =>
+    internal static bool DragDocumentTab(Window host)
     {
-        if (!OperatingSystem.IsWindows()) Assert.Ignore("Windows document caption integration.");
+        var tab = host.GetVisualDescendants().OfType<DocumentTabStripItem>().Single();
+        var point = tab.TranslatePoint(new Point(20, 12), host)!.Value;
+        var end = point + new Vector(0, 90);
+        host.MouseDown(point, MouseButton.Left);
+        host.MouseMove(end, RawInputModifiers.LeftMouseButton);
+        var dragging = host.GetVisualDescendants().OfType<DockControl>().Any(c => c.IsDraggingDock);
+        host.MouseUp(end, MouseButton.Left);
+        return dragging;
+    }
+
+    [Test]
+    public Task DocumentTabStartsDockDragAndRespectsProtectedStates() => GuiTestSession.Session.Dispatch(async () =>
+    {
         await using var h = new DockToolTests.Host();
         var host = h.Float(DockShellState.DocumentId);
-        var grip = host.GetVisualDescendants().OfType<Border>().Single(c => AutomationProperties.GetAutomationId(c) == "DockDocumentWindowGrip");
-        var point = grip.TranslatePoint(new Avalonia.Point(12, 12), host)!.Value;
-        int begins = 0;
-        h.Layout.Factory.WindowMoveDragBegin += (_, _) => begins++;
-        void Press() { host.MouseDown(point, MouseButton.Left); host.MouseUp(point, MouseButton.Left); }
-        h.Service.EditorCoordinator.Observe(Press);
-        Assert.That(begins, Is.Zero, "The caption must respect observer admission.");
-        using (h.Service.EditorCoordinator.TryBegin()) Press();
-        Assert.That(begins, Is.Zero, "The caption must respect pending coordinator work.");
-        Press();
-        Assert.That(begins, Is.EqualTo(1), "Real routed caption input must enter Dock's whole-window pipeline.");
+        h.Service.EditorCoordinator.Observe(() => Assert.That(DragDocumentTab(host), Is.False));
+        using (h.Service.EditorCoordinator.TryBegin()) Assert.That(DragDocumentTab(host), Is.False);
+        Assert.That(DragDocumentTab(host), Is.True, "Routed tab input must still start Dock drag with native window chrome.");
         host.Close(); Assert.That(host.IsVisible, Is.True, "The only document remains protected.");
         Assert.That(h.Layout.Pane(DockShellState.DocumentId).CanClose, Is.False);
         return true;
     }, CancellationToken.None);
-
     internal static IDockable FloatScenario(DockShellLayout layout, string scenario)
     {
+        // This regression intentionally exercises all six identities, including
+        // the legacy Status tool which G2 no longer opens by default.
+        layout.Show(DockShellState.StatusId);
         var document = scenario.StartsWith("document", StringComparison.Ordinal);
         var pane = layout.Pane(document ? DockShellState.DocumentId : DockShellState.VariablesId);
         if (scenario == "group")
@@ -136,11 +142,7 @@ public sealed class DockGroupDocumentRedockTests
         Assert.That(lease, Is.Not.Null);
         if (OperatingSystem.IsWindows() && scenario.StartsWith("document", StringComparison.Ordinal))
         {
-            int begins = 0; h.Layout.Factory.WindowMoveDragBegin += (_, _) => begins++;
-            var grip = host.GetVisualDescendants().OfType<Border>().Single(c => AutomationProperties.GetAutomationId(c) == "DockDocumentWindowGrip");
-            var point = grip.TranslatePoint(new Point(12, 12), host)!.Value;
-            host.MouseDown(point, MouseButton.Left); host.MouseUp(point, MouseButton.Left);
-            Assert.That(begins, Is.Zero, "The document caption must not bypass an active MCP lease.");
+            Assert.That(DragDocumentTab(host), Is.False, "The document tab must not bypass an active MCP lease.");
         }
         var manager = new DockManager(new DockService());
         Assert.That(manager.ValidateDockable(source, Target(h.Layout, scenario), DragAction.Move, DockOperation.Fill, true), Is.False);

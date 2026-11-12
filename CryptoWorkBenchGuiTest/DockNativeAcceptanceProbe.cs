@@ -73,9 +73,9 @@ public sealed partial class DockShellNativeProbe
                         Check("mixed-drop", new DockManager(new DockService()).ValidateDockable(layout.Pane(DockShellState.VariablesId), pane.Owner!, DragAction.Move, DockOperation.Right, true));
                     await Task.Delay(200);
                     bool hasDocument = scenario is "document-tab" or "mixed";
-                    Check(scenario + "-chrome", DockNativeChromeTests.HasDocumentGrip(host) == hasDocument);
+                    Check(scenario + "-chrome", DockNativeChromeTests.HasNativeChrome(host));
                     var hwnd = host.TryGetPlatformHandle()!.Handle;
-                    Check(scenario + "-hwnd-owner", IsWindow(hwnd) && IsWindowVisible(hwnd) && GetWindow(hwnd, 4) == shell.TryGetPlatformHandle()!.Handle);
+                    Check(scenario + "-hwnd-owner", IsWindow(hwnd) && IsWindowVisible(hwnd) && GetWindow(hwnd, 4) == 0);
                     host.Activate(); await Wait(scenario + " activation", () => GetForegroundWindow() == hwnd);
                     var position = host.Position; host.Position = new PixelPoint(position.X + 20, position.Y + 20);
                     Check(scenario + "-move", host.Position != position);
@@ -90,9 +90,9 @@ public sealed partial class DockShellNativeProbe
                 var mixedHwnd = mixedHost.TryGetPlatformHandle()!.Handle;
                 Check("mixed-transition-drop", new DockManager(new DockService()).ValidateDockable(layout.Pane(DockShellState.DocumentId).Owner!,
                     layout.Pane(DockShellState.VariablesId).Owner!, DragAction.Move, DockOperation.Right, true));
-                await Wait("mixed chrome", () => DockNativeChromeTests.HasDocumentGrip(mixedHost));
+                await Wait("mixed chrome", () => DockNativeChromeTests.HasNativeChrome(mixedHost));
                 layout.Dock(DockShellState.DocumentId);
-                await Wait("tool chrome restored", () => !DockNativeChromeTests.HasDocumentGrip(mixedHost));
+                await Wait("tool chrome restored", () => DockNativeChromeTests.HasNativeChrome(mixedHost));
                 Check("mixed-transition-preserves-tool-mixedHwnd", mixedHost.IsVisible && mixedHost.TryGetPlatformHandle()!.Handle == mixedHwnd && IsWindow(mixedHwnd));
                 mixedHost.Close(); await Wait("tool mixedHost destroyed", () => !IsWindow(mixedHwnd));
                 layout.ExecuteLayout(DockLayoutCommand.Reset); await Task.Delay(200);

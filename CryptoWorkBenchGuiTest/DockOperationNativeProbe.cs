@@ -47,8 +47,8 @@ public sealed partial class DockShellNativeProbe
             var source = (Window)model.Host!; var sourceHwnd = source.TryGetPlatformHandle()!.Handle;
             var retainedModel = layout.Factory.FindRoot(layout.Pane(DockShellState.DiagnosticsId))!.Window!;
             var retained = (Window)retainedModel.Host!; var retainedHwnd = retained.TryGetPlatformHandle()!.Handle;
-            Check("source-native-owner", IsWindow(sourceHwnd) && GetWindow(sourceHwnd, 4) == main);
-            Check("retained-native-owner", IsWindow(retainedHwnd) && GetWindow(retainedHwnd, 4) == main);
+            Check("source-native-owner", IsWindow(sourceHwnd) && GetWindow(sourceHwnd, 4) == 0);
+            Check("retained-native-owner", IsWindow(retainedHwnd) && GetWindow(retainedHwnd, 4) == 0);
             Check("source-model-ownership", ReferenceEquals(model.Factory, layout.Factory) && ReferenceEquals(model.Owner, layout.Root) &&
                 ReferenceEquals(model.Layout!.Window, model) && ReferenceEquals(((IHostWindow)source).Window, model));
             var info = layout.Pane(DockShellState.InfoId); var infoOwner = info.Owner;

@@ -50,7 +50,7 @@ internal sealed class DockDiagnosticsView : UserControl
                 } }
             };
         });
-        var panel = new DockPanel { Margin = new Thickness(12) };
+        var panel = new DockPanel { Margin = new Thickness(6) };
         DockPanel.SetDock(filters, Avalonia.Controls.Dock.Top);
         DockPanel.SetDock(Feedback, Avalonia.Controls.Dock.Top);
         panel.Children.Add(filters); panel.Children.Add(Feedback); panel.Children.Add(list);
@@ -78,3 +78,4 @@ internal sealed class DockStatusView : UserControl
         Content = new ScrollViewer { Content = text };
     }
 }
+

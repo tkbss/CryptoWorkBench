@@ -134,7 +134,7 @@ public sealed class DockLayoutFailureTests
         Assert.That(h.Layout.ExecuteLayout(DockLayoutCommand.Maximize, DockShellState.DocumentId).Outcome, Is.EqualTo(DockLayoutOutcome.Faulted));
         Assert.Throws<InvalidOperationException>(() => h.Layout.Capture(DockLayoutRoleTests.Bounds));
         var root = h.Layout.Root;
-        DockLayoutStore.Validate(root, []);
+        DockLayoutStore.Validate(root, [DockShellState.StatusId]);
         var windows = root.Windows!.ToArray();
         h.Layout.Factory.FloatDockable(h.Layout.Pane(DockShellState.InfoId));
         Assert.That(root.Windows, Is.EqualTo(windows));

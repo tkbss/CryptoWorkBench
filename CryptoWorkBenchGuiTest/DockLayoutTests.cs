@@ -29,7 +29,7 @@ public sealed class DockLayoutTests
     {
         Assert.That(new DockLayoutStore(Temp()).Load(), Is.Null);
         using var layout = new DockShellLayout(new());
-        Assert.That(DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
+        Assert.That(DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
         Assert.That(DockLayoutStore.Decode(layout.Capture(Bounds)).MainWindow, Is.EqualTo(Bounds));
     });
 
@@ -53,7 +53,7 @@ public sealed class DockLayoutTests
             Assert.That(Anchor(restored, DockShellLayout.Tools).Proportion, Is.EqualTo(.31));
             Assert.That(Anchor(restored, DockShellLayout.Tools).ActiveDockable!.Id, Is.EqualTo(DockShellState.InfoId));
             Assert.That(Anchor(restored, DockShellLayout.Diagnostics).VisibleDockables!.Select(p => p.Id),
-                Is.EqualTo(new[] { DockShellState.DiagnosticsId, DockShellState.OutputId }));
+                Is.EqualTo(new[] { DockShellState.OutputId, DockShellState.DiagnosticsId }));
             Assert.That(DockShellLayout.VisibleTree(restored.Root).Contains(restored.Pane(DockShellState.StatusId)), Is.False);
             Assert.That(store.Save(restored.Capture(Bounds)), Is.True, store.LastError);
             Assert.That(File.ReadAllText(store.Path), Is.EqualTo(original));
@@ -95,11 +95,11 @@ public sealed class DockLayoutTests
         var node = JsonNode.Parse(json)!;
         var dock = node["Dock"]!;
         var main = dock["VisibleDockables"]!["$values"]![0]!;
-        var tools = main["VisibleDockables"]!["$values"]![0]!;
+        var tools = main["VisibleDockables"]!["$values"]![0]!["VisibleDockables"]!["$values"]![2]!;
         switch (kind)
         {
             case "version": node["SchemaVersion"] = 99; break;
-            case "missing": tools["VisibleDockables"]!["$values"]!.AsArray().RemoveAt(2); break;
+            case "missing": tools["VisibleDockables"]!["$values"]!.AsArray().RemoveAt(1); break;
             case "duplicate": json = json.Replace(DockShellState.InfoId, DockShellState.OutputId); break;
             case "unknown": json = json.Replace(DockShellState.InfoId, "tool:unknown"); break;
             case "type": json = json.Replace("Dock.Model.Mvvm.Controls.Tool\"", "System.Diagnostics.Process\""); break;
@@ -266,7 +266,7 @@ public sealed class DockLayoutTests
         await DockEditorTests.Wait(() => !h.Window.IsVisible);
         var saved = store.Load(); Assert.That(saved, Is.Not.Null, store.LastError);
         Assert.That(saved!.Root.Windows, Has.Count.EqualTo(1));
-        Assert.That(DockShellLayout.VisibleTree(saved.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
+        Assert.That(DockShellLayout.VisibleTree(saved.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
         Assert.That(h.Service.HasRegisteredEditor, Is.False);
         Assert.Throws<ObjectDisposedException>(() => h.Layout.Reset());
     });
@@ -341,3 +341,5 @@ public sealed class DockLayoutTests
         Assert.That(DockWindowGeometry.Clamp(original, [new(new(0, 0, 1920, 1080), 1), new(new(-1920, 0, 1920, 1080), 1)]), Is.EqualTo(original));
     }
 }
+
+

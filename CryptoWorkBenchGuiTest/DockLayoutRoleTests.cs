@@ -42,16 +42,14 @@ public sealed class DockLayoutRoleTests
 
     internal static void Click(DockShellWindow shell, Control view, string entry, string command)
     {
-        MenuItem menu;
-        if (entry == "main") menu = (MenuItem)shell.FindControl<Menu>("ShellMenu")!.Items[1]!;
+        IEnumerable<MenuItem> items;
+        if (entry == "main") items = ((MenuItem)shell.FindControl<Menu>("ShellMenu")!.Items[1]!).Items.OfType<MenuItem>();
         else
         {
-            var bar = view.GetVisualAncestors().OfType<DockPanel>()
-                .SelectMany(p => p.Children.OfType<DockPanel>())
-                .SelectMany(p => p.Children.OfType<Menu>()).First();
-            menu = (MenuItem)bar.Items[0]!;
+            var menu = view.GetVisualAncestors().OfType<Control>().Select(c => c.ContextMenu).First(c => c != null)!;
+            items = menu.Items.OfType<MenuItem>();
         }
-        var item = menu.Items.OfType<MenuItem>().Single(m => Equals(m.Header, command));
+        var item = items.Single(m => Equals(m.Header, command));
         item.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
     }
 
@@ -103,7 +101,7 @@ public sealed class DockLayoutRoleTests
         Assert.That(TopLevel.GetTopLevel(h.Session.View), Is.SameAs(h.Window), "Restore must display the original editor, including when Dock reuses a cached tab template.");
         if (entry == "capture") Assert.That(h.Layout.Reset(), Is.True);
         else Click(h.Window, h.Session.View, entry, "Reset to Default Layout");
-        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
+        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
         Assert.That(h.Session.Editor.Document, Is.SameAs(document));
         Assert.That(DockLayoutStore.Decode(h.Layout.Capture(Bounds)), Is.Not.Null);
         return true;
@@ -154,3 +152,4 @@ public sealed class DockLayoutRoleTests
         return true;
     }, CancellationToken.None);
 }
+

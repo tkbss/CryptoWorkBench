@@ -18,6 +18,7 @@ public partial class DockShellWindow : Window
     {
         Layout = layout;
         InitializeComponent();
+        layout.Feedback += message => this.FindControl<TextBlock>("ShellStatus")!.Text = message;
         if (layout.StartupLayout is { } saved)
         {
             var screens = DockWindowGeometry.Screens(this);
@@ -97,7 +98,10 @@ public partial class DockShellWindow : Window
         var file = (MenuItem)this.FindControl<Menu>("ShellMenu")!.Items[0]!;
         file.Items.Insert(0, new MenuItem { Header = "_Open…", Command = editor.OpenCommand });
         file.Items.Insert(1, new MenuItem { Header = "_Save…", Command = editor.SaveCommand });
-        this.FindControl<TextBlock>("ShellStatus")!.Text = "Dock editor preview · Open loads text without execution.";
+        this.FindControl<SelectableTextBlock>("ExecutionStatus")!.Bind(TextBlock.TextProperty,
+            new Avalonia.Data.Binding(nameof(ViewModels.StatusViewModel.StatusString)) { Source = editor.ViewModel.Status });
+        this.FindControl<TextBlock>("CaretStatus")!.Bind(TextBlock.TextProperty,
+            new Avalonia.Data.Binding(nameof(TextBlock.Text)) { Source = editor.View.FindControl<TextBlock>("StatusText") });
     }
 
     internal void ReleaseLayout()

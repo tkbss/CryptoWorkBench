@@ -99,7 +99,7 @@ public sealed partial class DockShellNativeProbe
             await Render();
             var retained = (Window)layout.Factory.FindRoot(layout.Pane(DockShellState.DiagnosticsId))!.Window!.Host!;
             var retainedHwnd = retained.TryGetPlatformHandle()!.Handle;
-            Check("retained-host-native-owner", IsWindow(retainedHwnd) && GetWindow(retainedHwnd, 4) == shell.TryGetPlatformHandle()!.Handle);
+            Check("retained-host-native-owner", IsWindow(retainedHwnd) && GetWindow(retainedHwnd, 4) == 0);
             var locator = layout.Factory.HostWindowLocator!;
             var create = locator[nameof(IDockWindow)];
             var original = new Win32Exception(8, "R4 controlled native host construction failure");

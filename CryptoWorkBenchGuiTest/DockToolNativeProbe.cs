@@ -95,7 +95,7 @@ public sealed partial class DockShellNativeProbe
             static void Copy(SelectableTextBlock text) { text.Focus(); text.SelectionStart = 0; text.SelectionEnd = text.Text!.Length; text.Copy(); }
             await CopyStage("variables-docked-identifier", window, "nativeValue", () => Copy(Value("SelectedIdentifier")));
             var variableHost = await Float(DockShellState.VariablesId);
-            Check("variables-native-owner", GetWindow(variableHost.TryGetPlatformHandle()!.Handle, 4) == window.TryGetPlatformHandle()!.Handle);
+            Check("variables-native-owner", GetWindow(variableHost.TryGetPlatformHandle()!.Handle, 4) == 0);
             Check("variables-same-floating-view", ReferenceEquals(TopLevel.GetTopLevel(view), variableHost));
             await CopyStage("variables-floating-value", variableHost, "0x(AABB)", () => Copy(Value("SelectedValue")));
             Check("variables-readonly-controls", view.GetVisualDescendants().OfType<DataGrid>().All(g => g.IsReadOnly && g.Columns.All(c => c.IsReadOnly)) && !view.GetVisualDescendants().OfType<TextBox>().Any(t => !t.IsReadOnly));
@@ -117,7 +117,7 @@ public sealed partial class DockShellNativeProbe
             // Real mouse selection is deliberately separate from the programmatic native run.
             if (external) await CopyStage("info-docked-prose", window, prose, () => { }, prose: true);
             var infoHost = await Float(DockShellState.InfoId);
-            Check("info-native-owner-and-identity", GetWindow(infoHost.TryGetPlatformHandle()!.Handle, 4) == window.TryGetPlatformHandle()!.Handle && TopLevel.GetTopLevel(infoView) == infoHost);
+            Check("info-native-owner-and-identity", GetWindow(infoHost.TryGetPlatformHandle()!.Handle, 4) == 0 && TopLevel.GetTopLevel(infoView) == infoHost);
             if (external) await CopyStage("info-floating-prose", infoHost, prose, () => { }, prose: true);
             const string example = "VAR hex=0x(AABB)\n\nVAR b64=0b64(QUI=)\nPrint(\"ä€😀\")\n";
             foreach (bool floating in new[] { true, false })

@@ -61,7 +61,7 @@ public sealed partial class DockShellNativeProbe
             {
                 var host = (Window)model.Host!;
                 var hwnd = host.TryGetPlatformHandle()!.Handle;
-                Check("native-owner-" + hwnd, GetWindow(hwnd, 4) == mainHwnd);
+                Check("native-owner-" + hwnd, GetWindow(hwnd, 4) == 0);
                 Check("native-top-level-" + hwnd, (GetWindowLongPtr(hwnd, -16).ToInt64() & 0x40000000L) == 0);
                 Check("model-owner-" + hwnd, ReferenceEquals(model.Owner, layout.Root) && ReferenceEquals(model.Factory, layout.Factory) &&
                     ReferenceEquals(model.Layout!.Window, model) && ReferenceEquals(((IHostWindow)host).Window, model) && model.ParentWindow == null);
@@ -126,6 +126,8 @@ public sealed partial class DockShellNativeProbe
                 Check("same-business-session", ReferenceEquals(editor, session.Editor) && ReferenceEquals(text, editor.Document) && ReferenceEquals(undo, text.UndoStack) &&
                     service.CaptureSaveIntent()!.Snapshot == snapshot && service.EditorCoordinator.WorkspaceGeneration == generation && ReferenceEquals(session.ViewModel, viewModel));
                 Check("same-output-diagnostics", ReferenceEquals(session.Output, output) && ReferenceEquals(output.Entries, entries) && ReferenceEquals(viewModel.Status.VisibleDiagnostics, diagnostics));
+                Check("default-status-closed", DockLayoutStore.Decode(layout.Capture(DockPersistenceCleanupTests.Bounds)).ClosedTools.SequenceEqual(new[] { DockShellState.StatusId }));
+                layout.Show(DockShellState.StatusId); // Include the retained legacy identity explicitly after G2 reset.
                 Check("six-original-panes-once", DockLayoutStore.PaneIds.Select(layout.Pane).SequenceEqual(panes) && panes.All(p => DockShellLayout.VisibleTree(layout.Root).Count(d => ReferenceEquals(d, p)) == 1));
                 service.Mutate(() => editor.Undo()); Check("undo-preserved", text.Text == "// A03 native retained");
                 layout.Float(DockShellState.DocumentId); await Render();
