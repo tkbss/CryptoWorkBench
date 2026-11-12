@@ -23,7 +23,7 @@ namespace CryptoScript.Model
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
             SemanticDiagnosticExecution? execution, DiagnosticLocation? parent)
         {
-            FunctionCall fc = new FunctionCall();
+            FunctionCall fc = new FunctionCall { Source = call.Source };
             fc.Location = execution?.BeginOperation(parent!, call.Name);
             int start = semanticErrors.Count;
             try

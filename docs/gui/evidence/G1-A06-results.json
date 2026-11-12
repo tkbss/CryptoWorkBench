@@ -1,0 +1,3375 @@
+{
+  "task": "G1-A06",
+  "date": "2026-11-10",
+  "timezone": "Europe/Zurich",
+  "decision": "CONDITIONAL GO",
+  "decisionScope": "Preparation only; no integration or non-Windows production approval",
+  "newConfirmedProductDefects": [],
+  "baseline": {
+    "branch": "feature/gui-g1",
+    "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+    "worktree": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1",
+    "authoritative": "Complete uncommitted accepted A05 plus M1 workspace, not HEAD alone",
+    "sourceCount": 1149,
+    "historicalArtifactCount": 15831,
+    "historicalBytes": 2557534574,
+    "sourceManifest": "artifacts/g1-a06/baseline/source-manifest.json",
+    "sourceManifestSha256": "B69E8940396E0E7BADC9768419A9305D237EB1BDF42C71D8F95F985EE158D0A7",
+    "historicalManifest": "artifacts/g1-a06/baseline/historical-manifest.json",
+    "initialGitStatus": "artifacts/g1-a06/baseline/git-status.txt",
+    "initialModified": 37,
+    "initialUntracked": 113
+  },
+  "pins": {
+    "prismPinnedFiles": 1180,
+    "sdk": "10.0.401",
+    "dockReviewCommit": "78da173545501e796f37bc8528e9e55d9cbfd991",
+    "avaloniaEdit": "12.0.0",
+    "packageUpdates": false,
+    "runtime": "10.0.12",
+    "dock": "12.1.0.13",
+    "prismCommit": "358118cd640d9a22ff8cf21c8ad197fa038b7990",
+    "avalonia": "12.1.4"
+  },
+  "environment": {
+    "processArchitecture": "X64",
+    "dockerAvailable": false,
+    "pairedFingerprintPresent": false,
+    "codexPath": "C:\\Program Files\\WindowsApps\\OpenAI.Codex_26.1103.4239.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe",
+    "osArchitecture": "X64",
+    "wslExitCode": 1,
+    "pairedTokenPresent": false,
+    "readyFileConfigured": false,
+    "os": "Microsoft Windows 10.0.26200"
+  },
+  "platformMatrix": [
+    {
+      "os": "Windows",
+      "architecture": "x64",
+      "status": "PASS within documented evidence scope",
+      "buildDebug": "PASS",
+      "buildRelease": "PASS",
+      "gui": {
+        "debug": 1108,
+        "release": 1108
+      },
+      "mcp": {
+        "debug": 176,
+        "baselineExplicitNotExecuted": 13,
+        "release": 176
+      },
+      "core": {
+        "debug": 11512,
+        "skipped": 26,
+        "release": 11512,
+        "explicitNotExecuted": 1
+      },
+      "headless": {
+        "debug": 12,
+        "release": 12
+      },
+      "desktopStart": "PASS native probes",
+      "nativeWindows": "PASS",
+      "floatRedock": "PASS programmatic native; seven manual owner cases accepted in M1",
+      "layoutPersistence": "PASS",
+      "shutdown": "PASS",
+      "publish": "PASS win-x64 Release locked restore + publish content validator",
+      "publishedDirectoryInteractiveLaunch": "NOT VERIFIED in A06; native Desktop implementation exercised by existing probes",
+      "externalInput": "Accepted A05 evidence, not rerun in A06"
+    },
+    {
+      "os": "Linux",
+      "architecture": "x64",
+      "status": "NOT VERIFIED",
+      "buildDebug": "NOT VERIFIED",
+      "buildRelease": "NOT VERIFIED",
+      "gui": "NOT VERIFIED",
+      "mcp": "NOT VERIFIED",
+      "core": "NOT VERIFIED",
+      "headless": "NOT VERIFIED",
+      "desktopStart": "NOT VERIFIED",
+      "nativeWindows": "NOT VERIFIED",
+      "floatRedock": "NOT VERIFIED",
+      "layoutPersistence": "NOT VERIFIED",
+      "shutdown": "NOT VERIFIED",
+      "publish": "NOT VERIFIED",
+      "reason": "No authorized native target available for the complete uncommitted G1 source snapshot",
+      "productiveMcpLease": "Known fail-closed Windows-only GetTickCount64 clock; separate platform certification required"
+    },
+    {
+      "os": "macOS",
+      "architecture": "x64",
+      "status": "NOT VERIFIED",
+      "buildDebug": "NOT VERIFIED",
+      "buildRelease": "NOT VERIFIED",
+      "gui": "NOT VERIFIED",
+      "mcp": "NOT VERIFIED",
+      "core": "NOT VERIFIED",
+      "headless": "NOT VERIFIED",
+      "desktopStart": "NOT VERIFIED",
+      "nativeWindows": "NOT VERIFIED",
+      "floatRedock": "NOT VERIFIED",
+      "layoutPersistence": "NOT VERIFIED",
+      "shutdown": "NOT VERIFIED",
+      "publish": "NOT VERIFIED",
+      "reason": "No authorized native target available for the complete uncommitted G1 source snapshot",
+      "productiveMcpLease": "Known fail-closed Windows-only GetTickCount64 clock; separate platform certification required"
+    },
+    {
+      "os": "macOS",
+      "architecture": "ARM64",
+      "status": "NOT VERIFIED",
+      "buildDebug": "NOT VERIFIED",
+      "buildRelease": "NOT VERIFIED",
+      "gui": "NOT VERIFIED",
+      "mcp": "NOT VERIFIED",
+      "core": "NOT VERIFIED",
+      "headless": "NOT VERIFIED",
+      "desktopStart": "NOT VERIFIED",
+      "nativeWindows": "NOT VERIFIED",
+      "floatRedock": "NOT VERIFIED",
+      "layoutPersistence": "NOT VERIFIED",
+      "shutdown": "NOT VERIFIED",
+      "publish": "NOT VERIFIED",
+      "reason": "No authorized native target available for the complete uncommitted G1 source snapshot",
+      "productiveMcpLease": "Known fail-closed Windows-only GetTickCount64 clock; separate platform certification required"
+    }
+  ],
+  "regression": [
+    {
+      "suite": "CryptoWorkBenchGuiTest",
+      "configuration": "Debug",
+      "total": 1108,
+      "passed": 1108,
+      "failed": 0,
+      "notExecuted": 0,
+      "notExecutedCases": [],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/CryptoWorkBenchGuiTest-Debug.trx"
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "configuration": "Debug",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "notExecutedCases": [
+        {
+          "name": "InstalledCodexRejectsPortTakeoverOverHttps",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires installed Codex."
+        },
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"bundle\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexCompletesDesktopAes",
+          "class": "CryptoWorkBench.Mcp.Tests.CodexCompatibilityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires a paired disposable desktop editor with the exact B4 AES seed and local execution approval."
+        },
+        {
+          "name": "InstalledCodexCompletesDesktopAesAndRejectsTakeover",
+          "class": "CryptoWorkBench.Mcp.Tests.CodexCompatibilityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires a paired disposable desktop, local execution approval, and subsequent GUI disconnect."
+        },
+        {
+          "name": "InstalledCodexDiscoversAndCallsStatus",
+          "class": "CryptoWorkBench.Mcp.Tests.CodexCompatibilityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires CRYPTOWORKBENCH_CODEX_PATH pointing to the installed local Codex executable."
+        },
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"ssl\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"isolated\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"proxy\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"different\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex."
+        },
+        {
+          "name": "InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires installed Codex and the built desktop adapter."
+        },
+        {
+          "name": "InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires installed Codex and the built desktop adapter."
+        },
+        {
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"missing\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex."
+        },
+        {
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"expired\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex."
+        }
+      ],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/CryptoWorkBench.Mcp.Tests-Debug.trx"
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "configuration": "Debug",
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "notExecutedCases": [
+        {
+          "name": "SymlinksRejected",
+          "class": "CryptoScriptUnitTest.CwmTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWM-11a532b78e6e4cc99c883fc0b8993b98\\alias.cwm'."
+        },
+        {
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(False)",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic-link creation privilege is unavailable."
+        },
+        {
+          "name": "OpenAtReadsSourceThroughBoundDirectory",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-7fbd9fb40d45452e98495021d98366a3\\link'."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-be11e6182f7e4073b9a4ab2380742794\\link'."
+        },
+        {
+          "name": "NativePublicationDoesNotFollowLateSymlink",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic-link creation privilege is unavailable."
+        },
+        {
+          "name": "NativeFailurePreservesErrnoAndAllowsCleanup",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-9db5d14ea292416d8f676a902cb98d09\\link'."
+        },
+        {
+          "name": "OpenAtTraversesDirectoriesAndGetPathReturnsBoundDirectory",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-02cba1f41dc241bf9d6bf53b0090177b\\link'."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-60a4af75a5d5424fb17574b06b8ed65f\\link'."
+        },
+        {
+          "name": "OpenAtCreatesPrivateFileAndLinkAtPublishesWithoutOverwrite",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "GetPathTracksRenamedOpenDirectory",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "MacOsInheritedExtendedAclIsRemovedBeforePublication",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin extended ACLs."
+        },
+        {
+          "name": "MeasureLocalHardware",
+          "class": "CryptoScriptUnitTest.SecureSavePerformanceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Manual hardware measurement; no timing assertions or routine CI execution."
+        },
+        {
+          "name": "OpenAtRejectsDirectoryAndSourceSymlinks",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-ea63f85a543b46e7a331fc9d23d62bd7\\link'."
+        },
+        {
+          "name": "OpenAtExclusiveCreatePreservesExistingSymlinkAndTarget",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-5aa5c377acd34d729c3a851ecfe7629c\\link'."
+        },
+        {
+          "name": "SymlinkFileOrAncestorRejected(False)",
+          "class": "CryptoScriptUnitTest.FileHashTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-a47e8b7714c64f199bd3a1645c828edf\\input.bin'."
+        },
+        {
+          "name": "SourceAndAncestorSymlinksAreRejected(True)",
+          "class": "CryptoScriptUnitTest.FileDecryptionTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic link privilege unavailable."
+        },
+        {
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(True)",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic-link creation privilege is unavailable."
+        },
+        {
+          "name": "SymlinkFileOrAncestorRejected(True)",
+          "class": "CryptoScriptUnitTest.FileHashTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-2925c2d8a00b49668d066241fb0735dd\\link'."
+        },
+        {
+          "name": "SourceSymlinkIsRejected",
+          "class": "CryptoScriptUnitTest.FileEncryptionTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic link privilege unavailable."
+        },
+        {
+          "name": "SymlinkRejected",
+          "class": "CryptoScriptUnitTest.FileMacTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F03-a8df7c2919a74e869a701191001cd7de\\input.bin'."
+        },
+        {
+          "name": "SourceAndAncestorSymlinksAreRejected(False)",
+          "class": "CryptoScriptUnitTest.FileDecryptionTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic link privilege unavailable."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-646320e31919408d99955d887c3b9d48\\link'."
+        }
+      ],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/CryptoScriptUnitTest-Debug.trx"
+    },
+    {
+      "suite": "G1DockFeasibility.Tests",
+      "configuration": "Debug",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "notExecutedCases": [],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/G1DockFeasibility.Tests-Debug.trx"
+    },
+    {
+      "suite": "CryptoWorkBenchGuiTest",
+      "configuration": "Release",
+      "total": 1108,
+      "passed": 1108,
+      "failed": 0,
+      "notExecuted": 0,
+      "notExecutedCases": [],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/CryptoWorkBenchGuiTest-Release.trx"
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "configuration": "Release",
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "notExecutedCases": [
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"proxy\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires installed Codex and the built desktop adapter."
+        },
+        {
+          "name": "InstalledCodexCompletesDesktopAesAndRejectsTakeover",
+          "class": "CryptoWorkBench.Mcp.Tests.CodexCompatibilityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires a paired disposable desktop, local execution approval, and subsequent GUI disconnect."
+        },
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"ssl\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires installed Codex and the built desktop adapter."
+        },
+        {
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"missing\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex."
+        },
+        {
+          "name": "InstalledCodexDiscoversAndCallsStatus",
+          "class": "CryptoWorkBench.Mcp.Tests.CodexCompatibilityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires CRYPTOWORKBENCH_CODEX_PATH pointing to the installed local Codex executable."
+        },
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"bundle\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"different\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex."
+        },
+        {
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"isolated\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F2SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable."
+        },
+        {
+          "name": "InstalledCodexCompletesDesktopAes",
+          "class": "CryptoWorkBench.Mcp.Tests.CodexCompatibilityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires a paired disposable desktop editor with the exact B4 AES seed and local execution approval."
+        },
+        {
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"expired\")",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "OneTimeSetUp: Requires installed Codex."
+        },
+        {
+          "name": "InstalledCodexRejectsPortTakeoverOverHttps",
+          "class": "CryptoWorkBench.Mcp.Tests.B4F1SecurityTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Requires installed Codex."
+        }
+      ],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/CryptoWorkBench.Mcp.Tests-Release.trx"
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "configuration": "Release",
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "notExecutedCases": [
+        {
+          "name": "MeasureLocalHardware",
+          "class": "CryptoScriptUnitTest.SecureSavePerformanceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Manual hardware measurement; no timing assertions or routine CI execution."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-4a4e882fe3614191abd9d966ab9dc757\\link'."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-ece8a452645248d797c20f7975b98b9b\\link'."
+        },
+        {
+          "name": "SymlinksRejected",
+          "class": "CryptoScriptUnitTest.CwmTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWM-441889e648ea42ed979ac72460bcbaa5\\alias.cwm'."
+        },
+        {
+          "name": "OpenAtReadsSourceThroughBoundDirectory",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(True)",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic-link creation privilege is unavailable."
+        },
+        {
+          "name": "SymlinkRejected",
+          "class": "CryptoScriptUnitTest.FileMacTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F03-521aeecd364e44a3bc49d45fb25a3e92\\input.bin'."
+        },
+        {
+          "name": "NativeFailurePreservesErrnoAndAllowsCleanup",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "MacOsInheritedExtendedAclIsRemovedBeforePublication",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin extended ACLs."
+        },
+        {
+          "name": "SourceAndAncestorSymlinksAreRejected(False)",
+          "class": "CryptoScriptUnitTest.FileDecryptionTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic link privilege unavailable."
+        },
+        {
+          "name": "SourceAndAncestorSymlinksAreRejected(True)",
+          "class": "CryptoScriptUnitTest.FileDecryptionTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic link privilege unavailable."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-7db860d5bc874e3697216e984f0ff544\\link'."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-b22c1a12d9514b1c9fa09fcadc70f062\\link'."
+        },
+        {
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(False)",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic-link creation privilege is unavailable."
+        },
+        {
+          "name": "NativePublicationDoesNotFollowLateSymlink",
+          "class": "CryptoScriptUnitTest.VariableSnapshotFileStoreTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic-link creation privilege is unavailable."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-9be8789b139b4c00be3739940fe95a5f\\link'."
+        },
+        {
+          "name": "OpenAtCreatesPrivateFileAndLinkAtPublishesWithoutOverwrite",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "OpenAtTraversesDirectoriesAndGetPathReturnsBoundDirectory",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SymlinkFileOrAncestorRejected(False)",
+          "class": "CryptoScriptUnitTest.FileHashTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-e7a2fe263e7a4a1f9ae2341c83262605\\input.bin'."
+        },
+        {
+          "name": "GetPathTracksRenamedOpenDirectory",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",False)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-c9f109345d8142fe9c60cf737a3eba98\\link'."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-ee891ec0d30e49bb944be96d9e7ba1ad\\link'."
+        },
+        {
+          "name": "OpenAtRejectsDirectoryAndSourceSymlinks",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "OpenAtExclusiveCreatePreservesExistingSymlinkAndTarget",
+          "class": "CryptoScriptUnitTest.FilePublicationNativeTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Darwin native ABI regression."
+        },
+        {
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",True)",
+          "class": "CryptoScriptUnitTest.FileMacReferenceTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-6e021e424fce420fbe7cce30447461a4\\link'."
+        },
+        {
+          "name": "SymlinkFileOrAncestorRejected(True)",
+          "class": "CryptoScriptUnitTest.FileHashTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-ef45cc88db7b418ea89debef58b501a3\\link'."
+        },
+        {
+          "name": "SourceSymlinkIsRejected",
+          "class": "CryptoScriptUnitTest.FileEncryptionTests",
+          "occurrence": 1,
+          "outcome": "NotExecuted",
+          "message": "Symbolic link privilege unavailable."
+        }
+      ],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/CryptoScriptUnitTest-Release.trx"
+    },
+    {
+      "suite": "G1DockFeasibility.Tests",
+      "configuration": "Release",
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "notExecutedCases": [],
+      "removed": [],
+      "added": [],
+      "changedOutcomes": [],
+      "normalization": "Only UTC display timestamps in MCP ContractTests VariableSnapshot/ExecutionResult arguments",
+      "evidence": "artifacts/g1-a06/regression/G1DockFeasibility.Tests-Release.trx"
+    }
+  ],
+  "criticalRepeat": [
+    {
+      "failed": 0,
+      "configuration": "Debug",
+      "passed": 16,
+      "tests": [
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"mixed\",True)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "HostChangeRetiresPopupAndItsLateInsertionWithoutLosingCompletion",
+          "class": "CryptoWorkBenchGuiTest.DockEditorTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"group\",False)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(False)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "MixedHostReclassifiesWhenDocumentEntersAndLeaves",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(True)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"single\",False)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "FailureAfterValidMovePreservesErrorWithoutLatchingFault",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "GroupFailureIsValidatedAfterItsExistingCompletionScope",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"document-tab\",True)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "FailureBeforeMutationDoesNotFaultValidLayout",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "UnverifiableEndStateLatchesFaultWithoutReplacingOriginal",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        }
+      ]
+    },
+    {
+      "failed": 0,
+      "configuration": "Release",
+      "passed": 16,
+      "tests": [
+        {
+          "name": "MixedHostReclassifiesWhenDocumentEntersAndLeaves",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"document-tab\",True)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"tool:variables\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"mixed\",True)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"single\",False)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(False)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "PartialMoveFailureMustLatchExistingLayoutFault",
+          "class": "CryptoWorkBenchGuiTest.DockOperationContractTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "RealTraceWriteFailureDoesNotInterruptMove(True)",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "GroupFailureIsValidatedAfterItsExistingCompletionScope",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "FailureAfterValidMovePreservesErrorWithoutLatchingFault",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "UnverifiableEndStateLatchesFaultWithoutReplacingOriginal",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "HostCreationFailureLatchesFaultAndPreservesBusinessSession(\"document:cryptoscript:primary\")",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "HostChangeRetiresPopupAndItsLateInsertionWithoutLosingCompletion",
+          "class": "CryptoWorkBenchGuiTest.DockEditorTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "FailureBeforeMutationDoesNotFaultValidLayout",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "SecondaryDiagnosticFailureCannotReplaceOriginalPartialFailure",
+          "class": "CryptoWorkBenchGuiTest.DockPartialFailureTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        },
+        {
+          "name": "ChromeFollowsActualSessionDocument(\"group\",False)",
+          "class": "CryptoWorkBenchGuiTest.DockNativeChromeTests",
+          "occurrence": 1,
+          "outcome": "Passed",
+          "message": null
+        }
+      ]
+    }
+  ],
+  "native": {
+    "processCount": 78,
+    "a05RepeatedProcesses": 72,
+    "additionalLegacyStartupProcesses": 6,
+    "passedChecks": 2794.0,
+    "failedChecks": 0.0,
+    "allExitZero": true,
+    "timeouts": 0,
+    "runs": [
+      {
+        "name": "Debug-partial-failure-1",
+        "processId": 40544,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 22,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-partial-failure-1.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-partial-failure-2",
+        "processId": 10088,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 22,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-partial-failure-2.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-layout-roles",
+        "processId": 15164,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 194,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-layout-roles.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-layout",
+        "processId": 2260,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 48,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-layout.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-layout-restart",
+        "processId": 15116,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 56,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-layout-restart.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-layout-invalid",
+        "processId": 34448,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 49,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-layout-invalid.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-redock",
+        "processId": 5908,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 134,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-redock.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-editor",
+        "processId": 41464,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 54,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-editor.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-integration",
+        "processId": 24216,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 28,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-integration.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-operation-contract-1",
+        "processId": 14388,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 21,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-operation-contract-1.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-operation-contract-2",
+        "processId": 42148,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 21,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-operation-contract-2.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-single-save",
+        "processId": 39604,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-single-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-single-current",
+        "processId": 22140,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-single-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-single-legacy",
+        "processId": 15204,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-single-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-multiple-save",
+        "processId": 5700,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-multiple-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-multiple-current",
+        "processId": 25340,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-multiple-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-multiple-legacy",
+        "processId": 1804,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-multiple-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-anchor-save",
+        "processId": 18800,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-anchor-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-anchor-current",
+        "processId": 19824,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-anchor-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-anchor-legacy",
+        "processId": 19744,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-anchor-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-document-save",
+        "processId": 19004,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-document-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-document-current",
+        "processId": 23500,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-document-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-document-legacy",
+        "processId": 22812,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-document-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-document-anchor-save",
+        "processId": 25504,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-document-anchor-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-document-anchor-current",
+        "processId": 5200,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-document-anchor-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-document-anchor-legacy",
+        "processId": 41888,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-document-anchor-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-nested-save",
+        "processId": 32656,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-nested-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-nested-current",
+        "processId": 13836,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-nested-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-nested-legacy",
+        "processId": 39268,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-nested-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-historical-1",
+        "processId": 38140,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 28,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-historical-1.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-cleanup-historical-2",
+        "processId": 11644,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 28,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Debug-cleanup-historical-2.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-partial-failure-1",
+        "processId": 11988,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 22,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-partial-failure-1.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-partial-failure-2",
+        "processId": 8220,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 22,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-partial-failure-2.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-layout-roles",
+        "processId": 29384,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 194,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-layout-roles.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-layout",
+        "processId": 6004,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 48,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-layout.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-layout-restart",
+        "processId": 37780,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 56,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-layout-restart.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-layout-invalid",
+        "processId": 36512,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 49,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-layout-invalid.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-redock",
+        "processId": 17992,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 134,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-redock.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-editor",
+        "processId": 36236,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 54,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-editor.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-integration",
+        "processId": 40988,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 28,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-integration.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-operation-contract-1",
+        "processId": 33928,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 21,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-operation-contract-1.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-operation-contract-2",
+        "processId": 33032,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 21,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-operation-contract-2.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-single-save",
+        "processId": 14292,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-single-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-single-current",
+        "processId": 7396,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-single-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-single-legacy",
+        "processId": 33932,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-single-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-multiple-save",
+        "processId": 19044,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-multiple-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-multiple-current",
+        "processId": 19276,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-multiple-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-multiple-legacy",
+        "processId": 17648,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-multiple-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-anchor-save",
+        "processId": 27212,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-anchor-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-anchor-current",
+        "processId": 6484,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-anchor-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-anchor-legacy",
+        "processId": 33560,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-anchor-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-document-save",
+        "processId": 29368,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-document-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-document-current",
+        "processId": 23352,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-document-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-document-legacy",
+        "processId": 35748,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-document-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-document-anchor-save",
+        "processId": 2728,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-document-anchor-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-document-anchor-current",
+        "processId": 33636,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-document-anchor-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-document-anchor-legacy",
+        "processId": 9424,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-document-anchor-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-nested-save",
+        "processId": 9888,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 14,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-nested-save.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-nested-current",
+        "processId": 17448,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-nested-current.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-nested-legacy",
+        "processId": 30048,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-nested-legacy.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-historical-1",
+        "processId": 38924,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 28,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-historical-1.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-cleanup-historical-2",
+        "processId": 28348,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 28,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/historical/Release-cleanup-historical-2.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-native-acceptance-2",
+        "processId": 18728,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 68,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Debug-native-acceptance-2.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-native-acceptance-3",
+        "processId": 28892,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 68,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Debug-native-acceptance-3.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-tools-4",
+        "processId": 40808,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 32,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Debug-tools-4.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-output-5",
+        "processId": 42820,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Debug-output-5.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Debug-diagnostics-6",
+        "processId": 18092,
+        "configuration": "Debug",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 35,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Debug-diagnostics-6.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-native-acceptance-9",
+        "processId": 22852,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 68,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Release-native-acceptance-9.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-native-acceptance-10",
+        "processId": 23960,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 68,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Release-native-acceptance-10.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-tools-11",
+        "processId": 12876,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 32,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Release-tools-11.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-output-12",
+        "processId": 18968,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 29,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Release-output-12.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "Release-diagnostics-13",
+        "processId": 38388,
+        "configuration": "Release",
+        "category": "A05-native-repeat",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 35,
+        "failed": 0,
+        "path": "artifacts/g1-a06/native/Release-diagnostics-13.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "legacy-Debug",
+        "processId": 37208,
+        "configuration": "Debug",
+        "category": "legacy/startup",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 10,
+        "failed": 0,
+        "path": "artifacts/g1-a06/additional/legacy-Debug.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "fallback-Debug",
+        "processId": 7588,
+        "configuration": "Debug",
+        "category": "legacy/startup",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 13,
+        "failed": 0,
+        "path": "artifacts/g1-a06/additional/fallback-Debug.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "startup-failure-Debug",
+        "processId": 24204,
+        "configuration": "Debug",
+        "category": "legacy/startup",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 5,
+        "failed": 0,
+        "path": "artifacts/g1-a06/additional/startup-failure-Debug.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "legacy-Release",
+        "processId": 24208,
+        "configuration": "Release",
+        "category": "legacy/startup",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 10,
+        "failed": 0,
+        "path": "artifacts/g1-a06/additional/legacy-Release.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "fallback-Release",
+        "processId": 18048,
+        "configuration": "Release",
+        "category": "legacy/startup",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 13,
+        "failed": 0,
+        "path": "artifacts/g1-a06/additional/fallback-Release.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      },
+      {
+        "name": "startup-failure-Release",
+        "processId": 24900,
+        "configuration": "Release",
+        "category": "legacy/startup",
+        "exitCode": 0,
+        "timedOut": false,
+        "passed": 5,
+        "failed": 0,
+        "path": "artifacts/g1-a06/additional/startup-failure-Release.json",
+        "input": "programmatic native / routed Avalonia input, not external mouse acceptance"
+      }
+    ],
+    "limitations": "Actual Windows hosts, programmatic operations and routed input. No new external mouse or keyboard acceptance. No non-Windows native proof."
+  },
+  "installedCodex": {
+    "version": "codex-cli 0.167.0-alpha.3.2",
+    "runs": [
+      {
+        "configuration": "Debug",
+        "total": 11,
+        "notExecuted": 0,
+        "passed": 11,
+        "path": "artifacts/g1-a06/additional/installed-codex-Debug.trx",
+        "failed": 0,
+        "cases": [
+          {
+            "name": "InstalledCodexDiscoversAndCallsStatus",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"missing\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"ssl\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"isolated\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"proxy\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"bundle\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"different\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRejectsPortTakeoverOverHttps",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"expired\")",
+            "outcome": "Passed",
+            "message": null
+          }
+        ]
+      },
+      {
+        "configuration": "Release",
+        "total": 11,
+        "notExecuted": 0,
+        "passed": 11,
+        "path": "artifacts/g1-a06/additional/installed-codex-Release.trx",
+        "failed": 0,
+        "cases": [
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"isolated\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"ssl\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRejectsPortTakeoverOverHttps",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"missing\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexDiscoversAndCallsStatus",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"expired\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"different\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"proxy\")",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest",
+            "outcome": "Passed",
+            "message": null
+          },
+          {
+            "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"bundle\")",
+            "outcome": "Passed",
+            "message": null
+          }
+        ]
+      }
+    ],
+    "baselineExplicitCount": 13,
+    "separatelyPassedPerConfiguration": 11,
+    "notVerified": [
+      "InstalledCodexCompletesDesktopAes",
+      "InstalledCodexCompletesDesktopAesAndRejectsTakeover"
+    ],
+    "missingPrerequisites": "Paired disposable desktop with exact AES seed, local execution approval and subsequent GUI disconnect; no supplied pairing token/pin/ready environment",
+    "isolation": "Existing tests use isolated child CODEX_HOME and synthetic listener credentials; no user config modification or model prompt",
+    "includedInRegular176": false
+  },
+  "ownerAcceptance": {
+    "source": "Explicit project owner confirmation, recorded unchanged in docs/gui/G1-A05-M1-final-owner-acceptance.md",
+    "date": "2026-11-10",
+    "newA06ManualExecution": false,
+    "scenarios": [
+      "Single tool redock",
+      "Complete tool group redock",
+      "CryptoScript document redock maximize restore",
+      "DocumentDock side docking",
+      "Nested dock groups",
+      "Two floating windows",
+      "Layout save and restart restore"
+    ],
+    "status": "PASS accepted baseline",
+    "focusRule": "Zum Zurückdocken einer maximierten View zuerst Restore Layout ausführen."
+  },
+  "architecture": {
+    "b4": "NO REACHABLE B4 FOUND retained",
+    "authoritativeEditor": "Same session, View, TextDocument and UndoStack",
+    "admission": "Existing editor coordinator; GUI/pending/busy/modal/lease/shutdown gates retained",
+    "fault": "LayoutFaulted blocks layout persistence; business SaveIntent remains independent",
+    "schema": 1,
+    "crossOsLayoutTransfer": "NOT VERIFIED: geometry code/unit checks are not actual OS transfer",
+    "legacy": "Default unchanged, opt-in --dock-shell",
+    "workarounds": "No demonstrated obsolete F01/F03 adapter; no change",
+    "lifetime": "Native window/registration cleanup verified for executed cycles; no blanket long-term leak guarantee",
+    "codeChanges": false
+  },
+  "findings": [
+    {
+      "id": "A06-P1",
+      "action": "Native Debug/Release build/test/publish and full actual desktop checklist on identical source snapshot",
+      "platforms": [
+        "linux-x64",
+        "osx-x64",
+        "osx-arm64"
+      ],
+      "severity": "high for platform approval",
+      "classification": "Missing native prerequisites",
+      "status": "OPEN"
+    },
+    {
+      "id": "A06-P2",
+      "action": "Separate authorization and safety certification of suspend-aware native clock",
+      "source": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchLeaseV2.cs:30",
+      "condition": "OperatingSystem.IsWindows() ? GetTickCount64() : throw new PlatformNotSupportedException()",
+      "severity": "high for productive non-Windows MCP",
+      "classification": "Previously documented accepted OS limitation",
+      "status": "OPEN"
+    },
+    {
+      "status": "NOT VERIFIED",
+      "id": "A06-M1",
+      "action": "Run two remaining installed Codex AES explicit cases with required disposable paired desktop",
+      "classification": "Missing manual paired-desktop prerequisite",
+      "severity": "bounded"
+    },
+    {
+      "status": "NOT VERIFIED",
+      "id": "A06-I1",
+      "action": "Validate complete L1+G1 combined source after separate integration authorization",
+      "classification": "Future integration validation",
+      "severity": "medium"
+    },
+    {
+      "status": "UNCHANGED",
+      "id": "A06-H1",
+      "action": "Retain A05 external input and M1 owner acceptance separately from A06 programmatic native results",
+      "classification": "Accepted evidence scope",
+      "severity": "informational"
+    },
+    {
+      "id": "A06-T1",
+      "evidence": [
+        "artifacts/g1-a06/environment/dotnet-info.txt",
+        "artifacts/g1-a06/environment/dotnet-info-authorized.txt"
+      ],
+      "cause": "Sandbox denied Service Control Manager read for initial dotnet --info; authorized inspection succeeded",
+      "severity": "informational",
+      "classification": "Test environment permission",
+      "status": "RESOLVED"
+    }
+  ],
+  "integration": {
+    "analysisOnly": true,
+    "master": {
+      "sha": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+      "message": "Document verified L1 master integration",
+      "url": "https://github.com/tkbss/CryptoWorkBench/commit/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+      "source": "Connected GitHub fetch_commit(master); read-only, no fetch/ref mutation",
+      "date": "2026-11-10"
+    },
+    "pathAnalysis": {
+      "g1Files": [
+        "CryptoScript/Model/AntlrToFunctionCallExpression.cs",
+        "CryptoScript/Model/Ast/FunctionCallExpressionNode.cs",
+        "CryptoScript/Model/FunctionCall.cs",
+        "CryptoScript/Model/FunctionCallEvaluator.cs",
+        "CryptoScript/Model/OperationInvocation.cs",
+        "CryptoScript/Operations/OutputOperations.cs",
+        "CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+        "CryptoWorkBenchAvalonia.Desktop/Program.cs",
+        "CryptoWorkBenchAvalonia/App.axaml.cs",
+        "CryptoWorkBenchAvalonia/Controls/WorkbenchTextArea.cs",
+        "CryptoWorkBenchAvalonia/Controls/WorkbenchTextEditor.cs",
+        "CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+        "CryptoWorkBenchAvalonia/Models/DiagnosticDisplayItem.cs",
+        "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+        "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+        "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+        "CryptoWorkBenchAvalonia/Services/InfoCompletionController.cs",
+        "CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+        "CryptoWorkBenchAvalonia/ViewModels/StatusViewModel.cs",
+        "CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml.cs",
+        "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+        "CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.cs",
+        "CryptoWorkBenchGuiTest/WorkbenchReviewRegressionTests.cs",
+        "eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        "eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+        "eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+        "eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        "eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+        "eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+        "eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        "eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+        "eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        "eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+        "eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        "eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+        "eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        "eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+        "CryptoScriptUnitTest/PrintSourceTests.cs",
+        "CryptoWorkBenchAvalonia.Desktop/NativeDockWindowTrace.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockContainerIdentity.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockContainerRoles.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockDiagnosticsView.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockDocumentWindowChrome.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockLayoutAction.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockLayoutStore.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockLifecycleTrace.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockOutputService.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockOutputView.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockShellLayout.Persistence.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+        "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockTraceOutput.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockVariablesView.cs",
+        "CryptoWorkBenchAvalonia/Shell/DockWindowGeometry.cs",
+        "CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+        "CryptoWorkBenchAvalonia/Shell/SourceNavigationResult.cs",
+        "CryptoWorkBenchGuiTest/DockDiagnosticsNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockDiagnosticsTests.cs",
+        "CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockEditorTests.cs",
+        "CryptoWorkBenchGuiTest/DockFinalIntegrationTests.cs",
+        "CryptoWorkBenchGuiTest/DockGroupDocumentRedockTests.cs",
+        "CryptoWorkBenchGuiTest/DockIntegrationNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockLayoutFailureTests.cs",
+        "CryptoWorkBenchGuiTest/DockLayoutNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockLayoutRoleNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockLayoutRoleTests.cs",
+        "CryptoWorkBenchGuiTest/DockLayoutTests.cs",
+        "CryptoWorkBenchGuiTest/DockMouseRedockTests.cs",
+        "CryptoWorkBenchGuiTest/DockNativeAcceptanceProbe.cs",
+        "CryptoWorkBenchGuiTest/DockNativeChromeTests.cs",
+        "CryptoWorkBenchGuiTest/DockOperationContractTests.cs",
+        "CryptoWorkBenchGuiTest/DockOperationNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockOutputNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockOutputTests.cs",
+        "CryptoWorkBenchGuiTest/DockPartialFailureNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockPartialFailureTests.cs",
+        "CryptoWorkBenchGuiTest/DockPersistenceCleanupTests.cs",
+        "CryptoWorkBenchGuiTest/DockPersistenceNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockRedockNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockShellTests.cs",
+        "CryptoWorkBenchGuiTest/DockToolNativeProbe.cs",
+        "CryptoWorkBenchGuiTest/DockToolTests.cs",
+        "CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.G108.cs",
+        "CryptoWorkBenchGuiTest/Fixtures/dock-schema1-pre-a02.json",
+        "docs/gui/G1-01-dock-feasibility.md",
+        "docs/gui/G1-02-shell-implementation.md",
+        "docs/gui/G1-03-editor-mcp-integration.md",
+        "docs/gui/G1-04-variables-info-integration.md",
+        "docs/gui/G1-05-output-pipeline.md",
+        "docs/gui/G1-06-diagnostics-navigation.md",
+        "docs/gui/G1-07-layout-persistence.md",
+        "docs/gui/G1-08-final-validation.md",
+        "docs/gui/G1-08-native-acceptance-checklist.md",
+        "docs/gui/G1-A01-docking-architecture-review.md",
+        "docs/gui/G1-A02-maximize-layout-roles.md",
+        "docs/gui/G1-A03-persistence-cleanup-roles.md",
+        "docs/gui/G1-A04-R1-actual-callback-audit.md",
+        "docs/gui/G1-A04-R2-test-cleanup.md",
+        "docs/gui/G1-A04-R3-partial-failure-audit.md",
+        "docs/gui/G1-A04-R4-partial-failure-correction.md",
+        "docs/gui/G1-A04-dock-operation-contract.md",
+        "docs/gui/G1-A05-M1-final-owner-acceptance.md",
+        "docs/gui/G1-A05-native-chrome-input-acceptance.md",
+        "docs/gui/G1-N1-F01-F2-native-window-investigation.md",
+        "docs/gui/G1-N1-F01-mouse-redock-correction.md",
+        "docs/gui/G1-N1-F03-group-document-redock.md",
+        "docs/gui/evidence/G1-01-results.json",
+        "docs/gui/evidence/G1-02-results.json",
+        "docs/gui/evidence/G1-03-results.json",
+        "docs/gui/evidence/G1-04-results.json",
+        "docs/gui/evidence/G1-05-results.json",
+        "docs/gui/evidence/G1-06-results.json",
+        "docs/gui/evidence/G1-07-results.json",
+        "docs/gui/evidence/G1-08-results.json",
+        "docs/gui/evidence/G1-A02-results.json",
+        "docs/gui/evidence/G1-A03-results.json",
+        "docs/gui/evidence/G1-A04-R4-results.json",
+        "docs/gui/evidence/G1-A04-results.json",
+        "docs/gui/evidence/G1-A05-results.json",
+        "docs/gui/evidence/G1-N1-F01-F2-results.json",
+        "docs/gui/evidence/G1-N1-F01-results.json",
+        "docs/gui/evidence/G1-N1-F03-results.json",
+        "eng/gui/Test-DockNativeTrace.ps1",
+        "eng/gui/Validate-G1LayoutRoles.ps1",
+        "eng/gui/Validate-G1NativeAcceptance.ps1",
+        "eng/gui/Validate-G1Platform.ps1",
+        "eng/gui/Validate-G1Shell.ps1",
+        "eng/gui/native/G1ShellProbe.csproj",
+        "eng/gui/native/Program.cs",
+        "eng/gui/native/packages.lock.json",
+        "prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+        "prototypes/G1DockFeasibility/NativeProbe.cs",
+        "prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+        "prototypes/G1DockFeasibility/Program.cs",
+        "prototypes/G1DockFeasibility/README.md",
+        "prototypes/G1DockFeasibility/Session.cs",
+        "prototypes/G1DockFeasibility/Tests/DockTests.cs",
+        "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+        "prototypes/G1DockFeasibility/Tests/packages.lock.json",
+        "prototypes/G1DockFeasibility/Validate.ps1",
+        "prototypes/G1DockFeasibility/Views.cs",
+        "prototypes/G1DockFeasibility/packages.lock.json"
+      ],
+      "overlap": [],
+      "g1Head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+      "masterFiles": [
+        "CryptoScript/Antlr/CryptoScript.g4",
+        "CryptoScript/Antlr/CryptoScript.interp",
+        "CryptoScript/Antlr/CryptoScriptBaseListener.cs",
+        "CryptoScript/Antlr/CryptoScriptBaseVisitor.cs",
+        "CryptoScript/Antlr/CryptoScriptListener.cs",
+        "CryptoScript/Antlr/CryptoScriptParser.cs",
+        "CryptoScript/Antlr/CryptoScriptVisitor.cs",
+        "CryptoScript/ErrorListner/SemanticDiagnosticCode.cs",
+        "CryptoScript/Expressions/Expression.cs",
+        "CryptoScript/InfoDocs/Info.Types.md",
+        "CryptoScript/Model/AntlrToAssignment.cs",
+        "CryptoScript/Model/AntlrToStatement.cs",
+        "CryptoScript/Model/AssignmentEvaluator.cs",
+        "CryptoScript/Model/Ast/AssignmentStatementNode.cs",
+        "CryptoScript/Model/ParameterInitializerEvaluator.cs",
+        "CryptoScript/Model/PathInitializerEvaluator.cs",
+        "CryptoScript/Model/StatementEvaluator.cs",
+        "CryptoScript/Model/VariableDeclarationEvaluator.cs",
+        "CryptoScriptUnitTest/AssignmentCorrectionTests.cs",
+        "CryptoScriptUnitTest/AssignmentTests.cs",
+        "CryptoScriptUnitTest/CwmTests.cs",
+        "CryptoScriptUnitTest/ParameterAssignmentConsistencyTests.cs",
+        "CryptoScriptUnitTest/ParameterAssignmentSerializationTests.cs",
+        "CryptoScriptUnitTest/SemanticDiagnosticSinkTests.cs",
+        "CryptoWorkBenchGuiTest/AssignmentMcpIntegrationTests.cs",
+        "CryptoWorkBenchGuiTest/NativeEnterContinuationTests.cs",
+        "docs/architecture/L1-B1-independent-review.md",
+        "docs/architecture/L1-B2-corrections-report.md",
+        "docs/architecture/L1-B3-independent-rereview.md",
+        "docs/architecture/L1-B4-mechanism-consistency-fix.md",
+        "docs/architecture/L1-B5-final-independent-rereview.md",
+        "docs/architecture/L1-B6-param-serialization-boundary-fix.md",
+        "docs/architecture/L1-B7-final-independent-review.md",
+        "docs/architecture/L1-I1-master-integration.md",
+        "docs/architecture/L1-assignment-report.md"
+      ],
+      "base": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+      "master": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb"
+    },
+    "testProjection": {
+      "g1": {
+        "headless": 12,
+        "mcp": 176,
+        "core": 11512,
+        "gui": 1108
+      },
+      "status": "NOT VERIFIED: no L1 import or combined build in A06",
+      "projectedCombined": {
+        "headless": 12,
+        "mcp": 176,
+        "core": 11723,
+        "gui": 1111
+      },
+      "oldBase": {
+        "mcp": 176,
+        "core": 11508,
+        "gui": 797
+      },
+      "l1Delta": {
+        "total": 214,
+        "core": 211,
+        "gui": 3
+      },
+      "basis": "L1-I1 master results and G1-01 original baseline; arithmetic projection, not an executed combined tree",
+      "master": {
+        "mcp": 176,
+        "core": 11719,
+        "gui": 800
+      }
+    },
+    "merged": false,
+    "semanticBoundaries": [
+      "L1 typed atomic assignment and error redaction",
+      "G1 Print source position through assignment RHS/nested calls",
+      "Generic diagnostics projection",
+      "Authoritative GUI editor and MCP lease/SaveIntent"
+    ],
+    "planReference": "docs/gui/G1-A06-cross-platform-final-validation.md section 13",
+    "previousL1CiIsG1Proof": false
+  },
+  "commands": [
+    {
+      "exitCode": 0,
+      "name": "restore-CryptoWorkBenchGuiTest-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "CryptoWorkBenchGuiTest-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-CryptoWorkBench.Mcp.Tests-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "CryptoWorkBench.Mcp.Tests-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-CryptoScriptUnitTest-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "CryptoScriptUnitTest-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-G1DockFeasibility.Tests-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "G1DockFeasibility.Tests-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "independent-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-CryptoWorkBenchGuiTest-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "CryptoWorkBenchGuiTest-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-CryptoWorkBench.Mcp.Tests-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "CryptoWorkBench.Mcp.Tests-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-CryptoScriptUnitTest-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "CryptoScriptUnitTest-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-G1DockFeasibility.Tests-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "G1DockFeasibility.Tests-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "independent-Release"
+    },
+    {
+      "name": "restore-Debug",
+      "exitCode": 0
+    },
+    {
+      "name": "build-Debug",
+      "exitCode": 0
+    },
+    {
+      "name": "Debug-partial-failure-1",
+      "processId": 40544,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-partial-failure-1.json"
+    },
+    {
+      "name": "Debug-partial-failure-2",
+      "processId": 10088,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-partial-failure-2.json"
+    },
+    {
+      "name": "Debug-layout-roles",
+      "processId": 15164,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-layout-roles.json"
+    },
+    {
+      "name": "Debug-layout",
+      "processId": 2260,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-layout.json"
+    },
+    {
+      "name": "Debug-layout-restart",
+      "processId": 15116,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-layout-restart.json"
+    },
+    {
+      "name": "Debug-layout-invalid",
+      "processId": 34448,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-layout-invalid.json"
+    },
+    {
+      "name": "Debug-redock",
+      "processId": 5908,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-redock.json"
+    },
+    {
+      "name": "Debug-editor",
+      "processId": 41464,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-editor.json"
+    },
+    {
+      "name": "Debug-integration",
+      "processId": 24216,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-integration.json"
+    },
+    {
+      "name": "Debug-operation-contract-1",
+      "processId": 14388,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-operation-contract-1.json"
+    },
+    {
+      "name": "Debug-operation-contract-2",
+      "processId": 42148,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-operation-contract-2.json"
+    },
+    {
+      "name": "Debug-cleanup-single-save",
+      "processId": 39604,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-single-save.json"
+    },
+    {
+      "name": "Debug-cleanup-single-current",
+      "processId": 22140,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-single-current.json"
+    },
+    {
+      "name": "Debug-cleanup-single-legacy",
+      "processId": 15204,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-single-legacy.json"
+    },
+    {
+      "name": "Debug-cleanup-multiple-save",
+      "processId": 5700,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-multiple-save.json"
+    },
+    {
+      "name": "Debug-cleanup-multiple-current",
+      "processId": 25340,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-multiple-current.json"
+    },
+    {
+      "name": "Debug-cleanup-multiple-legacy",
+      "processId": 1804,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-multiple-legacy.json"
+    },
+    {
+      "name": "Debug-cleanup-anchor-save",
+      "processId": 18800,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-anchor-save.json"
+    },
+    {
+      "name": "Debug-cleanup-anchor-current",
+      "processId": 19824,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-anchor-current.json"
+    },
+    {
+      "name": "Debug-cleanup-anchor-legacy",
+      "processId": 19744,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-anchor-legacy.json"
+    },
+    {
+      "name": "Debug-cleanup-document-save",
+      "processId": 19004,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-document-save.json"
+    },
+    {
+      "name": "Debug-cleanup-document-current",
+      "processId": 23500,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-document-current.json"
+    },
+    {
+      "name": "Debug-cleanup-document-legacy",
+      "processId": 22812,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-document-legacy.json"
+    },
+    {
+      "name": "Debug-cleanup-document-anchor-save",
+      "processId": 25504,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-document-anchor-save.json"
+    },
+    {
+      "name": "Debug-cleanup-document-anchor-current",
+      "processId": 5200,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-document-anchor-current.json"
+    },
+    {
+      "name": "Debug-cleanup-document-anchor-legacy",
+      "processId": 41888,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-document-anchor-legacy.json"
+    },
+    {
+      "name": "Debug-cleanup-nested-save",
+      "processId": 32656,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-nested-save.json"
+    },
+    {
+      "name": "Debug-cleanup-nested-current",
+      "processId": 13836,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-nested-current.json"
+    },
+    {
+      "name": "Debug-cleanup-nested-legacy",
+      "processId": 39268,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-nested-legacy.json"
+    },
+    {
+      "name": "Debug-cleanup-historical-1",
+      "processId": 38140,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-historical-1.json"
+    },
+    {
+      "name": "Debug-cleanup-historical-2",
+      "processId": 11644,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Debug-cleanup-historical-2.json"
+    },
+    {
+      "name": "restore-Release",
+      "exitCode": 0
+    },
+    {
+      "name": "build-Release",
+      "exitCode": 0
+    },
+    {
+      "name": "Release-partial-failure-1",
+      "processId": 11988,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-partial-failure-1.json"
+    },
+    {
+      "name": "Release-partial-failure-2",
+      "processId": 8220,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-partial-failure-2.json"
+    },
+    {
+      "name": "Release-layout-roles",
+      "processId": 29384,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-layout-roles.json"
+    },
+    {
+      "name": "Release-layout",
+      "processId": 6004,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-layout.json"
+    },
+    {
+      "name": "Release-layout-restart",
+      "processId": 37780,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-layout-restart.json"
+    },
+    {
+      "name": "Release-layout-invalid",
+      "processId": 36512,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-layout-invalid.json"
+    },
+    {
+      "name": "Release-redock",
+      "processId": 17992,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-redock.json"
+    },
+    {
+      "name": "Release-editor",
+      "processId": 36236,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-editor.json"
+    },
+    {
+      "name": "Release-integration",
+      "processId": 40988,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-integration.json"
+    },
+    {
+      "name": "Release-operation-contract-1",
+      "processId": 33928,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-operation-contract-1.json"
+    },
+    {
+      "name": "Release-operation-contract-2",
+      "processId": 33032,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-operation-contract-2.json"
+    },
+    {
+      "name": "Release-cleanup-single-save",
+      "processId": 14292,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-single-save.json"
+    },
+    {
+      "name": "Release-cleanup-single-current",
+      "processId": 7396,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-single-current.json"
+    },
+    {
+      "name": "Release-cleanup-single-legacy",
+      "processId": 33932,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-single-legacy.json"
+    },
+    {
+      "name": "Release-cleanup-multiple-save",
+      "processId": 19044,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-multiple-save.json"
+    },
+    {
+      "name": "Release-cleanup-multiple-current",
+      "processId": 19276,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-multiple-current.json"
+    },
+    {
+      "name": "Release-cleanup-multiple-legacy",
+      "processId": 17648,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-multiple-legacy.json"
+    },
+    {
+      "name": "Release-cleanup-anchor-save",
+      "processId": 27212,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-anchor-save.json"
+    },
+    {
+      "name": "Release-cleanup-anchor-current",
+      "processId": 6484,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-anchor-current.json"
+    },
+    {
+      "name": "Release-cleanup-anchor-legacy",
+      "processId": 33560,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-anchor-legacy.json"
+    },
+    {
+      "name": "Release-cleanup-document-save",
+      "processId": 29368,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-document-save.json"
+    },
+    {
+      "name": "Release-cleanup-document-current",
+      "processId": 23352,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-document-current.json"
+    },
+    {
+      "name": "Release-cleanup-document-legacy",
+      "processId": 35748,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-document-legacy.json"
+    },
+    {
+      "name": "Release-cleanup-document-anchor-save",
+      "processId": 2728,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-document-anchor-save.json"
+    },
+    {
+      "name": "Release-cleanup-document-anchor-current",
+      "processId": 33636,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-document-anchor-current.json"
+    },
+    {
+      "name": "Release-cleanup-document-anchor-legacy",
+      "processId": 9424,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-document-anchor-legacy.json"
+    },
+    {
+      "name": "Release-cleanup-nested-save",
+      "processId": 9888,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-nested-save.json"
+    },
+    {
+      "name": "Release-cleanup-nested-current",
+      "processId": 17448,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-nested-current.json"
+    },
+    {
+      "name": "Release-cleanup-nested-legacy",
+      "processId": 30048,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-nested-legacy.json"
+    },
+    {
+      "name": "Release-cleanup-historical-1",
+      "processId": 38924,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-historical-1.json"
+    },
+    {
+      "name": "Release-cleanup-historical-2",
+      "processId": 28348,
+      "exitCode": 0,
+      "timedOut": false,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\historical\\Release-cleanup-historical-2.json"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-Debug"
+    },
+    {
+      "exitCode": 0,
+      "name": "build-Debug"
+    },
+    {
+      "processId": 18728,
+      "timedOut": false,
+      "mode": "native-acceptance",
+      "exitCode": 0,
+      "name": "Debug-native-acceptance-2",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Debug-native-acceptance-2.json"
+    },
+    {
+      "processId": 28892,
+      "timedOut": false,
+      "mode": "native-acceptance",
+      "exitCode": 0,
+      "name": "Debug-native-acceptance-3",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Debug-native-acceptance-3.json"
+    },
+    {
+      "processId": 40808,
+      "timedOut": false,
+      "mode": "tools",
+      "exitCode": 0,
+      "name": "Debug-tools-4",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Debug-tools-4.json"
+    },
+    {
+      "processId": 42820,
+      "timedOut": false,
+      "mode": "output",
+      "exitCode": 0,
+      "name": "Debug-output-5",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Debug-output-5.json"
+    },
+    {
+      "processId": 18092,
+      "timedOut": false,
+      "mode": "diagnostics",
+      "exitCode": 0,
+      "name": "Debug-diagnostics-6",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Debug-diagnostics-6.json"
+    },
+    {
+      "exitCode": 0,
+      "name": "restore-Release"
+    },
+    {
+      "exitCode": 0,
+      "name": "build-Release"
+    },
+    {
+      "processId": 22852,
+      "timedOut": false,
+      "mode": "native-acceptance",
+      "exitCode": 0,
+      "name": "Release-native-acceptance-9",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Release-native-acceptance-9.json"
+    },
+    {
+      "processId": 23960,
+      "timedOut": false,
+      "mode": "native-acceptance",
+      "exitCode": 0,
+      "name": "Release-native-acceptance-10",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Release-native-acceptance-10.json"
+    },
+    {
+      "processId": 12876,
+      "timedOut": false,
+      "mode": "tools",
+      "exitCode": 0,
+      "name": "Release-tools-11",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Release-tools-11.json"
+    },
+    {
+      "processId": 18968,
+      "timedOut": false,
+      "mode": "output",
+      "exitCode": 0,
+      "name": "Release-output-12",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Release-output-12.json"
+    },
+    {
+      "processId": 38388,
+      "timedOut": false,
+      "mode": "diagnostics",
+      "exitCode": 0,
+      "name": "Release-diagnostics-13",
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\native\\Release-diagnostics-13.json"
+    },
+    {
+      "exitCode": 0,
+      "name": "solutions-Debug"
+    },
+    {
+      "selectedMethods": "InstalledCodexDiscoversAndCallsStatus,InstalledCodexRejectsPortTakeoverOverHttps,InstalledCodexRefusesUntrustedOrExpiredServer,InstalledCodexPinnedIdentityRejectsForeignPortOwner,InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest,InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential",
+      "name": "installed-codex-Debug",
+      "exitCode": 0
+    },
+    {
+      "processId": 37208,
+      "timedOut": false,
+      "name": "legacy-Debug",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\additional\\legacy-Debug.json"
+    },
+    {
+      "processId": 7588,
+      "timedOut": false,
+      "name": "fallback-Debug",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\additional\\fallback-Debug.json"
+    },
+    {
+      "processId": 24204,
+      "timedOut": false,
+      "name": "startup-failure-Debug",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\additional\\startup-failure-Debug.json"
+    },
+    {
+      "exitCode": 0,
+      "name": "solutions-Release"
+    },
+    {
+      "selectedMethods": "InstalledCodexDiscoversAndCallsStatus,InstalledCodexRejectsPortTakeoverOverHttps,InstalledCodexRefusesUntrustedOrExpiredServer,InstalledCodexPinnedIdentityRejectsForeignPortOwner,InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest,InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential",
+      "name": "installed-codex-Release",
+      "exitCode": 0
+    },
+    {
+      "processId": 24208,
+      "timedOut": false,
+      "name": "legacy-Release",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\additional\\legacy-Release.json"
+    },
+    {
+      "processId": 18048,
+      "timedOut": false,
+      "name": "fallback-Release",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\additional\\fallback-Release.json"
+    },
+    {
+      "processId": 24900,
+      "timedOut": false,
+      "name": "startup-failure-Release",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-a06\\additional\\startup-failure-Release.json"
+    },
+    {
+      "exitCode": 0,
+      "name": "publish-restore-win-x64"
+    },
+    {
+      "exitCode": 0,
+      "name": "publish-win-x64"
+    },
+    {
+      "exitCode": 0,
+      "name": "validate-publish-win-x64"
+    }
+  ],
+  "integrity": {
+    "changed": [],
+    "added": [
+      "docs/gui/evidence/G1-A06-results.json",
+      "docs/gui/G1-A06-cross-platform-final-validation.md"
+    ],
+    "protectedCount": 256,
+    "baselineSourceCount": 1149,
+    "protectedChanged": [],
+    "unchangedSourceCount": 1149,
+    "historicalChanged": [],
+    "historicalCount": 15831,
+    "missing": []
+  },
+  "finalChecks": {
+    "diffCheckOutput": [],
+    "branch": "feature/gui-g1",
+    "diffCheckExit": 0,
+    "dockSourceStatus": [],
+    "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+    "statusLines": 152,
+    "mainCheckoutStatus": [],
+    "a06DiffChecks": [
+      {
+        "path": "docs/gui/G1-A06-cross-platform-final-validation.md",
+        "exitCode": 1,
+        "output": []
+      },
+      {
+        "path": "docs/gui/evidence/G1-A06-results.json",
+        "exitCode": 1,
+        "output": []
+      }
+    ],
+    "dockHead": "78da173545501e796f37bc8528e9e55d9cbfd991"
+  },
+  "fullGitStatus": [
+    " M CryptoScript/Model/AntlrToFunctionCallExpression.cs",
+    " M CryptoScript/Model/Ast/FunctionCallExpressionNode.cs",
+    " M CryptoScript/Model/FunctionCall.cs",
+    " M CryptoScript/Model/FunctionCallEvaluator.cs",
+    " M CryptoScript/Model/OperationInvocation.cs",
+    " M CryptoScript/Operations/OutputOperations.cs",
+    " M CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+    " M CryptoWorkBenchAvalonia.Desktop/Program.cs",
+    " M CryptoWorkBenchAvalonia/App.axaml.cs",
+    " M CryptoWorkBenchAvalonia/Controls/WorkbenchTextArea.cs",
+    " M CryptoWorkBenchAvalonia/Controls/WorkbenchTextEditor.cs",
+    " M CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+    " M CryptoWorkBenchAvalonia/Models/DiagnosticDisplayItem.cs",
+    " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+    " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+    " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+    " M CryptoWorkBenchAvalonia/Services/InfoCompletionController.cs",
+    " M CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+    " M CryptoWorkBenchAvalonia/ViewModels/StatusViewModel.cs",
+    " M CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml.cs",
+    " M CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+    " M CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.cs",
+    " M CryptoWorkBenchGuiTest/WorkbenchReviewRegressionTests.cs",
+    " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+    " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+    " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+    "?? CryptoScriptUnitTest/PrintSourceTests.cs",
+    "?? CryptoWorkBenchAvalonia.Desktop/NativeDockWindowTrace.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockContainerIdentity.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockContainerRoles.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockDiagnosticsView.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockDocumentWindowChrome.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockLayoutAction.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockLayoutStore.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockLifecycleTrace.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockOutputService.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockOutputView.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.Persistence.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockTraceOutput.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockVariablesView.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockWindowGeometry.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/SourceNavigationResult.cs",
+    "?? CryptoWorkBenchGuiTest/DockDiagnosticsNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockDiagnosticsTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockEditorTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockFinalIntegrationTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockGroupDocumentRedockTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockIntegrationNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockLayoutFailureTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockLayoutNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockLayoutRoleNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockLayoutRoleTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockLayoutTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockMouseRedockTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockNativeAcceptanceProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockNativeChromeTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockOperationContractTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockOperationNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockOutputNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockOutputTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockPartialFailureNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockPartialFailureTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockPersistenceCleanupTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockPersistenceNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockRedockNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockShellTests.cs",
+    "?? CryptoWorkBenchGuiTest/DockToolNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockToolTests.cs",
+    "?? CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.G108.cs",
+    "?? CryptoWorkBenchGuiTest/Fixtures/dock-schema1-pre-a02.json",
+    "?? docs/gui/G1-01-dock-feasibility.md",
+    "?? docs/gui/G1-02-shell-implementation.md",
+    "?? docs/gui/G1-03-editor-mcp-integration.md",
+    "?? docs/gui/G1-04-variables-info-integration.md",
+    "?? docs/gui/G1-05-output-pipeline.md",
+    "?? docs/gui/G1-06-diagnostics-navigation.md",
+    "?? docs/gui/G1-07-layout-persistence.md",
+    "?? docs/gui/G1-08-final-validation.md",
+    "?? docs/gui/G1-08-native-acceptance-checklist.md",
+    "?? docs/gui/G1-A01-docking-architecture-review.md",
+    "?? docs/gui/G1-A02-maximize-layout-roles.md",
+    "?? docs/gui/G1-A03-persistence-cleanup-roles.md",
+    "?? docs/gui/G1-A04-R1-actual-callback-audit.md",
+    "?? docs/gui/G1-A04-R2-test-cleanup.md",
+    "?? docs/gui/G1-A04-R3-partial-failure-audit.md",
+    "?? docs/gui/G1-A04-R4-partial-failure-correction.md",
+    "?? docs/gui/G1-A04-dock-operation-contract.md",
+    "?? docs/gui/G1-A05-M1-final-owner-acceptance.md",
+    "?? docs/gui/G1-A05-native-chrome-input-acceptance.md",
+    "?? docs/gui/G1-A06-cross-platform-final-validation.md",
+    "?? docs/gui/G1-N1-F01-F2-native-window-investigation.md",
+    "?? docs/gui/G1-N1-F01-mouse-redock-correction.md",
+    "?? docs/gui/G1-N1-F03-group-document-redock.md",
+    "?? docs/gui/evidence/G1-01-results.json",
+    "?? docs/gui/evidence/G1-02-results.json",
+    "?? docs/gui/evidence/G1-03-results.json",
+    "?? docs/gui/evidence/G1-04-results.json",
+    "?? docs/gui/evidence/G1-05-results.json",
+    "?? docs/gui/evidence/G1-06-results.json",
+    "?? docs/gui/evidence/G1-07-results.json",
+    "?? docs/gui/evidence/G1-08-results.json",
+    "?? docs/gui/evidence/G1-A02-results.json",
+    "?? docs/gui/evidence/G1-A03-results.json",
+    "?? docs/gui/evidence/G1-A04-R4-results.json",
+    "?? docs/gui/evidence/G1-A04-results.json",
+    "?? docs/gui/evidence/G1-A05-results.json",
+    "?? docs/gui/evidence/G1-A06-results.json",
+    "?? docs/gui/evidence/G1-N1-F01-F2-results.json",
+    "?? docs/gui/evidence/G1-N1-F01-results.json",
+    "?? docs/gui/evidence/G1-N1-F03-results.json",
+    "?? eng/gui/Test-DockNativeTrace.ps1",
+    "?? eng/gui/Validate-G1LayoutRoles.ps1",
+    "?? eng/gui/Validate-G1NativeAcceptance.ps1",
+    "?? eng/gui/Validate-G1Platform.ps1",
+    "?? eng/gui/Validate-G1Shell.ps1",
+    "?? eng/gui/native/G1ShellProbe.csproj",
+    "?? eng/gui/native/Program.cs",
+    "?? eng/gui/native/packages.lock.json",
+    "?? prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+    "?? prototypes/G1DockFeasibility/NativeProbe.cs",
+    "?? prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+    "?? prototypes/G1DockFeasibility/Program.cs",
+    "?? prototypes/G1DockFeasibility/README.md",
+    "?? prototypes/G1DockFeasibility/Session.cs",
+    "?? prototypes/G1DockFeasibility/Tests/DockTests.cs",
+    "?? prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+    "?? prototypes/G1DockFeasibility/Tests/packages.lock.json",
+    "?? prototypes/G1DockFeasibility/Validate.ps1",
+    "?? prototypes/G1DockFeasibility/Views.cs",
+    "?? prototypes/G1DockFeasibility/packages.lock.json"
+  ],
+  "newDeliverables": [
+    "docs/gui/G1-A06-cross-platform-final-validation.md",
+    "docs/gui/evidence/G1-A06-results.json"
+  ],
+  "artifactManifest": "artifacts/g1-a06/artifact-manifest.json",
+  "boundaries": {
+    "testChanges": false,
+    "pushes": false,
+    "packageUpdates": false,
+    "productChanges": false,
+    "commits": false,
+    "otherWorktreeChanges": false,
+    "dockChanges": false,
+    "l1Imported": false,
+    "integrationStarted": false,
+    "merges": false
+  }
+}

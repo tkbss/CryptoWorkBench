@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dock="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia"
+        xmlns:prism="http://prismlibrary.com/"
+        x:Class="CryptoWorkBenchAvalonia.Shell.DockShellWindow"
+        prism:ViewModelLocator.AutoWireViewModel="False"
+        Title="CryptoWorkBench — Dock preview" Width="1200" Height="760"
+        Icon="/Assets/avalonia-logo.ico">
+  <DockPanel>
+    <DockPanel DockPanel.Dock="Top">
+      <Button x:Name="McpConnectButton" DockPanel.Dock="Right" Content="Connect Codex…" IsVisible="False" Margin="4" />
+      <Menu x:Name="ShellMenu" />
+    </DockPanel>
+    <Border DockPanel.Dock="Bottom" Padding="10,6" Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+      <TextBlock x:Name="ShellStatus" Text="Dock preview · The standard workspace remains the default." />
+    </Border>
+    <dock:DockControl x:Name="DockHost" />
+  </DockPanel>
+</Window>

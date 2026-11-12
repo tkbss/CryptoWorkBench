@@ -21,12 +21,28 @@ class Program
         // The desktop presents those through the editor and the approved result projection.
         Console.SetOut(System.IO.TextWriter.Null);
         Console.SetError(System.IO.TextWriter.Null);
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        int traceIndex = Array.IndexOf(args, "--dock-native-trace");
+        if (traceIndex >= 0 && (traceIndex + 1 >= args.Length || Array.IndexOf(args, "--dock-shell") < 0))
+            throw new ArgumentException("--dock-native-trace requires an output path and --dock-shell.");
+        NativeDockWindowTrace? trace = null;
+        try
+        {
+            BuildAvaloniaApp(Array.IndexOf(args, "--dock-shell") >= 0, shell => trace?.Attach(shell),
+                    () => { if (traceIndex >= 0) trace = new NativeDockWindowTrace(args[traceIndex + 1]); })
+                .StartWithClassicDesktopLifetime(args);
+        }
+        finally { trace?.Dispose(); }
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure(() => new App { ConfigureDesktopMcp = DesktopMcpSession.Attach })
+        => BuildAvaloniaApp(false);
+
+    public static AppBuilder BuildAvaloniaApp(bool useDockShell)
+        => BuildAvaloniaApp(useDockShell, null);
+
+    private static AppBuilder BuildAvaloniaApp(bool useDockShell, Action<Shell.DockShellWindow>? observe, Action? initializeDiagnostics = null)
+        => AppBuilder.Configure(() => new App { UseDockShell = useDockShell, ConfigureDesktopMcp = DesktopMcpSession.Attach, ObserveDockShell = observe, InitializeDockDiagnostics = initializeDiagnostics })
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();

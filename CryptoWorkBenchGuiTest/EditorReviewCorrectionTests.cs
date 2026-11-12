@@ -17,7 +17,7 @@ using NUnit.Framework;
 namespace CryptoWorkBenchGuiTest;
 
 [NonParallelizable]
-public class EditorReviewCorrectionTests
+public partial class EditorReviewCorrectionTests
 {
     public sealed class TestApp
     {
@@ -230,6 +230,9 @@ public class EditorReviewCorrectionTests
         else if (action == "cancel") await Assert.ThatAsync(async () => await save, Throws.InstanceOf<OperationCanceledException>());
         else Assert.That(await save, Is.EqualTo(action == "detach" ? AutomationErrorCode.EditorUnavailable : AutomationErrorCode.ShuttingDown));
         Assert.That(called, Is.True); await drain!; if (disposal is not null) await disposal;
+        // The callback captured drain before BeginShutdown created the coordinator-close
+        // obligation. Await that later obligation as well before testing orphan mutability.
+        if (action is "shutdown" or "shutdown-throw") await h.Service.DrainAsync();
         Assert.That(deletes, Is.Zero); Assert.That(File.ReadAllText(h.FilePath), Is.EqualTo("sentinel"));
         Assert.That(h.Service.IsBusy || h.Editor.MutationLocked || h.Editor.IsReadOnly || h.Editor.Document.IsInUpdate, Is.False);
         h.Editor.Document.Insert(0, "after");

@@ -9,15 +9,26 @@ using CryptoWorkBenchAvalonia.Views;
 using Prism.DryIoc;
 using Prism.Ioc;
 using Prism.Navigation.Regions;
+using CryptoWorkBenchAvalonia.Shell;
 
 
 namespace CryptoWorkBenchAvalonia;
 
 public partial class App : PrismApplication
 {
-    internal System.Func<MainWindow, Services.Automation.WorkbenchAutomationService, System.Func<System.Threading.Tasks.Task>>? ConfigureDesktopMcp { get; init; }
+    public bool UseDockShell { get; init; }
+    internal System.Action<DockShellWindow>? ObserveDockShell { get; init; }
+    internal System.Action? InitializeDockDiagnostics { get; init; }
+    public System.Exception? DockShellStartupError { get; private set; }
+    private DockShellPresentation? _dockPresentation;
+    private DockShellLayout? _dockLayout;
+    private DockShellWindow? _dockWindow;
+    private DockEditorSession? _dockEditor;
+    internal virtual DockLayoutStore CreateLayoutStore() => new();
+    internal System.Func<Avalonia.Controls.Window, Avalonia.Controls.Button, Services.Automation.WorkbenchAutomationService, System.Func<System.Threading.Tasks.Task>>? ConfigureDesktopMcp { get; init; }
     public override void Initialize()
     {
+        InitializeDockDiagnostics?.Invoke();
         AvaloniaXamlLoader.Load(this);
 #if DEBUG
         this.AttachDeveloperTools();
@@ -36,9 +47,74 @@ public partial class App : PrismApplication
 
     protected override AvaloniaObject CreateShell()
     {
+        var window = DockShellStartup.Select(UseDockShell, CreateDockShell, CreateLegacyShell, exception =>
+        {
+            _dockWindow?.ReleaseLayout();
+            _dockLayout?.Dispose();
+            _dockEditor?.Dispose(); // Structural phase only: registration has not started.
+            _dockPresentation?.Dispose();
+            _dockPresentation = null;
+            DockShellStartupError = exception;
+            System.Diagnostics.Trace.WriteLine($"Dock shell initialization failed; using standard workspace: {exception}");
+        });
+        // Past this boundary a failed productive startup must NOT fall back to a second editor.
+        if (window is DockShellWindow dock)
+        {
+            try { InitializeDockSession(dock); }
+            catch
+            {
+                // The shell is not shown yet and the desktop hook only installs consent handlers.
+                // Revoke admission and retire this registration; never create a replacement shell.
+                Container.Resolve<Services.Automation.WorkbenchAutomationService>().BeginShutdown();
+                try { _dockEditor?.Dispose(); }
+                finally
+                {
+                    Container.Resolve<InfoViewModel>().Dispose();
+                    dock.ReleaseLayout();
+                    _dockPresentation?.Dispose();
+                }
+                throw;
+            }
+        }
+        return window;
+    }
+
+    protected virtual Avalonia.Controls.Window CreateDockShell()
+    {
+        var store = CreateLayoutStore();
+        _dockLayout = Container.Resolve<DockShellLayout>();
+        _dockLayout.StartupLayout = store.Load();
+        _dockEditor = Container.Resolve<DockEditorSession>();
+        _dockPresentation = new DockShellPresentation(this, _dockEditor,
+            Container.Resolve<VariableViewModel>(), Container.Resolve<InfoViewModel>());
+        _dockWindow = Container.Resolve<DockShellWindow>();
+        _dockWindow.EnablePersistence(store);
+        return _dockWindow;
+    }
+
+    protected virtual void InitializeDockSession(DockShellWindow window)
+    {
+        ObserveDockShell?.Invoke(window);
+        var editor = _dockEditor ?? Container.Resolve<DockEditorSession>();
+        var service = Container.Resolve<Services.Automation.WorkbenchAutomationService>();
+        editor.Start(window);
+        _dockPresentation?.StartTools();
+        window.BindEditor(editor);
+        CoordinateClosing(window, service, ConfigureDesktopMcp?.Invoke(window, window.McpButton, service));
+        window.Closed += (_, _) =>
+        {
+            editor.Dispose();
+            // Global tool state outlives visual Close/Show and ends only with the application.
+            Container.Resolve<InfoViewModel>().Dispose();
+            _dockPresentation?.Dispose();
+        };
+    }
+
+    private Avalonia.Controls.Window CreateLegacyShell()
+    {
         var window = Container.Resolve<MainWindow>();
         var service = Container.Resolve<CryptoWorkBenchAvalonia.Services.Automation.WorkbenchAutomationService>();
-        CoordinateClosing(window, service, ConfigureDesktopMcp?.Invoke(window, service));
+        CoordinateClosing(window, service, ConfigureDesktopMcp?.Invoke(window, window.McpSessionButton, service));
         window.Closed += (_, _) => Container.Resolve<CryptoScriptEditViewModel>().Dispose();
         return window;
     }
@@ -69,6 +145,8 @@ public partial class App : PrismApplication
             var notice = NotifyWaiting();
             try
             {
+                // Capture before drain or owned-window teardown. Commit only on actual Closed.
+                if (window is DockShellWindow dock) dock.CaptureForShutdown();
                 service.BeginShutdown();
                 if (stopTransport != null) await stopTransport();
                 await service.DrainForExitAsync();
@@ -91,6 +169,7 @@ public partial class App : PrismApplication
 
     protected override void OnInitialized()
     {
+        if (MainWindow is DockShellWindow) return;
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Exit += (_, _) =>
             {
@@ -110,6 +189,7 @@ public partial class App : PrismApplication
 
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
+        DockShellStartup.Register(containerRegistry);
         containerRegistry.RegisterSingleton<INotificationService, NotificationService>();
         containerRegistry.RegisterSingleton<IHistoryService, HistoryService>();
         containerRegistry.RegisterSingleton<IInfoDocumentationProvider, FileInfoDocumentationProvider>();

@@ -31,7 +31,10 @@ public partial class CryptoScriptEditView : UserControl
         InitializeComponent();      
     }
     // Constructor that accepts a ViewModel
-    public CryptoScriptEditView(CryptoScriptEditViewModel vm) : this()
+    public CryptoScriptEditView(CryptoScriptEditViewModel vm) : this(vm, false) { }
+
+    // Dock owns the logical session; the legacy constructor keeps visual registration semantics.
+    internal CryptoScriptEditView(CryptoScriptEditViewModel vm, bool sessionOwned) : this()
     {
         _viewModel = vm;
         _textEditor = this.FindControl<TextEditor>("Editor");
@@ -39,13 +42,16 @@ public partial class CryptoScriptEditView : UserControl
         {
             // Initialize native dirty/history state before publishing the editor.
             _textEditor.Clear();
-            _viewModel.TextEditor = _textEditor;
+            if (!sessionOwned) _viewModel.TextEditor = _textEditor;
         }
         _statusTextBlock = this.Find<TextBlock>("StatusText");
         AttachedToVisualTree += (sender, args) =>
         {
-            _viewModel!.TextEditor = _textEditor;
-            _viewModel.AttachEditor();
+            if (!sessionOwned)
+            {
+                _viewModel!.TextEditor = _textEditor;
+                _viewModel.AttachEditor();
+            }
             try
             {
                 EnsureInfoCompletionController();
@@ -62,7 +68,7 @@ public partial class CryptoScriptEditView : UserControl
             ((WorkbenchTextArea)_textEditor!.TextArea).AdmittedInput = null;
             _textEditor.TextArea.TextEntered -= TextEntered;
             _textEditor.TextArea.Caret.PositionChanged -= CaretChanged;
-            try { _viewModel!.DetachEditor(_textEditor); }
+            try { if (!sessionOwned) _viewModel!.DetachEditor(_textEditor); }
             finally
             {
                 var completion = _infoCompletionController;
@@ -71,6 +77,23 @@ public partial class CryptoScriptEditView : UserControl
                 finally { _insightWindow?.Hide(); }
             }
         }
+    }
+
+    internal WorkbenchTextEditor SessionEditor => (WorkbenchTextEditor)_textEditor!;
+
+    internal void PrepareForHostChange()
+    {
+        _infoCompletionController?.CancelAndClose();
+        _insightWindow?.Hide();
+        _insightWindow = null;
+    }
+
+    internal void DismissTransientEditorUi()
+    {
+        _infoCompletionController?.Dispose();
+        _infoCompletionController = null;
+        _insightWindow?.Hide();
+        _insightWindow = null;
     }
 
     private void TextEntered(object? sender, TextInputEventArgs args) =>
@@ -123,10 +146,10 @@ public partial class CryptoScriptEditView : UserControl
 
         var anchor = document.CreateAnchor(line.EndOffset);
         anchor.MovementType = AnchorMovementType.BeforeInsertion;
-        PendingExecution = ExecuteInputAsync(source!, document, anchor, lifecycle, IsCurrent, input, ticket);
+        PendingExecution = ExecuteInputAsync(source!, document, anchor, lifecycle, IsCurrent, input, ticket, line.LineNumber);
     }
 
-    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor, long lifecycle, Func<bool> isCurrent, TextInputEventArgs input, EditorCoordinator.OperationTicket ticket)
+    private async Task ExecuteInputAsync(string line, TextDocument document, TextAnchor anchor, long lifecycle, Func<bool> isCurrent, TextInputEventArgs input, EditorCoordinator.OperationTicket ticket, int sourceLine)
     {
         var vm = _viewModel!;
         try
@@ -137,7 +160,7 @@ public partial class CryptoScriptEditView : UserControl
                     ReferenceEquals(document, _textEditor?.Document))
                     document.Insert(anchor.Offset, "\n" + text);
             }
-            if (!await vm.ParseInputLineAsync(line, isCurrent, publishOutput: Output, native: ticket))
+            if (!await vm.ParseInputLineAsync(line, isCurrent, publishOutput: Output, native: ticket, sourceLine: sourceLine))
             {
                 // Fresh admission failed synchronously, before returning to native TextEntering.
                 input.Handled = true;

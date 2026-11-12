@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Tests/**/*.cs" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="12.0.0" />
+    <PackageReference Include="Dock.Avalonia" Version="12.1.0.13" />
+    <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="12.1.0.13" />
+    <PackageReference Include="Dock.Model.Mvvm" Version="12.1.0.13" />
+    <PackageReference Include="Dock.Serializer.SystemTextJson" Version="12.1.0.13" />
+    <ProjectReference Include="../../.deps/prism/src/Avalonia/Prism.Avalonia/Prism.Avalonia.csproj" />
+    <ProjectReference Include="../../.deps/prism/src/Avalonia/Prism.DryIoc.Avalonia/Prism.DryIoc.Avalonia.csproj" />
+  </ItemGroup>
+</Project>

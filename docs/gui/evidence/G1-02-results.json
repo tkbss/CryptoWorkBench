@@ -1,0 +1,1697 @@
+{
+  "date": "2026-11-06",
+  "decision": "CONDITIONAL GO for G1-03 after owner acceptance",
+  "branch": "feature/gui-g1",
+  "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+  "worktree": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1",
+  "sdk": "10.0.401",
+  "runtime": "10.0.12",
+  "avalonia": "12.1.4",
+  "dock": "12.1.0.13",
+  "prismSource": "358118cd640d9a22ff8cf21c8ad197fa038b7990",
+  "testRuns": [
+    {
+      "suite": "CryptoWorkBenchGuiTest",
+      "configuration": "Debug",
+      "passed": 810,
+      "failed": 0,
+      "skipped": 0,
+      "notExecutedExplicit": 0,
+      "discovered": 810,
+      "trx": "artifacts/g1-02/verified/CryptoWorkBenchGuiTest-Debug.trx",
+      "log": "artifacts/g1-02/verified/CryptoWorkBenchGuiTest-Debug.log",
+      "nonExecutedDetails": []
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "configuration": "Debug",
+      "passed": 176,
+      "failed": 0,
+      "skipped": 0,
+      "notExecutedExplicit": 13,
+      "discovered": 189,
+      "trx": "artifacts/g1-02/verified/CryptoWorkBench.Mcp.Tests-Debug.trx",
+      "log": "artifacts/g1-02/verified/CryptoWorkBench.Mcp.Tests-Debug.log",
+      "nonExecutedDetails": [
+        {
+          "reason": "Requires CRYPTOWORKBENCH_CODEX_PATH pointing to the installed local Codex executable.",
+          "name": "InstalledCodexDiscoversAndCallsStatus"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"isolated\")"
+        },
+        {
+          "reason": "Requires a paired disposable desktop, local execution approval, and subsequent GUI disconnect.",
+          "name": "InstalledCodexCompletesDesktopAesAndRejectsTakeover"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex.",
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"different\")"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"proxy\")"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"ssl\")"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"bundle\")"
+        },
+        {
+          "reason": "Requires installed Codex and the built desktop adapter.",
+          "name": "InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest"
+        },
+        {
+          "reason": "Requires installed Codex and the built desktop adapter.",
+          "name": "InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex.",
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"missing\")"
+        },
+        {
+          "reason": "Requires installed Codex.",
+          "name": "InstalledCodexRejectsPortTakeoverOverHttps"
+        },
+        {
+          "reason": "Requires a paired disposable desktop editor with the exact B4 AES seed and local execution approval.",
+          "name": "InstalledCodexCompletesDesktopAes"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex.",
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"expired\")"
+        }
+      ]
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "configuration": "Debug",
+      "passed": 11508,
+      "failed": 0,
+      "skipped": 26,
+      "notExecutedExplicit": 1,
+      "discovered": 11535,
+      "trx": "artifacts/g1-02/verified/CryptoScriptUnitTest-Debug.trx",
+      "log": "artifacts/g1-02/verified/CryptoScriptUnitTest-Debug.log",
+      "nonExecutedDetails": [
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-00742b9a621042b1a8fca9712c9eb88e\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",True)"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "GetPathTracksRenamedOpenDirectory"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtExclusiveCreatePreservesExistingSymlinkAndTarget"
+        },
+        {
+          "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-aec67a73ea9f46d5928b9462af1472fb\\input.bin'.",
+          "name": "SymlinkFileOrAncestorRejected(False)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-ce0eb0460ffe47b3a1f8fb64bf5be78f\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",True)"
+        },
+        {
+          "reason": "Symbolic-link creation privilege is unavailable.",
+          "name": "NativePublicationDoesNotFollowLateSymlink"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-707334f0c0a844c5870e2ae09f307c4a\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",False)"
+        },
+        {
+          "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWM-4241fdf22b434de692ea48f815cddb50\\alias.cwm'.",
+          "name": "SymlinksRejected"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtCreatesPrivateFileAndLinkAtPublishesWithoutOverwrite"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtReadsSourceThroughBoundDirectory"
+        },
+        {
+          "reason": "Symbolic link privilege unavailable.",
+          "name": "SourceAndAncestorSymlinksAreRejected(True)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-df3bb443b34240a7aaa18aaccab9edb7\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",True)"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtRejectsDirectoryAndSourceSymlinks"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-f446863f7e2e4fafad6d9f774a49a3f0\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",True)"
+        },
+        {
+          "reason": "Symbolic link privilege unavailable.",
+          "name": "SourceSymlinkIsRejected"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtTraversesDirectoriesAndGetPathReturnsBoundDirectory"
+        },
+        {
+          "reason": "Symbolic-link creation privilege is unavailable.",
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(True)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-74c8ba2955e640ee84bcdf9811536f52\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",False)"
+        },
+        {
+          "reason": "Darwin extended ACLs.",
+          "name": "MacOsInheritedExtendedAclIsRemovedBeforePublication"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-2b05246dfbec4920b207d83a44c3dfe7\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",False)"
+        },
+        {
+          "reason": "Symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F03-1c83132570374961b10a18519b8746a7\\input.bin'.",
+          "name": "SymlinkRejected"
+        },
+        {
+          "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-b8207e8b64fd44df84dbadaaa444cea5\\link'.",
+          "name": "SymlinkFileOrAncestorRejected(True)"
+        },
+        {
+          "reason": "Manual hardware measurement; no timing assertions or routine CI execution.",
+          "name": "MeasureLocalHardware"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "NativeFailurePreservesErrnoAndAllowsCleanup"
+        },
+        {
+          "reason": "Symbolic-link creation privilege is unavailable.",
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(False)"
+        },
+        {
+          "reason": "Symbolic link privilege unavailable.",
+          "name": "SourceAndAncestorSymlinksAreRejected(False)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-7709b75eee1f4ce4b89b7a2d6437e92a\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",False)"
+        }
+      ]
+    },
+    {
+      "suite": "CryptoWorkBenchGuiTest",
+      "configuration": "Release",
+      "passed": 810,
+      "failed": 0,
+      "skipped": 0,
+      "notExecutedExplicit": 0,
+      "discovered": 810,
+      "trx": "artifacts/g1-02/verified/CryptoWorkBenchGuiTest-Release.trx",
+      "log": "artifacts/g1-02/verified/CryptoWorkBenchGuiTest-Release.log",
+      "nonExecutedDetails": []
+    },
+    {
+      "suite": "CryptoWorkBench.Mcp.Tests",
+      "configuration": "Release",
+      "passed": 176,
+      "failed": 0,
+      "skipped": 0,
+      "notExecutedExplicit": 13,
+      "discovered": 189,
+      "trx": "artifacts/g1-02/verified/CryptoWorkBench.Mcp.Tests-Release.trx",
+      "log": "artifacts/g1-02/verified/CryptoWorkBench.Mcp.Tests-Release.log",
+      "nonExecutedDetails": [
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"bundle\")"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"isolated\")"
+        },
+        {
+          "reason": "Requires a paired disposable desktop, local execution approval, and subsequent GUI disconnect.",
+          "name": "InstalledCodexCompletesDesktopAesAndRejectsTakeover"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"proxy\")"
+        },
+        {
+          "reason": "Requires CRYPTOWORKBENCH_CODEX_PATH pointing to the installed local Codex executable.",
+          "name": "InstalledCodexDiscoversAndCallsStatus"
+        },
+        {
+          "reason": "Requires installed Codex and the built desktop adapter.",
+          "name": "InstalledCodexDoesNotReplayAnAmbiguousDispatchedRequest"
+        },
+        {
+          "reason": "Requires installed Codex and the built desktop adapter.",
+          "name": "InstalledCodexRejectsNewWorkbenchIdentityEvenWithSameCredential"
+        },
+        {
+          "reason": "Requires a paired disposable desktop editor with the exact B4 AES seed and local execution approval.",
+          "name": "InstalledCodexCompletesDesktopAes"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex and the built desktop adapter executable.",
+          "name": "InstalledCodexPinnedIdentityRejectsForeignPortOwner(\"ssl\")"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex.",
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"different\")"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex.",
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"expired\")"
+        },
+        {
+          "reason": "Requires installed Codex.",
+          "name": "InstalledCodexRejectsPortTakeoverOverHttps"
+        },
+        {
+          "reason": "OneTimeSetUp: Requires installed Codex.",
+          "name": "InstalledCodexRefusesUntrustedOrExpiredServer(\"missing\")"
+        }
+      ]
+    },
+    {
+      "suite": "CryptoScriptUnitTest",
+      "configuration": "Release",
+      "passed": 11508,
+      "failed": 0,
+      "skipped": 26,
+      "notExecutedExplicit": 1,
+      "discovered": 11535,
+      "trx": "artifacts/g1-02/verified/CryptoScriptUnitTest-Release.trx",
+      "log": "artifacts/g1-02/verified/CryptoScriptUnitTest-Release.log",
+      "nonExecutedDetails": [
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "NativeFailurePreservesErrnoAndAllowsCleanup"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtExclusiveCreatePreservesExistingSymlinkAndTarget"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtCreatesPrivateFileAndLinkAtPublishesWithoutOverwrite"
+        },
+        {
+          "reason": "Symbolic-link creation privilege is unavailable.",
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(True)"
+        },
+        {
+          "reason": "Symbolic link privilege unavailable.",
+          "name": "SourceSymlinkIsRejected"
+        },
+        {
+          "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWM-c5e2dfbfbb734f65af38195a34413b16\\alias.cwm'.",
+          "name": "SymlinksRejected"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "GetPathTracksRenamedOpenDirectory"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtTraversesDirectoriesAndGetPathReturnsBoundDirectory"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtReadsSourceThroughBoundDirectory"
+        },
+        {
+          "reason": "Symbolic-link creation privilege is unavailable.",
+          "name": "TargetSymlinksIncludingDanglingLinksAreRejected(False)"
+        },
+        {
+          "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-e39453cc368e48d5be7ea78d39ea2643\\input.bin'.",
+          "name": "SymlinkFileOrAncestorRejected(False)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-7fd97842c4fe4b8fa0d7207488dd9d5e\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",True)"
+        },
+        {
+          "reason": "Darwin extended ACLs.",
+          "name": "MacOsInheritedExtendedAclIsRemovedBeforePublication"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-56c2001386b74eeab75c09f0e70ca6c1\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",False)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-4dc29e6845454df086c144eb8cc0f320\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",False)"
+        },
+        {
+          "reason": "Symbolic-link creation privilege is unavailable.",
+          "name": "NativePublicationDoesNotFollowLateSymlink"
+        },
+        {
+          "reason": "Symlink unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F06-75d0a4dce52641c48d455390111c72c5\\link'.",
+          "name": "SymlinkFileOrAncestorRejected(True)"
+        },
+        {
+          "reason": "Manual hardware measurement; no timing assertions or routine CI execution.",
+          "name": "MeasureLocalHardware"
+        },
+        {
+          "reason": "Darwin native ABI regression.",
+          "name": "OpenAtRejectsDirectoryAndSourceSymlinks"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-4e439c9f7b87478399ab3973ea670d04\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",False)"
+        },
+        {
+          "reason": "Symbolic link privilege unavailable.",
+          "name": "SourceAndAncestorSymlinksAreRejected(False)"
+        },
+        {
+          "reason": "Symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F03-07ac676ec24d4cd9a5f95a860d44d4ae\\input.bin'.",
+          "name": "SymlinkRejected"
+        },
+        {
+          "reason": "Symbolic link privilege unavailable.",
+          "name": "SourceAndAncestorSymlinksAreRejected(True)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-60201b6ab45c40cea95b19c29232e0a2\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-CBC-MAC\",True)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-8924ee96844743d09b84b105a7a0b81d\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"AES-GMAC\",False)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-0f02829969d540c09d766862e9a0e009\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-RETAIL\",True)"
+        },
+        {
+          "reason": "Windows symlink creation unavailable: A required privilege is not held by the client. : 'C:\\Users\\stefa\\AppData\\Local\\Temp\\CWE-F032-c37cfdde243b4ef58de48dc054363c39\\link'.",
+          "name": "SourceAndAncestorLinksAreRejected(\"DES3-CBC\",True)"
+        }
+      ]
+    }
+  ],
+  "newShellTestsPerConfiguration": 13,
+  "native": [
+    {
+      "configuration": "Debug",
+      "mode": "dock",
+      "passed": 67,
+      "failed": 0,
+      "skipped": 0,
+      "notExecuted": 0,
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "product-shell-singleton",
+          "passed": true
+        },
+        {
+          "name": "product-state-singleton",
+          "passed": true
+        },
+        {
+          "name": "no-editor-view",
+          "passed": true
+        },
+        {
+          "name": "editor-never-attached",
+          "passed": true
+        },
+        {
+          "name": "native-main-handle",
+          "passed": true
+        },
+        {
+          "name": "main-foreground",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-handle",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-owner",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:independent-position",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "document-native-close-protected",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:output:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:output:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:info:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:info:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:status:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:status:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "shutdown-all-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registries",
+          "passed": true
+        },
+        {
+          "name": "no-execution-lifecycle-effects",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ],
+      "path": "artifacts/g1-02/verified/native-Debug-dock.json",
+      "trace": "artifacts/g1-02/verified/native-Debug-dock.json.trace.log"
+    },
+    {
+      "configuration": "Debug",
+      "mode": "legacy",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "notExecuted": 0,
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ],
+      "path": "artifacts/g1-02/verified/native-Debug-legacy.json",
+      "trace": "artifacts/g1-02/verified/native-Debug-legacy.json.trace.log"
+    },
+    {
+      "configuration": "Debug",
+      "mode": "fallback",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "notExecuted": 0,
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "failed-layout-disposed",
+          "passed": true
+        },
+        {
+          "name": "failed-hosts-cleaned",
+          "passed": true
+        },
+        {
+          "name": "preview-theme-removed",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ],
+      "path": "artifacts/g1-02/verified/native-Debug-fallback.json",
+      "trace": "artifacts/g1-02/verified/native-Debug-fallback.json.trace.log"
+    },
+    {
+      "configuration": "Release",
+      "mode": "dock",
+      "passed": 67,
+      "failed": 0,
+      "skipped": 0,
+      "notExecuted": 0,
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "product-shell-singleton",
+          "passed": true
+        },
+        {
+          "name": "product-state-singleton",
+          "passed": true
+        },
+        {
+          "name": "no-editor-view",
+          "passed": true
+        },
+        {
+          "name": "editor-never-attached",
+          "passed": true
+        },
+        {
+          "name": "native-main-handle",
+          "passed": true
+        },
+        {
+          "name": "main-foreground",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-handle",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:native-owner",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:independent-position",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "document-native-close-protected",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "document:cryptoscript:primary:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:variables:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:output:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:output:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:output:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:output:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:info:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:info:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:info:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:info:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:diagnostics:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-handle",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-owner",
+          "passed": true
+        },
+        {
+          "name": "tool:status:independent-position",
+          "passed": true
+        },
+        {
+          "name": "tool:status:foreground-and-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-cleanup",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-identity-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:redock-focus",
+          "passed": true
+        },
+        {
+          "name": "tool:status:reopen-state",
+          "passed": true
+        },
+        {
+          "name": "tool:status:native-close-reopen",
+          "passed": true
+        },
+        {
+          "name": "shutdown-all-hosts",
+          "passed": true
+        },
+        {
+          "name": "shutdown-registries",
+          "passed": true
+        },
+        {
+          "name": "no-execution-lifecycle-effects",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ],
+      "path": "artifacts/g1-02/verified/native-Release-dock.json",
+      "trace": "artifacts/g1-02/verified/native-Release-dock.json.trace.log"
+    },
+    {
+      "configuration": "Release",
+      "mode": "legacy",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "notExecuted": 0,
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ],
+      "path": "artifacts/g1-02/verified/native-Release-legacy.json",
+      "trace": "artifacts/g1-02/verified/native-Release-legacy.json.trace.log"
+    },
+    {
+      "configuration": "Release",
+      "mode": "fallback",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "notExecuted": 0,
+      "checks": [
+        {
+          "name": "one-main-window",
+          "passed": true
+        },
+        {
+          "name": "shared-service",
+          "passed": true
+        },
+        {
+          "name": "shared-v1-coordination",
+          "passed": true
+        },
+        {
+          "name": "shared-v2-coordination",
+          "passed": true
+        },
+        {
+          "name": "legacy-main-window",
+          "passed": true
+        },
+        {
+          "name": "expected-startup-error",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-editable",
+          "passed": true
+        },
+        {
+          "name": "legacy-editor-registered",
+          "passed": true
+        },
+        {
+          "name": "no-dock-host-in-legacy",
+          "passed": true
+        },
+        {
+          "name": "failed-layout-disposed",
+          "passed": true
+        },
+        {
+          "name": "failed-hosts-cleaned",
+          "passed": true
+        },
+        {
+          "name": "preview-theme-removed",
+          "passed": true
+        },
+        {
+          "name": "shutdown-no-windows",
+          "passed": true
+        }
+      ],
+      "path": "artifacts/g1-02/verified/native-Release-fallback.json",
+      "trace": "artifacts/g1-02/verified/native-Release-fallback.json.trace.log"
+    }
+  ],
+  "commands": [
+    {
+      "name": "build-Debug",
+      "exitCode": 0,
+      "command": "pwsh",
+      "arguments": [
+        "-NoProfile",
+        "-File",
+        "eng/prism/Build.ps1",
+        "-Configuration",
+        "Debug"
+      ]
+    },
+    {
+      "name": "CryptoWorkBenchGuiTest-Debug",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "test",
+        "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+        "-c",
+        "Debug",
+        "--no-build",
+        "--no-restore",
+        "--logger",
+        "trx;LogFileName=CryptoWorkBenchGuiTest-Debug.trx",
+        "--results-directory",
+        "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified"
+      ]
+    },
+    {
+      "name": "CryptoWorkBench.Mcp.Tests-Debug",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "test",
+        "CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj",
+        "-c",
+        "Debug",
+        "--no-build",
+        "--no-restore",
+        "--logger",
+        "trx;LogFileName=CryptoWorkBench.Mcp.Tests-Debug.trx",
+        "--results-directory",
+        "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified"
+      ]
+    },
+    {
+      "name": "CryptoScriptUnitTest-Debug",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "test",
+        "CryptoScriptUnitTest/CryptoScriptUnitTest.csproj",
+        "-c",
+        "Debug",
+        "--no-build",
+        "--no-restore",
+        "--logger",
+        "trx;LogFileName=CryptoScriptUnitTest-Debug.trx",
+        "--results-directory",
+        "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified"
+      ]
+    },
+    {
+      "name": "native-restore-Debug",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "restore",
+        "eng/gui/native/G1ShellProbe.csproj",
+        "--locked-mode",
+        "-p:Configuration=Debug"
+      ]
+    },
+    {
+      "name": "native-build-Debug",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "build",
+        "eng/gui/native/G1ShellProbe.csproj",
+        "-c",
+        "Debug",
+        "--no-restore"
+      ]
+    },
+    {
+      "name": "native-Debug-dock",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified\\native-Debug-dock.json"
+    },
+    {
+      "name": "native-Debug-legacy",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified\\native-Debug-legacy.json"
+    },
+    {
+      "name": "native-Debug-fallback",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified\\native-Debug-fallback.json"
+    },
+    {
+      "name": "build-Release",
+      "exitCode": 0,
+      "command": "pwsh",
+      "arguments": [
+        "-NoProfile",
+        "-File",
+        "eng/prism/Build.ps1",
+        "-Configuration",
+        "Release"
+      ]
+    },
+    {
+      "name": "CryptoWorkBenchGuiTest-Release",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "test",
+        "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+        "-c",
+        "Release",
+        "--no-build",
+        "--no-restore",
+        "--logger",
+        "trx;LogFileName=CryptoWorkBenchGuiTest-Release.trx",
+        "--results-directory",
+        "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified"
+      ]
+    },
+    {
+      "name": "CryptoWorkBench.Mcp.Tests-Release",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "test",
+        "CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj",
+        "-c",
+        "Release",
+        "--no-build",
+        "--no-restore",
+        "--logger",
+        "trx;LogFileName=CryptoWorkBench.Mcp.Tests-Release.trx",
+        "--results-directory",
+        "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified"
+      ]
+    },
+    {
+      "name": "CryptoScriptUnitTest-Release",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "test",
+        "CryptoScriptUnitTest/CryptoScriptUnitTest.csproj",
+        "-c",
+        "Release",
+        "--no-build",
+        "--no-restore",
+        "--logger",
+        "trx;LogFileName=CryptoScriptUnitTest-Release.trx",
+        "--results-directory",
+        "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified"
+      ]
+    },
+    {
+      "name": "native-restore-Release",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "restore",
+        "eng/gui/native/G1ShellProbe.csproj",
+        "--locked-mode",
+        "-p:Configuration=Release"
+      ]
+    },
+    {
+      "name": "native-build-Release",
+      "exitCode": 0,
+      "command": "dotnet",
+      "arguments": [
+        "build",
+        "eng/gui/native/G1ShellProbe.csproj",
+        "-c",
+        "Release",
+        "--no-restore"
+      ]
+    },
+    {
+      "name": "native-Release-dock",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified\\native-Release-dock.json"
+    },
+    {
+      "name": "native-Release-legacy",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified\\native-Release-legacy.json"
+    },
+    {
+      "name": "native-Release-fallback",
+      "exitCode": 0,
+      "output": "C:\\Users\\stefa\\Documents\\projects\\GITHUB\\CryptoWorkBench\\artifacts\\worktrees\\gui-g1\\artifacts\\g1-02\\verified\\native-Release-fallback.json"
+    }
+  ],
+  "comparisonWithG101": {
+    "g101McpExplicitNotExecuted": 13,
+    "mcpUnchanged": true,
+    "guiPassedDeltaPerConfiguration": 13,
+    "g101CoreExplicitNotExecuted": 1,
+    "g101CorePassed": 11508,
+    "g101CoreSkipped": 26,
+    "g101McpPassed": 176,
+    "g101GuiPassed": 797,
+    "coreUnchanged": true
+  },
+  "g101Preservation": [
+    {
+      "preserved": true,
+      "sha256": "6C818CE5C981F3938122FB1C351B17BC74CBDD433194EC1C0224DCE9EFED1133",
+      "path": "docs/gui/G1-01-dock-feasibility.md"
+    },
+    {
+      "preserved": true,
+      "sha256": "891A949C0A5BAE8DBA7EFCC93A48D3AD193ADEC10F3FDEF287DE62150EBCAE83",
+      "path": "docs/gui/evidence/G1-01-results.json"
+    },
+    {
+      "preserved": true,
+      "sha256": "3D68F8601C46664E9E5E7B0A28EC0F80A97F2B6646C2211A304BF5EB2D77597D",
+      "path": "prototypes/G1DockFeasibility/G1DockFeasibility.csproj"
+    },
+    {
+      "preserved": true,
+      "sha256": "7011700C7EDAA7293B0B237E7BE5774DCF8E8141A3A995E0C2C37FA9208194E5",
+      "path": "prototypes/G1DockFeasibility/NativeProbe.cs"
+    },
+    {
+      "preserved": true,
+      "sha256": "2F373F5A7E9A1A6BC9877602DB4E6C19182ACAFB03C6C94F02967E4D23F02AA4",
+      "path": "prototypes/G1DockFeasibility/ProbeWorkspace.cs"
+    },
+    {
+      "preserved": true,
+      "sha256": "5B073ED25B44101735D739255589DC0D1A5EE0864B99489D1479DF66569DE467",
+      "path": "prototypes/G1DockFeasibility/Program.cs"
+    },
+    {
+      "preserved": true,
+      "sha256": "D3D48790B195A93CB065AC0E9008A246CDF4E4DD379CE7C0AB7FD45EB440B713",
+      "path": "prototypes/G1DockFeasibility/README.md"
+    },
+    {
+      "preserved": true,
+      "sha256": "139A65C11E74CE1022478B764D98527C1FD0EDB09D7BE84C2E20C048BCD6EC1F",
+      "path": "prototypes/G1DockFeasibility/Session.cs"
+    },
+    {
+      "preserved": true,
+      "sha256": "9F3CB56EF36A434630D75725DFA5165D094562417928A74CCB8E16B313CF58E3",
+      "path": "prototypes/G1DockFeasibility/Tests/DockTests.cs"
+    },
+    {
+      "preserved": true,
+      "sha256": "B0EFBC6D644F68551984F84829D7D28F285ACF26AF14407DCAA5C2777F9A4A87",
+      "path": "prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj"
+    },
+    {
+      "preserved": true,
+      "sha256": "5BEB6552042194EE0DF6B66988FCECC9BF65CC1195E96CFC26D53B89F82352F5",
+      "path": "prototypes/G1DockFeasibility/Tests/packages.lock.json"
+    },
+    {
+      "preserved": true,
+      "sha256": "74E81F39A6D401228A8827A6BB1EDF83B3A92EDC2B912A17338F8ECAC16531D3",
+      "path": "prototypes/G1DockFeasibility/Validate.ps1"
+    },
+    {
+      "preserved": true,
+      "sha256": "F68F989F367094F758B241BF1E48EE390225448394223D2DFBA56840FBA47B94",
+      "path": "prototypes/G1DockFeasibility/Views.cs"
+    },
+    {
+      "preserved": true,
+      "sha256": "E22CF10C0E534616890A860205A7D595E4953D9F935F92D947569D4F8AC5ED3D",
+      "path": "prototypes/G1DockFeasibility/packages.lock.json"
+    }
+  ],
+  "dependencyCheck": {
+    "checkedLockfiles": 14,
+    "violations": [],
+    "dockHashesMatchG101": true
+  },
+  "checks": {
+    "gitDiffCheckExit": 0,
+    "generatedNugetLocksWithoutFinalNewline": [
+      "eng/gui/native/packages.lock.json",
+      "prototypes/G1DockFeasibility/Tests/packages.lock.json",
+      "prototypes/G1DockFeasibility/packages.lock.json"
+    ],
+    "gitDiffCheckOutput": [],
+    "untrackedChecked": 28,
+    "emptyOrTrailingWhitespace": []
+  },
+  "sourceHashes": [
+    {
+      "sha256": "04250596393E935D54AB3FC068FDC6F9BFBA01F7A40C5142B762F1838313D6AB",
+      "path": "CryptoWorkBenchAvalonia.Desktop/Program.cs"
+    },
+    {
+      "sha256": "DBF87F522CBCA154BBA5B56C7D22B7989398463A448FE086E855265EA1C047F9",
+      "path": "CryptoWorkBenchAvalonia/App.axaml.cs"
+    },
+    {
+      "sha256": "BE9EE2443658A5CBDCA95C3800DA25E6DCD8A0DF9395E0344E0383261961AE3C",
+      "path": "CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj"
+    },
+    {
+      "sha256": "21C93FEA4466FD020719288557F9323FBAD1455DAD238737A2919DF6F3FEE416",
+      "path": "eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json"
+    },
+    {
+      "sha256": "C38D99495B844777EC13BAECCACEA18DB3C27F92BCCF586ACD44E7116DD4B28C",
+      "path": "eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json"
+    },
+    {
+      "sha256": "DD323AB879C720840A545BAD3CFD2A8E93B4F4135150AABD6FC2B6E02F6175E9",
+      "path": "eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json"
+    },
+    {
+      "sha256": "D68B750182A0C0C81697F9F4B9B900FC64843E8BDEF7C95F73569D85D64B5740",
+      "path": "eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json"
+    },
+    {
+      "sha256": "91544CCB13E1C68C00453A76404CE1BC1513708688227903DA630E7DAA2F0071",
+      "path": "eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json"
+    },
+    {
+      "sha256": "C2F4DFEB6C2184449875657363223B63C98244D9E06893A73527C4446E9EEBAD",
+      "path": "eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json"
+    },
+    {
+      "sha256": "349A2D6FF2EF4D01D1C8003F29769F66F60CA96C1413457F737B474F82C5DAF6",
+      "path": "eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json"
+    },
+    {
+      "sha256": "15FA3D9AA038F8D6BA7B9917D0DA16BB7CDBFD524ACE5FE2E783B9B59783D386",
+      "path": "eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json"
+    },
+    {
+      "sha256": "0B161D6BEB9A4D11693E2862752168526D623044A4FAD464E4F92F792B317437",
+      "path": "eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json"
+    },
+    {
+      "sha256": "9F256B784EBAB7B238889761D9FB15FB06B74EA1CBC3936680B9FF25FF05B1AC",
+      "path": "eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json"
+    },
+    {
+      "sha256": "D2F935FF363452CCC21F1F996614620E3EB3C8D8E74E2AE2AC373DF1026D60FF",
+      "path": "eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json"
+    },
+    {
+      "sha256": "8474C60AC21A3D7ACF322C90C6600F622BC283322078B95205803E1E34723895",
+      "path": "eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json"
+    },
+    {
+      "sha256": "1DD1C158DC75F4B633DE84F8824A6EEEFC24E4F10481392D66C93F44F5C4B428",
+      "path": "eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json"
+    },
+    {
+      "sha256": "C1EA93CD7B54A22B277AED3692B2A49BCDB55EE79AB6CED594F4555592C5E1A7",
+      "path": "eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json"
+    },
+    {
+      "sha256": "C05F55C56AA1C2644ED1F6967CC6EFA2030F6CF449C0FAA924E9222EBFBBD5E9",
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs"
+    },
+    {
+      "sha256": "9031F313E4E8D140FADB36F458F7B2155EB520AB514EEFB82DE97B4DCE82913F",
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs"
+    },
+    {
+      "sha256": "EA49049BF90955277BAA6C27E14C6EF5826967FAD951A4CF6D1040129FFA5282",
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs"
+    },
+    {
+      "sha256": "A4F1DAE1D41C88C76A7CF9C0E3DA63B2E47DBDB53FB858DA708C8CA62ACA4728",
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellState.cs"
+    },
+    {
+      "sha256": "BB578908C39486A86909CD3DD0ADB25BF236D03037F2253822B041B2D336DBE0",
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml"
+    },
+    {
+      "sha256": "6FB615CAA75C4780C58118A2BB10FBCF191F0DB649251CFABB84FC8462E5C3AC",
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs"
+    },
+    {
+      "sha256": "4497B4DEC0DD9251B1C3853B0617C514216C996377A0911C106C0DC06D24B182",
+      "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs"
+    },
+    {
+      "sha256": "AFEAA8C9582D4EED2D8C99DBBC1D10C34F12F0AD357ACC5BBE6AD3AC7485F8F9",
+      "path": "CryptoWorkBenchGuiTest/DockShellTests.cs"
+    },
+    {
+      "sha256": "7CDA6972B4462022DD930DF0E0BFBC0B4EE5822BB020336663C1F7C2E9CB98FD",
+      "path": "eng/gui/Validate-G1Shell.ps1"
+    },
+    {
+      "sha256": "6813CE8C4E8F52738F710235B0BB914556255A384CF17E293B060FEBC8937BD8",
+      "path": "eng/gui/native/G1ShellProbe.csproj"
+    },
+    {
+      "sha256": "D3509C091DE430B8D2EA176B06FE3DB2317618078117A1D1B7B8EE14193B158E",
+      "path": "eng/gui/native/Program.cs"
+    },
+    {
+      "sha256": "B84E807178B556033C5863DE9E0183D59E2A22F2432EA03F44ABBB37DD9ABF6F",
+      "path": "eng/gui/native/packages.lock.json"
+    }
+  ],
+  "gitStatus": [
+    " M CryptoWorkBenchAvalonia.Desktop/Program.cs",
+    " M CryptoWorkBenchAvalonia/App.axaml.cs",
+    " M CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+    " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+    " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+    " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+    " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+    " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+    "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+    "?? CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+    "?? CryptoWorkBenchGuiTest/DockShellTests.cs",
+    "?? docs/gui/G1-01-dock-feasibility.md",
+    "?? docs/gui/G1-02-shell-implementation.md",
+    "?? docs/gui/evidence/G1-01-results.json",
+    "?? docs/gui/evidence/G1-02-results.json",
+    "?? eng/gui/Validate-G1Shell.ps1",
+    "?? eng/gui/native/G1ShellProbe.csproj",
+    "?? eng/gui/native/Program.cs",
+    "?? eng/gui/native/packages.lock.json",
+    "?? prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+    "?? prototypes/G1DockFeasibility/NativeProbe.cs",
+    "?? prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+    "?? prototypes/G1DockFeasibility/Program.cs",
+    "?? prototypes/G1DockFeasibility/README.md",
+    "?? prototypes/G1DockFeasibility/Session.cs",
+    "?? prototypes/G1DockFeasibility/Tests/DockTests.cs",
+    "?? prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+    "?? prototypes/G1DockFeasibility/Tests/packages.lock.json",
+    "?? prototypes/G1DockFeasibility/Validate.ps1",
+    "?? prototypes/G1DockFeasibility/Views.cs",
+    "?? prototypes/G1DockFeasibility/packages.lock.json"
+  ],
+  "visualCheck": {
+    "menuFloatOutput": true,
+    "areasAndTabs": "one document, three left tools, two right tools",
+    "entry": "CryptoWorkBenchAvalonia.Desktop.exe --dock-shell",
+    "crossWindowMouseRedockVerified": false,
+    "processExited": true,
+    "nativeOutputClose": true
+  },
+  "retainedIntermediateFailure": {
+    "failed": 3,
+    "passed": 64,
+    "cause": "Document close guard also blocked owner shutdown",
+    "resolution": "HostWindow guard distinguishes WindowCloseReason; verified rerun passes",
+    "path": "artifacts/g1-02/final/native-Release-dock.json"
+  },
+  "openRisks": [
+    "Editor attach/detach and MCP lifecycle design required before G1-03 editor migration",
+    "Linux and macOS native tests not executed",
+    "Full mouse cross-window redock not verified",
+    "Dock optional overlay cast and teardown null-binding messages persist",
+    "Windows may deny foreground activation on background startup"
+  ],
+  "noCommitPushMerge": true,
+  "g103Started": false
+}
