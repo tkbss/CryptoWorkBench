@@ -1,0 +1,44 @@
+[
+  {
+    "file": "gui-Debug-r7.trx",
+    "total": 1143,
+    "passed": 1143,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  {
+    "file": "gui-Release-r7.trx",
+    "total": 1143,
+    "passed": 1143,
+    "failed": 0,
+    "notExecuted": 0
+  },
+  {
+    "file": "regression/CryptoWorkBench.Mcp.Tests-Debug.trx",
+    "total": 189,
+    "passed": 176,
+    "failed": 0,
+    "notExecuted": 13
+  },
+  {
+    "file": "CryptoWorkBench.Mcp.Tests-Release-final.trx",
+    "total": 189,
+    "passed": 176,
+    "failed": 0,
+    "notExecuted": 13
+  },
+  {
+    "file": "regression/CryptoScriptUnitTest-Debug.trx",
+    "total": 11750,
+    "passed": 11723,
+    "failed": 0,
+    "notExecuted": 27
+  },
+  {
+    "file": "CryptoScriptUnitTest-Release-final.trx",
+    "total": 11750,
+    "passed": 11723,
+    "failed": 0,
+    "notExecuted": 27
+  }
+]

@@ -33,14 +33,15 @@ internal sealed class DockOutputView : UserControl
         {
             if (entry == null) return new Border();
             var navigate = new Button { Name = "OutputSource", Content = entry.Label,
-                HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(2, 0), MinHeight = 0, FontSize = 11 };
+                HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(2, 0), MinHeight = 0, FontSize = 12 };
+            navigate.Classes.Add("output-source");
             navigate.Click += (_, _) =>
             {
                 var success = session.NavigateOutput(entry);
                 feedback.Text = success ? "" : "Source unavailable, changed, or editor currently busy.";
                 feedback.IsVisible = !success;
             };
-            var text = new SelectableTextBlock { Text = entry.Text, FontFamily = FontFamily.Parse("Consolas"),
+            var text = new SelectableTextBlock { Text = entry.Text, FontFamily = FontFamily.Parse("Cascadia Code, Consolas, Menlo, monospace"), FontSize = 14,
                 TextWrapping = TextWrapping.NoWrap, Name = "PrintText" };
             return new StackPanel { Spacing = 0, Margin = new Thickness(2, 0), Children = { navigate, text } };
         });
@@ -52,4 +53,3 @@ internal sealed class DockOutputView : UserControl
         Content = panel;
     }
 }
-

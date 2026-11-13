@@ -1,20 +1,21 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="CryptoWorkBenchAvalonia.App"			 
+             x:Class="CryptoWorkBenchAvalonia.App"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
 		<FluentTheme />
 		<StyleInclude Source="avares://UVtools.AvaloniaControls/Controls.axaml"/>
-		<StyleInclude Source="avares://CryptoWorkBenchAvalonia/Styles/Icons.axaml" />		
+		<StyleInclude Source="avares://CryptoWorkBenchAvalonia/Styles/Icons.axaml" />
 		<StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+    <StyleInclude Source="avares://CryptoWorkBenchAvalonia/Themes/Controls.axaml" />
     </Application.Styles>
 	<Application.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<!-- Merge the ResourceDictionary containing your GroupBox style -->				
+				<ResourceInclude Source="avares://CryptoWorkBenchAvalonia/Themes/ThemeResources.axaml" />
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>

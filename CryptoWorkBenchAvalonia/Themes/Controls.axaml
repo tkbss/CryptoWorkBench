@@ -1,0 +1,49 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctxt="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia" xmlns:editing="clr-namespace:AvaloniaEdit.Editing;assembly=AvaloniaEdit" xmlns:editor="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit">
+  <Style Selector=":is(Window)">
+    <Setter Property="Background" Value="{DynamicResource CwbSurfaceWorkbenchBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource CwbTextPrimaryBrush}" />
+    <Setter Property="FontSize" Value="13" />
+  </Style>
+  <Style Selector=":is(UserControl), Menu, MenuItem, ContextMenu, ListBox, DataGrid">
+    <Setter Property="Background" Value="{DynamicResource CwbSurfacePanelBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource CwbTextPrimaryBrush}" />
+  </Style>
+  <Style Selector="editor|TextEditor">
+    <Setter Property="Background" Value="{DynamicResource CwbSurfaceEditorBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource CwbTextPrimaryBrush}" />
+    <Setter Property="LineNumbersForeground" Value="{DynamicResource CwbTextSecondaryBrush}" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style Selector="DataGridRow:selected">
+    <Setter Property="Background" Value="{DynamicResource CwbSelectionBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource CwbSelectionForegroundBrush}" />
+  </Style>
+  <Style Selector="Border.cwb-warning">
+    <Setter Property="Background" Value="{DynamicResource CwbWarningBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource CwbWarningForegroundBrush}" />
+  </Style>
+  <Style Selector="Border.cwb-error">
+    <Setter Property="Background" Value="{DynamicResource CwbErrorBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource CwbErrorForegroundBrush}" />
+  </Style>
+  <Style Selector="Border.cwb-warning TextBlock, Border.cwb-warning SelectableTextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource CwbWarningForegroundBrush}" />
+  </Style>
+  <Style Selector="Border.cwb-error TextBlock, Border.cwb-error SelectableTextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource CwbErrorForegroundBrush}" />
+  </Style>
+  <Style Selector="editing|TextArea">
+    <Setter Property="SelectionBrush" Value="{DynamicResource CwbSelectionBackgroundBrush}" />
+    <Setter Property="SelectionForeground" Value="{DynamicResource CwbSelectionForegroundBrush}" />
+    <Setter Property="CaretBrush" Value="{DynamicResource CwbTextPrimaryBrush}" />
+  </Style>
+  <Style Selector="editor|TextEditor editing|LineNumberMargin">
+    <Setter Property="Margin" Value="0,0,8,0" />
+  </Style>
+  <Style Selector="Button.output-source">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource CwbTextSecondaryBrush}" />
+  </Style>
+</Styles>

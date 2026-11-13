@@ -54,6 +54,11 @@ public partial class DockShellWindow : Window
         var file = new MenuItem { Header = "_File" };
         file.Items.Add(ActionItem("E_xit", Close));
         var view = new MenuItem { Header = "_View" };
+        if (Avalonia.Application.Current is App { Appearance: { } appearance })
+        {
+            view.Items.Add(appearance.CreateMenu(message => this.FindControl<TextBlock>("ShellStatus")!.Text = message));
+            if (appearance.Error != null) this.FindControl<TextBlock>("ShellStatus")!.Text = appearance.Error;
+        }
         view.Items.Add(ActionItem("Maximize Active View", () => LayoutAction(DockLayoutCommand.Maximize)));
         view.Items.Add(ActionItem("Restore Layout", () => LayoutAction(DockLayoutCommand.Restore)));
         view.Items.Add(ActionItem("Reset to Default Layout", () => LayoutAction(DockLayoutCommand.Reset)));

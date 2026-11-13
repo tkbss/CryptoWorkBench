@@ -12,7 +12,7 @@
       <Menu x:Name="ShellMenu" />
     </DockPanel>
     <Border x:Name="ShellStatusBar" DockPanel.Dock="Bottom" Padding="8,3" BorderThickness="0,1,0,0"
-            BorderBrush="{DynamicResource DockBorderSubtleBrush}" Background="{DynamicResource DockSurfacePanelBrush}">
+            BorderBrush="{DynamicResource CwbBorderSubtleBrush}" Background="{DynamicResource CwbSurfacePanelBrush}">
       <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
           <StackPanel Orientation="Horizontal" Spacing="12">
