@@ -246,8 +246,17 @@ public sealed class DockToolTests
         var original = h.Service.CaptureSaveIntent()!.Snapshot; long revision = InterpreterHostQueue.StateRevision;
         await window.Clipboard!.SetTextAsync("sentinel");
         h.Pump(); Assert.That(await window.Clipboard!.TryGetTextAsync(), Is.EqualTo("sentinel"));
-        code.TextArea.Focus(); code.Select(0, 7);
-        window.KeyPress(Key.C, RawInputModifiers.Control, PhysicalKey.C, "c");
+        Assert.That(code.TextArea.Focus(), Is.True); code.Select(0, 7);
+        // AvaloniaEdit uses Meta on macOS, independently of the headless
+        // platform's generic TextBox/SelectableTextBlock hotkey configuration.
+        var gesture = ApplicationCommands.Copy.Gesture;
+        var modifiers = RawInputModifiers.None;
+        if (gesture.KeyModifiers.HasFlag(KeyModifiers.Control)) modifiers |= RawInputModifiers.Control;
+        if (gesture.KeyModifiers.HasFlag(KeyModifiers.Meta)) modifiers |= RawInputModifiers.Meta;
+        if (gesture.KeyModifiers.HasFlag(KeyModifiers.Shift)) modifiers |= RawInputModifiers.Shift;
+        if (gesture.KeyModifiers.HasFlag(KeyModifiers.Alt)) modifiers |= RawInputModifiers.Alt;
+        window.KeyPress(gesture.Key, modifiers, PhysicalKey.C, "c");
+        window.KeyRelease(gesture.Key, modifiers, PhysicalKey.C, "c");
         await Task.Delay(30); Assert.That(await window.Clipboard!.TryGetTextAsync(), Is.EqualTo(example[..7]));
         var pad = code.GetVisualAncestors().Single(c => c.GetType().Name == "CodePad");
         var copy = (Button)pad.GetType().GetProperty("ExandableMenu")!.GetValue(pad)!;

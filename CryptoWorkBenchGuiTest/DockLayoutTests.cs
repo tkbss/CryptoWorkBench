@@ -148,13 +148,43 @@ public sealed class DockLayoutTests
         }
         else
         {
-            using var locked = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            Assert.That(store.Save(next), Is.False);
+            // Remove the staged source at the existing boundary: File.Replace itself
+            // must fail on every platform, without relying on Windows sharing locks.
+            var failing = new DockLayoutStore(path) { BeforeReplace = () =>
+            {
+                var staged = Directory.GetFiles(Path.GetDirectoryName(path)!, ".dock-layout-*.tmp").Single();
+                Assert.That(File.ReadAllText(staged), Is.EqualTo(next));
+                File.Delete(staged);
+            }};
+            Assert.That(failing.Save(next), Is.False);
+            Assert.That(failing.LastError, Does.Contain("save failed"));
         }
         Assert.That(File.ReadAllBytes(path), Is.EqualTo(bytes));
         Assert.That(Directory.GetFiles(Path.GetDirectoryName(path)!, "*.tmp"), Is.Empty);
     });
 
+    [Test] public Task OpenReaderUsesPlatformReplacementSemantics() => Ui(() =>
+    {
+        using var layout = new DockShellLayout(new());
+        var original = layout.Capture(Bounds);
+        var path = Temp(); var store = new DockLayoutStore(path);
+        Assert.That(store.Save(original), Is.True);
+        layout.Close(DockShellState.InfoId);
+        var next = layout.Capture(Bounds);
+        Assert.That(next, Is.Not.EqualTo(original));
+        using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            var saved = store.Save(next);
+            Assert.That(saved, Is.EqualTo(!OperatingSystem.IsWindows()));
+            Assert.That(File.ReadAllText(path), Is.EqualTo(saved ? next : original));
+            using var text = new StreamReader(reader, leaveOpen: true);
+            Assert.That(text.ReadToEnd(), Is.EqualTo(original));
+        }
+        Assert.That(Directory.GetFiles(Path.GetDirectoryName(path)!, "*.tmp"), Is.Empty);
+        Assert.That(store.Save(next), Is.True);
+        Assert.That(File.ReadAllText(path), Is.EqualTo(next));
+        Assert.That(store.Load(), Is.Not.Null);
+    });
     [TestCase(DockShellState.DocumentId)][TestCase(DockShellState.VariablesId)][TestCase(DockShellState.InfoId)]
     [TestCase(DockShellState.OutputId)][TestCase(DockShellState.DiagnosticsId)][TestCase(DockShellState.StatusId)]
     public Task FocusCyclesPreserveExactTreeDocumentHistoryAndRegistration(string id) => Run(async h =>
