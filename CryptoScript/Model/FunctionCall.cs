@@ -1,4 +1,4 @@
-﻿using CryptoScript.Model;
+using CryptoScript.Model;
 using CryptoScript.Variables;
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,7 @@ namespace CryptoScript.Model
         public VariableDeclaration? ReturnVariable { get; set; }
         public OperationInvocation? Invocation { get; private set; }
         public DiagnosticLocation? Location { get; internal set; }
+        public Ast.SourcePosition? Source { get; internal set; }
 
         public FunctionCall()
         {
@@ -39,7 +40,7 @@ namespace CryptoScript.Model
                     Mechanism = Arguments.OfType<ArgumentMechanism>().FirstOrDefault()?.Mechanism?.Value
                 };
             Invocation = new OperationInvocation(Arguments.Select(ResolveArgument),
-                execution?.CreateSink(Location!), execution?.CancellationToken ?? default);
+                execution?.CreateSink(Location!), execution?.CancellationToken ?? default) { Source = Source };
             execution?.BeforeOperation(this);
             var function = execution is null ? OperationFactory.CreateInvocationOperation(Name)
                 : execution.CreateOperation(Name);

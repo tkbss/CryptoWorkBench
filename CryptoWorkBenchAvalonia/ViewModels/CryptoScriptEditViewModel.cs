@@ -40,6 +40,10 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         private bool lineActive, bookActive;
         public bool IsExecuting => lineActive || bookActive || _automation.IsBusy;
         private readonly WorkbenchAutomationService _automation;
+        internal Guid? OutputDocumentId => _registration is { } r && _automation.IsEditorLive(r, r.Id) ? r.Id : null;
+        internal Shell.DockOutputService? DockOutput { get; set; }
+        internal Func<string?, int?, Shell.OutputSource?>? CaptureOutputSource { get; set; }
+        private Shell.OutputSource? bookOutputSource;
 
         internal long EditorLifecycle { get; private set; }
         private EditorBridge.Registration? _registration;
@@ -89,12 +93,13 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         });
         void IEditorExecutionPresentation.BeginExecution()
         {
+            bookOutputSource = CaptureOutputSource?.Invoke(null, null);
             var current = CaptureDestination();
             _statusViewModel.ClearDiagnostics();
             if (current()) _statusViewModel.StatusString = "Script book execution started.";
         }
         void IEditorExecutionPresentation.Begin(string line) => BeginLine(line);
-        bool IEditorExecutionPresentation.Present(ExecutionPresentation result, int number) => Present(result, number);
+        bool IEditorExecutionPresentation.Present(ExecutionPresentation result, int number) => Present(result, number, bookOutputSource is { } source ? source with { FirstLine = number } : null);
         string IEditorExecutionPresentation.Output => _printMessage;
 
         public StatusViewModel Status { get => _statusViewModel; }
@@ -205,14 +210,17 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             _printMessage = string.Empty;
         }
 
-        private bool Present(ExecutionPresentation result, int? bookLine)
+        private bool Present(ExecutionPresentation result, int? bookLine, Shell.OutputSource? outputSource = null)
         {
             var current = CaptureDestination();
+            if (outputSource != null && current())
+                _automation.ObservePresentation(() => DockOutput?.Publish(result, outputSource, current));
             _printMessage = string.Join(Environment.NewLine, result.Output.Where(item => item.Kind == "print").Select(item => item.Text));
             foreach (var item in result.Output)
                 if (item.Kind == "info" && current()) PresentInfo(item.Text, current);
             if (!current()) return result.HostSucceeded;
-            _statusViewModel.AppendDiagnostics(result.Diagnostics, result.Error, bookLine, current);
+            if (DockOutput != null) _statusViewModel.AppendExecution(result, outputSource, bookLine, current);
+            else _statusViewModel.AppendDiagnostics(result.Diagnostics, result.Error, bookLine, current);
             if (!current()) return result.HostSucceeded;
             _statusViewModel.StatusString = result.PresentationStatus;
             if (!current()) return result.HostSucceeded;
@@ -235,7 +243,7 @@ namespace CryptoWorkBenchAvalonia.ViewModels
         public Task ParseLineAsync(string line, CancellationToken cancellationToken = default) =>
             ParseInputLineAsync(line, null, cancellationToken);
 
-        internal async Task<bool> ParseInputLineAsync(string line, Func<bool>? isCurrent, CancellationToken cancellationToken = default, Action<string>? publishOutput = null, EditorCoordinator.OperationTicket? native = null)
+        internal async Task<bool> ParseInputLineAsync(string line, Func<bool>? isCurrent, CancellationToken cancellationToken = default, Action<string>? publishOutput = null, EditorCoordinator.OperationTicket? native = null, int? sourceLine = null)
         {
             Dispatcher.UIThread.VerifyAccess();
             if (!OwnsDestination) return false;
@@ -248,19 +256,20 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             if (isCurrent != null && !isCurrent()) return false;
             bool admitted = false;
             await ExecuteLineAsync(line, cancellationToken: cancellationToken,
-                validateIntent: isCurrent, onAdmitted: () => admitted = true, publishOutput: publishOutput, native: native, clearDiagnostics: !preflightReset);
+                validateIntent: isCurrent, onAdmitted: () => admitted = true, publishOutput: publishOutput, native: native, clearDiagnostics: !preflightReset, sourceLine: sourceLine);
             return admitted;
         }
 
         internal async Task<bool> ExecuteLineAsync(string line, int? scriptBookLine = null,
             CryptoScriptRunner? runner = null, CancellationToken cancellationToken = default,
             IEnumerable<CryptoScript.Model.Ast.StatementNode?>? testStatements = null,
-            PasswordRequestHandler? passwordHandler = null, Func<bool>? validateIntent = null, Action? onAdmitted = null, Action<string>? publishOutput = null, EditorCoordinator.OperationTicket? native = null, bool clearDiagnostics = false)
+            PasswordRequestHandler? passwordHandler = null, Func<bool>? validateIntent = null, Action? onAdmitted = null, Action<string>? publishOutput = null, EditorCoordinator.OperationTicket? native = null, bool clearDiagnostics = false, int? sourceLine = null)
         {
             Dispatcher.UIThread.VerifyAccess();
             if (IsExecuting || !OwnsDestination) throw new ExecutionBusyException();
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token, cancellationToken);
             var destination = CaptureDestination();
+            var outputSource = CaptureOutputSource?.Invoke(line, sourceLine);
             lineActive = true;
             try
             {
@@ -270,7 +279,13 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                     await OnUiAsync(() =>
                     {
                         if (Current() && clearDiagnostics) _statusViewModel.ClearDiagnostics();
-                        if (Current()) BeginLine(line);
+                        if (Current())
+                        {
+                            // Native continuation has completed before the admitted runner starts.
+                            // Capture that revision, validating the exact executed physical line.
+                            if (native != null) outputSource = CaptureOutputSource?.Invoke(line, sourceLine);
+                            BeginLine(line);
+                        }
                         if (!Current()) pipeline.CancelStaleDestination();
                     });
                     var result = await pipeline.ExecuteAsync(line, passwordHandler ?? _passwordHost.RequestAsync,
@@ -281,8 +296,8 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                     {
                         succeeded = result.HostSucceeded;
                         if (!Current()) return;
-                        succeeded = Present(result, scriptBookLine);
-                        if (publishOutput != null && _printMessage.Length != 0 && Current())
+                        succeeded = Present(result, scriptBookLine, outputSource);
+                        if (DockOutput == null && publishOutput != null && _printMessage.Length != 0 && Current())
                             pipeline.EditorIntent?.Write(() => publishOutput(_printMessage));
                     });
                     return succeeded;
@@ -372,12 +387,17 @@ namespace CryptoWorkBenchAvalonia.ViewModels
             return true;
         }
 
-        private Task<bool> ExecuteBookAdmittedAsync(WorkbenchExecutionPipeline pipeline,
+        private async Task<bool> ExecuteBookAdmittedAsync(WorkbenchExecutionPipeline pipeline,
             IEnumerable<string> lines, Action<string> appendLine, CancellationToken token, Func<bool> destination,
             Func<CryptoScriptRunner>? runnerFactory = null,
             IEnumerable<CryptoScript.Model.Ast.StatementNode?>? testStatements = null,
-            PasswordRequestHandler? passwordHandler = null) =>
-            _automation.ExecuteScriptBookAsync(pipeline, lines, passwordHandler ?? _passwordHost.RequestAsync,
+            PasswordRequestHandler? passwordHandler = null)
+        {
+            var acceptedLines = lines.ToArray();
+            Shell.OutputSource? source = null;
+            await OnUiAsync(() => { if (destination() && pipeline.EditorIntent?.Current != false)
+                source = CaptureOutputSource?.Invoke(string.Join("\n", acceptedLines), null); });
+            return await _automation.ExecuteScriptBookAsync(pipeline, acceptedLines, passwordHandler ?? _passwordHost.RequestAsync,
                 (line, _) => OnUiAsync(() =>
                 {
                     if (destination() && pipeline.EditorIntent?.Current != false) BeginLine(line);
@@ -389,12 +409,14 @@ namespace CryptoWorkBenchAvalonia.ViewModels
                     await OnUiAsync(() =>
                     {
                         if (!destination() || pipeline.EditorIntent?.Current == false) return;
-                        if (result is not null) succeeded = Present(result, number);
+                        if (result is not null) succeeded = Present(result, number, source is { } captured
+                            ? captured with { FirstLine = captured.FirstLine.HasValue ? number : null } : null);
                         if (destination() && pipeline.EditorIntent?.Current != false && !Write(pipeline, () => appendLine(line)))
                             succeeded = false;
                     });
                     return succeeded;
                 }, token, runnerFactory, testStatements);
+        }
 
         public void Dispose()
         {

@@ -1,0 +1,586 @@
+{
+  "task": "G1-A02",
+  "date": "2026-11-09",
+  "branch": "feature/gui-g1",
+  "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+  "status": "Implemented and validated within A02 scope; no general crash-freedom or mouse acceptance claim",
+  "a03Recommendation": "CONDITIONAL GO, requires explicit owner acceptance; A03 not started",
+  "report": {
+    "path": "docs/gui/G1-A02-maximize-layout-roles.md",
+    "sha256": "26856DE37DC90663A648C052D8DE48D02CAF4614C2B9758686C6CBA405DA66CD"
+  },
+  "baseline": {
+    "files": 1117,
+    "branch": {
+      "path": "artifacts/g1-a02/baseline/branch.txt",
+      "sha256": "BC5677E8DE5369959285A05440882F97DAF04364533FD86AF3E766E914859A47"
+    },
+    "head": {
+      "path": "artifacts/g1-a02/baseline/head.txt",
+      "sha256": "B071826253764EF24D5D3F053CF609ADAEC67249DF92F1DAC9B636B253771D0D"
+    },
+    "status": {
+      "path": "artifacts/g1-a02/baseline/status.txt",
+      "sha256": "375E129631A8938B50DBD876FBAFF7F48A56C83B455F79999D511213DD73DDC4"
+    },
+    "sourceManifest": {
+      "path": "artifacts/g1-a02/baseline/files.json",
+      "sha256": "E34A15817103029CD38701ECCAEC4ED72240720985CBD34EEAAB548680638FE7"
+    },
+    "binaries": {
+      "path": "artifacts/g1-a02/baseline/binaries.json",
+      "sha256": "E6176B84D525557286C7ADE3E3D556C4421E963C4290A580EF3F6D1E0C06885C"
+    },
+    "a01": {
+      "path": "artifacts/g1-a02/baseline/a01-artifacts.json",
+      "sha256": "3B16ECE0CE1591C8934C7EDD0CD93F69AC043CBD312C3E35F996E5361A0022FC"
+    }
+  },
+  "red": {
+    "matrix": {
+      "suite": "A02 original red",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a02/red-final/red.trx",
+        "sha256": "0033D3352696CB7EBD424F6DD6A264563B11388EA2AE37ADAD5385312990A4F8"
+      },
+      "total": 30,
+      "passed": 4,
+      "failed": 26,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Failed"
+    },
+    "exactOriginalException": "System.IO.InvalidDataException : Invalid fixed-shell anchors.",
+    "exactSignatureFailures": 16,
+    "mainMenuDeclines": 8,
+    "fillPanePresenterFailures": 2,
+    "archivedTests": {
+      "path": "artifacts/g1-a02/red-final/DockLayoutRoleTests.cs",
+      "sha256": "BB8999FC96032F4ACF2B65A922100C6E334A3694E4DD355DF443A977454C96B9"
+    },
+    "mixedProportionFailure": {
+      "path": "artifacts/g1-a02/mixed-red/mixed-red.trx",
+      "sha256": "4A0131D44E2614EA3FB764929AF11338219ABFCBA78DEB3805DA1116ED3D4992"
+    },
+    "nativeAdditionalFailure": {
+      "path": "artifacts/g1-a02/native-first/Release-layout-roles.json",
+      "sha256": "92978585B18BCE552100D84E5C6E7BCF5157FC1A6A488488F2128C86229E426C"
+    }
+  },
+  "architecture": {
+    "target": "B with C responsibility separation",
+    "containerIds": "dock:container:<GUID> assigned to previously unknown IDock objects at InitDockable",
+    "mainRoles": "explicit, main-tree scoped",
+    "businessPanes": "six stable IDs and original live objects",
+    "schema": 1,
+    "compensation": "focus fields and Reset presentation only; no general Dock rollback",
+    "reentrancy": "existing B4 remains A04; mutationDepth bypass not expanded"
+  },
+  "uiOutcomes": [
+    "Unavailable",
+    "Completed",
+    "Rejected before structure mutation",
+    "Recovered after command-specific compensation",
+    "Faulted: layout/persistence disabled, save and shutdown retained"
+  ],
+  "suites": [
+    {
+      "suite": "GUI",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a02/independent/GUI-Debug.trx",
+        "sha256": "3EA318073BCF00F769E79FB3A694B3DF8A5651B55803C790BA69DA2F2272596A"
+      },
+      "total": 1043,
+      "passed": 1043,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "MCP",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a02/regression-final/CryptoWorkBench.Mcp.Tests-Debug.trx",
+        "sha256": "163D78E001B331D64FAC5EC9750F425A022CCCABFDA6B49FE7A4AA5B7B951E31"
+      },
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "Core",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a02/regression-final/CryptoScriptUnitTest-Debug.trx",
+        "sha256": "7841EA6C601AE49545352743BEE1DB371B17D81204105DE7D0AEDC597771798C"
+      },
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "G1-01 Headless",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a02/regression-final/G1DockFeasibility.Tests-Debug.trx",
+        "sha256": "10AB33E86A00A9B79E1D8F5F1990C625963ADA96189A50064A2D505186FEDA44"
+      },
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "GUI",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a02/independent/GUI-Release.trx",
+        "sha256": "22818E4A9630441552DF3099782DCCCD6F65229FEE64DBCA6F5291EB5B0D856A"
+      },
+      "total": 1043,
+      "passed": 1043,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "MCP",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a02/regression-final/CryptoWorkBench.Mcp.Tests-Release.trx",
+        "sha256": "43E564B8C89CD8BBDD3038B9EF49EB05CA2088E694E28A300D3D85396A41F710"
+      },
+      "total": 189,
+      "passed": 176,
+      "failed": 0,
+      "notExecuted": 13,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "Core",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a02/regression-final/CryptoScriptUnitTest-Release.trx",
+        "sha256": "3512E09DB769F740A644578D82FF56F9F15D12DF80F658E9C38D20D25C8DFB9B"
+      },
+      "total": 11539,
+      "passed": 11512,
+      "failed": 0,
+      "notExecuted": 27,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "G1-01 Headless",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a02/regression-final/G1DockFeasibility.Tests-Release.trx",
+        "sha256": "ABE39A8C4B393781D438B2AB4F20B53C53BE31BDAF5DC42142386F56EEF8BAFD"
+      },
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    }
+  ],
+  "independentRepeat": [
+    {
+      "suite": "A02 independent repeat",
+      "configuration": "Debug",
+      "file": {
+        "path": "artifacts/g1-a02/independent/A02-repeat-Debug.trx",
+        "sha256": "BEB34712D308DC3397C2D15D4E137DB04CEDFC8BD21BE4B28CCD757CCEC31BDA"
+      },
+      "total": 59,
+      "passed": 59,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    },
+    {
+      "suite": "A02 independent repeat",
+      "configuration": "Release",
+      "file": {
+        "path": "artifacts/g1-a02/independent/A02-repeat-Release.trx",
+        "sha256": "43670093B033D546383A12EF1791806D8DBB33E1C6B260EA66154F4186091592"
+      },
+      "total": 59,
+      "passed": 59,
+      "failed": 0,
+      "notExecuted": 0,
+      "adapterNotExecutedCounter": 0,
+      "outcome": "Completed"
+    }
+  ],
+  "native": [
+    {
+      "name": "Debug-layout-roles",
+      "repetition": false,
+      "passed": 194,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 14208,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Debug-layout-roles.json",
+        "sha256": "8C000423B33B3D7F56456EADE245576D9AAF51CEAAD4704266B5A23A49911F0A"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Debug-layout",
+      "repetition": false,
+      "passed": 48,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 11484,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Debug-layout.json",
+        "sha256": "B2F87DA6BF85FE99968A99DE0BBE65C9773B89918308544950692C70D323A0D3"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Debug-layout-restart",
+      "repetition": false,
+      "passed": 56,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 18120,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Debug-layout-restart.json",
+        "sha256": "E83AF36A99A6193F0DC14CF0F98796D81E4AD4977B12DD4B9CDD491FF3C25844"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Debug-layout-invalid",
+      "repetition": false,
+      "passed": 49,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 42472,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Debug-layout-invalid.json",
+        "sha256": "14972E7663E98584A3D6358B7C5A8289DA2B833AD2E11E86A7B50509BDFCCB1C"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Debug-redock",
+      "repetition": false,
+      "passed": 134,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 28656,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Debug-redock.json",
+        "sha256": "C8260EA1A34DD33EEDDEB7F737180ED89674D50D26E431CF6202190EB56B759A"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Debug-editor",
+      "repetition": false,
+      "passed": 54,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 16900,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Debug-editor.json",
+        "sha256": "8C072B4C22F82E9451DE9A6537FB78E6B1BFAA2C8AE967B8AD64F853B805A8F3"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Debug-integration",
+      "repetition": false,
+      "passed": 28,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 25568,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Debug-integration.json",
+        "sha256": "2D7978C77D0E23D340233D98CC65BF1654CA7F886D663710C8F175B18C9100BF"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout-roles",
+      "repetition": false,
+      "passed": 194,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 36468,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Release-layout-roles.json",
+        "sha256": "8C000423B33B3D7F56456EADE245576D9AAF51CEAAD4704266B5A23A49911F0A"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout",
+      "repetition": false,
+      "passed": 48,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 40576,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Release-layout.json",
+        "sha256": "B2F87DA6BF85FE99968A99DE0BBE65C9773B89918308544950692C70D323A0D3"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout-restart",
+      "repetition": false,
+      "passed": 56,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 37532,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Release-layout-restart.json",
+        "sha256": "E83AF36A99A6193F0DC14CF0F98796D81E4AD4977B12DD4B9CDD491FF3C25844"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout-invalid",
+      "repetition": false,
+      "passed": 49,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 36388,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Release-layout-invalid.json",
+        "sha256": "14972E7663E98584A3D6358B7C5A8289DA2B833AD2E11E86A7B50509BDFCCB1C"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-redock",
+      "repetition": false,
+      "passed": 134,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 13876,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Release-redock.json",
+        "sha256": "C8260EA1A34DD33EEDDEB7F737180ED89674D50D26E431CF6202190EB56B759A"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-editor",
+      "repetition": false,
+      "passed": 54,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 42928,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Release-editor.json",
+        "sha256": "8C072B4C22F82E9451DE9A6537FB78E6B1BFAA2C8AE967B8AD64F853B805A8F3"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-integration",
+      "repetition": false,
+      "passed": 28,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 40168,
+      "file": {
+        "path": "artifacts/g1-a02/native-final/Release-integration.json",
+        "sha256": "2D7978C77D0E23D340233D98CC65BF1654CA7F886D663710C8F175B18C9100BF"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Debug-layout-roles",
+      "repetition": true,
+      "passed": 194,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 32980,
+      "file": {
+        "path": "artifacts/g1-a02/native-repeat/Debug-layout-roles.json",
+        "sha256": "8C000423B33B3D7F56456EADE245576D9AAF51CEAAD4704266B5A23A49911F0A"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    },
+    {
+      "name": "Release-layout-roles",
+      "repetition": true,
+      "passed": 194,
+      "failed": 0,
+      "exitCode": 0,
+      "timedOut": false,
+      "processId": 42116,
+      "file": {
+        "path": "artifacts/g1-a02/native-repeat/Release-layout-roles.json",
+        "sha256": "8C000423B33B3D7F56456EADE245576D9AAF51CEAAD4704266B5A23A49911F0A"
+      },
+      "input": "native process; programmatic DockManager/routed menu events, not mouse acceptance"
+    }
+  ],
+  "exclusions": {
+    "mcpExplicit": 13,
+    "coreSkipped": 26,
+    "coreExplicit": 1,
+    "disabledExistingTests": 0,
+    "removedExistingAssertions": 0
+  },
+  "open": [
+    "F03 completion-in-floating-host",
+    "F03 completion-retired-on-relocation",
+    "External input matrix incomplete",
+    "Owner mouse acceptance, M3-M8",
+    "A04 B4 reentrant independent mutations",
+    "A03 comprehensive legacy collapse/cleanup/persistence roles"
+  ],
+  "interimRuns": {
+    "sandboxHang": "Identified A02 process tree stopped; unsandboxed -m:1 used",
+    "debugRestoreMismatch": "Release assets lacked Debug AttachDeveloperTools; configuration-specific locked restore used",
+    "selectionFixtureHang": "Invalid cycle originally injected through live Dock setter; testhost stopped and fixture corrected before independent full rerun",
+    "priorFullGui": "Superseded GUI runs are retained under regression and regression-final; final GUI is independent/GUI-*.trx"
+  },
+  "integrity": {
+    "changedExisting": 9,
+    "newFiles": 8,
+    "removedOriginalFiles": 0,
+    "historicalDocumentsAndLocks": 29,
+    "historicalDocumentsAndLocksUnchanged": true,
+    "a01Artifacts": 421,
+    "a01Unchanged": true,
+    "historicalRawManifestEntries": 451,
+    "historicalRawUnchanged": true,
+    "userLayout": {
+      "path": "C:/Users/stefa/AppData/Local/CryptoWorkBench/dock-layout-v1.json",
+      "sha256": "A505774C3DC0A3AB96DCC70AABA48CEDE2BF994F351554B1EED20BC8821E039D",
+      "unchanged": true
+    },
+    "oldAssertions": [
+      {
+        "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+        "unchanged": true
+      },
+      {
+        "path": "CryptoWorkBenchGuiTest/DockToolTests.cs",
+        "unchanged": true
+      }
+    ],
+    "gitDiffCheckExitCode": 0,
+    "newWhitespaceIssues": 0
+  },
+  "sourceFileHashes": [
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockLayoutStore.cs",
+      "sha256": "C62B2F2550D76FE9249DB6CC475E73A16DBA2AB67956D0FFDCD16768A8BE6C13"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+      "sha256": "5045ED6B434CA6A9D59A8A7A6BED2146989EE5A793D1D773F38F377CD44D38D6"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellLayout.Persistence.cs",
+      "sha256": "EA36828F6F049789E04FDC27271467DB85F42CFFB079137AF4B170CAD280CCD6"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+      "sha256": "65D112EE4C9FC35FFA0DC1C520484A4D65C7053042848FAD6BA0F6EA4FC0A953"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+      "sha256": "DCFC2D71454A867620970452F83DBE486746E0DDF636513E793E49BE38472637"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+      "sha256": "5C78EF41AB960812282B105617F87E772D3FE5A837840E39BA38C88C5AA294DB"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+      "sha256": "1B01E3FF3E9A183C9F6381108ECF2E4279B63137BFE67A4034B34F1189D01723"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockToolTests.cs",
+      "sha256": "025469323C52D6ABD86EBA695169111D1FE0A4187DE9BC80374262BC669559DC"
+    },
+    {
+      "path": "eng/gui/native/Program.cs",
+      "sha256": "264AB39FC3F2A2A05950AF46C3F97C70B7F92BD1C0ECE4BCB77401577FE6BDF7"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockContainerIdentity.cs",
+      "sha256": "AFF05D47229069B7F1E17432652342B4C6DF5FCB727DD10CEDBBCA02DCC1446F"
+    },
+    {
+      "path": "CryptoWorkBenchAvalonia/Shell/DockLayoutAction.cs",
+      "sha256": "CBCA9FFBDCF81CCF04E8B72A5B0AAB838D37A9D08BE37E5F79FEBA2D0111FEFB"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockLayoutFailureTests.cs",
+      "sha256": "4682089336551B1A8D6DF9C475DA2140E582ED9F20AEA31D7C548B4EDD9AB13D"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockLayoutRoleNativeProbe.cs",
+      "sha256": "974EB32677211747C14887809F1914223B5F0AB6BD023B44C30730B0313F9CC4"
+    },
+    {
+      "path": "CryptoWorkBenchGuiTest/DockLayoutRoleTests.cs",
+      "sha256": "CE4034DC3B8E8E3FC5F685660B61B0D3AABA1A310927CE112F2E1E9209F7D5D2"
+    },
+    {
+      "path": "docs/gui/G1-A02-maximize-layout-roles.md",
+      "sha256": "26856DE37DC90663A648C052D8DE48D02CAF4614C2B9758686C6CBA405DA66CD"
+    },
+    {
+      "path": "eng/gui/Validate-G1LayoutRoles.ps1",
+      "sha256": "7F7997B3192F4D28DA04445BBC80E58E09DEA3EC4E026C835CCFCD5CC26D2D5A"
+    }
+  ],
+  "manifests": {
+    "finalSources": "artifacts/g1-a02/final-source-manifest.json",
+    "finalArtifacts": "artifacts/g1-a02/final-artifact-manifest.json",
+    "integrity": "artifacts/g1-a02/integrity-result.json",
+    "historicalRaw": "artifacts/g1-a02/historical-raw-integrity.json",
+    "finalGitStatus": "artifacts/g1-a02/final-status.txt",
+    "a02OnlyDiff": "artifacts/g1-a02/a02-only.patch",
+    "finalBinaries": "artifacts/g1-a02/final-binaries.json"
+  },
+  "commitsPushesMerges": "none",
+  "standardGuiChanged": false,
+  "packageUpgrades": false,
+  "upstreamFork": false,
+  "l1Imported": false
+}

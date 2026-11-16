@@ -16,7 +16,7 @@ public sealed partial class WorkbenchAutomationService
     // Host-private capability: Sidebar carries it unchanged through all picker
     // awaits. Neither the snapshot nor the approval is a transport argument.
     internal sealed record SaveIntent(EditorBridge.Registration Registration, EditorSnapshot Snapshot, long WorkspaceGeneration);
-    internal sealed record SaveTarget(string Path, bool OverwriteConfirmed, Func<Task>? Delete, IDisposable? ProviderItem = null);
+    internal sealed record SaveTarget(string Path, bool OverwriteConfirmed, Func<Task>? Delete, IDisposable? ProviderItem = null, bool PreserveText = false);
     // The published operation pins the only target and payload it can commit.
     private sealed record SaveOperation(TextEditor Editor, string Text, SaveTarget Target)
     {
@@ -161,7 +161,9 @@ public sealed partial class WorkbenchAutomationService
     private void AppendSave(SaveOperation work)
     {
         using var stream = OpenSaveAppend(work.Target.Path);
-        WriteSnapshot(stream, work.Text);
+        // The dock editor saves its exact text; legacy ScriptBook serialization is unchanged.
+        if (work.Target.PreserveText) stream.Write(Encoding.UTF8.GetBytes(work.Text));
+        else WriteSnapshot(stream, work.Text);
     }
 
     private static void WriteSnapshot(Stream stream, string text)

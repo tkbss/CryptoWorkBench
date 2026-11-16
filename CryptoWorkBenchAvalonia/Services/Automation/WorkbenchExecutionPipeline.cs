@@ -23,13 +23,19 @@ internal sealed record ExecutionPresentation(bool Succeeded, string Status,
         ? Status + " Variable state capture failed; displayed variables are stale."
         : Status;
     internal ExecutionState Outcome { get; init; }
+    internal Guid PresentationId { get; } = Guid.NewGuid();
+    internal Guid ExecutionId { get; init; }
 }
-internal sealed record ExecutionOutput(string Kind, string Text);
+internal sealed record ExecutionOutput(string Kind, string Text)
+{
+    internal SourcePosition? Source { get; init; }
+}
 internal sealed record SyntaxDiagnostic(string Line, string Column, string Symbol, string Message);
 
 /// <summary>Runs one parse unit within an already admitted host operation.</summary>
 internal sealed class WorkbenchExecutionPipeline
 {
+    internal Guid ExecutionId { get; init; } = Guid.NewGuid();
     internal EditorCoordinator.ExecutionIntent? EditorIntent { get; init; }
     internal void CancelStaleDestination() => CancellationObserved?.Invoke(CancellationReason.User);
     internal CancellationToken ExecutionToken { get; init; }
@@ -89,10 +95,10 @@ internal sealed class WorkbenchExecutionPipeline
             return task;
         }
         var output = new List<ExecutionOutput>();
-        void Print(string text) { lock (output) output.Add(new("print", text)); }
+        void Print(OutputOperations.PrintResult result) { lock (output) output.Add(new("print", result.Text) { Source = result.Source }); }
         void Info(string text) { lock (output) output.Add(new("info", text)); }
         runner.PasswordRequested += Request;
-        OutputOperations.PrintEvent += Print;
+        OutputOperations.PrintResultEvent += Print;
         OutputOperations.InfoEvent += Info;
         bool succeeded = false;
         ExecutionState outcome = ExecutionState.Failed;
@@ -134,7 +140,7 @@ internal sealed class WorkbenchExecutionPipeline
             }
             runner.PasswordRequested -= Request;
             WaitingForUser?.Invoke(false);
-            OutputOperations.PrintEvent -= Print;
+            OutputOperations.PrintResultEvent -= Print;
             OutputOperations.InfoEvent -= Info;
         }
         var diagnostics = runner.Diagnostics.Select(Copy).ToArray();
@@ -148,7 +154,7 @@ internal sealed class WorkbenchExecutionPipeline
             output.AsReadOnly(), syntaxDiagnostics, runner.ExecutionId != previousExecution) with { Outcome = outcome });
     }
 
-    private ExecutionPresentation Finish(ExecutionPresentation result) { Publish?.Invoke(result); return result; }
+    private ExecutionPresentation Finish(ExecutionPresentation result) { result = result with { ExecutionId = ExecutionId }; Publish?.Invoke(result); return result; }
 
     private static ExecutionPresentation FinalizePresentation(bool succeeded, string status, Guid? runnerId,
         IReadOnlyList<SemanticError> diagnostics, SemanticError? error,
