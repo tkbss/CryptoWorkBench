@@ -54,7 +54,7 @@ public sealed class ThemeTests
         Assert.That(blocked.Save(ThemePreference.Dark), Is.False);
         Assert.That(blocked.Error, Does.Contain("could not be saved"));
     }
-    [Test] public Task SwitchingPreservesSessionAndFlowsToExistingAndNewFloatingWindows() => GuiTestSession.Session.Dispatch(async () =>
+    [Test] public Task SwitchingPreservesSessionAndFlowsToExistingAndNewFloatingWindows() => GuiTestSession.RunAsync(async () =>
     {
         var app = Application.Current!;
         var previous = app.RequestedThemeVariant;
@@ -121,5 +121,5 @@ public sealed class ThemeTests
             Assert.That(floating.ActualThemeVariant, Is.EqualTo(app.ActualThemeVariant));
         }
         finally { app.Styles.Remove(styles); app.Resources.MergedDictionaries.Remove(resources); app.RequestedThemeVariant = previous; }
-    }, CancellationToken.None);
+    });
 }
