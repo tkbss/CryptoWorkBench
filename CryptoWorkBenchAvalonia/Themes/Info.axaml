@@ -1,0 +1,15 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:ctxt="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia">
+  <!-- Loaded in the viewer after its own Fluent styles, which otherwise win over app styles. -->
+  <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CHyperlink, .Markdown_Avalonia_MarkdownViewer ctxt|CHyperlink:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource CwbAccentBrush}" />
+  </Style>
+  <Style Selector=".Markdown_Avalonia_MarkdownViewer ctxt|CCode">
+    <Setter Property="Foreground" Value="{DynamicResource CwbTextPrimaryBrush}" />
+    <Setter Property="Background" Value="{DynamicResource CwbSurfaceHeaderBrush}" />
+  </Style>
+  <Style Selector=".Markdown_Avalonia_MarkdownViewer TextBlock.CodeBlock">
+    <Setter Property="Foreground" Value="{DynamicResource CwbTextPrimaryBrush}" />
+    <Setter Property="FontFamily" Value="Cascadia Code, Consolas, Menlo, monospace" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+</Styles>

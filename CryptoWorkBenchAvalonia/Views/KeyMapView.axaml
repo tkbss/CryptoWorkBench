@@ -10,7 +10,7 @@
              x:Class="CryptoWorkBenchAvalonia.KeyMapView">
     
     <Grid RowDefinitions="*">
-       <Border   Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="2">
+       <Border   Background="{DynamicResource CwbSurfacePanelBrush}" BoxShadow="5 5 10 2 DarkGray" Margin="2">
 		<md:MarkdownScrollViewer Grid.Row="0" 
                              ScrollViewer.AllowAutoHide="False"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"

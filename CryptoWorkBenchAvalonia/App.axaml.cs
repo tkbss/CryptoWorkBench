@@ -16,6 +16,7 @@ namespace CryptoWorkBenchAvalonia;
 
 public partial class App : PrismApplication
 {
+    public Services.Appearance.ThemePreferenceService? Appearance { get; private set; }
     public bool UseDockShell { get; init; }
     internal System.Action<DockShellWindow>? ObserveDockShell { get; init; }
     internal System.Action? InitializeDockDiagnostics { get; init; }
@@ -24,12 +25,14 @@ public partial class App : PrismApplication
     private DockShellLayout? _dockLayout;
     private DockShellWindow? _dockWindow;
     private DockEditorSession? _dockEditor;
+    internal virtual Services.Appearance.ThemePreferenceStore CreateAppearanceStore() => new();
     internal virtual DockLayoutStore CreateLayoutStore() => new();
     internal System.Func<Avalonia.Controls.Window, Avalonia.Controls.Button, Services.Automation.WorkbenchAutomationService, System.Func<System.Threading.Tasks.Task>>? ConfigureDesktopMcp { get; init; }
     public override void Initialize()
     {
         InitializeDockDiagnostics?.Invoke();
         AvaloniaXamlLoader.Load(this);
+        Appearance = new Services.Appearance.ThemePreferenceService(this, CreateAppearanceStore());
 #if DEBUG
         this.AttachDeveloperTools();
 #endif

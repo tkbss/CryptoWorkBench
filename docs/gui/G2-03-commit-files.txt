@@ -1,0 +1,49 @@
+# Produktcode
+CryptoWorkBenchAvalonia/App.axaml
+CryptoWorkBenchAvalonia/App.axaml.cs
+CryptoWorkBenchAvalonia/Services/Appearance/ThemePreferenceService.cs
+CryptoWorkBenchAvalonia/Services/Appearance/ThemePreferenceStore.cs
+CryptoWorkBenchAvalonia/Shell/DockDiagnosticsView.cs
+CryptoWorkBenchAvalonia/Shell/DockOutputView.cs
+CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml
+CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs
+CryptoWorkBenchAvalonia/Themes/Controls.axaml
+CryptoWorkBenchAvalonia/Themes/Info.axaml
+CryptoWorkBenchAvalonia/Themes/ThemeResources.axaml
+CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml
+CryptoWorkBenchAvalonia/Views/InfoView.axaml
+CryptoWorkBenchAvalonia/Views/KeyMapView.axaml
+CryptoWorkBenchAvalonia/Views/MainWindow.axaml
+CryptoWorkBenchAvalonia/Views/StatusView.axaml
+# Tests und nativer Testhost
+CryptoWorkBenchGuiTest/DockShellNativeProbe.cs
+CryptoWorkBenchGuiTest/ThemeNativeProbe.cs
+CryptoWorkBenchGuiTest/ThemeTests.cs
+eng/gui/native/Program.cs
+# Dokumentation
+docs/gui/G2-03-01-theme-architecture.md
+docs/gui/G2-03-02-visual-design-review.md
+docs/gui/G2-03-03-R1-visual-refinements.md
+docs/gui/G2-03-03-theme-implementation.md
+docs/gui/G2-03-final-acceptance.md
+docs/gui/G2-03-commit-files.txt
+docs/gui/G2-03-artifact-inventory.csv
+# Kuratierte Nachweise (ignoriert, gezielt aufnehmen)
+artifacts/g2-03-02/dark.png
+artifacts/g2-03-02/light.png
+artifacts/g2-03-02/prototype.html
+artifacts/g2-03-02/validation.json
+artifacts/g2-03-02/verify.cjs
+artifacts/g2-03-03/native-dark-150.jpg
+artifacts/g2-03-03/native-diagnostics-dark-150.jpg
+artifacts/g2-03-03/native-diagnostics-light-150.jpg
+artifacts/g2-03-03/native-floating-dark-150.jpg
+artifacts/g2-03-03/native-floating-light-150.jpg
+artifacts/g2-03-03/native-info-dark-150.jpg
+artifacts/g2-03-03/native-light-150.jpg
+artifacts/g2-03-03/native-system-150.jpg
+artifacts/g2-03-03/native-theme-menu-dark.jpg
+artifacts/g2-03-03/native-theme-menu-light.jpg
+artifacts/g2-03-03/final-test-summary.json
+artifacts/g2-03-03-r1/native-dark-150.jpg
+artifacts/g2-03-03-r1/native-light-150.jpg

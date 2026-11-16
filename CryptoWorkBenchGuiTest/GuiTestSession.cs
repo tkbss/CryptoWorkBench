@@ -15,6 +15,14 @@ public sealed class GuiTestSession
         HeadlessUnitTestSession.StartNew(typeof(EditorCoordinatorTests.TestApp)));
     internal static HeadlessUnitTestSession Session => Shared.Value;
 
+    // Headless has no Dispatch(Func<Task>) overload: that selects Func<TResult>
+    // with TResult=Task and returns Task<Task>. Keep the app alive through cleanup.
+    internal static Task RunAsync(Func<Task> action) => Session.Dispatch(async () =>
+    {
+        await action();
+        return true;
+    }, CancellationToken.None);
+
     [OneTimeTearDown]
     public async Task StopAsync()
     {

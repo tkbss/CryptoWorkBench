@@ -44,6 +44,7 @@
                 <Setter Property="FontSize" Value="{mde:Multiply ControlContentThemeFontSize, 1.8}" />
                 <Setter Property="FontWeight" Value="DemiBold" />
             </Style>
+        <StyleInclude Source="avares://CryptoWorkBenchAvalonia/Themes/Info.axaml" />
         </md:MarkdownScrollViewer.Styles>
     </md:MarkdownScrollViewer>
     

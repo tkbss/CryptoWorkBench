@@ -7,7 +7,7 @@
 			 prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CryptoWorkBenchAvalonia.Views.StatusView">
-	<Border   Background="LightGray" BoxShadow="5 5 10 2 DarkGray" Margin="5">
+	<Border   Background="{DynamicResource CwbSurfacePanelBrush}" BoxShadow="5 5 10 2 DarkGray" Margin="5">
         <StackPanel>
             <TextBlock Text="{Binding StatusString}" TextAlignment="Center" FontSize="12" Margin="2" TextWrapping="Wrap" />
             <ScrollViewer MaxHeight="200" IsVisible="{Binding HasDiagnostics}"
@@ -16,22 +16,13 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="models:DiagnosticDisplayItem">
                             <Border Margin="4" Padding="6" BorderThickness="3,0,0,0"
-                                    Classes.warning="{Binding IsWarning}" Classes.error="{Binding IsError}">
-                                <Border.Styles>
-                                    <Style Selector="Border.warning">
-                                        <Setter Property="BorderBrush" Value="#8A6500" />
-                                        <Setter Property="Background" Value="#FFF4CC" />
-                                    </Style>
-                                    <Style Selector="Border.error">
-                                        <Setter Property="BorderBrush" Value="#A32121" />
-                                        <Setter Property="Background" Value="#FFE1E1" />
-                                    </Style>
-                                </Border.Styles>
+                                    Classes.cwb-warning="{Binding IsWarning}" Classes.cwb-error="{Binding IsError}">
+
                                 <StackPanel>
-                                    <TextBlock IsVisible="{Binding HasScriptBookLine}" Foreground="Black">
+                                    <TextBlock IsVisible="{Binding HasScriptBookLine}">
                                         <Run Text="Scriptbook line: " /><Run Text="{Binding ScriptBookLine}" />
                                     </TextBlock>
-                                    <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="Black" />
+                                    <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
                         </DataTemplate>

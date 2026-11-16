@@ -37,15 +37,15 @@ internal sealed class DockDiagnosticsView : UserControl
                 HorizontalAlignment = HorizontalAlignment.Left, Name = "DiagnosticSource" };
             source.Click += (_, _) => Navigate(entry);
             var text = new SelectableTextBlock { Text = entry.Text, TextWrapping = TextWrapping.Wrap,
-                Name = "DiagnosticText", Foreground = Brushes.Black };
+                Name = "DiagnosticText" };
             return new Border
             {
                 BorderThickness = new Thickness(4, 0, 0, 0), Padding = new Thickness(8), Margin = new Thickness(4),
-                BorderBrush = entry.IsWarning ? Brush.Parse("#8A6500") : Brush.Parse("#A32121"),
-                Background = entry.IsWarning ? Brush.Parse("#FFF4CC") : Brush.Parse("#FFE1E1"),
+                Classes = { entry.IsWarning ? "cwb-warning" : "cwb-error" },
+
                 Child = new StackPanel { Spacing = 6, Children =
                 {
-                    new TextBlock { Text = entry.CategoryText, FontWeight = FontWeight.Bold, Foreground = Brushes.Black },
+                    new TextBlock { Text = entry.CategoryText, FontWeight = FontWeight.Bold },
                     source, text
                 } }
             };
