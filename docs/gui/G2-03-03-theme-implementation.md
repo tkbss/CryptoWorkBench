@@ -37,7 +37,7 @@ Produktiver Pfad: `%LOCALAPPDATA%/CryptoWorkBench/appearance-v1.json`, unabhäng
 
 Akzeptiert werden Schema 1 und die exakten Werte System/Light/Dark. Fehlende Datei: System ohne Schreiben. Ungültige, nicht lesbare oder mehr als 4096 Bytes grosse Datei: System mit Fehlerhinweis; die vorhandene Datei wird beim Laden nicht überschrieben. Explizite Auswahl schreibt zunächst eine eindeutige temporäre Datei im selben Verzeichnis und ersetzt dann das Ziel. Bei Schreibfehler bleibt die gewählte Darstellung aktiv, die Statusrückmeldung meldet die fehlgeschlagene Speicherung. Eine explizite spätere Auswahl darf eine ungültige Datei ersetzen.
 
-Die nativen Review-Dateien liegen ausschliesslich im Nachweisverzeichnis mit Suffixen `.appearance.json` und `.layout.json`. Das echte Benutzerprofil wurde für den Review nicht verändert. Die zuletzt über das native Menü gewählte Systempräferenz steht in [native-reviewed.json.appearance.json](../../artifacts/g2-03-03/native-reviewed.json.appearance.json).
+Die nativen Review-Dateien liegen ausschliesslich im Nachweisverzeichnis mit Suffixen `.appearance.json` und `.layout.json`. Das echte Benutzerprofil wurde für den Review nicht verändert. Die zuletzt über das native Menü gewählte Systempräferenz steht in `artifacts/g2-03-03/native-reviewed.json.appearance.json`; dieser Prüfbeleg liegt nur lokal vor und ist bewusst nicht versioniert.
 
 ## Designabgleich, Kontrast und Abweichungen
 
@@ -98,7 +98,7 @@ Die Bilder stammen aus der produktiven Avalonia-App/Shell im vorhandenen nativen
 | Theme-Menü Light / Dark | [Light](../../artifacts/g2-03-03/native-theme-menu-light.jpg), [Dark](../../artifacts/g2-03-03/native-theme-menu-dark.jpg) |
 | Reale Diagnose nach `Print(missing)`, Textbereich gescrollt | [Light](../../artifacts/g2-03-03/native-diagnostics-light-150.jpg), [Dark](../../artifacts/g2-03-03/native-diagnostics-dark-150.jpg) |
 | Systemauswahl: Rückkehr zur aktuellen hellen Systemdarstellung | [native-system-150.jpg](../../artifacts/g2-03-03/native-system-150.jpg) |
-| Gemessene Skalierung, Clientgrösse und drei Print-Ergebnisse | [native-reviewed.json](../../artifacts/g2-03-03/native-reviewed.json) |
+| Gemessene Skalierung, Clientgrösse und drei Print-Ergebnisse | `artifacts/g2-03-03/native-reviewed.json` – Prüfbeleg nur lokal vorhanden, bewusst nicht versioniert. |
 
 Der Host meldet `RenderScaling=1.5`, Clientgrösse 1280 × 693,333 DIP (1920 × 1040 physische Clientpixel, zuzüglich nativer Fensterrahmen). Die Windows-Aufnahmen werden vom Capture-Werkzeug auf logische Pixel normalisiert; Hauptfensterbilder haben ungefähr 1283 × 725 Pixel und sind JPEG. Sie sind **keine** pixelidentischen 1920-×-1080-Aufnahmen des 100-%-Prototyps. Mauszeiger samt blauem Aufnahmeindikator gehören zum Nachweiswerkzeug, nicht zum Produktdesign. Floating-Aufnahmen besitzen einen anderen Ausschnitt.
 
