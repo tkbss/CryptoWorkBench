@@ -20,6 +20,10 @@ internal sealed class DockShellPresentation : IDisposable
     { Source = new Uri("avares://CryptoWorkBenchAvalonia/Shell/DockShellStyles.axaml") };
     private readonly PlaceholderTemplate _template;
     internal DockVariablesView? Variables { get; }
+    private DockShellLayout? _layout;
+    internal DockVariableInspectorView? Inspector { get; private set; }
+    internal VariableInspectorViewModel? InspectorModel { get; private set; }
+    private ContentControl? _inspectorPresenter;
     internal InfoView? Info { get; }
     internal DockOutputView? Output { get; }
     internal DockDiagnosticsView? Diagnostics { get; }
@@ -38,7 +42,7 @@ internal sealed class DockShellPresentation : IDisposable
             Diagnostics = new DockDiagnosticsView(editor);
             Status = new DockStatusView(editor.ViewModel.Status);
         }
-        if (variables != null) Variables = new DockVariablesView(variables);
+        if (variables != null) Variables = new DockVariablesView(variables, () => _layout?.Show(DockShellState.InspectorId));
         if (info != null)
         {
             Info = new InfoView { DataContext = info };
@@ -50,8 +54,33 @@ internal sealed class DockShellPresentation : IDisposable
         app.Styles.Add(_styles);
         app.DataTemplates.Add(_template);
     }
-    internal void StartTools() => Variables?.Start();
-    private static Control Present(Control view, ref ContentControl? previous)
+    internal void StartTools(DockShellLayout layout)
+    {
+        if (_layout != null) return;
+        Variables?.Start(layout.ReportFeedback);
+        _layout = layout;
+        layout.InspectorVisibilityChanged += SetInspectorOpen;
+        layout.SyncInspectorVisibility();
+    }
+
+    private void SetInspectorOpen(bool open)
+    {
+        if (open && InspectorModel == null && Variables != null)
+        {
+            InspectorModel = new VariableInspectorViewModel(Variables.ViewModel);
+            Inspector = new DockVariableInspectorView(InspectorModel);
+            if (_inspectorPresenter != null) _inspectorPresenter.Content = Inspector;
+        }
+        else if (!open && InspectorModel != null)
+        {
+            InspectorModel.Dispose();
+            InspectorModel = null;
+            Inspector = null;
+            if (_inspectorPresenter != null) _inspectorPresenter.Content = null;
+            _inspectorPresenter = null;
+        }
+    }
+    private static Control Present(Control? view, ref ContentControl? previous)
     {
         if (previous != null) previous.Content = null;
         previous = new ContentControl { Content = view };
@@ -59,6 +88,9 @@ internal sealed class DockShellPresentation : IDisposable
     }
     public void Dispose()
     {
+        if (_layout != null) _layout.InspectorVisibilityChanged -= SetInspectorOpen;
+        _layout = null;
+        SetInspectorOpen(false);
         Variables?.Dispose();
         if (_diagnosticsPresenter != null) _diagnosticsPresenter.Content = null;
         if (_statusPresenter != null) _statusPresenter.Content = null;
@@ -103,6 +135,7 @@ internal sealed class DockShellPresentation : IDisposable
             IDockable { Id: DockShellState.OutputId } when owner.Output != null => Present(owner.Output, ref owner._outputPresenter),
             IDockable { Id: DockShellState.DiagnosticsId } when owner.Diagnostics != null => Present(owner.Diagnostics, ref owner._diagnosticsPresenter),
             IDockable { Id: DockShellState.StatusId } when owner.Status != null => Present(owner.Status, ref owner._statusPresenter),
+            IDockable { Id: DockShellState.InspectorId } when owner.Variables != null => Present(owner.Inspector, ref owner._inspectorPresenter),
             IDockable { Id: DockShellState.InfoId } when owner.Info != null => Present(owner.Info, ref owner._infoPresenter),
             _ => new DockPlaceholderView((DockPaneState)((IDockable)data!).Context!)
         };

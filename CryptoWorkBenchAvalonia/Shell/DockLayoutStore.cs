@@ -23,8 +23,9 @@ internal sealed record LoadedLayout(IRootDock Root, string[] ClosedTools, Layout
 internal sealed class DockLayoutStore
 {
     internal const int MaxBytes = 256 * 1024;
-    internal static readonly string[] PaneIds = [DockShellState.DocumentId, DockShellState.VariablesId,
+    private static readonly string[] SchemaOnePaneIds = [DockShellState.DocumentId, DockShellState.VariablesId,
         DockShellState.OutputId, DockShellState.InfoId, DockShellState.DiagnosticsId, DockShellState.StatusId];
+    internal static readonly string[] PaneIds = [.. SchemaOnePaneIds, DockShellState.InspectorId];
     private static readonly HashSet<string> Types = new(StringComparer.Ordinal)
     {
         typeof(RootDock).FullName!, typeof(ProportionalDock).FullName!, typeof(ProportionalDockSplitter).FullName!,
@@ -43,28 +44,74 @@ internal sealed class DockLayoutStore
     };
     internal string Path { get; }
     internal string? LastError { get; private set; }
+    internal bool PreserveLayoutOnUnchangedFallback { get; private set; }
     // Deterministic fault injection at the atomic boundary, used only by tests.
     internal Action? BeforeReplace { get; init; }
-    internal DockLayoutStore(string? path = null) => Path = path ?? System.IO.Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CryptoWorkBench", "dock-layout-v1.json");
+    private readonly string? _legacyPath;
+    internal DockLayoutStore(string? path = null, string? legacyPath = null)
+    {
+        var directory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CryptoWorkBench");
+        Path = path ?? System.IO.Path.Combine(directory, "dock-layout-v2.json");
+        _legacyPath = legacyPath ?? (path == null ? System.IO.Path.Combine(directory, "dock-layout-v1.json") : null);
+    }
+
+    private static string Read(string path)
+    {
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        if (stream.Length > MaxBytes) throw new InvalidDataException("Layout exceeds size limit.");
+        using var reader = new StreamReader(stream, Encoding.UTF8);
+        return reader.ReadToEnd();
+    }
 
     internal LoadedLayout? Load()
     {
+        LastError = null;
+        PreserveLayoutOnUnchangedFallback = false;
         try
         {
-            using var stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            if (stream.Length > MaxBytes) throw new InvalidDataException("Layout exceeds size limit.");
-            using var reader = new StreamReader(stream, Encoding.UTF8);
-            var loaded = Decode(reader.ReadToEnd());
-            LastError = null;
-            return loaded;
+            string current;
+            try { current = Read(Path); }
+            catch (Exception missing) when (missing is FileNotFoundException or DirectoryNotFoundException)
+            {
+                if (_legacyPath == null) return null;
+                string legacy;
+                try { legacy = Read(_legacyPath); }
+                catch (Exception absent) when (absent is FileNotFoundException or DirectoryNotFoundException) { return null; }
+                var migrated = Migrate(legacy);
+                var json = Encode(migrated.Root, migrated.ClosedTools, migrated.MainWindow);
+                if (Save(json, createOnly: true)) return migrated;
+                // A concurrent first start may have installed v2 while we validated v1.
+                if (!File.Exists(Path))
+                {
+                    PreserveLayoutOnUnchangedFallback = true;
+                    return null;
+                }
+                var winner = Decode(Read(Path));
+                LastError = null;
+                return winner;
+            }
+            return Decode(current);
         }
-        catch (FileNotFoundException) { return null; }
-        catch (DirectoryNotFoundException) { return null; }
-        catch (Exception error) when (Recoverable(error)) { Report("load", error); return null; }
+        catch (Exception error) when (Recoverable(error))
+        {
+            // A sharing or access failure says nothing about the validity of the saved layout.
+            PreserveLayoutOnUnchangedFallback = error is IOException or UnauthorizedAccessException;
+            Report("load", error);
+            return null;
+        }
     }
 
-    internal bool Save(string json)
+    internal static LoadedLayout Migrate(string json)
+    {
+        var legacy = Decode(json, 1, SchemaOnePaneIds);
+        string[] closed = [.. legacy.ClosedTools, DockShellState.InspectorId];
+        Validate(legacy.Root, closed);
+        return legacy with { ClosedTools = closed };
+    }
+
+    internal bool Save(string json) => Save(json, createOnly: false);
+
+    private bool Save(string json, bool createOnly)
     {
         string? temporary = null;
         try
@@ -81,7 +128,7 @@ internal sealed class DockLayoutStore
             Decode(File.ReadAllText(temporary));
             BeforeReplace?.Invoke();
             // Same filesystem: no delete-first fallback. Failed replacement preserves the old file.
-            if (File.Exists(Path)) File.Replace(temporary, Path, null);
+            if (!createOnly && File.Exists(Path)) File.Replace(temporary, Path, null);
             else File.Move(temporary, Path);
             LastError = null;
             return true;
@@ -110,23 +157,25 @@ internal sealed class DockLayoutStore
         var clean = Project(root);
         var node = JsonNode.Parse(new DockSerializer().Serialize<IRootDock>(clean))!;
         Prune(node);
-        var json = JsonSerializer.Serialize(new LayoutFile(1, JsonSerializer.SerializeToElement(node), closed, main), Options);
+        var json = JsonSerializer.Serialize(new LayoutFile(2, JsonSerializer.SerializeToElement(node), closed, main), Options);
         Decode(json);
         return json;
     }
 
-    internal static LoadedLayout Decode(string json)
+    internal static LoadedLayout Decode(string json) => Decode(json, 2, PaneIds);
+
+    private static LoadedLayout Decode(string json, int version, string[] inventory)
     {
         if (Encoding.UTF8.GetByteCount(json) > MaxBytes) throw new InvalidDataException("Layout exceeds size limit.");
         using var document = JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = 64 });
         CheckDuplicates(document.RootElement);
         var file = JsonSerializer.Deserialize<LayoutFile>(json, Options) ?? throw new InvalidDataException("Empty layout.");
-        if (file.SchemaVersion != 1 || file.ClosedTools == null || file.MainWindow == null)
+        if (file.SchemaVersion != version || file.ClosedTools == null || file.MainWindow == null)
             throw new InvalidDataException("Unsupported layout schema.");
         Preflight(file.Dock);
         var root = new DockSerializer().Deserialize<IRootDock>(file.Dock.GetRawText()) ?? throw new InvalidDataException("Missing root.");
-        DockContainerIdentity.NameLegacyContainers(root);
-        Validate(root, file.ClosedTools);
+        if (version == 1) DockContainerIdentity.NameLegacyContainers(root);
+        Validate(root, file.ClosedTools, inventory);
         // Discard everything except the validated presentation fields, including all capability flags.
         return new(Project(root), file.ClosedTools, file.MainWindow);
     }
@@ -170,7 +219,9 @@ internal sealed class DockLayoutStore
             foreach (var child in array) if (child != null) Prune(child);
     }
 
-    internal static void Validate(IRootDock root, string[] closed)
+    internal static void Validate(IRootDock root, string[] closed) => Validate(root, closed, PaneIds);
+
+    private static void Validate(IRootDock root, string[] closed, string[] inventory)
     {
         var seen = new HashSet<IDockable>(ReferenceEqualityComparer.Instance);
         var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -185,7 +236,7 @@ internal sealed class DockLayoutStore
                 throw new InvalidDataException("Invalid split size.");
             if (item is IDocument or ITool)
             {
-                if (!PaneIds.Contains(item.Id) || !ids.Add(item.Id) ||
+                if (!inventory.Contains(item.Id) || !ids.Add(item.Id) ||
                     (item is Document) != (item.Id == DockShellState.DocumentId) ||
                     parent is not (IDocumentDock or IToolDock) || item is Document && parent is not IDocumentDock)
                     throw new InvalidDataException("Invalid pane identity or parent.");
@@ -200,7 +251,7 @@ internal sealed class DockLayoutStore
             }
             if (item is not IDock dock || parent is IDocumentDock or IToolDock || item is IRootDock && parent != null)
                 throw new InvalidDataException("Invalid container hierarchy.");
-            if (string.IsNullOrWhiteSpace(dock.Id) || PaneIds.Contains(dock.Id) || dock.Id.StartsWith(DockContainerIdentity.DynamicPrefix, StringComparison.Ordinal) && !structuralIds.Add(dock.Id))
+            if (string.IsNullOrWhiteSpace(dock.Id) || inventory.Contains(dock.Id) || dock.Id.StartsWith(DockContainerIdentity.DynamicPrefix, StringComparison.Ordinal) && !structuralIds.Add(dock.Id))
                 throw new InvalidDataException("Invalid structural container identity.");
             if (dock.Id == DockShellLayout.Documents && dock is not IDocumentDock ||
                 dock.Id is DockShellLayout.Tools or DockShellLayout.Diagnostics && dock is not IToolDock)
@@ -227,7 +278,7 @@ internal sealed class DockLayoutStore
                 if (r.HiddenDockables?.Count > 0 || r.LeftPinnedDockables?.Count > 0 || r.RightPinnedDockables?.Count > 0 ||
                     r.TopPinnedDockables?.Count > 0 || r.BottomPinnedDockables?.Count > 0 || r.PinnedDock != null)
                     throw new InvalidDataException("Pinned/hidden trees are unsupported.");
-                if (!ReferenceEquals(r, root) && r.Windows?.Count > 0 || r.Windows?.Count > 6)
+                if (!ReferenceEquals(r, root) && r.Windows?.Count > 0 || r.Windows?.Count > inventory.Length)
                     throw new InvalidDataException("Nested floating windows are unsupported.");
                 foreach (var window in r.Windows ?? [])
                 {
@@ -249,9 +300,9 @@ internal sealed class DockLayoutStore
                 .Any(id => mainTree.Count(d => d.Id == id) > 1))
             throw new InvalidDataException("Invalid fixed-shell anchors.");
         foreach (var id in closed)
-            if (id == DockShellState.DocumentId || !PaneIds.Contains(id) || !ids.Add(id))
+            if (id == DockShellState.DocumentId || !inventory.Contains(id) || !ids.Add(id))
                 throw new InvalidDataException("Invalid closed tool inventory.");
-        if (!ids.SetEquals(PaneIds)) throw new InvalidDataException("Missing pane identity.");
+        if (!ids.SetEquals(inventory)) throw new InvalidDataException("Missing pane identity.");
     }
 
     // This explicit copy is the privacy boundary: Context/Title/Owner/Factory never enter serialization.

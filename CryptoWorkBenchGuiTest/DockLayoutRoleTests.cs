@@ -101,7 +101,7 @@ public sealed class DockLayoutRoleTests
         Assert.That(TopLevel.GetTopLevel(h.Session.View), Is.SameAs(h.Window), "Restore must display the original editor, including when Dock reuses a cached tab template.");
         if (entry == "capture") Assert.That(h.Layout.Reset(), Is.True);
         else Click(h.Window, h.Session.View, entry, "Reset to Default Layout");
-        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
+        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
         Assert.That(h.Session.Editor.Document, Is.SameAs(document));
         Assert.That(DockLayoutStore.Decode(h.Layout.Capture(Bounds)), Is.Not.Null);
         return true;

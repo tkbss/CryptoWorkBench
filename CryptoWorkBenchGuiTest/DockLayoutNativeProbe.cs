@@ -62,7 +62,7 @@ public sealed partial class DockShellNativeProbe
             }
             else
             {
-                Check("default-five-visible-panes", DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool) == 5);
+                Check("default-six-visible-panes", DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool) == 6);
                 Check("default-status-closed", DockLayoutStore.Decode(layout.Capture(DockLayoutRoleTests.Bounds)).ClosedTools.SequenceEqual(new[] { DockShellState.StatusId }));
                 if (Mode == "layout-invalid") Check("invalid-file-default-without-legacy-fallback", DockShellStartupError == null);
             }
@@ -141,7 +141,7 @@ public sealed partial class DockShellNativeProbe
             var store = new DockLayoutStore(Output + ".layout.json");
             var saved = store.Load();
             Check("shutdown-atomic-file", saved != null);
-            Check("normal-layout-saved-during-focus", saved != null && DockShellLayout.VisibleTree(saved.Root).Count(p => p is IDocument or ITool) == 5);
+            Check("normal-layout-saved-during-focus", saved != null && DockShellLayout.VisibleTree(saved.Root).Count(p => p is IDocument or ITool) == 6);
             Check("closed-tool-saved", saved?.ClosedTools.SequenceEqual(new[] { DockShellState.StatusId }) == true);
             Check("floating-position-saved", saved?.Root.Windows?.Single().Width == 500 || Mode == "layout-input");
         }

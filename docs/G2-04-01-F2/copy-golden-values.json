@@ -1,0 +1,138 @@
+{
+  "purpose": "Documentation golden values. Only expectedText is clipboard content; these case wrappers are never copied.",
+  "baseline": "32017a08c4771e73c12a50f6e1548476b9bb0a54",
+  "cases": [
+    {
+      "id": "root-key",
+      "fixture": "key",
+      "property": "root",
+      "expectedText": "{\"DerivationMechanism\":\"\",\"Id\":\"demoKey\",\"Kcv\":null,\"Kcvc\":null,\"Kcvk\":null,\"KeyAttributes\":[],\"KeySize\":\"256\",\"KeySizeInBits\":{\"Bits\":256,\"IsKnown\":true},\"KeyType\":{\"Algorithm\":\"Unknown\",\"MaterialKind\":\"Secret\"},\"Text\":\"KEYdemoKey=0x(000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F)\",\"Type\":{\"Id\":\"'KEY'\",\"Name\":\"KEY\",\"Text\":\"\"},\"Usage\":{\"AllowedUsages\":\"None\",\"Mode\":\"Unspecified\"},\"Value\":\"0x(000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F)\",\"ValueFormat\":\"HEX_STRING\"}"
+    },
+    {
+      "id": "root-param",
+      "fixture": "param",
+      "property": "root",
+      "expectedText": "{\"HeaderReference\":{\"Definition\":{\"Algorithm\":\"A\",\"Attributes\":{\"ALGO\":\"A\",\"EXP\":\"E\",\"KBVID\":\"D\",\"KEYCTX\":\"0\",\"KEYU\":\"K0\",\"KEYVN\":\"00\",\"MODEU\":\"B\",\"NUMOPTB\":\"00\",\"RSV\":\"0\"},\"ExpectedLength\":null,\"HeaderLength\":16,\"IsLengthResolved\":false,\"OptionalBlocks\":[],\"Version\":\"D\"},\"Id\":\"header\",\"Text\":\"\",\"Type\":{\"Id\":\"'TR31H'\",\"Name\":\"TR31H\",\"Text\":\"\"},\"Value\":\"TR31H { KBVID:D, KEYU:K0, ALGO:A, MODEU:B, EXP:E, KEYVN:00, KEYCTX:0, RSV:0, NUMOPTB:00, KBLEN:auto (unresolved) }\",\"ValueFormat\":\"\"},\"Id\":\"parameters\",\"Mechanism\":\"TR31\",\"Text\":\"\",\"Type\":{\"Id\":\"'PARAM'\",\"Name\":\"PARAM\",\"Text\":\"\"},\"Value\":\"#MECH:TR31#BLKH:header\",\"ValueFormat\":\"PARAM_STRING\"}"
+    },
+    {
+      "id": "root-split",
+      "fixture": "split",
+      "property": "root",
+      "expectedText": "{\"Id\":\"splitSecret\",\"SecretSet\":{\"Descriptor\":{\"Field\":null,\"KeySizeBits\":16,\"Mechanism\":\"SECRET_SPLIT\",\"MinParts\":3,\"Parts\":3,\"Profile\":null,\"ReductionPolynomial\":null,\"SecretPosition\":null},\"OriginalKeyMetadata\":{\"Attributes\":[],\"DerivationMechanism\":\"\",\"KeyType\":{\"Algorithm\":\"Unknown\",\"MaterialKind\":\"Secret\"},\"Usage\":{\"AllowedUsages\":\"None\",\"Mode\":\"Unspecified\"}},\"PreferredShareFormat\":\"X-Y\",\"Shares\":[{\"Value\":\"0x(0001)\",\"X\":1},{\"Value\":\"0x(0203)\",\"X\":2},{\"Value\":\"0x(0405)\",\"X\":3}]},\"Text\":\"\",\"Type\":{\"Id\":\"'SECRET'\",\"Name\":\"SECRET\",\"Text\":\"\"},\"Value\":\"SECRET\",\"ValueFormat\":\"\"}"
+    },
+    {
+      "id": "root-shamir",
+      "fixture": "shamir",
+      "property": "root",
+      "expectedText": "{\"Id\":\"sharedSecret\",\"SecretSet\":{\"Descriptor\":{\"Field\":\"GF(256)\",\"KeySizeBits\":16,\"Mechanism\":\"SECRET_SHAMIR\",\"MinParts\":2,\"Parts\":3,\"Profile\":\"SHAMIR-GF256-11B\",\"ReductionPolynomial\":283,\"SecretPosition\":0},\"OriginalKeyMetadata\":{\"Attributes\":[],\"DerivationMechanism\":\"\",\"KeyType\":{\"Algorithm\":\"Unknown\",\"MaterialKind\":\"Secret\"},\"Usage\":{\"AllowedUsages\":\"None\",\"Mode\":\"Unspecified\"}},\"PreferredShareFormat\":\"X-Y\",\"Shares\":[{\"Value\":\"0x(ABBA)\",\"X\":1},{\"Value\":\"0x(A8B9)\",\"X\":2},{\"Value\":\"0x(A9B8)\",\"X\":3}]},\"Text\":\"\",\"Type\":{\"Id\":\"'SECRET'\",\"Name\":\"SECRET\",\"Text\":\"\"},\"Value\":\"SECRET\",\"ValueFormat\":\"\"}"
+    },
+    {
+      "id": "root-header",
+      "fixture": "header",
+      "property": "root",
+      "expectedText": "{\"Definition\":{\"Algorithm\":\"A\",\"Attributes\":{\"ALGO\":\"A\",\"EXP\":\"E\",\"KBVID\":\"D\",\"KEYCTX\":\"0\",\"KEYU\":\"K0\",\"KEYVN\":\"00\",\"MODEU\":\"B\",\"NUMOPTB\":\"00\",\"RSV\":\"0\"},\"ExpectedLength\":null,\"HeaderLength\":16,\"IsLengthResolved\":false,\"OptionalBlocks\":[],\"Version\":\"D\"},\"Id\":\"header\",\"Text\":\"\",\"Type\":{\"Id\":\"'TR31H'\",\"Name\":\"TR31H\",\"Text\":\"\"},\"Value\":\"TR31H { KBVID:D, KEYU:K0, ALGO:A, MODEU:B, EXP:E, KEYVN:00, KEYCTX:0, RSV:0, NUMOPTB:00, KBLEN:auto (unresolved) }\",\"ValueFormat\":\"\"}"
+    },
+    {
+      "id": "param-adapter",
+      "fixture": "param",
+      "property": "parameters",
+      "expectedText": "{\"#BLKH\":\"header\",\"#MECH\":\"TR31\"}"
+    },
+    {
+      "id": "key-type",
+      "fixture": "key",
+      "property": "KeyType",
+      "expectedText": "{\"Algorithm\":\"Unknown\",\"MaterialKind\":\"Secret\"}"
+    },
+    {
+      "id": "key-size",
+      "fixture": "key",
+      "property": "KeySizeInBits",
+      "expectedText": "{\"Bits\":256,\"IsKnown\":true}"
+    },
+    {
+      "id": "split-shares",
+      "fixture": "split",
+      "property": "Shares",
+      "expectedText": "[{\"Value\":\"0x(0001)\",\"X\":1},{\"Value\":\"0x(0203)\",\"X\":2},{\"Value\":\"0x(0405)\",\"X\":3}]"
+    },
+    {
+      "id": "tr31-definition",
+      "fixture": "header",
+      "property": "Definition",
+      "expectedText": "{\"Algorithm\":\"A\",\"Attributes\":{\"ALGO\":\"A\",\"EXP\":\"E\",\"KBVID\":\"D\",\"KEYCTX\":\"0\",\"KEYU\":\"K0\",\"KEYVN\":\"00\",\"MODEU\":\"B\",\"NUMOPTB\":\"00\",\"RSV\":\"0\"},\"ExpectedLength\":null,\"HeaderLength\":16,\"IsLengthResolved\":false,\"OptionalBlocks\":[],\"Version\":\"D\"}"
+    },
+    {
+      "id": "tr31-value",
+      "fixture": "header",
+      "property": "Value",
+      "expectedText": "TR31H { KBVID:D, KEYU:K0, ALGO:A, MODEU:B, EXP:E, KEYVN:00, KEYCTX:0, RSV:0, NUMOPTB:00, KBLEN:auto (unresolved) }"
+    },
+    {
+      "id": "whitespace",
+      "type": "string",
+      "value": " A\r\nΩ\n",
+      "expectedText": " A\r\nΩ\n"
+    },
+    {
+      "id": "empty",
+      "type": "string",
+      "value": "",
+      "expectedText": ""
+    },
+    {
+      "id": "null",
+      "type": "null",
+      "value": null,
+      "expectedText": "null"
+    },
+    {
+      "id": "hex-string",
+      "type": "string",
+      "value": "0x(aabb)",
+      "expectedText": "0x(aabb)"
+    },
+    {
+      "id": "bytes",
+      "type": "byte[]",
+      "bytes": [
+        0,
+        127,
+        128,
+        255
+      ],
+      "expectedText": "0x(007F80FF)"
+    },
+    {
+      "id": "empty-bytes",
+      "type": "byte[]",
+      "bytes": [],
+      "expectedText": "0x()"
+    },
+    {
+      "id": "ulong-max",
+      "type": "ulong",
+      "decimal": "18446744073709551615",
+      "expectedText": "18446744073709551615"
+    },
+    {
+      "id": "real-dictionary-key",
+      "type": "Dictionary<string,string>",
+      "value": {
+        "type": "actual data",
+        "status": "actual data"
+      },
+      "expectedText": "{\"status\":\"actual data\",\"type\":\"actual data\"}"
+    }
+  ],
+  "large": {
+    "kind": "SECRET_SPLIT",
+    "parts": 255,
+    "minParts": 255,
+    "keySizeBits": 1048576,
+    "bytesPerShare": 131072,
+    "shareByteRule": "Share X contains byte X repeated bytesPerShare times.",
+    "rawBytes": 33423360,
+    "hexCharactersPerShare": 262148
+  }
+}

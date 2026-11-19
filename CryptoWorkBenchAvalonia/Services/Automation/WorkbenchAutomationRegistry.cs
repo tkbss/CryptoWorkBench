@@ -63,6 +63,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     {
         clock = timeProvider;
         variables = new("0", clock.GetUtcNow(), true, [], false);
+        editorBridge.InspectorInputChanged += OnInspectorInputChanged;
     }
 
     internal static AutomationCaller LocalCaller { get; } = new("local-gui", CallerSource.Gui,
@@ -72,6 +73,9 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
 
     private sealed class Job
     {
+        internal bool InspectorRead;
+        internal Action? InspectorInvalidated;
+        internal Action? InspectorFailureCleanup;
         internal EditorCoordinator.ExecutionIntent? EditorIntent;
         internal required Guid Id;
         internal readonly Guid RegistrationId = Guid.NewGuid();
@@ -134,7 +138,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 ? WorkbenchExecutionState.WaitingForUser : active.Result.State == ExecutionState.AwaitingConfirmation
                 ? WorkbenchExecutionState.AwaitingConfirmation : WorkbenchExecutionState.Running;
             bool Visible(Job? job) => job != null && Authorized(caller, AutomationPermissions.ExecutionRead) && Owns(caller, job);
-            var activeId = caller.Source == CallerSource.Gui || Visible(active) ? active?.Id : null;
+            var activeId = active?.InspectorRead != true && (caller.Source == CallerSource.Gui || Visible(active)) ? active?.Id : null;
             var lastId = caller.Source == CallerSource.Gui || last is { } key && jobs.TryGetValue(key, out var previous) && Visible(previous)
                 ? last?.Id : null;
             return Task.FromResult(Ok(new WorkbenchStatus(stopping ? Lifecycle.Stopping : faulted ? Lifecycle.Faulted : Lifecycle.Ready,
@@ -159,7 +163,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         var key = new JobKey(caller, id);
         if (!jobs.TryGetValue(key, out var job)) return Fail<ExecutionResult>(tombstones.Contains(key)
             ? AutomationErrorCode.ResultExpired : AutomationErrorCode.NotFound);
-        if (!Owns(caller, job)) return Fail<ExecutionResult>(AutomationErrorCode.NotFound);
+        if (job.InspectorRead || !Owns(caller, job)) return Fail<ExecutionResult>(AutomationErrorCode.NotFound);
         return job.Expired ? Fail<ExecutionResult>(AutomationErrorCode.ResultExpired, id) : Ok(VisibleResult(caller, job));
     }
 
@@ -264,13 +268,21 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     private (Job Job, Task<T> Work) Accept<T>(IDisposable reservation, AutomationCaller caller, Guid id,
         string fingerprint, ExecutionSource source, int timeout, CancellationToken requestCancellation,
         CancellationToken userCancellation, Func<WorkbenchExecutionPipeline, Task<T>> operation, Func<bool>? validateIntent = null,
-        EditorCoordinator.ExecutionIntent? editorIntent = null)
+        EditorCoordinator.ExecutionIntent? editorIntent = null, bool inspectorRead = false, Action? inspectorFailureCleanup = null)
     {
         Job? job = null;
         try
         {
             requestCancellation.ThrowIfCancellationRequested();
             job = CreateJob(caller, id, fingerprint, source, timeout);
+            job.InspectorRead = inspectorRead;
+            job.InspectorFailureCleanup = inspectorFailureCleanup;
+            if (inspectorRead)
+            {
+                var accepted = job;
+                job.InspectorInvalidated = () => { lock (sync) RequestCancel(accepted, CancellationReason.User); };
+                EditorCoordinator.WorkspaceChanged += job.InspectorInvalidated;
+            }
             job.EditorIntent = editorIntent;
             if (editorIntent != null) job.Result = job.Result with { EditorId = editorIntent.EditorId, SourceRevision = editorIntent.SourceRevision };
             void Publish()
@@ -280,7 +292,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
             }
             if (validateIntent == null) Publish();
             else preparingReturn = job;
-            StartTimer(job, timeout);
+            if (!inspectorRead) StartTimer(job, timeout);
             job.UserCancellation = userCancellation.UnsafeRegister(static state => {
                 var target = (TimerTarget)state!;
                 lock (target.Owner.sync)
@@ -305,6 +317,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         {
             if (job is not null)
             {
+                if (job.InspectorInvalidated != null) EditorCoordinator.WorkspaceChanged -= job.InspectorInvalidated;
                 if (ReferenceEquals(preparingReturn, job)) preparingReturn = null;
                 var key = new JobKey(caller, id);
                 if (jobs.TryGetValue(key, out var published) && ReferenceEquals(published, job)) jobs.Remove(key);
@@ -426,11 +439,14 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 current.Value = job;
                 try
                 {
-                    InterpreterExecution.AccessState(() => { EnsureRecovered(); return true; });
-                    lock (sync)
+                    if (!job.InspectorRead)
                     {
-                        job.PendingVariables = variables;
-                        job.Result = job.Result with { Variables = variables with { Stale = true } };
+                        InterpreterExecution.AccessState(() => { EnsureRecovered(); return true; });
+                        lock (sync)
+                        {
+                            job.PendingVariables = variables;
+                            job.Result = job.Result with { Variables = variables with { Stale = true } };
+                        }
                     }
                     var pipeline = new WorkbenchExecutionPipeline {
                         ExecutionId = job.Id,
@@ -449,7 +465,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                     return value;
                 }
                 catch (OperationCanceledException) when (job.Cancellation.IsCancellationRequested)
-                { job.Outcome = ExecutionState.Cancelled; return default!; }
+                { job.Outcome = ExecutionState.Cancelled; if (job.InspectorRead) throw; return default!; }
                 catch
                 {
                     job.Outcome = ExecutionState.Failed;
@@ -461,6 +477,8 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                     await ReleaseResourcesAsync(job).ConfigureAwait(false);
                     FinalizeJob(job);
                     current.Value = null;
+                    if (job.InspectorRead && job.CleanupFailed)
+                        throw new InvalidOperationException("Inspector read resource finalization failed.");
                 }
             }).ConfigureAwait(false);
         }
@@ -487,12 +505,16 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 try
                 {
                     if (ReferenceEquals(active, job)) active = null;
-                    if (job.Revoked) Expire(job);
-                    Prune();
-                    if (!job.Expired)
+                    if (job.InspectorRead) jobs.Remove(new(job.Caller, job.Id));
+                    else
                     {
-                        try { StartRetention(job); }
-                        catch { Expire(job); } // No timer means no safe retention guarantee.
+                        if (job.Revoked) Expire(job);
+                        Prune();
+                        if (!job.Expired)
+                        {
+                            try { StartRetention(job); }
+                            catch { Expire(job); } // No timer means no safe retention guarantee.
+                        }
                     }
                 }
                 finally { reservation.Dispose(); job.Completion.TrySetResult(); }
@@ -529,10 +551,20 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         job.UserCancellation = default;
         if (job.EditorIntent is { } intent)
         {
-            try { await OnEditorUiAsync(() => { intent.Dispose(); return true; }).ConfigureAwait(false); }
+            try { await OnEditorUiAsync(() => {
+                if (job.InspectorInvalidated != null) EditorCoordinator.WorkspaceChanged -= job.InspectorInvalidated;
+                job.InspectorInvalidated = null;
+                intent.Dispose(); return true;
+            }).ConfigureAwait(false); }
             catch { job.CleanupFailed = true; }
             job.EditorIntent = null;
         }
+        if (job.InspectorRead && (job.Outcome != ExecutionState.Completed || job.CleanupFailed))
+        {
+            try { job.InspectorFailureCleanup?.Invoke(); }
+            catch { job.CleanupFailed = true; }
+        }
+        job.InspectorFailureCleanup = null;
         job.ResourcesReleased = true;
     }
 
@@ -540,6 +572,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     {
         lock (sync)
         {
+            if (job.InspectorRead) throw new InvalidOperationException("Inspector reads cannot publish executions.");
             if (!ReferenceEquals(active, job) || job.ResourcesReleased) throw new ExecutionBusyException();
             job.Effects |= result.EffectsPossible;
             job.Outcome = result.Outcome;
@@ -584,6 +617,12 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     {
         lock (sync)
         {
+            if (job.InspectorRead)
+            {
+                if (job.CleanupFailed && (lease != null || epochClose != null)) leaseCleanupFailed = true;
+                job.Result = job.Result with { State = job.CleanupFailed ? ExecutionState.Failed : job.Outcome };
+                return;
+            }
             if (job.Effects) AdvanceVersion();
             if (job.CaptureFailed) variables = variables with { Stale = true };
             else if (job.PendingVariables is { } captured)
@@ -657,6 +696,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
 
     private IReadOnlyList<VariableModel> CaptureMutation()
     {
+        if (current.Value?.InspectorRead == true) throw new InvalidOperationException("Inspector reads cannot capture mutations.");
         try
         {
             var captured = VariablePresentationCapture.Capture();
@@ -718,12 +758,14 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         {
             if (shutdownQuiescence != null) return;
             stopping = true;
+            NotifyInspectorReset();
             if (active is not null) RequestCancel(active, CancellationReason.Shutdown);
             RevokeMcpCore();
             // A completed disable may have readmitted GUI producers. Capture their original
             // coordinator now. An in-progress or failed close still owns the same obligations.
             if (epochClose == null && editorBridge.Coordinator != null) StartEditorClose();
-            shutdownQuiescence = epochClose?.Task ?? OutstandingServiceWork();
+            shutdownQuiescence = FinishInspectorShutdownAsync(Task.WhenAll(epochClose?.Task ?? OutstandingServiceWork(),
+                inspectorTransferDrain?.Task ?? Task.CompletedTask));
         }
     }
 

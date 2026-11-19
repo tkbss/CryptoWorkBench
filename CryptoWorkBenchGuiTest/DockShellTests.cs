@@ -51,12 +51,12 @@ public sealed class DockShellTests
         Assert.That(c.Resolve<IWorkbenchAutomationV2>(), Is.SameAs(WorkbenchAutomationService.Shared));
     });
 
-    [Test] public Task LayoutContainsOneDocumentFourVisibleToolsAndRetainsLegacyStatus() => Run((layout, _, window) =>
+    [Test] public Task LayoutContainsOneDocumentFiveVisibleToolsAndRetainsLegacyStatus() => Run((layout, _, window) =>
     {
         var leaves = DockShellLayout.VisibleTree(layout.Root).Where(d => d is IDocument or ITool).ToArray();
         Assert.That(leaves.Count(d => d is IDocument and not ITool), Is.EqualTo(1));
-        Assert.That(leaves.Count(d => d is ITool), Is.EqualTo(4));
-        Assert.That(leaves.Select(d => d.Id).Distinct().Count(), Is.EqualTo(5));
+        Assert.That(leaves.Count(d => d is ITool), Is.EqualTo(5));
+        Assert.That(leaves.Select(d => d.Id).Distinct().Count(), Is.EqualTo(6));
         Assert.That(leaves, Does.Not.Contain(layout.Pane(DockShellState.StatusId)));
         Assert.That(layout.Pane(DockShellState.StatusId).Context, Is.SameAs(layout.State.Tools.Last()));
         Assert.That(leaves.All(d => d.Context is DockPaneState && d.Owner is IDock), Is.True);
@@ -130,7 +130,7 @@ public sealed class DockShellTests
         var group = (IDock)layout.Pane(DockShellState.VariablesId).Owner!;
         layout.Factory.FloatDockable(group);
         Assert.That(layout.Root.Windows, Has.Count.EqualTo(1));
-        foreach (var state in layout.State.Tools.Take(3)) layout.Dock(state.Id);
+        foreach (var pane in group.VisibleDockables!.ToArray()) layout.Dock(pane.Id);
         Pump(window);
         Assert.That(layout.Root.Windows, Is.Empty);
         Assert.That(DockShellLayout.VisibleTree(layout.Root, false).Count(d => d.Id == DockShellLayout.Tools), Is.EqualTo(1));
