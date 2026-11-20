@@ -22,7 +22,7 @@ public class PropertyInspectorCorrectionsTests
 {
     private sealed class Fixture : IAsyncDisposable
     {
-        internal readonly WorkbenchAutomationService Service = new();
+        internal readonly WorkbenchAutomationService Service = new() { LeaseMilliseconds = () => 1_000UL };
         internal readonly WorkbenchTextEditor Editor = new() { Text = "source" };
         internal readonly VariableViewModel Variables;
         internal readonly EditorBridge.Registration Registration;

@@ -184,9 +184,16 @@ public sealed class DockVariablesView : UserControl, IDisposable
         return panel;
     }
 
+    // Retire feedback on the UI thread while the original clipboard transfer finishes.
+    internal void InvalidatePendingCopyFeedback()
+    {
+        VerifyAccess();
+        ++_copyGeneration;
+    }
+
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
-        ++_copyGeneration;
+        InvalidatePendingCopyFeedback();
         base.OnDetachedFromVisualTree(e);
     }
 

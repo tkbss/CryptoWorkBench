@@ -293,16 +293,70 @@ public class DockInspectorTests
         using var delayed = DelayedSelectionWrite.Install(fields.Clipboard);
         fields.Copy(fields.Identifier);
         if (dispose) h.Presentation.Variables!.Dispose();
-        else { h.Layout.Close(DockShellState.VariablesId); h.Pump(); }
+        else
+        {
+            await WaitForVariablesCloseAdmission(h);
+            h.Layout.Close(DockShellState.VariablesId);
+            Assert.That(DockShellLayout.VisibleTree(h.Layout.Root), Does.Not.Contain(h.Layout.Pane(DockShellState.VariablesId)));
+        }
         string? status = fields.Status.Text;
         await delayed.CompleteAsync();
         Assert.That(fields.Status.Text, Is.EqualTo(status));
         Assert.That(await fields.Clipboard.TryGetTextAsync(), Is.EqualTo(fields.OriginalId));
     });
 
+    private static Task WaitForVariablesCloseAdmission(DockToolTests.Host h) =>
+        DockEditorTests.Wait(() => h.Presentation.InspectorModel is { Busy: false, Page: not null } && h.Session.CanRelocate);
+
+    [Test] public Task RejectedVariablesClosePreservesPendingCopyFeedback() => GuiTestSession.RunAsync(async () =>
+    {
+        await using var h = new DockToolTests.Host();
+        var fields = new SelectionCopyFields(h, "ordinary");
+        using var delayed = DelayedSelectionWrite.Install(fields.Clipboard);
+        fields.Copy(fields.Identifier);
+        await WaitForVariablesCloseAdmission(h);
+        using (InterpreterHostQueue.Reserve())
+        {
+            Assert.That(h.Session.CanRelocate, Is.False);
+            h.Layout.Close(DockShellState.VariablesId);
+            Assert.That(DockShellLayout.VisibleTree(h.Layout.Root), Does.Contain(h.Layout.Pane(DockShellState.VariablesId)));
+        }
+        await delayed.CompleteAsync();
+        Assert.That(fields.Status.Text, Is.EqualTo($"Copied {fields.OriginalId.Length:N0} characters."));
+        Assert.That(await fields.Clipboard.TryGetTextAsync(), Is.EqualTo(fields.OriginalId));
+    });
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public Task ClosedVariablesSuppressFailedCopyAndReopenAllowsFreshFeedback(bool floating) => GuiTestSession.RunAsync(async () =>
+    {
+        await using var h = new DockToolTests.Host();
+        var window = floating ? h.Float(DockShellState.VariablesId) : h.Window;
+        var fields = new SelectionCopyFields(h, "ordinary");
+        await fields.Clipboard.SetTextAsync("sentinel");
+        using var delayed = DelayedSelectionWrite.Install(fields.Clipboard);
+        fields.Copy(fields.Identifier);
+        await WaitForVariablesCloseAdmission(h);
+        if (floating) window.Close();
+        else h.Layout.Close(DockShellState.VariablesId);
+        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root), Does.Not.Contain(h.Layout.Pane(DockShellState.VariablesId)));
+
+        string? status = fields.Status.Text;
+        await delayed.CompleteAsync(fail: true);
+        Assert.That(fields.Status.Text, Is.EqualTo(status));
+        Assert.That(await fields.Clipboard.TryGetTextAsync(), Is.EqualTo("sentinel"));
+
+        h.Show(DockShellState.VariablesId);
+        var identifier = h.Presentation.Variables!.GetVisualDescendants().OfType<SelectableTextBlock>()
+            .Single(field => field.Name == "SelectedIdentifier");
+        fields.Copy(identifier, 3);
+        string suffix = fields.OriginalId[3..];
+        await DockEditorTests.Wait(() => fields.Status.Text == $"Copied {suffix.Length:N0} characters.");
+        Assert.That(await fields.Clipboard.TryGetTextAsync(), Is.EqualTo(suffix));
+    });
+
     private sealed class SelectionCopyFields
     {
-        private readonly Window _window;
         internal string OriginalId { get; } = "v" + new string('i', 255);
         internal string OriginalValue { get; }
         internal IClipboard Clipboard { get; }
@@ -318,9 +372,8 @@ public class DockInspectorTests
             h.Show(DockShellState.VariablesId);
             h.Variables.SelectedVariable = h.Variables.DataVariables.Single(v => v.Identifier == OriginalId);
             h.Pump();
-            _window = h.Window;
-            Clipboard = _window.Clipboard!;
-            Status = _window.FindControl<TextBlock>("ShellStatus")!;
+            Clipboard = h.Window.Clipboard!;
+            Status = h.Window.FindControl<TextBlock>("ShellStatus")!;
             Assert.That(Status.IsEffectivelyVisible, Is.True);
             var fields = h.Presentation.Variables!.GetVisualDescendants().OfType<SelectableTextBlock>();
             Identifier = fields.Single(f => f.Name == "SelectedIdentifier");
@@ -332,7 +385,7 @@ public class DockInspectorTests
             Assert.That(field.Focus(), Is.True);
             field.SelectionStart = start;
             field.SelectionEnd = end ?? field.Text!.Length;
-            _window.KeyPress(Key.C, RawInputModifiers.Control, PhysicalKey.C, "c");
+            ((Window)TopLevel.GetTopLevel(field)!).KeyPress(Key.C, RawInputModifiers.Control, PhysicalKey.C, "c");
         }
     }
 

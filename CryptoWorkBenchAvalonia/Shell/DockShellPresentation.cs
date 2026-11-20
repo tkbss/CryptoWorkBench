@@ -6,6 +6,7 @@ using Avalonia.Data;
 using Avalonia.Automation;
 using Dock.Avalonia.Themes.Fluent;
 using Dock.Model.Core;
+using Dock.Model.Core.Events;
 using CryptoWorkBenchAvalonia.ViewModels;
 using CryptoWorkBenchAvalonia.Views;
 
@@ -59,8 +60,15 @@ internal sealed class DockShellPresentation : IDisposable
         if (_layout != null) return;
         Variables?.Start(layout.ReportFeedback);
         _layout = layout;
+        layout.Factory.DockableClosed += OnDockableClosed;
         layout.InspectorVisibilityChanged += SetInspectorOpen;
         layout.SyncInspectorVisibility();
+    }
+
+    private void OnDockableClosed(object? sender, DockableClosedEventArgs e)
+    {
+        if (ReferenceEquals(e.Dockable, _layout?.Pane(DockShellState.VariablesId)))
+            Variables?.InvalidatePendingCopyFeedback();
     }
 
     private void SetInspectorOpen(bool open)
@@ -88,7 +96,11 @@ internal sealed class DockShellPresentation : IDisposable
     }
     public void Dispose()
     {
-        if (_layout != null) _layout.InspectorVisibilityChanged -= SetInspectorOpen;
+        if (_layout != null)
+        {
+            _layout.Factory.DockableClosed -= OnDockableClosed;
+            _layout.InspectorVisibilityChanged -= SetInspectorOpen;
+        }
         _layout = null;
         SetInspectorOpen(false);
         Variables?.Dispose();

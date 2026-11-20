@@ -15,8 +15,15 @@ namespace CryptoWorkBenchGuiTest;
 [NonParallelizable]
 public sealed class DockVisualCorrectionTests
 {
-    private static Task Run(Func<DockToolTests.Host, Task> test) => GuiTestSession.Session.Dispatch(async () =>
-    { await using var h = new DockToolTests.Host(); await test(h); }, CancellationToken.None);
+    private static Task Run(Func<DockToolTests.Host, Task> test) => GuiTestSession.RunAsync(async () =>
+    { await using var h = new DockToolTests.Host(); await test(h); });
+
+    private static T NamedVisual<T>(Control view, string name) where T : Control
+    {
+        var matches = view.GetVisualDescendants().OfType<T>().Where(control => control.Name == name).ToArray();
+        Assert.That(matches, Has.Length.EqualTo(1), $"Expected one {typeof(T).Name} named {name} in {view.GetType().Name}.");
+        return matches[0];
+    }
 
     private static void Headers(DockToolTests.Host h)
     {
@@ -69,9 +76,10 @@ public sealed class DockVisualCorrectionTests
         Assert.That(h.Session.LoadText(h.Service.CaptureSaveIntent()!, "  Print(0x(AB))"), Is.True);
         await h.Session.ViewModel.ParseLineAsync(h.Session.Editor.Text);
         h.Show(DockShellState.OutputId);
-        var view = h.Presentation.Output!;
+        var view = h.Presentation.Output;
+        Assert.That(view, Is.Not.Null, "Expected the active Output dock view.");
         var text = view.GetVisualDescendants().OfType<SelectableTextBlock>().Single(t => t.Name == "PrintText");
-        var list = view.FindControl<ListBox>("OutputEntries")!;
+        var list = NamedVisual<ListBox>(view, "OutputEntries");
         var scroller = list.GetVisualDescendants().OfType<ScrollViewer>().Single();
         var location = text.TranslatePoint(default, scroller)!.Value;
         Assert.That(text.Text, Is.EqualTo("out: 0x(AB)"));
@@ -92,7 +100,9 @@ public sealed class DockVisualCorrectionTests
         Assert.That(h.Session.LoadText(h.Service.CaptureSaveIntent()!, script), Is.True);
         await h.Session.ViewModel.ParseLineAsync(script);
         h.Show(DockShellState.OutputId);
-        var list = h.Presentation.Output!.FindControl<ListBox>("OutputEntries")!;
+        var view = h.Presentation.Output;
+        Assert.That(view, Is.Not.Null, "Expected the active Output dock view.");
+        var list = NamedVisual<ListBox>(view, "OutputEntries");
         var scroller = list.GetVisualDescendants().OfType<ScrollViewer>().Single();
         Assert.That(h.Session.Output.Entries, Has.Count.EqualTo(12));
         Assert.That(h.Session.Output.Entries.All(e => e.Text == $"out: 0x({hex})"), Is.True);
@@ -109,11 +119,18 @@ public sealed class DockVisualCorrectionTests
     [Test] public Task NoSelectionHidesVariableDetailsAndTableUsesAvailableWidth() => Run(async h =>
     {
         h.Show(DockShellState.VariablesId);
-        var view = h.Presentation.Variables!;
-        var detail = view.FindControl<ContentControl>("VariableDetails")!;
+        var view = h.Presentation.Variables;
+        Assert.That(view, Is.Not.Null, "Expected the active Variables dock view.");
+        var detailHosts = view.GetVisualDescendants().OfType<ScrollViewer>()
+            .Where(scroll => scroll.Content is ContentControl { Name: "VariableDetails" }).ToArray();
+        Assert.That(detailHosts, Has.Length.EqualTo(1), "Expected one scroll viewer hosting VariableDetails in DockVariablesView.");
+        var detailHost = detailHosts.Single();
+        var detail = (ContentControl)detailHost.Content!;
         Assert.That(h.Variables.SelectedVariable, Is.Null);
-        Assert.That(detail.IsEffectivelyVisible, Is.False);
-        var grid = view.FindControl<DataGrid>("VariablesGrid")!;
+        Assert.That(detailHost.IsEffectivelyVisible, Is.False);
+        // The hidden host can own its content before the content is attached to a visual root.
+        Assert.That(detail.IsAttachedToVisualTree() && detail.IsEffectivelyVisible, Is.False);
+        var grid = NamedVisual<DataGrid>(view, "VariablesGrid");
         Assert.That(grid.Columns.All(c => c.Width.IsStar), Is.True);
         Assert.That(grid.Bounds.Height, Is.GreaterThan(view.Bounds.Height * .8));
         await Task.CompletedTask;
