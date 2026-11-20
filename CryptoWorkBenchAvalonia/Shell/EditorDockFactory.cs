@@ -100,7 +100,13 @@ internal sealed class EditorDockFactory : Factory, IDockDropPolicy, IDockOperati
         var previous = _removingEmptyWindow;
         _removingEmptyWindow = _mutationDepth > 0 && IsOwnedEmptyWindow(window) ? window : null;
         DockLifecycleTrace.Write("RemoveWindow:before", window);
-        try { base.RemoveWindow(window); }
+        try
+        {
+            bool heldInspector = !Exiting && window.Layout is { } floating &&
+                DockShellLayout.VisibleTree(floating).Any(p => p.Id == DockShellState.InspectorId);
+            base.RemoveWindow(window);
+            if (heldInspector) LayoutOwner?.SyncInspectorVisibility();
+        }
         finally { _removingEmptyWindow = previous; DockLifecycleTrace.Write("RemoveWindow:after", window); }
     }
     private bool Allowed => Exiting || LayoutOwner?.LayoutFaulted != true && (_mutationDepth > 0 || !FocusMode && (Session == null || Session.CanRelocate));
@@ -206,5 +212,9 @@ internal sealed class EditorDockFactory : Factory, IDockDropPolicy, IDockOperati
     public override void FloatAllDockables(IDockable pane, DockWindowOptions? options) => Change(() => base.FloatAllDockables(pane, options));
     public override void NewHorizontalDocumentDock(IDockable pane) => Change(() => base.NewHorizontalDocumentDock(pane));
     public override void NewVerticalDocumentDock(IDockable pane) => Change(() => base.NewVerticalDocumentDock(pane));
-    public override void CloseDockable(IDockable? pane) => Change(() => base.CloseDockable(pane));
+    public override void CloseDockable(IDockable? pane) => Change(() =>
+    {
+        base.CloseDockable(pane);
+        if (pane?.Id == DockShellState.InspectorId) LayoutOwner?.SyncInspectorVisibility();
+    });
 }

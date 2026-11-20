@@ -8,6 +8,7 @@ public sealed class DockShellState
 {
     public const string DocumentId = "document:cryptoscript:primary";
     public const string VariablesId = "tool:variables";
+    public const string InspectorId = "tool:variable-inspector";
     public const string OutputId = "tool:output";
     public const string InfoId = "tool:info";
     public const string DiagnosticsId = "tool:diagnostics";
@@ -18,7 +19,7 @@ public sealed class DockShellState
     {
         new DockPaneState(VariablesId, "Variables"), new DockPaneState(OutputId, "Output"),
         new DockPaneState(InfoId, "Info"), new DockPaneState(DiagnosticsId, "Diagnostics"),
-        new DockPaneState(StatusId, "Status")
+        new DockPaneState(InspectorId, "Inspector"), new DockPaneState(StatusId, "Status")
     };
 }
 

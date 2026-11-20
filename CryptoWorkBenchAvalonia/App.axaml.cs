@@ -101,7 +101,7 @@ public partial class App : PrismApplication
         var editor = _dockEditor ?? Container.Resolve<DockEditorSession>();
         var service = Container.Resolve<Services.Automation.WorkbenchAutomationService>();
         editor.Start(window);
-        _dockPresentation?.StartTools();
+        _dockPresentation?.StartTools(window.Layout);
         window.BindEditor(editor);
         CoordinateClosing(window, service, ConfigureDesktopMcp?.Invoke(window, window.McpButton, service));
         window.Closed += (_, _) =>

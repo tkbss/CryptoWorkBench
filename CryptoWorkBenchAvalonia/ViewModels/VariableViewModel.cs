@@ -15,11 +15,33 @@ public class VariableViewModel : ViewModelBase
     internal Func<bool>? IsExecutionActive { get; set; }
     private long draftRevision;
     private long draftGeneration;
+    private object? draftDocumentVersion;
     private object? boundView;
     private bool detached;
     private long publication;
     private sealed record Draft(string Identifier, Dictionary<ParameterModel, string> Parameters);
     private Dictionary<VariableModel, Draft> published = new();
+
+    internal Services.Inspector.SelectionHandle? InspectorSelection()
+    {
+        Avalonia.Threading.Dispatcher.UIThread.VerifyAccess();
+        if (detached || IsSnapshotStale || SelectedVariable is not { } row ||
+            !published.TryGetValue(row, out var draft) || row.Origin == null ||
+            !ReferenceEquals(draftDocumentVersion, Automation.InspectorDocumentVersion)) return null;
+        return new(new(draft.Identifier, row.Origin, row, publication, draftGeneration, draftRevision,
+            draftDocumentVersion));
+    }
+
+    internal bool InspectorSelectionCurrent(Services.Inspector.SelectionHandle handle)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.VerifyAccess();
+        var stamp = handle.Stamp;
+        return !detached && !IsSnapshotStale && publication == stamp.Publication &&
+            ReferenceEquals(stamp.DocumentVersion, Automation.InspectorDocumentVersion) &&
+            draftGeneration == stamp.Workspace && Automation.EditorCoordinator.WorkspaceGeneration == stamp.Workspace &&
+            draftRevision == stamp.Revision && ReferenceEquals(SelectedVariable, stamp.Row) &&
+            published.TryGetValue(stamp.Row, out var draft) && draft.Identifier == stamp.Identifier;
+    }
 
     public VariableViewModel() => BindCommands();
 
@@ -166,6 +188,7 @@ public class VariableViewModel : ViewModelBase
             var generation = coordinator.WorkspaceGeneration;
             bool Current() => stamp == publication && generation == coordinator.WorkspaceGeneration && !Automation.IsStopping;
             var version = Automation.DraftRevision;
+            var documentVersion = Automation.InspectorDocumentVersion;
             var drafts = snapshot.ToDictionary(variable => variable,
                 variable => new Draft(variable.Identifier, variable.Parameters.ToDictionary(p => p, p => p.Parameter)));
             published.Clear();
@@ -184,6 +207,7 @@ public class VariableViewModel : ViewModelBase
                 if (!Current()) return;
                 draftRevision = version;
                 draftGeneration = generation;
+                draftDocumentVersion = documentVersion;
                 published = drafts;
                 IsSnapshotStale = false;
             });

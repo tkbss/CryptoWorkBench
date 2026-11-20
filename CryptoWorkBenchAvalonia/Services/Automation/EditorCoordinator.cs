@@ -199,8 +199,8 @@ internal sealed class EditorCoordinator
         Verify();
         if (!CanBeginIn(phase) || Pending >= MaxOutstanding) return null;
         var r = registration!;
-        var snapshot = r.Snapshot();
-        var ticket = new OperationTicket(this, r, snapshot.EditorId, snapshot.Revision, Generation);
+        r.ObserveText();
+        var ticket = new OperationTicket(this, r, r.Id, r.Revision.ToString(CultureInfo.InvariantCulture), Generation);
         tickets.Add(ticket);
         return ticket;
     }

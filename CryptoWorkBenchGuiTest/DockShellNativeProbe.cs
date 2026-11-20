@@ -20,7 +20,7 @@ public sealed partial class DockShellNativeProbe : App
     public static string Mode { get; set; } = "dock";
     public static string Output { get; set; } = "native.json";
     internal override CryptoWorkBenchAvalonia.Services.Appearance.ThemePreferenceStore CreateAppearanceStore() => new(Output + ".appearance.json");
-    internal override DockLayoutStore CreateLayoutStore() => new(Output + ".layout.json");
+    internal override DockLayoutStore CreateLayoutStore() => new(Output + ".layout.json", Output + ".v1.json");
     [DllImport("user32.dll")] private static extern nint GetForegroundWindow();
     [DllImport("user32.dll")] private static extern nint GetWindow(nint window, uint command);
 
@@ -77,6 +77,7 @@ public sealed partial class DockShellNativeProbe : App
 
     private async Task Run(IClassicDesktopStyleApplicationLifetime desktop)
     {
+        if (Mode is "inspector" or "inspector-restart" or "inspector-review") { await RunInspector(desktop); return; }
         if (Mode is "theme-light" or "theme-dark") { await RunThemeReview(desktop); return; }
         if (Mode is "independent-windows" or "independent-restart" or "independent-review") { await RunIndependentWindows(desktop); return; }
         if (Mode == "corrections-review") { desktop.ShutdownMode = ShutdownMode.OnMainWindowClose; await PrepareVisualExample(); return; }

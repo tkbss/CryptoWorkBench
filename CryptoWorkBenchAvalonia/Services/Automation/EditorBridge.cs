@@ -23,6 +23,7 @@ internal interface IEditorExecutionPresentation
 /// <summary>UI-thread-owned registration. A lease never resolves to a successor editor.</summary>
 internal sealed class EditorBridge
 {
+    internal event Action? InspectorInputChanged;
     internal sealed class Registration(TextEditor editor, IEditorExecutionPresentation? presentation)
     {
         internal readonly TextEditor Editor = editor;
@@ -179,6 +180,7 @@ internal sealed class EditorBridge
         // while the old event's invocation list is still being dispatched.
         foreach (var registration in open.Values)
             if (ReferenceEquals(sender, registration.RawDocument)) registration.ObserveText();
+        if (current != null && ReferenceEquals(sender, current.RawDocument)) InspectorInputChanged?.Invoke();
     }
 
     private void DocumentChanged(object? sender, DocumentChangedEventArgs args)
@@ -196,6 +198,7 @@ internal sealed class EditorBridge
         registration.Changed = false;
         registration.ResetVersion();
         if (registration.RawDocument is { } document) document.Changed += TextChanged;
+        if (ReferenceEquals(current, registration)) InspectorInputChanged?.Invoke();
     }
 
     internal void DetachCurrent()

@@ -61,10 +61,11 @@ try {
                 $case.scenario | Set-Content -LiteralPath "$output.scenario.txt"
                 if ($mode -eq 'cleanup-restore') {
                     $source = if ($case.scenario -eq 'historical') { Join-Path $repo 'CryptoWorkBenchGuiTest/Fixtures/dock-schema1-pre-a02.json' } else { Join-Path $evidence $case.source }
+                    $inputPath = if ($case.scenario -eq 'historical') { "$output.v1.json" } else { "$output.layout.json" }
                     if ($case.variant -eq 'legacy') {
-                        [IO.File]::WriteAllText("$output.layout.json", [IO.File]::ReadAllText($source).Replace('dock:container:', 'legacy:container:'))
-                    } else { Copy-Item -LiteralPath $source -Destination "$output.layout.json" }
-                    Copy-Item -LiteralPath "$output.layout.json" -Destination "$output.input-layout.json"
+                        [IO.File]::WriteAllText($inputPath, [IO.File]::ReadAllText($source).Replace('dock:container:', 'legacy:container:'))
+                    } else { Copy-Item -LiteralPath $source -Destination $inputPath }
+                    Copy-Item -LiteralPath $inputPath -Destination "$output.input-layout.json"
                 }
             }
             $process = Start-Process -FilePath (Join-Path $repo "eng/gui/native/bin/$config/net10.0/G1ShellProbe.exe") -ArgumentList @($mode, ('"' + $output + '"')) -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $evidence "$name.out") -RedirectStandardError (Join-Path $evidence "$name.err")

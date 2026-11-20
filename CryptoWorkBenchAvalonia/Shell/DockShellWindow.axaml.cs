@@ -12,6 +12,9 @@ public partial class DockShellWindow : Window
     public Button McpButton => this.FindControl<Button>("McpConnectButton")!;
     private DockLayoutStore? _store;
     private string? _closingSnapshot;
+    private string? _fallbackDockSnapshot;
+    // Compare only the normal dock tree. The OS chooses initial window bounds and scaling.
+    private static readonly LayoutWindow ComparisonBounds = new(0, 0, 1200, 760);
     private LayoutWindow _normalWindow = new(0, 0, 1200, 760);
     private bool _opened;
     public DockShellWindow(DockShellLayout layout)
@@ -87,11 +90,26 @@ public partial class DockShellWindow : Window
         if (_opened && WindowState == WindowState.Normal)
             _normalWindow = new(Position.X, Position.Y, ClientSize.Width, ClientSize.Height);
     }
-    internal void EnablePersistence(DockLayoutStore store) => _store = store;
+    internal void EnablePersistence(DockLayoutStore store)
+    {
+        _store = store;
+        if (store.PreserveLayoutOnUnchangedFallback)
+        {
+            try { _fallbackDockSnapshot = Layout.Capture(ComparisonBounds); }
+            catch (Exception error) when (DockLayoutStore.Recoverable(error)) { store.Report("fallback snapshot", error); }
+        }
+        if (store.LastError != null) Layout.ReportFeedback(store.LastError);
+    }
     internal void CaptureForShutdown()
     {
         if (_store == null || _closingSnapshot != null) return;
-        try { _closingSnapshot = Layout.Capture(_normalWindow with { Maximized = WindowState == WindowState.Maximized }); }
+        try
+        {
+            if (_store.PreserveLayoutOnUnchangedFallback &&
+                (_fallbackDockSnapshot == null || Layout.Capture(ComparisonBounds) == _fallbackDockSnapshot))
+                return;
+            _closingSnapshot = Layout.Capture(_normalWindow with { Maximized = WindowState == WindowState.Maximized });
+        }
         catch (Exception error) when (DockLayoutStore.Recoverable(error)) { _store.Report("snapshot", error); }
     }
     private void LayoutAction(DockLayoutCommand command, string? paneId = null)

@@ -51,7 +51,7 @@ public sealed class DockToolTests
             Presentation = new(Application.Current!, Session, Variables, Info);
             Layout.StartupLayout = startup;
             Window = new(Layout) { Width = 1400, Height = 850 };
-            Session.Start(Window); Presentation.StartTools(); Window.BindEditor(Session);
+            Session.Start(Window); Presentation.StartTools(Layout); Window.BindEditor(Session);
             App.CoordinateClosing(Window, Service);
             Window.Closed += (_, _) => { Session.Dispose(); Info.Dispose(); Presentation.Dispose(); };
             Window.Show(); Pump();
@@ -103,6 +103,7 @@ public sealed class DockToolTests
         int workspaceListeners = Subscribers(h.Service.EditorCoordinator, "WorkspaceChanged");
         var refresh = h.Variables.RefreshCommand; var selected = h.Variables.DataVariables.Single(v => v.Identifier == "g104");
         h.Variables.SelectedVariable = selected;
+        await DockEditorTests.Wait(() => h.Presentation.InspectorModel is { Busy: false, Page: not null });
         for (int i = 0; i < 6; i++)
         {
             var host = h.Float(id); h.Layout.Dock(id); h.Pump(); Assert.That(host.IsVisible, Is.False);

@@ -128,7 +128,7 @@ public sealed partial class DockShellNativeProbe
                 Check("same-output-diagnostics", ReferenceEquals(session.Output, output) && ReferenceEquals(output.Entries, entries) && ReferenceEquals(viewModel.Status.VisibleDiagnostics, diagnostics));
                 Check("default-status-closed", DockLayoutStore.Decode(layout.Capture(DockPersistenceCleanupTests.Bounds)).ClosedTools.SequenceEqual(new[] { DockShellState.StatusId }));
                 layout.Show(DockShellState.StatusId); // Include the retained legacy identity explicitly after G2 reset.
-                Check("six-original-panes-once", DockLayoutStore.PaneIds.Select(layout.Pane).SequenceEqual(panes) && panes.All(p => DockShellLayout.VisibleTree(layout.Root).Count(d => ReferenceEquals(d, p)) == 1));
+                Check("seven-original-panes-once", DockLayoutStore.PaneIds.Select(layout.Pane).SequenceEqual(panes) && panes.All(p => DockShellLayout.VisibleTree(layout.Root).Count(d => ReferenceEquals(d, p)) == 1));
                 service.Mutate(() => editor.Undo()); Check("undo-preserved", text.Text == "// A03 native retained");
                 layout.Float(DockShellState.DocumentId); await Render();
             }
@@ -136,7 +136,7 @@ public sealed partial class DockShellNativeProbe
             shell.Close(); await service.DrainAsync();
             await Wait("normal shutdown native destruction", () => shutdownHwnds.All(h => !IsWindow(h)));
             Check("shutdown-clean", !service.HasRegisteredEditor && layout.Factory.HostWindows.Count == 0 && layout.Factory.DockControls.Count == 0 && VisibleProcessWindows().Count == 0);
-            Check("shutdown-saved-schema1", File.Exists(Output + ".layout.json") && DockLayoutStore.Decode(File.ReadAllText(Output + ".layout.json")) != null);
+            Check("shutdown-saved-schema2", File.Exists(Output + ".layout.json") && DockLayoutStore.Decode(File.ReadAllText(Output + ".layout.json")) != null);
         }
         catch (Exception error) { failed++; checks.Add(new { name = "exception", passed = false, detail = error.ToString() }); }
         File.WriteAllText(Output, JsonSerializer.Serialize(new { mode = Mode, scenario, processId = Environment.ProcessId,
