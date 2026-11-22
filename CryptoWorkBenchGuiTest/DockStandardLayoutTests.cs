@@ -22,7 +22,9 @@ public sealed class DockStandardLayoutTests
         Assert.That(row.VisibleDockables[0].Proportion, Is.EqualTo(.70));
         var right = (IDock)row.VisibleDockables[2];
         Assert.That(right.Proportion, Is.EqualTo(.30));
-        Assert.That(right.VisibleDockables!.Select(p => p.Id), Is.EqualTo(new[] { DockShellState.VariablesId, DockShellState.InfoId }));
+        Assert.That(right.VisibleDockables!.Select(p => p.Id), Is.EqualTo(new[] { DockShellState.VariablesId, DockShellState.InfoId, DockShellState.InspectorId }));
+        Assert.That(right.ActiveDockable!.Id, Is.EqualTo(DockShellState.VariablesId));
+        Assert.That(row.VisibleDockables, Has.Count.EqualTo(3));
         var bottom = (IDock)main.VisibleDockables![2];
         Assert.That(bottom.Proportion, Is.EqualTo(.25));
         Assert.That(bottom.VisibleDockables!.Select(p => p.Id), Is.EqualTo(new[] { DockShellState.OutputId, DockShellState.DiagnosticsId }));

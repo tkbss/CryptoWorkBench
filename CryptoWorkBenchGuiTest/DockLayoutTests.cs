@@ -29,7 +29,7 @@ public sealed class DockLayoutTests
     {
         Assert.That(new DockLayoutStore(Temp()).Load(), Is.Null);
         using var layout = new DockShellLayout(new());
-        Assert.That(DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
+        Assert.That(DockShellLayout.VisibleTree(layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
         Assert.That(DockLayoutStore.Decode(layout.Capture(Bounds)).MainWindow, Is.EqualTo(Bounds));
     });
 
@@ -106,7 +106,7 @@ public sealed class DockLayoutTests
             case "context": tools["Context"] = "No application state"; break;
             case "hierarchy": tools["$type"] = "Dock.Model.Mvvm.Controls.ProportionalDock"; break;
             case "cycle": tools["VisibleDockables"]!["$values"]![0] = new JsonObject { ["$ref"] = dock["$id"]!.GetValue<string>() }; break;
-            case "duplicate-property": json = json.Replace("\"SchemaVersion\": 1", "\"SchemaVersion\": 1, \"SchemaVersion\": 1"); break;
+            case "duplicate-property": json = json.Replace("\"SchemaVersion\": 2", "\"SchemaVersion\": 2, \"SchemaVersion\": 2"); break;
             case "selection": tools["ActiveDockable"] = new JsonObject { ["$ref"] = dock["$id"]!.GetValue<string>() }; break;
             case "closed-document": node["ClosedTools"]!.AsArray().Add(DockShellState.DocumentId); break;
             case "split": tools["Proportion"] = -5; break;
@@ -244,6 +244,11 @@ public sealed class DockLayoutTests
     {
         var focused = h.Layout.IsMaximized;
         var tree = DockShellLayout.VisibleTree(h.Layout.Root).ToArray();
+        h.Layout.Show(DockShellState.InspectorId);
+        h.Layout.Float(DockShellState.InspectorId);
+        h.Layout.Dock(DockShellState.InspectorId);
+        h.Layout.Close(DockShellState.InspectorId);
+        Assert.That(h.Layout.Maximize(DockShellState.InspectorId), Is.False);
         Assert.That(h.Layout.Maximize(DockShellState.DocumentId), Is.False);
         Assert.That(h.Layout.Restore(), Is.False); Assert.That(h.Layout.Reset(), Is.False);
         Assert.That(h.Layout.IsMaximized, Is.EqualTo(focused));
@@ -296,7 +301,7 @@ public sealed class DockLayoutTests
         await DockEditorTests.Wait(() => !h.Window.IsVisible);
         var saved = store.Load(); Assert.That(saved, Is.Not.Null, store.LastError);
         Assert.That(saved!.Root.Windows, Has.Count.EqualTo(1));
-        Assert.That(DockShellLayout.VisibleTree(saved.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
+        Assert.That(DockShellLayout.VisibleTree(saved.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
         Assert.That(h.Service.HasRegisteredEditor, Is.False);
         Assert.Throws<ObjectDisposedException>(() => h.Layout.Reset());
     });

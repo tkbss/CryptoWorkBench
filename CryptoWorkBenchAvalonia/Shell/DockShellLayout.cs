@@ -23,6 +23,19 @@ public sealed partial class DockShellLayout : IDisposable
     public Factory Factory { get; }
     public IRootDock Root { get; private set; }
     public bool IsDisposed { get; private set; }
+    internal event Action<bool>? InspectorVisibilityChanged;
+    internal void SyncInspectorVisibility()
+    {
+        if (!IsDisposed && !_replacing && !IsMaximized && InspectorVisibilityChanged != null)
+            InspectorVisibilityChanged(VisibleTree(Root).Contains(Pane(DockShellState.InspectorId)));
+    }
+
+    private void OpenTool(IDock group, IDockable pane)
+    {
+        Factory.AddDockable(group, pane);
+        if (pane.Id == DockShellState.InspectorId) SyncInspectorVisibility();
+    }
+
     internal event Action<string>? Feedback;
     internal void ReportFeedback(string message) => Feedback?.Invoke(message);
 
@@ -40,7 +53,7 @@ public sealed partial class DockShellLayout : IDisposable
         documents.VisibleDockables = Factory.CreateList<IDockable>(document);
         documents.ActiveDockable = document;
         var tools = NewAnchor(Tools);
-        tools.VisibleDockables = Factory.CreateList<IDockable>(Pane(DockShellState.VariablesId), Pane(DockShellState.InfoId));
+        tools.VisibleDockables = Factory.CreateList<IDockable>(Pane(DockShellState.VariablesId), Pane(DockShellState.InfoId), Pane(DockShellState.InspectorId));
         tools.ActiveDockable = Pane(DockShellState.VariablesId);
         var diagnostics = NewAnchor(Diagnostics);
         diagnostics.VisibleDockables = Factory.CreateList<IDockable>(Pane(DockShellState.OutputId), Pane(DockShellState.DiagnosticsId));
@@ -99,7 +112,7 @@ public sealed partial class DockShellLayout : IDisposable
         Verify();
         var pane = Pane(id);
         if (!CanChange) return;
-        if (!VisibleTree(Root).Contains(pane)) Factory.AddDockable(Anchor(Home(id)), pane);
+        if (!VisibleTree(Root).Contains(pane)) OpenTool(Anchor(Home(id)), pane);
         Factory.SetActiveDockable(pane);
         var root = Factory.FindRoot(pane) ?? Root;
         Factory.SetFocusedDockable(root, pane);
@@ -133,7 +146,7 @@ public sealed partial class DockShellLayout : IDisposable
         {
             if (!ReferenceEquals(source, target)) Factory.MoveDockable(source, target, pane, null);
         }
-        else Factory.AddDockable(target, pane);
+        else OpenTool(target, pane);
         Factory.SetActiveDockable(pane);
         Factory.SetFocusedDockable(Root, pane);
     }
@@ -189,6 +202,8 @@ public sealed partial class DockShellLayout : IDisposable
         if (IsDisposed) return;
         DockLifecycleTrace.Write("layout-dispose:before", this);
         IsDisposed = true;
+        InspectorVisibilityChanged?.Invoke(false);
+        InspectorVisibilityChanged = null;
         _focus = null;
         _focusProportions = null;
         RootChanged = null;

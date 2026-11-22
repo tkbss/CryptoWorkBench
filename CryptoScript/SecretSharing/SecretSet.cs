@@ -15,6 +15,18 @@ public sealed class SecretShare
     }
     public int X { get; }
     public byte[] Value => (byte[])value.Clone();
+    /// <summary>Copies an exact range without allocating a full share clone.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The requested range is outside the share.</exception>
+    public void CopyValueRange(int offset, Span<byte> destination)
+    {
+        // Subtraction after validating offset avoids overflow for hostile bounds.
+        // Validate the complete range before writing any destination byte.
+        if (offset < 0 || offset > value.Length)
+            throw new ArgumentOutOfRangeException(nameof(offset));
+        if (destination.Length > value.Length - offset)
+            throw new ArgumentOutOfRangeException(nameof(destination));
+        value.AsSpan(offset, destination.Length).CopyTo(destination);
+    }
     internal ReadOnlySpan<byte> Bytes => value;
 }
 

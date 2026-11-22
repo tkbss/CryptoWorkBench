@@ -46,7 +46,7 @@ public sealed class DockPersistenceCleanupTests
     [Test]
     public Task StartupPresentsRestoredHostsThroughProductWindowOpened() => GuiTestSession.Session.Dispatch(async () =>
     {
-        await using var h = new DockToolTests.Host(DockLayoutStore.Decode(HistoricalJson()));
+        await using var h = new DockToolTests.Host(DockLayoutStore.Migrate(HistoricalJson()));
         var window = h.Layout.Root.Windows!.Single();
         Assert.That(window.Host, Is.InstanceOf<Window>());
         Assert.That(((Window)window.Host!).IsVisible, Is.True);
@@ -130,7 +130,7 @@ public sealed class DockPersistenceCleanupTests
     [Test]
     public Task OriginalPreA02SchemaOneLoadsAndReleasesFloatingInfo() => GuiTestSession.Session.Dispatch(async () =>
     {
-        var saved = DockLayoutStore.Decode(HistoricalJson());
+        var saved = DockLayoutStore.Migrate(HistoricalJson());
         await using var h = new DockToolTests.Host(saved);
         var info = h.Layout.Pane(DockShellState.InfoId);
         var model = h.Layout.Factory.FindRoot(info)!.Window!;
@@ -188,7 +188,7 @@ public sealed class DockPersistenceCleanupTests
             case "context": group["Context"] = "application object"; break;
             case "wrong-anchor-type": group["Id"] = DockShellLayout.Documents; break;
         }
-        Assert.Throws<InvalidDataException>(() => DockLayoutStore.Decode(node.ToJsonString()));
+        Assert.Throws<InvalidDataException>(() => DockLayoutStore.Migrate(node.ToJsonString()));
     }
 
     [Test]
@@ -196,8 +196,8 @@ public sealed class DockPersistenceCleanupTests
     {
         var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "g1a03", Guid.NewGuid().ToString("N"), "layout.json");
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, HistoricalJson());
-        var store = new DockLayoutStore(path);
+        File.WriteAllText(path + ".v1", HistoricalJson());
+        var store = new DockLayoutStore(path, path + ".v1");
         string[]? ids = null;
         for (int i = 0; i < 3; i++)
         {
@@ -268,7 +268,7 @@ public sealed class DockPersistenceCleanupTests
     [TestCase("pending")][TestCase("active")][TestCase("observer")]
     public Task RestoredLegacyHostCannotBypassAdmission(string state) => GuiTestSession.Session.Dispatch(async () =>
     {
-        await using var h = new DockToolTests.Host(DockLayoutStore.Decode(HistoricalJson()));
+        await using var h = new DockToolTests.Host(DockLayoutStore.Migrate(HistoricalJson()));
         var info = h.Layout.Pane(DockShellState.InfoId);
         var source = (IDock)info.Owner!;
         var host = (Window)h.Layout.Factory.FindRoot(info)!.Window!.Host!;
@@ -294,13 +294,13 @@ public sealed class DockPersistenceCleanupTests
     {
         var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "g1a03", Guid.NewGuid().ToString("N"), "layout.json");
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, HistoricalJson().Replace(DockShellState.InfoId, DockShellState.OutputId));
-        var store = new DockLayoutStore(path);
+        File.WriteAllText(path + ".v1", HistoricalJson().Replace(DockShellState.InfoId, DockShellState.OutputId));
+        var store = new DockLayoutStore(path, path + ".v1");
         var loaded = store.Load(); Assert.That(loaded, Is.Null); Assert.That(store.LastError, Is.Not.Null);
         await using var h = new DockToolTests.Host(loaded);
         var host = h.Float(DockShellState.InfoId);
         h.Layout.Dock(DockShellState.InfoId); h.Pump(); Assert.That(host.IsVisible, Is.False);
-        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(5));
+        Assert.That(DockShellLayout.VisibleTree(h.Layout.Root).Count(p => p is IDocument or ITool), Is.EqualTo(6));
         Assert.That(DockLayoutStore.Decode(h.Layout.Capture(Bounds)), Is.Not.Null);
         return true;
     }, CancellationToken.None);

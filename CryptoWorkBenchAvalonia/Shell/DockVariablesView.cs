@@ -3,9 +3,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Input.Platform;
 using Avalonia.Layout;
 using Avalonia.Media;
 using CryptoWorkBenchAvalonia.Models;
+using CryptoWorkBenchAvalonia.Services.Inspector;
 using CryptoWorkBenchAvalonia.ViewModels;
 
 namespace CryptoWorkBenchAvalonia.Shell;
@@ -14,10 +17,12 @@ namespace CryptoWorkBenchAvalonia.Shell;
 public sealed class DockVariablesView : UserControl, IDisposable
 {
     public VariableViewModel ViewModel { get; }
+    private Action<string>? _reportFeedback;
+    private long _copyGeneration;
     private bool _started;
     private bool _disposed;
 
-    public DockVariablesView(VariableViewModel viewModel)
+    public DockVariablesView(VariableViewModel viewModel, Action? inspect = null)
     {
         ViewModel = viewModel;
         DataContext = viewModel;
@@ -27,10 +32,18 @@ public sealed class DockVariablesView : UserControl, IDisposable
         var stale = new TextBlock { Text = "Displayed snapshot is stale.", TextWrapping = TextWrapping.Wrap };
         stale.Bind(IsVisibleProperty, new Binding(nameof(viewModel.IsSnapshotStale)));
         var header = new StackPanel { Spacing = 4, Children = { stale, refresh } };
-        var list = new DataGrid { Name = "VariablesGrid", AutoGenerateColumns = false, IsReadOnly = true,
+        if (inspect != null)
+        {
+            var button = new Button { Content = "Inspect Variable" };
+            button.Bind(IsEnabledProperty, new Binding(nameof(viewModel.SelectedVariable))
+                { Converter = Avalonia.Data.Converters.ObjectConverters.IsNotNull });
+            button.Click += (_, _) => inspect();
+            header.Children.Add(button);
+        }
+        var list = new VariableGrid(viewModel) { Name = "VariablesGrid", AutoGenerateColumns = false, IsReadOnly = true,
             CanUserReorderColumns = false, GridLinesVisibility = DataGridGridLinesVisibility.All, MinHeight = 100 };
         list.Bind(DataGrid.ItemsSourceProperty, new Binding(nameof(viewModel.DataVariables)));
-        list.Bind(DataGrid.SelectedItemProperty, new Binding(nameof(viewModel.SelectedVariable)) { Mode = BindingMode.TwoWay });
+        list.Bind(DataGrid.SelectedItemProperty, new Binding(nameof(viewModel.SelectedVariable)) { Mode = BindingMode.OneWay });
         list.Columns.Add(SummaryColumn("Type", nameof(VariableModel.Type)));
         list.Columns.Add(SummaryColumn("Identifier", nameof(VariableModel.Identifier)));
         list.Columns.Add(SummaryColumn("Value", nameof(VariableModel.Value)));
@@ -51,20 +64,89 @@ public sealed class DockVariablesView : UserControl, IDisposable
         Content = panel;
     }
 
-    private static SelectableTextBlock Text(string path, string? name = null)
+    // DataGrid rebuilds its rows on attach, temporarily selecting null and then
+    // its currency row. Only user selection belongs in the shared model.
+    private sealed class VariableGrid : DataGrid
+    {
+        private readonly VariableViewModel _variables;
+        private bool _attached;
+        protected override Type StyleKeyOverride => typeof(DataGrid);
+
+        internal VariableGrid(VariableViewModel variables)
+        {
+            _variables = variables;
+            SelectionChanged += (_, _) =>
+            {
+                if (_attached) _variables.SelectedVariable = SelectedItem as VariableModel;
+            };
+        }
+
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+            SelectedItem = _variables.SelectedVariable;
+            _attached = true;
+        }
+
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            _attached = false;
+            base.OnDetachedFromVisualTree(e);
+        }
+    }
+
+    private SelectableTextBlock Text(string path, string? name = null)
     {
         var text = new SelectableTextBlock { Name = name, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(3) };
-        text.Bind(TextBlock.TextProperty, new Binding(path) { Mode = BindingMode.OneWay });
+        string? abbreviatedSource = null;
+        var converter = new FuncValueConverter<string?, string?>(source =>
+        {
+            var preview = source == null ? null : DisplayTextPreview.Shorten(source);
+            abbreviatedSource = ReferenceEquals(source, preview) ? null : source;
+            return preview;
+        });
+        text.Bind(TextBlock.TextProperty, new Binding(path) { Mode = BindingMode.OneWay, Converter = converter });
+        text.CopyingToClipboard += async (_, e) =>
+        {
+            // The final ellipsis represents the omitted suffix. Only expand it on explicit copy.
+            int start = Math.Min(text.SelectionStart, text.SelectionEnd);
+            int end = Math.Max(text.SelectionStart, text.SelectionEnd);
+            if (start == end) return;
+            // Each selection copy supersedes earlier feedback, including a normal control copy.
+            long generation = ++_copyGeneration;
+            try
+            {
+                if (abbreviatedSource is not { } source || end != text.Text?.Length)
+                {
+                    if (OperatingSystem.IsWindows()) InspectorClipboard.ValidateWindowsText(text.SelectedText);
+                    return;
+                }
+
+                e.Handled = true;
+                string selected = source[start..];
+                if (OperatingSystem.IsWindows()) InspectorClipboard.ValidateWindowsText(selected);
+                var clipboard = TopLevel.GetTopLevel(text)?.Clipboard ?? throw new InvalidOperationException("Clipboard unavailable.");
+                await clipboard.SetTextAsync(selected);
+                if (generation == _copyGeneration)
+                    _reportFeedback?.Invoke($"Copied {selected.Length:N0} characters.");
+            }
+            catch (Exception error)
+            {
+                e.Handled = true;
+                if (generation == _copyGeneration)
+                    _reportFeedback?.Invoke(DisplayTextPreview.Concat("Copy failed. ", error.GetBaseException().Message));
+            }
+        };
         return text;
     }
 
-    private static DataGridTemplateColumn Column(string title, string path) => new()
+    private DataGridTemplateColumn Column(string title, string path) => new()
     {
         Header = title, IsReadOnly = true,
         CellTemplate = new FuncDataTemplate<object>((_, _) => Text(path))
     };
 
-    private static DataGridTemplateColumn SummaryColumn(string title, string path) => new()
+    private DataGridTemplateColumn SummaryColumn(string title, string path) => new()
     {
         Header = title, IsReadOnly = true, Width = new DataGridLength(1, DataGridLengthUnitType.Star), MinWidth = 60,
         CellTemplate = new FuncDataTemplate<object>((_, _) =>
@@ -76,7 +158,7 @@ public sealed class DockVariablesView : UserControl, IDisposable
         })
     };
 
-    private static Control Details()
+    private Control Details()
     {
         var panel = new StackPanel { Spacing = 5 };
         foreach (var (label, path, visible) in new (string, string, string?)[]
@@ -102,10 +184,24 @@ public sealed class DockVariablesView : UserControl, IDisposable
         return panel;
     }
 
-    internal void Start()
+    // Retire feedback on the UI thread while the original clipboard transfer finishes.
+    internal void InvalidatePendingCopyFeedback()
+    {
+        VerifyAccess();
+        ++_copyGeneration;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        InvalidatePendingCopyFeedback();
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    internal void Start(Action<string> reportFeedback)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (_started) return;
+        _reportFeedback = reportFeedback;
         _started = true;
         ViewModel.Automation.EditorCoordinator.WorkspaceChanged += ViewModel.InvalidateDraft;
         ViewModel.AttachView(this);
@@ -115,6 +211,7 @@ public sealed class DockVariablesView : UserControl, IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        _reportFeedback = null;
         if (!_started) return;
         ViewModel.Automation.EditorCoordinator.WorkspaceChanged -= ViewModel.InvalidateDraft;
         ViewModel.DetachView(this);

@@ -94,6 +94,7 @@ public sealed partial class DockShellLayout
         // InitDockable wires contexts, owners and native hosts but does not show windows.
         // Startup windows are first presented by DockControl after the main shell is ready.
         Factory.InitDockable(Root, null);
+        SyncInspectorVisibility();
         RootChanged?.Invoke();
         if (present) Root.ShowWindows.Execute(null);
     }
@@ -232,7 +233,7 @@ public sealed partial class DockShellLayout
             catch (Exception error) when (DockLayoutStore.Recoverable(error))
             {
                 // Reset alone owns replacement of the complete presentation. Reinstall
-                // its validated previous model once, rebinding the SAME six pane objects.
+                // its validated previous model once, rebinding the original pane objects.
                 // Native hosts may be recreated; no business session is reset or replayed.
                 throw MutationFailed(error, () => Install(previous.Root, present: true), () =>
                 {

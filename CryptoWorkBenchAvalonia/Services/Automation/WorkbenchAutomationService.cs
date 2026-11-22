@@ -124,7 +124,9 @@ public sealed partial class WorkbenchAutomationService
     internal IReadOnlyList<VariableModel> ClearAdmittedState() => InterpreterExecution.AccessState(() =>
     {
         var job = current.Value ?? throw new ExecutionBusyException();
+        if (job.InspectorRead) throw new InvalidOperationException("Inspector reads cannot reset the workspace.");
         VariableDictionary.Instance().Clear();
+        NotifyInspectorReset();
         lock (sync) job.Effects = true;
         return CaptureMutation();
     });
