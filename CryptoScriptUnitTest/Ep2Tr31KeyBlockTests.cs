@@ -250,8 +250,6 @@ public class Ep2Tr31KeyBlockTests
         Assert.Throws<NotSupportedException>(() => algorithm.Decrypt([]));
         Assert.Throws<NotSupportedException>(() => algorithm.Mac([]));
         Assert.Throws<NotSupportedException>(() => algorithm.Hash([]));
-        Assert.Throws<NotSupportedException>(() => algorithm.GenerateBlockHeader(Array.Empty<string>()));
-        Assert.Throws<NotSupportedException>(() => algorithm.GenerateBlockHeader(Mechanism));
         Assert.Throws<NotSupportedException>(() => algorithm.GenerateKey(Mechanism, "128"));
         Assert.Throws<NotSupportedException>(() => algorithm.Derive(new AlgorithmCallArguments([])));
         Assert.Throws<ArgumentException>(() => algorithm.GenerateParameters("AES-ECB"));

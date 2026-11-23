@@ -133,7 +133,5 @@ public sealed class Ep2Tr31KeyBlock : CryptoAlgorithm
     public override StringVariableDeclaration Decrypt(string[] parameters) => throw Unsupported();
     public override StringVariableDeclaration Hash(string[] parameters) => throw Unsupported();
     public override StringVariableDeclaration Mac(string[] parameters) => throw Unsupported();
-    public override BlockHeaderVariableDeclaration GenerateBlockHeader(string[] parameters) => throw Unsupported();
-    public override BlockHeaderVariableDeclaration GenerateBlockHeader(string mechanism) => throw Unsupported();
     private static NotSupportedException Unsupported() => new("EP2 TR-31 supports only Parameters and structured Wrap/Unwrap calls with genuine references.");
 }

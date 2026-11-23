@@ -60,8 +60,6 @@ namespace CryptoScript.Model
                     return op.Wrap;
                 case "unwrap":
                     return op.Unwrap;
-                case "blockheader":
-                    return op.BlockHeader;
                 case "check":
                     return KeyCheckOperations.Check;
                 case "compare":
@@ -109,8 +107,6 @@ namespace CryptoScript.Model
                     return op.Wrap;
                 case "unwrap":
                     return op.Unwrap;
-                case "blockheader":
-                    return op.BlockHeader;
                 case "check":
                     return KeyCheckOperations.Check;
                 case "compare":

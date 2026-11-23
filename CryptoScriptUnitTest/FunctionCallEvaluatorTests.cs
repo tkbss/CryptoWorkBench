@@ -420,7 +420,7 @@ public class SignRemovalTests
     public void OtherV1FunctionsStillResolveThroughBothDispatchers()
     {
         foreach (string name in new[] { "Parameters", "GenerateKey", "Encrypt", "Decrypt", "Mac", "Hash",
-                     "Derive", "Wrap", "Unwrap", "BlockHeader", "Print", "Info", "Compare" })
+                     "Derive", "Wrap", "Unwrap", "Print", "Info", "Compare" })
         {
             Assert.That(OperationFactory.CreateOperation(name), Is.Not.Null);
             Assert.That(OperationFactory.CreateInvocationOperation(name), Is.Not.Null);
@@ -523,5 +523,11 @@ public class SignRemovalTests
         Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);
         Assert.That(LexerErrorListener.LexerErrorOccured, Is.False);
         runner.Execute(program);
+    }
+    [Test]
+    public void RemovedBlockHeaderFunctionIsNotDispatchable()
+    {
+        Assert.Throws<ArgumentException>(() => OperationFactory.CreateOperation("BlockHeader"));
+        Assert.Throws<ArgumentException>(() => OperationFactory.CreateInvocationOperation("BlockHeader"));
     }
 }

@@ -156,7 +156,7 @@ public static class AssignmentEvaluator
                 "Function has no usable return value for assignment.");
         // Explicitly audited set: new operations must opt in after reviewing their mutations.
         if (name is not ("parameters" or "generatekey" or "derive" or "hash" or "mac" or
-            "encrypt" or "decrypt" or "wrap" or "unwrap" or "blockheader" or "createheader" or
+            "encrypt" or "decrypt" or "wrap" or "unwrap" or "createheader" or
             "check" or "compare" or "share" or "secret" or "restore" or "pinblocktranslate" or
             "macpack" or "macverify"))
             throw Error(errors, assignment, SemanticDiagnosticCode.UnknownFunction,

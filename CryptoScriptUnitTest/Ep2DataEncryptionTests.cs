@@ -285,8 +285,6 @@ public class Ep2DataEncryptionTests
         Assert.Throws<NotSupportedException>(() => algorithm.Unwrap(empty));
         Assert.Throws<NotSupportedException>(() => algorithm.Derive(new AlgorithmCallArguments(Array.Empty<AlgorithmCallArgument>())));
         Assert.Throws<NotSupportedException>(() => algorithm.GenerateKey(Mechanism, "128"));
-        Assert.Throws<NotSupportedException>(() => algorithm.GenerateBlockHeader(empty));
-        Assert.Throws<NotSupportedException>(() => algorithm.GenerateBlockHeader(Mechanism));
         Run(Prefix());
         foreach (string call in new[] { "Hash(p,data)", "Mac(p,k,data)", "Wrap(p,k,data)", "Unwrap(p,k,data)", "Derive(p,k,data)", $"GenerateKey({Mechanism},128)" })
             Assert.Throws<SemanticErrorException>(() => Run(call), call);

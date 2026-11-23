@@ -54,8 +54,6 @@ public sealed class Ep2DataEncryption : CryptoAlgorithm
     public override StringVariableDeclaration Mac(string[] parameters) => throw Unsupported();
     public override StringVariableDeclaration Wrap(string[] parameters) => throw Unsupported();
     public override VariableDeclaration Unwrap(string[] parameters) => throw Unsupported();
-    public override BlockHeaderVariableDeclaration GenerateBlockHeader(string[] parameters) => throw Unsupported();
-    public override BlockHeaderVariableDeclaration GenerateBlockHeader(string mechanism) => throw Unsupported();
     private static NotSupportedException Unsupported() =>
         new("EP2 data encryption supports only Parameters, Encrypt and Decrypt.");
 

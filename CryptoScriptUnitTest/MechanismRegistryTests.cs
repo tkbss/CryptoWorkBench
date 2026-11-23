@@ -167,7 +167,6 @@ public class MechanismRegistryTests
     [TestCase("HMAC-SHA256", CryptoScriptFunction.Hash)]
     [TestCase("KDF-HKDF", CryptoScriptFunction.Encrypt)]
     [TestCase("WRAP-AES-TR31", CryptoScriptFunction.Parameters)]
-    [TestCase("WRAP-DES3-TR31", CryptoScriptFunction.BlockHeader)]
     public void KnownUnsupportedFunctionCombinationsAreExcluded(
         string mechanism,
         CryptoScriptFunction function)
@@ -396,22 +395,6 @@ public class MechanismRegistryTests
             algorithm,
             nameof(Algorithm.Unwrap),
             CryptoScriptFunction.Unwrap);
-
-        try
-        {
-            Algorithm blockHeaderAlgorithm = AlgorithmFactory.Create($"BLOCKHEADER-{mechanism}");
-            if (HasConcreteAlgorithmOverride(
-                    blockHeaderAlgorithm,
-                    nameof(Algorithm.GenerateBlockHeader),
-                    typeof(string)))
-            {
-                functions.Add(CryptoScriptFunction.BlockHeader);
-            }
-        }
-        catch (NotSupportedException)
-        {
-            // No internal BlockHeader dispatch exists for this mechanism.
-        }
 
         return functions.ToFrozenSet();
     }

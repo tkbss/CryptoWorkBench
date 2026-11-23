@@ -35,6 +35,7 @@ public class AlgorithmFactoryTests
     [TestCase("BLOCKHEADER-AES-TR31")]
     [TestCase("BLOCKHEADER-AES-TR31-EXTRA")]
     [TestCase("BLOCKHEADER-WRAP-AES-TR31-EXTRA")]
+    [TestCase("BLOCKHEADER-WRAP-AES-TR31")]
     public void UnsupportedMechanismsDoNotFallBackToAnAlgorithm(string mechanism)
     {
         var error = Assert.Throws<NotSupportedException>(() => AlgorithmFactory.Create(mechanism));
@@ -54,27 +55,9 @@ public class AlgorithmFactoryTests
     [TestCase("MAC-EMV-ARPC-METHOD-2", typeof(CryptoScript.CryptoAlgorithm.EMV.MAC_EMV_ARPC_METHOD_2))]
     [TestCase("WRAP-AES-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.WrapAESTR31))]
     [TestCase("WRAP-DES3-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.WrapDES3TR31))]
-    [TestCase("BLOCKHEADER-WRAP-AES-TR31", typeof(CryptoScript.CryptoAlgorithm.WRAPPERS.Tr31BlockHeader))]
     public void ImplementedMechanismsStillResolveToTheirAlgorithms(string mechanism, Type expectedType)
     {
         Assert.That(AlgorithmFactory.Create(mechanism), Is.TypeOf(expectedType));
     }
 
-    [Test]
-    public void CryptoOperationsBlockHeaderUsesTheInternalTr31FactoryMechanism()
-    {
-        var operations = new CryptoOperations();
-
-        VariableDeclaration result = operations.BlockHeader("WRAP-AES-TR31");
-
-        Assert.That(result, Is.TypeOf<BlockHeaderVariableDeclaration>());
-        var header = (BlockHeaderVariableDeclaration)result;
-        Assert.Multiple(() =>
-        {
-            Assert.That(header.Type, Is.TypeOf<CryptoTypeTR31Header>());
-            Assert.That(
-                header.Value,
-                Is.EqualTo("{KBVID:D,KBLEN:0144,KEYU:D0,ALGO:A,MODEU:B,KEYVN:00,EXP:S,KEYCTX:0,NUMOPTB:00,RSV:0}"));
-        });
-    }
 }

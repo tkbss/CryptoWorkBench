@@ -245,7 +245,7 @@ public class PinBlockArchitectureTests
     }
 
     [Test]
-    public void ExistingTr31DispatchAndContractsRemainUnchanged()
+    public void Tr31WrapDispatchAndContractsRemainAvailable()
     {
         Assert.Multiple(() =>
         {
@@ -256,8 +256,7 @@ public class PinBlockArchitectureTests
             Assert.That(aes!.SupportedFunctions, Is.EquivalentTo(new[]
             {
                 CryptoScriptFunction.Wrap,
-                CryptoScriptFunction.Unwrap,
-                CryptoScriptFunction.BlockHeader
+                CryptoScriptFunction.Unwrap
             }));
             Assert.That(MechanismRegistry.TryGet("WRAP-DES3-TR31", out MechanismRegistryEntry? des3),
                 Is.True);

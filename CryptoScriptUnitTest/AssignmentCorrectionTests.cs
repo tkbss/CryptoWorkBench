@@ -55,9 +55,9 @@ public class AssignmentCorrectionTests
         var cases = new (string Name, string Setup, string Initializer, SemanticDiagnosticCode Code)[]
         {
             ("HeaderPlaceholder", "TR31H target=" + HeaderWithMetadata,
-                "BlockHeader(WRAP-AES-TR31,0x(01))", SemanticDiagnosticCode.FunctionContractViolation),
+                "BlockHeader(WRAP-AES-TR31,0x(01))", SemanticDiagnosticCode.UnknownFunction),
             ("LegacyDisplayHeader", "TR31H target=" + HeaderWithMetadata,
-                "BlockHeader(WRAP-AES-TR31)", SemanticDiagnosticCode.FunctionContractViolation),
+                "BlockHeader(WRAP-AES-TR31)", SemanticDiagnosticCode.UnknownFunction),
             ("MechInIv", parameterSetup, "#IV:\"MECH\"", SemanticDiagnosticCode.InvalidAssignmentInitializer),
             ("MechInPadding", parameterSetup, "#PAD:\"MECH\"", SemanticDiagnosticCode.InvalidAssignmentInitializer),
             ("MechInPrivateValue", parameterSetup, "#IV:\"private-MECH-marker\"", SemanticDiagnosticCode.InvalidAssignmentInitializer),
@@ -171,16 +171,9 @@ public class AssignmentCorrectionTests
     }
 
     [TestCase(false)] [TestCase(true)]
-    public async Task LegacyDeclarationBehaviorRemainsUnchanged(bool asynchronous)
+    public async Task OtherLegacyDeclarationBehaviorRemainsUnchanged(bool asynchronous)
     {
-        var program = await Run("TR31H placeholder=BlockHeader(WRAP-AES-TR31,0x(01)) " +
-            "TR31H display=BlockHeader(WRAP-AES-TR31) PARAM legacy=#IV:\"MECH\" " +
-            "VAR overflow=2147483648 VAR verylong=" + new string('9', 1024), asynchronous);
-        Assert.That(((BlockHeaderVariableDeclaration)Get("placeholder")).Definition, Is.Null);
-        Assert.That(Get("placeholder").Value, Is.Empty);
-        Assert.That(((BlockHeaderVariableDeclaration)Get("display")).Definition, Is.Null);
-        Assert.That(Get("display").Value, Is.EqualTo(
-            "{KBVID:D,KBLEN:0144,KEYU:D0,ALGO:A,MODEU:B,KEYVN:00,EXP:S,KEYCTX:0,NUMOPTB:00,RSV:0}"));
+        var program = await Run("PARAM legacy=#IV:\"MECH\" VAR overflow=2147483648 VAR verylong=" + new string('9', 1024), asynchronous);
         Assert.That(((ParameterVariableDeclaration)Get("legacy")).Mechanism, Is.EqualTo("\"MECH\""));
         Assert.That(Get("legacy").Value, Is.EqualTo("#MECH:\"MECH\"#IV:\"MECH\""));
         Assert.That(Get("overflow").Value, Is.EqualTo("\"\""));

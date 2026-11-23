@@ -12,8 +12,6 @@
             if (SecretSharing.SecretParameters.IsSecretMechanism(canonicalMechanism))
                 return new SecretSharing.SecretSharingAlgorithm();
 
-            if (canonicalMechanism == "BLOCKHEADER-WRAP-AES-TR31")
-                return new WRAPPERS.Tr31BlockHeader();
             if (canonicalMechanism == "WRAP-AES-TR31")
                 return new WRAPPERS.WrapAESTR31();
             if (canonicalMechanism == "WRAP-AES-PINBLOCK-4")
