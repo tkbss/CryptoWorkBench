@@ -19,6 +19,8 @@ if (-not (Test-Path -LiteralPath $checkout)) {
     if ($VerifyOnly) { throw 'Prism checkout is missing. Run Bootstrap-Packages.ps1 first.' }
     Invoke-PrismGit @('init', $checkout)
     Invoke-PrismGit @('-C', $checkout, 'config', 'core.autocrlf', 'false')
+    # Pin checkout bytes for the license and embedded AXAML on every OS.
+    Invoke-PrismGit @('-C', $checkout, 'config', 'core.eol', 'crlf')
     Invoke-PrismGit @('-C', $checkout, 'remote', 'add', 'origin', 'https://github.com/PrismLibrary/Prism.git')
     Invoke-PrismGit @('-C', $checkout, 'fetch', '--depth', '1', 'origin', $pin)
     Invoke-PrismGit @('-C', $checkout, 'checkout', '--detach', $pin)
