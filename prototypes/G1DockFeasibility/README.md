@@ -6,7 +6,7 @@ Aus dem **G1-Worktree** mit PowerShell 7 und dem durch `global.json` festgelegte
 pwsh -NoProfile ./prototypes/G1DockFeasibility/Validate.ps1 -Native -IncludeRegression -EvidenceDirectory artifacts/g1/new-run
 ```
 
-Der Wrapper verwendet die unveränderte Prism-Quellvorbereitung, prüft Debug und Release,
+Der Wrapper verwendet den lokalen Prism-Paketfeed, prüft Debug und Release,
 führt die Headless-Tests und optional echte Desktop-Tests sowie die gesamten bestehenden
 GUI-/MCP-/Core-Suites aus. `-Native` braucht einen entsperrten Desktop; dabei erhalten die
 Testfenster wiederholt den Fokus. Falls Windows einen Hintergrundstart nicht aktiviert,
@@ -20,13 +20,9 @@ Testresultate in TRX, Prozess-Exitcodes und exakte Argumente in `commands.json`.
 Interaktiv starten:
 
 ```powershell
-. ./eng/prism/Enter-Prism.ps1
-try {
-    dotnet restore ./prototypes/G1DockFeasibility/G1DockFeasibility.csproj --locked-mode
-    dotnet run --project ./prototypes/G1DockFeasibility/G1DockFeasibility.csproj --no-restore
-} finally {
-    . ./eng/prism/Leave-Prism.ps1
-}
+& ./eng/prism/Bootstrap-Packages.ps1
+dotnet restore ./prototypes/G1DockFeasibility/G1DockFeasibility.csproj --locked-mode
+dotnet run --project ./prototypes/G1DockFeasibility/G1DockFeasibility.csproj --no-restore
 ```
 
 Variables-/Diagnostics-Kopf bzw. Dokument-Tab ziehen. Die Testbuttons erlauben deterministisches

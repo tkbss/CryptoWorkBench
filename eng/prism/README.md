@@ -1,75 +1,106 @@
-# Temporary official Prism integration (A12-05, corrected by A12-05-F2)
+# Temporary local Prism NuGet packages (P1)
 
-This adapter is only for CryptoWorkBench until the official Prism release with Avalonia 12 support. The owner's reported support exception ends at that release, announced for November 2026. The subsequent switch to the official compatible NuGet pair is mandatory.
+CryptoWorkBench consumes four **local-only** packages built from unchanged official Prism commit
+`358118cd640d9a22ff8cf21c8ad197fa038b7990`. This temporary integration relies on the owner's reported
+license exception. It grants no new license and must be replaced by owner-approved official
+Avalonia-12-compatible packages. Never publish these packages to public or external feeds.
 
-## Prepare and build
+## One-time bootstrap
 
-Prerequisites: Git, PowerShell 7 (`pwsh`) on PATH, and .NET SDK `10.0.401`, as required by `global.json` with `rollForward: disable` and `allowPrerelease: false`. The Prism CI wrapper verifies the exact SDK version. SDK updates must be coordinated with `global.json`, the workflow SDK installation and the wrapper verification. From the repository root:
-
-```powershell
-pwsh -NoProfile ./eng/prism/Build.ps1 -Configuration Release
-pwsh -NoProfile ./eng/prism/Build.ps1 -Configuration Debug
-```
-
-Both solutions are restored in locked mode and built. The root solution includes the full Core tests; the Avalonia solution includes GUI, desktop, MCP and the four upstream Prism projects. The application remains net10.0 / Avalonia 12.1.4. Prism's original frameworks and its own Avalonia 12.1.1 compilation dependencies are unchanged.
-
-`Prepare-Prism.ps1` fetches official `https://github.com/PrismLibrary/Prism.git` commit `358118cd640d9a22ff8cf21c8ad197fa038b7990` into ignored `.deps/prism`. Existing checkouts are never reset, patched or overwritten. Every preparation checks HEAD, origin, clean Git status and all pinned file contents independently of Git index flags and configurable clean filters. Only CRLF-to-LF normalization is accepted in addition to exact blob bytes, to accommodate the official text attributes.
-
-Ignored extra files are rejected except inside the four actual Prism project roots' `bin/` and `obj/` output directories. For example, `src/Prism.Events/Debug/Extra.cs` is rejected despite the upstream Git ignore rule. Symlinks/junctions in the checkout are rejected. Before each non-design-time Prism `CoreCompile`, the external target repeats verification and validates the actual Compile list: only pinned source files and the SDK-declared AssemblyInfo, GlobalUsings and target-framework attributes files under the current project's `obj/` are accepted. A stray `obj/Extra.cs` can remain an excluded output, but explicitly compiling it fails. No official Prism file is edited.
-
-This is a source/build-input consistency check, not a sandbox for hostile SDKs, NuGet packages or concurrent modification by another process. Standard generated NuGet imports and SDK outputs remain part of the trusted build environment. Keep source and build processes under the owner's control.
-
-## Scoped CLI and IDE environment
-
-Use a new PowerShell process, particularly after upgrading from the original A12-05 hooks:
+Requirements: Git, PowerShell 7.4+, exact .NET SDK 10.0.401. From the repository root, in a clean process:
 
 ```powershell
-. ./eng/prism/Enter-Prism.ps1
-try {
-    dotnet restore ./CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln --locked-mode
-    dotnet build ./CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln --no-restore
-} finally {
-    . ./eng/prism/Leave-Prism.ps1
-}
+pwsh -NoProfile -File ./eng/prism/Bootstrap-Packages.ps1
 ```
 
-Without an explicit Configuration, the intended Debug locks are selected. `-c Release` / `-p:Configuration=Release` select only Release locks. Both outer and inner multi-target evaluations use these paths. Missing locks fail with an explicit message; inconsistent/corrupt locks fail in NuGet's locked restore. No lock is implicitly created to replace a missing reviewed lock. Only Debug and Release are supported.
+The script creates a **new** ignored `.deps/prism-packaging` checkout if absent, verifies its origin, exact
+commit, 1,180 pinned files, extra inputs and links, restores existing reviewed upstream locks, and
+compiles only net10.0 Release outputs. Existing checkouts are never reset or patched. External
+bootstrap-only MSBuild policy retains the Microsoft.Build.Tasks.Git 10.0.303 security pin and validates
+the actual Compile list. No official Prism source/project is modified.
 
-Enter sets exactly two process-local hook variables: `CustomBeforeDirectoryBuildProps` imports `Lock.props`; `CustomAfterDirectoryBuildProps` imports `PrismSecurity.targets`. The early hook sets scoped versioning policy before upstream props add package references. The after-props hook disables automatic packing in both outer and inner builds. `ProjectScope.props` matches normalized full project identity against the eight intended CryptoWorkBench projects and four precise Prism project paths. Filename collisions and unrelated projects are excluded. The Security pin is restricted to those four Prism paths: `Microsoft.Build.Tasks.Git [10.0.303]`, PrivateAssets=all. NuGetAudit remains true/all for the intended projects.
+Four canonical ZIP packages are written to `.packages/prism` only after they match
+`package-digests.json`. The p2 recipe fixes ZIP metadata, checkout line endings and generated resource text. It disables debug symbols and Source Link for the packaged DLLs. Each CI runner checks the same archive and assembly hashes before installing its local feed. Each package contains the original DLL, unchanged upstream LICENSE and provenance.
+PDB/source packages and build-only upstream dependencies are not distributed.
 
-Enter does not set global process values for versioning, packing or audit, and does not rewrite `NUGET_PACKAGES`. A caller's explicit cache path is normalized only as a scoped MSBuild `NuGetPackageRoot`. Existing conflicting definitions of either required hook cause an error before any environment change; use a separate clean shell instead of overwriting them. Other hook definitions are retained. Legacy A12-05 hook variables are rejected with instructions to start a new shell. Enter is idempotent; Leave restores the previous values and preserves later deliberate caller changes. Build.ps1 also restores its environment on success or failure when it prepared the session itself. Environment changes are never persisted to the user or machine profile.
+Repeated bootstrap validates the feed and returns without rebuilding Prism. An incomplete or
+altered existing feed fails. After inspection, explicitly use `-Rebuild`, or generate into a new
+`-FeedDirectory`. `-CandidateManifest <path>` is for deliberate package-recipe maintenance only:
+it produces candidate evidence instead of silently updating reviewed digests. Review all package
+hashes, MSBuild digest inputs and application locks before adopting a changed recipe/version.
 
-For Visual Studio, launch a **new IDE process** from Developer PowerShell after Enter:
+## Ordinary development and Visual Studio 2026
+
+After bootstrap, open `CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln` directly from Explorer
+or Visual Studio. Enable the IDE's normal automatic NuGet restore, select
+`CryptoWorkBenchAvalonia.Desktop` as startup project and Debug/Any CPU, then F5.
+No prepared shell, Enter-Prism.ps1, Build.ps1, Prism source project, global MSBuild hook or global
+NuGet configuration is required. The local feed must exist before the first solution restore. On Windows, use a short checkout path if Visual Studio reports a missing file deep inside the NuGet cache.
 
 ```powershell
-. ./eng/prism/Enter-Prism.ps1
-devenv ./CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln
-# After closing the IDE:
-. ./eng/prism/Leave-Prism.ps1
+dotnet restore CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln --locked-mode
+dotnet build CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln -c Debug --no-restore
+dotnet restore CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln --locked-mode -p:Configuration=Release
+dotnet build CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln -c Release --no-restore
+dotnet run --project CryptoWorkBenchAvalonia.Desktop -c Debug --no-build
 ```
 
-For Rider, use its installed launcher from the prepared PowerShell session, for example `& /path/to/rider.sh ./CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln`. An already running IDE does not acquire this environment; close its existing instance for this solution first. Leave affects the shell and future children, not an already running IDE. Rider must use the installed .NET 10 SDK. Unprepared application restores/builds fail with preparation instructions. Opening the temporary Prism checkout separately outside this environment is unsupported.
+The Core solution `CryptoWorkBench.sln` works with the same ordinary commands. Application locks
+remain configuration/RID-specific under `eng/prism/locks`. NuGetAudit stays enabled in all mode.
+NuGet.Config selects the repository-local cache `.packages/cache`, maps only the temporary package
+prefix to the local feed and uses nuget.org for other packages and auditing. It does not modify the
+user's NuGet.Config. Source mapping is supplemented by checked package SHA-256, locked restore and
+resolved Prism DLL hash validation, including a warm cache.
 
-## Regression checks, locks and future CI
+The four temporary packages use version `1.0.0-prism.358118cd640d.p2`:
 
-Run the focused F01/F02/F03 checks in a new process with a new evidence directory:
+| Package ID suffix after CryptoWorkBench.Temporary.Prism. | Assembly |
+|---|---|
+| Events | Prism.Events.dll |
+| Core | Prism.dll |
+| Avalonia | Prism.Avalonia.dll |
+| DryIoc.Avalonia | Prism.DryIoc.Avalonia.dll |
+
+Assembly identities and namespaces are unchanged. Prism.Container.Abstractions and
+Prism.Container.DryIoc remain official 9.0.114 packages; they do not pull official counterparts of
+these four packages. See [dependency graph](../../docs/prism/P1-dependency-graph.json).
+
+## Validation and CI
 
 ```powershell
-pwsh -NoProfile ./eng/prism/Test-Integration.ps1 -EvidenceDirectory artifacts/prism-regression-new
+pwsh -NoProfile -File ./eng/prism/Test-LocalPackages.ps1
+pwsh -NoProfile -File ./eng/prism/Test-Regression.ps1 -Configuration Debug
+pwsh -NoProfile -File ./eng/prism/Test-Regression.ps1 -Configuration Release
 ```
 
-The script creates an isolated fixture and an official fresh checkout. It checks default/Debug/Release locks, outer/inner evaluation, missing/corrupt locks, foreign projects and name collisions, preserved hooks/environment, missing hooks, cleanup on build failure, rejected ignored source and allowed output directories. It never modifies the real product locks or existing official source files. The evidence directory must not already exist.
+Run package fault probes without another build or IDE restore in progress: they temporarily alter
+one local feed package and one resolved cache DLL, restoring both in finally blocks. Do not terminate
+the probe process during those checks. The script rejects stale backup files instead of deleting them.
 
-Keep `eng/prism/locks/Debug/*.lock.json` and `Release/*.lock.json` with the integration. Their existing package hashes and upstream frameworks are unchanged by F2. The Release Bootstrap.lock.json is historical validation provenance, not a product project in the scope allowlist. New validation probes use their own local lockfiles. NuGet.Config selects nuget.org only.
+The existing four-platform CI now bootstraps local packages before normal builds and runs the
+package integrity probes after the Debug build, before the Release build.
+Native macOS shader/shim and publish gates remain intact. See [integration PR #10](https://github.com/tkbss/CryptoWorkBench/pull/10) for current CI and acceptance results.
+The original Windows-only prototype results are archived in [the P1 report](../../docs/prism/P1-temporary-local-nuget.md). B4's historical CI success is not P1 CI evidence.
 
-For an intentional dependency update, retain an existing lock at the expected path, restore with explicit Configuration and `-p:RestoreLockedMode=false --force-evaluate`, review the complete diff, then repeat locked validation. Adding a project requires an explicit allowlist entry and a reviewed lock prepared separately; the normal build does not bootstrap missing locks. Do not bypass locked mode in CI.
+For an intentional dependency update only, `Refresh-ApplicationLocks.ps1` regenerates Debug,
+Release and four RID lock sets. Review every diff, then repeat locked builds and regressions.
+It is never part of normal restore, bootstrap or CI.
 
-A future authorized Actions matrix can install Git/PowerShell/.NET on Windows, Linux and macOS and run Build.ps1 plus the required suites/platform smokes. Cache keys must include OS, SDK, Prism SHA and both lock sets. No workflow is installed or changed here. Linux/macOS and Rider execution for this new candidate remain OPEN; historical A12-03 Linux evidence used different Prism packages.
+## Security boundaries and replacement
 
-## Remove after official release
+These checks bind the recipe and packages to reviewed inputs; they do not sandbox an adversarial
+SDK, compiler, package cache writer, MSBuild customization or simultaneous source mutation.
+Protect the repository and build environment. NuGet audit does not assign official Prism advisories
+to renamed local package IDs; the pinned upstream source, official dependencies and subsequent
+official replacement must still be reviewed.
 
-1. Verify official matching Prism.Avalonia and Prism.DryIoc.Avalonia versions, provenance and Avalonia-12/.NET-10 compatibility with the owner.
-2. Replace the two source ProjectReferences with PackageReferences and remove the four TemporaryPrism solution entries/folder.
-3. Remove the temporary root guard and eng/prism adapter, including scope, preparation, integrity and environment hooks. Leave/restart prepared shells and IDEs. Remove `.deps/prism` only after checking its contents.
-4. Replace this lock setup with permanent application lock management; regenerate and review both configurations, Core/Events/Container consistency, runtime graph, hashes and audit. Retain NuGetAudit.
-5. Repeat full Debug/Release builds, GUI/Core/MCP and Coordinator/F1/C1 suites, region navigation, IDialogService lifecycle checks and native platform smokes. Record the official versions and retain all historical A12 evidence.
+Keep upstream LICENSE unchanged; the reported exception covers compilation and assembly use with
+CryptoWorkBench, not public redistribution of unofficial NuGet packages. No private certificates,
+credentials or signing keys are packed.
+
+Rollback is an explicitly reviewed return to the baseline source integration, including its matching
+locks and process policy; do not mix the old ProjectReferences with local package references.
+When official compatible packages are available and approved, replace the two top-level temporary
+PackageReferences, remove the local source mapping/feed and packaging/hash guards, regenerate and
+review all locks, and repeat Windows/CI/native acceptance. Do not delete unrelated existing checkouts
+or shared caches. Historical evidence remains unchanged.

@@ -35,8 +35,13 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.401
+      - name: Bootstrap reviewed temporary local Prism packages
+        run: ./eng/prism/Bootstrap-Packages.ps1
       - name: Build both solutions Debug with locked restore
+        # Source bootstrap is separate; ordinary IDE/build processes need no hooks.
         run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Build -Configuration Debug
+      - name: Validate local package integrity and failure paths
+        run: ./eng/prism/Test-LocalPackages.ps1
       - name: Build both solutions Release with locked restore
         id: test-build
         run: ./.github/scripts/Invoke-PrismCi.ps1 -Stage Build -Configuration Release
@@ -81,4 +86,5 @@ jobs:
             artifacts/ci-logs/
             artifacts/test-results/
             artifacts/f01-native/
+            artifacts/prism-package-check-*/
           if-no-files-found: error

@@ -16,15 +16,15 @@ Push-Location $repo
 try {
  $sdk=& dotnet --version
  if($LASTEXITCODE -ne 0 -or $sdk.Trim() -ne '10.0.401'){throw "Required SDK 10.0.401; actual $sdk"}
- $ownsPrismEnvironment=$null -eq $global:CwbPrismEnvironment
- $previousHooks=@{}
- foreach($name in @('CustomBeforeDirectoryBuildProps','CustomAfterDirectoryBuildProps')){
-  $previousHooks[$name]=[Environment]::GetEnvironmentVariable($name,'Process')
- }
- . "$repo/eng/prism/Enter-Prism.ps1"
- try {
   switch($Stage) {
-   'Build' { & "$repo/eng/prism/Build.ps1" -Configuration $Configuration }
+   'Build' {
+    foreach($solution in @('CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln','CryptoWorkBench.sln')) {
+     & dotnet restore $solution --locked-mode "-p:Configuration=$Configuration"
+     if($LASTEXITCODE){throw 'Locked restore failed.'}
+     & dotnet build $solution -c $Configuration --no-restore
+     if($LASTEXITCODE){throw 'Build failed.'}
+    }
+   }
    'Native' { & "$repo/.github/scripts/Test-F01Native.ps1" -RequireMacArm64:($RuntimeIdentifier -eq 'osx-arm64') }
    'Suite' {
     $project=switch($Suite){'Core'{'CryptoScriptUnitTest/CryptoScriptUnitTest.csproj'} 'C1'{'CryptoScriptUnitTest/CryptoScriptUnitTest.csproj'} 'Mcp'{'CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj'} default{'CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj'}}
@@ -52,15 +52,4 @@ try {
     if($LASTEXITCODE){throw "RID publish failed: $LASTEXITCODE"}
    }
   }
- } finally {
-  if($ownsPrismEnvironment){
-   . "$repo/eng/prism/Leave-Prism.ps1"
-   # PowerShell can bind $null as an empty string; preserve absence exactly.
-   foreach($name in $previousHooks.Keys){
-    if($null -eq $previousHooks[$name] -and [string]::IsNullOrEmpty([Environment]::GetEnvironmentVariable($name,'Process'))){
-     [Environment]::SetEnvironmentVariable($name,[NullString]::Value,'Process')
-    }
-   }
-  }
- }
 } finally { Pop-Location; Stop-Transcript | Out-Null }

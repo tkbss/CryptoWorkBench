@@ -9,16 +9,18 @@ param(
 $ErrorActionPreference = 'Stop'
 $pin = '358118cd640d9a22ff8cf21c8ad197fa038b7990'
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$checkout = Join-Path $repo '.deps/prism'
+$checkout = Join-Path $repo '.deps/prism-packaging'
 function Invoke-PrismGit([string[]]$Arguments) {
     $result = & git @Arguments
     if ($LASTEXITCODE -ne 0) { throw "Prism Git operation failed: $Arguments" }
     $result
 }
 if (-not (Test-Path -LiteralPath $checkout)) {
-    if ($VerifyOnly) { throw 'Prism checkout is missing. Run Enter-Prism.ps1 first.' }
+    if ($VerifyOnly) { throw 'Prism checkout is missing. Run Bootstrap-Packages.ps1 first.' }
     Invoke-PrismGit @('init', $checkout)
     Invoke-PrismGit @('-C', $checkout, 'config', 'core.autocrlf', 'false')
+    # Pin checkout bytes for the license and embedded AXAML on every OS.
+    Invoke-PrismGit @('-C', $checkout, 'config', 'core.eol', 'crlf')
     Invoke-PrismGit @('-C', $checkout, 'remote', 'add', 'origin', 'https://github.com/PrismLibrary/Prism.git')
     Invoke-PrismGit @('-C', $checkout, 'fetch', '--depth', '1', 'origin', $pin)
     Invoke-PrismGit @('-C', $checkout, 'checkout', '--detach', $pin)

@@ -27,13 +27,12 @@ function Invoke-Logged([string]$Name, [string]$Command, [string[]]$Arguments) {
     Write-Host "$Name : exit $code"
     if ($code -ne 0) { throw "$Name failed. See $evidence" }
 }
-$alreadyPrepared = $null -ne $global:CwbPrismEnvironment
 Push-Location $repo
 try {
-    . ./eng/prism/Enter-Prism.ps1
+    & ./eng/prism/Bootstrap-Packages.ps1
     $configurations = if ($Configuration -eq 'Both') { @('Debug', 'Release') } else { @($Configuration) }
     foreach ($config in $configurations) {
-        Invoke-Logged "build-$config" pwsh @('-NoProfile', '-File', 'eng/prism/Build.ps1', '-Configuration', $config)
+        Invoke-Logged "build-$config" pwsh @('-NoProfile', '-File', '.github/scripts/Invoke-PrismCi.ps1', '-Stage', 'Build', '-Configuration', $config)
         foreach ($suite in @('CryptoWorkBenchGuiTest', 'CryptoWorkBench.Mcp.Tests', 'CryptoScriptUnitTest')) {
             Invoke-Logged "$suite-$config" dotnet @('test', "$suite/$suite.csproj", '-c', $config, '--no-build', '--no-restore', '--logger', "trx;LogFileName=$suite-$config.trx", '--results-directory', $evidence)
         }
@@ -63,6 +62,5 @@ try {
     }
 } finally {
     $runs | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $evidence 'commands.json')
-    if (!$alreadyPrepared) { . ./eng/prism/Leave-Prism.ps1 }
     Pop-Location
 }

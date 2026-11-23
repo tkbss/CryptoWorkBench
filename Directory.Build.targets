@@ -1,10 +1,22 @@
 <Project>
-  <PropertyGroup>
-    <_CwbGuardApplicationPath>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj'))</_CwbGuardApplicationPath>
-  </PropertyGroup>
-  <Target Name="RequireTemporaryPrismEnvironment" BeforeTargets="CollectPackageReferences;PrepareForBuild"
-          Condition="'$(MSBuildProjectFullPath)' == '$(_CwbGuardApplicationPath)'">
-    <Error Condition="'$(CwbTemporaryPrismPolicy)' != 'true' Or '$(CwbTemporaryPrismSecurityPolicy)' != 'true'"
-           Text="Temporary Prism requires the prepared build environment. Run pwsh ./eng/prism/Build.ps1, or dot-source ./eng/prism/Enter-Prism.ps1 before launching your IDE. See eng/prism/README.md." />
+  <Import Project="$(MSBuildThisFileDirectory)eng/prism/PackageDigests.props" />
+  <Import Project="$(MSBuildThisFileDirectory)eng/prism/PackageAssemblies.targets" />
+  <Target Name="ValidateCwbPackageInputs" BeforeTargets="CollectPackageReferences;PrepareForBuild"
+          Condition="'$(_CwbScopedProject)' == 'true' And '$(_CwbPrismProject)' != 'true'">
+    <PropertyGroup>
+      <_CwbExpectedLock>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)eng/prism/locks/$(Configuration)/$(MSBuildProjectName).lock.json'))</_CwbExpectedLock>
+      <_CwbExpectedLock Condition="'$(CwbPublishRid)' != ''">$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)eng/prism/locks/$(Configuration)/rid/$(CwbPublishRid)/$(MSBuildProjectName).lock.json'))</_CwbExpectedLock>
+      <_CwbActualLock>$([MSBuild]::NormalizePath('$(NuGetLockFilePath)'))</_CwbActualLock>
+    </PropertyGroup>
+    <Error Condition="'$(Configuration)' != 'Debug' And '$(Configuration)' != 'Release'" Text="Only Debug and Release locks are reviewed." />
+    <Error Condition="'$(CwbPublishRid)' != '' And '$(CwbPublishRid)' != 'win-x64' And '$(CwbPublishRid)' != 'linux-x64' And '$(CwbPublishRid)' != 'osx-x64' And '$(CwbPublishRid)' != 'osx-arm64'" Text="Unsupported publish RID." />
+    <Error Condition="'$(CwbPublishRid)' != '' And ('$(Configuration)' != 'Release' Or ('$(RuntimeIdentifier)' != '' And '$(RuntimeIdentifier)' != '$(CwbPublishRid)'))" Text="RID locks require Release and matching RuntimeIdentifier." />
+    <Error Condition="!Exists('$(NuGetLockFilePath)')" Text="Required reviewed lock is missing: $(NuGetLockFilePath)." />
+    <Error Condition="'$(_CwbActualLock)' != '$(_CwbExpectedLock)'" Text="Lockfile does not match the selected project/configuration/RID." />
+    <Error Condition="!Exists('%(CwbPrismPackage.Identity)')" Text="Local Prism package missing: %(CwbPrismPackage.Identity). Run eng/prism/Bootstrap-Packages.ps1 once before opening the solution." />
+    <GetFileHash Files="@(CwbPrismPackage)" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="_CwbHashedPackage" />
+    </GetFileHash>
+    <Error Condition="'%(_CwbHashedPackage.FileHash)' != '%(_CwbHashedPackage.ExpectedHash)'" Text="Local Prism package digest mismatch: %(_CwbHashedPackage.Identity)." />
   </Target>
 </Project>

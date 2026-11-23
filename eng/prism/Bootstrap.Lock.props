@@ -1,0 +1,25 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)ProjectScope.props" />
+  <PropertyGroup Condition="'$(_CwbScopedProject)' == 'true'">
+    <!-- Bootstrap-only policy before upstream versioning references. Never imported by the application. -->
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <CwbTemporaryPrismPolicy>true</CwbTemporaryPrismPolicy>
+    <DISABLE_GITVERSIONING>true</DISABLE_GITVERSIONING>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <NuGetPackageRoot Condition="'$(NUGET_PACKAGES)' != ''">$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::GetFullPath('$(NUGET_PACKAGES)'))))</NuGetPackageRoot>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(RestoreLockedMode)' == ''">true</RestoreLockedMode>
+    <NuGetLockFilePath>$(MSBuildThisFileDirectory)locks/$(Configuration)/$(MSBuildProjectName).lock.json</NuGetLockFilePath>
+    <NuGetLockFilePath Condition="'$(CwbPublishRid)' != ''">$(MSBuildThisFileDirectory)locks/$(Configuration)/rid/$(CwbPublishRid)/$(MSBuildProjectName).lock.json</NuGetLockFilePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(_CwbPrismProject)' == 'true'">
+    <Deterministic>true</Deterministic>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <EnableSourceLink>false</EnableSourceLink>
+    <PathMap>$([MSBuild]::NormalizeDirectory('$(_CwbRoot)', '.deps/prism-packaging'))=/_/prism/</PathMap>
+    <Copyright>Copyright (C) 2015-2026 Prism Software, LLC - all rights reserved</Copyright>
+  </PropertyGroup>
+</Project>

@@ -15,7 +15,7 @@
     <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="12.1.0.13" />
     <PackageReference Include="Dock.Model.Mvvm" Version="12.1.0.13" />
     <PackageReference Include="Dock.Serializer.SystemTextJson" Version="12.1.0.13" />
-    <ProjectReference Include="../../.deps/prism/src/Avalonia/Prism.Avalonia/Prism.Avalonia.csproj" />
-    <ProjectReference Include="../../.deps/prism/src/Avalonia/Prism.DryIoc.Avalonia/Prism.DryIoc.Avalonia.csproj" />
+    <PackageReference Include="CryptoWorkBench.Temporary.Prism.Avalonia" Version="[1.0.0-prism.358118cd640d.p2]" />
+    <PackageReference Include="CryptoWorkBench.Temporary.Prism.DryIoc.Avalonia" Version="[1.0.0-prism.358118cd640d.p2]" />
   </ItemGroup>
 </Project>

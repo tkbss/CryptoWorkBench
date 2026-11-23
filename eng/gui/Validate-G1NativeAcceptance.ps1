@@ -13,10 +13,9 @@ if (!$evidence.StartsWith($repo+[IO.Path]::DirectorySeparatorChar,[StringCompari
 if (Test-Path $evidence) { throw 'Use a fresh evidence directory.' }
 New-Item -ItemType Directory $evidence | Out-Null
 $runs=[Collections.Generic.List[object]]::new()
-$prepared=$null -ne $global:CwbPrismEnvironment
 Push-Location $repo
 try {
-    . ./eng/prism/Enter-Prism.ps1
+    & ./eng/prism/Bootstrap-Packages.ps1
     if ($IncludeHistorical) {
         & ./eng/gui/Validate-G1LayoutRoles.ps1 -Configuration $Configuration -EvidenceDirectory (Join-Path $EvidenceDirectory 'historical') -IncludeExistingNative -PersistenceCleanup -OperationContract -PartialFailure
     }
@@ -42,7 +41,6 @@ try {
     }
 } finally {
     $runs | ConvertTo-Json -Depth 4 | Set-Content "$evidence/commands.json"
-    if(!$prepared){. ./eng/prism/Leave-Prism.ps1}
     Pop-Location
 }
 if($runs.Where({$_.exitCode -ne 0 -or $_.timedOut}).Count){throw 'Native acceptance failure; inspect retained evidence.'}

@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <CweMacNativeLibrary>$([System.IO.Path]::GetFullPath('$(BaseIntermediateOutputPath)', '$(MSBuildProjectDirectory)'))/native/$(Configuration)/libCryptoScript.FileSystem.dylib</CweMacNativeLibrary>
+    <CweMacNativeLibrary>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(BaseIntermediateOutputPath)'))/native/$(Configuration)/libCryptoScript.FileSystem.dylib</CweMacNativeLibrary>
   </PropertyGroup>
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
     <!-- Content propagation also covers ProjectReference test/GUI outputs and publish. -->

@@ -18,10 +18,9 @@ if (!$evidence.StartsWith($repo + [IO.Path]::DirectorySeparatorChar, [StringComp
 if (Test-Path -LiteralPath $evidence) { throw 'Use a new evidence directory.' }
 New-Item -ItemType Directory -Path $evidence | Out-Null
 $runs = [Collections.Generic.List[object]]::new()
-$prepared = $null -ne $global:CwbPrismEnvironment
 Push-Location $repo
 try {
-    . ./eng/prism/Enter-Prism.ps1
+    & ./eng/prism/Bootstrap-Packages.ps1
     $configs = if ($Configuration -eq 'Both') { @('Debug','Release') } else { @($Configuration) }
     foreach ($config in $configs) {
         $project = 'eng/gui/native/G1ShellProbe.csproj'
@@ -80,7 +79,6 @@ try {
     }
 } finally {
     $runs | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $evidence 'commands.json')
-    if (!$prepared) { . ./eng/prism/Leave-Prism.ps1 }
     Pop-Location
 }
 if ($runs.Where({ $_.exitCode -ne 0 -or $_.timedOut }).Count) { throw "A native run failed. Inspect $evidence" }
