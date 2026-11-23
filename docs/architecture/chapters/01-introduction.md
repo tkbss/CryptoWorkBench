@@ -1,90 +1,58 @@
 # 1. Introduction
 
-[Architecture documentation](../README.md) | [Baseline and evidence](../evidence/01-introduction-baseline.md)
+[Architecture documentation](../README.md)
 
 | Metadata | Value |
 | --- | --- |
-| Status | Reviewed |
-| Analysis baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
-| Analysis date | 2026-10-13 |
-| Verification | Static repository inspection; no build or runtime validation |
+| Status | AR-01 draft; independent technical and linguistic review pending |
+| Implementation baseline | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| Date | 2026-11-06 |
+| Verification | Static source inspection; no new application tests |
 
 ## 1.1 Purpose of This Document
 
-This document recovers and explains the current architecture of CryptoScript Workbench from verifiable repository evidence. It provides a common reference for understanding the system, tracing responsibilities and dependencies, and guiding subsequent architecture analysis.
+This architecture recovery explains the implemented CryptoScript Workbench through verifiable repository evidence. It supports developers tracing responsibilities, dependencies and execution behavior. It recovers the current system rather than defining a target design. Every current implementation finding uses the pinned baseline above and the shared source register. Static inspection establishes declarations and control flow, not passing tests, deployment support or cryptographic conformance.
 
-The implemented architecture is the subject of recovery. Architectural interpretations, unresolved questions, recommendations and future plans are explicitly labeled. This documentation does not change the application architecture or establish a new target design.
-
-Every implementation finding is tied to an analysis baseline and a source reference. This makes the findings reviewable as the repository evolves. The initial baseline and its limitations are recorded in the [evidence index](../evidence/01-introduction-baseline.md#analysis-baseline).
+The earlier Chapters 1–3 were reviewed at their historical baselines; Chapter 4 remained a draft. AR-01 changes do not inherit that approval. Exact historical chapter and diagram bytes are retained under evidence/history/abbf7b7b, and original evidence and review reports remain intact. Historical claims must be read at their original commits.
 
 ## 1.2 System Purpose
 
-**[F]** The desktop application consists of an Avalonia GUI project and a desktop entry point using the reusable CryptoScript language and execution library. The GUI editor builds a parser through `ParserBuilder.StringBuild`, obtains a program context and invokes `CryptoScriptRunner.Execute`. The desktop entry point starts the Avalonia application. These statements are supported by [E01 and E02](../evidence/01-introduction-baseline.md#repository-evidence).
+**[F]** The Avalonia desktop application hosts a reusable CryptoScript interpreter and cryptographic operation library. The desktop entry point starts the classic Avalonia lifetime; GUI application services coordinate parsing, execution, output and variable presentation. The shared execution pipeline invokes ParserBuilder and the asynchronous runner. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R04](../evidence/ar-01-baseline-reconciliation.md#r04), [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
-**[F]** The inspected cryptographic dispatch includes AES and Triple-DES mechanisms, message authentication, hashing, key derivation, TR-31 wrapping and PIN-block mechanisms. These are code-level observations, not a certification or a guarantee that every input or operation succeeds. See [E03](../evidence/01-introduction-baseline.md#repository-evidence).
+**[F]** Dispatch includes symmetric encryption, MACs, hashing, key derivation, TR-31 and PIN-block operations. Snapshot persistence, secure import/export and file-oriented operation contracts extend the runtime's local resource responsibilities. Mechanism names do not demonstrate communication with payment systems, cards or HSMs. [R14](../evidence/ar-01-baseline-reconciliation.md#r14), [R15](../evidence/ar-01-baseline-reconciliation.md#r15)
 
-**[I]** CryptoScript Workbench can therefore be understood as a desktop workbench for expressing and executing cryptographic operations through a reusable scripting core. This interpretation is derived from the GUI calls and desktop-to-GUI-to-core project references in E01 and E02; the library runs within the desktop application process.
+**[I]** The system is a desktop workbench for expressing and executing cryptographic operations through an embedded, reusable scripting core. Automation contracts and MCP expose an additional host integration boundary without turning CryptoScript into a separate server.
 
 ## 1.3 Scope and Boundaries
 
-The product architecture scope covers the reusable CryptoScript core, the Avalonia desktop application, GUI composition, application services and presentation, language processing, runtime and cryptography, diagnostics and documentation facilities, and relevant automated testing infrastructure. Chapter 1 establishes the purpose, boundaries, evidence conventions and document organization. Subsequent chapters apply this scope using their own recorded evidence.
+**[O]** The established product scope includes the reusable core, Avalonia desktop host, GUI composition, application services, presentation, language processing, runtime, cryptography, diagnostics, documentation and relevant verification infrastructure. AR-01 includes implemented automation/MCP project and process boundaries. Detailed MCP transport, security, lease and lifecycle analysis is reserved for AR-MCP-01. Unfinished GUI redesign and changes in other worktrees are excluded.
 
-**[O]** CryptoWorkBenchConsole is a historical development client with no current or planned use. It is excluded from the product architecture, all architecture diagrams and subsequent chapter planning. Its continued repository presence and existing references remain documented as inventory facts. See the [scope decision](../evidence/02-system-overview-baseline.md#project-owner-decisions-and-historical-context) and [complete project inventory](../evidence/02-system-overview-baseline.md#repository-inventory-and-model-scope).
+**[F]** CryptoWorkBenchConsole and its console-specific GUI test fixture are absent from the pinned tree. The earlier Rsa stub and AsymmtricCryptoAlgorithm infrastructure are also absent; their old descriptions are historical evidence, not current capability. The complete project inventory is in Chapter 3. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R02](../evidence/ar-01-baseline-reconciliation.md#r02), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
-**[F]** The core, GUI and desktop projects in the product architecture target `net10.0`. The core declares references to `Antlr4.Runtime.Standard`, `BouncyCastle.Cryptography` and `Newtonsoft.Json`; the GUI and desktop projects declare Avalonia dependencies. These are project declarations at the baseline, not a report of restored or deployed dependency versions. See [E01](../evidence/01-introduction-baseline.md#repository-evidence).
+**[P]** The owner-supplied version focus remains symmetric cryptography for version 1, with classical asymmetric cryptography, certificates, CMS and post-quantum mechanisms planned for version 2. This is planning context, not verified release tags or implemented support. **[Q]** Contracts and delivery sequencing for these areas require later evidence and decisions. A future web application remains outside current recovery scope.
 
-**[P]** Version 1 focuses on symmetric cryptography, with hashing, authentication, derivation and wrapping as related workbench capabilities. Version 2 is planned to include classical asymmetric cryptography, certificate handling, Cryptographic Message Syntax (CMS) and post-quantum mechanisms. This version split is the project scope supplied for this architecture-recovery task. It describes plans and focus areas, not verified release tags or implemented version 2 functionality.
+## 1.4 Evidence and Verification
 
-**[F]** The existing mechanism roadmap explicitly marks ECDSA, RSA-OAEP and RSA-PSS as not implemented. The baseline factory does not dispatch these mechanisms. An `Rsa` class exists, but its key and parameter generation overrides delegate to `AsymmtricCryptoAlgorithm`, whose corresponding methods construct declaration objects. Class presence alone does not establish usable RSA functionality. See [E04](../evidence/01-introduction-baseline.md#repository-evidence).
+Current source identities R01–R16 are shared between languages. The machine-readable register records immutable commit, repository path, SHA-256 and line count for each source. Chapter references identify the relevant responsibility or declaration; the evidence appendix provides source links. Inspection of test assertions is labeled separately from test execution. Historical CI and PDF results retain their original dates and inputs.
 
-**[Q]** The contracts, integration boundaries and delivery sequence for certificate handling, CMS and post-quantum mechanisms remain to be analyzed. This introduction establishes no implemented support for these planned areas. Repository evidence and explicit future design decisions will be needed before describing their architecture.
+**[R]** Reassess any claim when its source changes. Distinguish declared dependencies, restored packages, observed runtime behavior and officially supported environments. No cryptographic certification or complete isolation guarantee follows from project structure.
 
-Local uncommitted application changes are excluded from the committed baseline findings. No build, test run, runtime trace, package restore or platform validation was performed for this introduction. Security properties, standards conformance and supported deployment environments require additional evidence; they are not inferred from package names or framework choices.
+## 1.5 Architecture Views
 
-## 1.4 Intended Audience
+The [project-reference view](../diagrams/01-project-references.mmd) depicts first-party production projects. A solid arrow points from referencing to referenced project. It is a build-time view, not a runtime message sequence or complete repository inventory. Prepared upstream Prism projects and test/support projects are inventoried in Chapter 3. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R02](../evidence/ar-01-baseline-reconciliation.md#r02)
 
-The intended readers are developers and maintainers seeking to understand the code, reviewers checking architecture findings against repository evidence, and project stakeholders assessing current scope and future evolution.
-
-Readers should be able to begin with the system overview and then follow the chapters relevant to their work. The introduction requires no knowledge of individual implementation classes. Later technical findings will name the actual source elements and explain their role using repository references.
-
-## 1.5 Architecture Documentation Approach
-
-Recovery proceeds from evidence to explanation. Each analysis records its commit baseline, inspects relevant project and source files, cites the supporting declarations or methods, and separates direct observations from interpretation. Tests and runtime observations may supplement later findings only when their execution and results are recorded.
-
-Markdown is the leading text format. Mermaid is the primary diagram source format. Diagram labels and legends are written in English. Diagrams must explain their abstraction level and edge semantics and cite their evidence; a project reference must not be presented as a runtime message flow.
-
-The [project reference diagram](../diagrams/01-project-references.mmd) shows the three production projects in the product architecture and their two direct `ProjectReference` declarations. **[F]** Every arrow points from the referencing project to the referenced project. It omits projects outside the product architecture, test projects and external packages; it is a scoped view rather than a complete repository inventory and makes no statement about deployment topology or execution order. Its evidence and legend are recorded in [D01](../evidence/01-introduction-baseline.md#diagram-evidence).
-
-**[R]** Subsequent recovery work should preserve this evidence-first approach and add detailed diagrams only after verifying their relationships. This recommendation follows from the need to prevent inferred relationships or roadmap items from being mistaken for implemented behavior.
+**[R]** Keep process boundaries, package boundaries and logical components distinct. Add relationships only after verifying their implementation.
 
 ## 1.6 Conventions and Terminology
 
-| Term or label | Meaning in this documentation |
-| --- | --- |
-| CryptoScript Workbench | The system described by this architecture document |
-| CryptoWorkBench | The repository name and existing solution naming |
-| CryptoScript | The core project; identifiers retain their source spelling |
-| Analysis baseline | The immutable Git commit used for implementation findings |
-| **[F] Verified implementation fact** | A directly evidenced declaration, relationship or code behavior; static inspection is identified as such |
-| **[O] Project-owner decision** | An owner-supplied scope or architectural decision, distinct from implementation evidence |
-| **[I] Architectural interpretation** | An explicitly identified inference from verified facts |
-| **[Q] Open question** | An unresolved matter requiring further evidence or a decision |
-| **[R] Recommendation** | A proposed investigation or improvement, separate from the current implementation |
-| **[P] Plan** | Intended future scope, separate from implemented functionality |
-| Mechanism | A cryptographic mechanism identifier used in the inspected dispatch, such as `AES-CBC` |
-| GUI | Graphical user interface |
-| CMS | Cryptographic Message Syntax; a planned version 2 scope item |
+**[F]** means verified implementation fact; **[O]** owner decision/context; **[I]** architectural interpretation; **[Q]** open question; **[R]** recommendation; **[P]** plan. Identifiers retain exact source spelling. CryptoScript Workbench names the system; CryptoWorkBench names the repository/solutions; CryptoScript names the core. A mechanism is a dispatch identifier, not a certification claim.
 
-Evidence identifiers such as E01 refer to entries in the [evidence index](../evidence/01-introduction-baseline.md#repository-evidence). Existing identifiers, including `AsymmtricCryptoAlgorithm`, are reproduced exactly to support source lookup. Neither an identifier nor a package dependency proves a complete user-facing capability.
-
-Documentation links use portable relative paths with forward slashes and exact filename casing. Markdown and Mermaid sources belong under Git. Generated PDF, DOCX and rendered diagram files belong under `generated/` as reproducible outputs unless a later publication policy explicitly requires committing them.
+English source paths remain stable. German sources use the same filenames beneath de/. Chapter/section numbers, evidence identities, code and source targets are identical. Markdown and Mermaid are authoritative; generated PDFs, SVGs and QA files remain ignored. Translation terminology and review limitations are recorded in the bilingual publication decision.
 
 ## 1.7 Document Organization
 
-The [documentation entry point](../README.md#table-of-contents) contains the approved 13-chapter structure and navigation to available chapters, including drafts. Chapters 2 and 3 establish the system and project context. Chapters 4 through 8 cover the language, runtime, cryptography, diagnostics and integration. Chapter 9 covers data flows and execution sequences; Chapter 10, GUI Architecture, follows it immediately. Chapters 11 through 13 cover testing, architecture assessment and future evolution. All later chapters retain the product architecture scope in Section 1.3; complete repository inventories remain distinct from that model.
+The thirteen-chapter architecture plan is retained. This AR-01 edition publishes Chapters 1–4 only. The preserved partial Chapter 9 covers partial-state execution and presentation at its own historical baseline; it is excluded from both PDFs. Chapters 5–8 and 10–13 remain planned rather than fabricated analysis. The unfinished GUI redesign is not described.
 
-Chapter sources are stored in `chapters/`, Mermaid sources in `diagrams/`, and verification records in `evidence/`. The areas `decisions/`, `assets/` and `tools/` are reserved and will be created when corresponding content becomes available. Unanalyzed chapters have table-of-contents entries and reserved filenames, but no placeholder technical content.
+Chapter 2 establishes runtime context, Chapter 3 packaging/build dependencies, and Chapter 4 language processing. Runtime and cryptographic detail belong to Chapters 5–6; diagnostics to Chapter 7; integration to Chapter 8; broader flows to Chapter 9; GUI architecture to Chapter 10; testing, assessment and evolution to Chapters 11–13.
 
-The documentation is ready to receive subsequent recovery findings. Chapter 1 has been reviewed. Later findings must distinguish the implemented baseline from assessments and future scope.
-
-[Return to architecture documentation](../README.md)
+[Architecture documentation](../README.md)

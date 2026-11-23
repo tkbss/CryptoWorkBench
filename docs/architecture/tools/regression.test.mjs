@@ -22,7 +22,8 @@ async function fixture(t) {
   const output = path.join(docs, 'generated');
   await fs.mkdir(fixtureTools, { recursive: true });
   await fs.mkdir(output);
-  for (const name of ['chapters', 'evidence', 'diagrams']) await fs.cp(path.join(architecture, name), path.join(docs, name), { recursive: true });
+  for (const name of ['chapters', 'evidence', 'diagrams', 'de']) await fs.cp(path.join(architecture, name), path.join(docs, name), { recursive: true });
+  await fs.copyFile(path.join(architecture, 'publication.json'), path.join(docs, 'publication.json'));
   await fs.copyFile(path.join(architecture, 'README.md'), path.join(docs, 'README.md'));
   for (const entry of await fs.readdir(tools, { withFileTypes: true })) if (entry.isFile()) await fs.copyFile(path.join(tools, entry.name), path.join(fixtureTools, entry.name));
   await fs.symlink(path.join(tools, 'node_modules'), path.join(fixtureTools, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
@@ -39,7 +40,7 @@ async function fixture(t) {
 }
 
 function run(tool, cwd) {
-  const result = spawnSync(process.execPath, [tool], { cwd, encoding: 'utf8', timeout: 120000, env: { ...process.env, SOURCE_DATE_EPOCH: '1792065600' } });
+  const result = spawnSync(process.execPath, [tool], { cwd, encoding: 'utf8', timeout: 600000, env: { ...process.env, SOURCE_DATE_EPOCH: '1792065600' } });
   assert.ifError(result.error);
   assert.notEqual(result.status, 0, `Expected command failure: ${result.stdout}`);
   assert.ok(!result.stdout.includes('Validation passed:'), 'Failure must not report validation success');

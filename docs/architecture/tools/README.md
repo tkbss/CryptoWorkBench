@@ -1,3 +1,35 @@
+# AR-01 bilingual architecture publication
+
+Current edition: Chapters 1–4 at `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb`. English remains the default; German uses `--lang de`. Both editions use the same generator, validator, pinned package lock and embedded fonts. `publication.json` explicitly selects chapters, diagrams, localized README and current evidence; the partial Chapter 9 and historical reports remain preserved outside the edition.
+
+## Current installation and commands
+
+Install the exact locked dependencies with pnpm 11.25.0, dependency scripts disabled, then the matching Playwright Chromium. Node >=22.16 is supported by the package declaration; AR-01 verification uses Node 24.22.1 on Windows. No .NET build is required for publication.
+
+```sh
+pnpm --dir docs/architecture/tools install --frozen-lockfile --ignore-scripts
+node docs/architecture/tools/node_modules/playwright/cli.js install chromium
+node docs/architecture/tools/bilingual-checks.mjs
+node docs/architecture/tools/generate.mjs
+node docs/architecture/tools/generate.mjs --lang de
+node docs/architecture/tools/validate.mjs --lang en
+node docs/architecture/tools/validate.mjs --lang de
+node --test docs/architecture/tools/regression.test.mjs docs/architecture/tools/bilingual.test.mjs
+node docs/architecture/tools/repeatability.mjs
+```
+
+Set `SOURCE_DATE_EPOCH` to fixed Unix seconds for a controlled generation timestamp; the repeatability command defaults to `1793923200` (2026-11-06 00:00:00 UTC). Generation blocks HTTP(S); setup requires network access. Git and all recorded baseline objects must be available locally. The generator requires the repository's GitHub origin and verifies source links against local immutable Git objects; it does not test remote account permissions or URL availability.
+
+English output remains `docs/architecture/generated/CryptoScript-Workbench-Architecture.pdf`. German output is `docs/architecture/generated/de/CryptoScript-Workbench-Architecture.pdf`. Each directory holds its own HTML, SVG, layout, manifest and validation files. Failure invalidates only the selected PDF/manifest/pass report. Invalid language arguments fail without selecting or deleting either edition. A changed translation invalidates that edition; shared metadata/tooling changes require revalidation/regeneration as appropriate.
+
+The manifest records source and tooling hashes, language, implementation baseline, actual documentation HEAD, dirty working-tree state, source sections, diagrams and navigation. Authored review sources need not be committed: hashes identify their exact bytes. Application links point to the pinned implementation; historical links point to their original commits. Standalone validation checks current inputs, source Git identities and current tooling as well as the PDF.
+
+The bilingual gate checks numbered sections, code examples, evidence/reference sequences, paragraph/list/table structure and Mermaid topology. Repeatability compares two complete generations per language and the rendered graph topology across languages. This does not substitute for independent technical or linguistic review. See `../decisions/ar-01-bilingual-publication.md`, `../AR-01-integration-report.md` and `../AR-01-publication-validation.md`.
+
+## Retained pre-AR-01 tooling history
+
+The material below records the original Chapters 1–3 toolchain and its review history. Its initial branch/HEAD, cumulative discovery, page counts and pending-review statements describe that historical version. The current commands, edition selection and validation results above and in the AR-01 reports take precedence for this package. Original approval evidence is not rewritten.
+
 # Architecture PDF generation
 
 Generate the cumulative reading edition from the current checkout's authoritative

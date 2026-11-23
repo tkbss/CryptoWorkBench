@@ -6,12 +6,21 @@ import crypto from 'node:crypto';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { assertCurrentSources, assertSourceBlocks } from './content-checks.mjs';
 
+import { language, outputDirectory } from './publication.mjs';
+import { validateLanguageSources } from './bilingual-checks.mjs';
 const normalize = text => text.normalize('NFC').replace(/[\s\u00ad\u200b]/g, '');
-export async function validate(directory) {
+export async function validate(directory, expectedLanguage = 'en') {
   // A previous pass must never survive failed current-source validation.
   await fs.rm(path.join(directory, 'validation.json'), { force: true });
   const manifest = JSON.parse(await fs.readFile(path.join(directory, 'generation-manifest.json'), 'utf8'));
-  await assertCurrentSources(manifest, path.resolve(directory, '..'));
+  assert.equal(manifest.language, expectedLanguage, 'Publication language mismatch');
+  const architecture = path.resolve(directory, expectedLanguage === 'de' ? '../..' : '..');
+  await assertCurrentSources(manifest, architecture);
+  const sourceIntegrity = await validateLanguageSources(architecture, expectedLanguage);
+  for (const tool of manifest.tooling) {
+    const current = await fs.readFile(path.join(architecture, 'tools', tool.file));
+    assert.equal(crypto.createHash('sha256').update(current).digest('hex'), tool.sha256, `Tooling differs from manifest: ${tool.file}`);
+  }
   const layout = JSON.parse(await fs.readFile(path.join(directory, 'layout-check.json'), 'utf8'));
   assert.equal(layout.failures.length, 0, 'DOM layout overflow');
   assert.equal(layout.broken.length, 0, 'Broken HTML destinations');
@@ -106,10 +115,10 @@ export async function validate(directory) {
         assert.ok(diagramPages.some(t => normalize(t).includes(needle)), `Diagram label not readable as PDF text: ${diagram.file}: ${label}`);
       }
     }
-    const report = { passed: true, sourceValidation: 'current', sourceBlockGroupsChecked: accounting.groups, sourceOrderChecked: true, pages: pdf.numPages, portraitPages: pageSizes.filter(p => p.height > p.width).length, landscapePages: pageSizes.filter(p => p.width > p.height).length, chapterCount: manifest.chapters.length, evidenceCount: manifest.evidence.length, diagramCount: manifest.diagrams.length, diagramDetailPages: 0, inappropriateWordBreaks: layout.splitWords, repeatedTableHeaders: layout.repeatedTableHeaders, bookmarkCount: outline.length, internalLinkAnnotations: internal.length, externalLinkAnnotations: external.length, sourceBlocksChecked: manifest.sourceBlocks.length, sourceBlockOmissions: missing.length, textOutsidePage, pageSizes, warnings: manifest.warnings };
+    const report = { passed: true, language: expectedLanguage, sourceValidation: 'current', sourceBlockGroupsChecked: accounting.groups, sourceOrderChecked: true, pages: pdf.numPages, portraitPages: pageSizes.filter(p => p.height > p.width).length, landscapePages: pageSizes.filter(p => p.width > p.height).length, chapterCount: manifest.chapters.length, evidenceCount: manifest.evidence.length, diagramCount: manifest.diagrams.length, diagramDetailPages: 0, inappropriateWordBreaks: layout.splitWords, repeatedTableHeaders: layout.repeatedTableHeaders, bookmarkCount: outline.length, internalLinkAnnotations: internal.length, externalLinkAnnotations: external.length, sourceBlocksChecked: manifest.sourceBlocks.length, sourceBlockOmissions: missing.length, textOutsidePage, pageSizes, warnings: manifest.warnings };
     await fs.writeFile(path.join(directory, 'validation.json'), JSON.stringify(report, null, 2));
     console.log(`Validation passed: ${pdf.numPages} A4 pages, ${outline.length} bookmarks, ${internal.length} internal / ${external.length} external links, ${manifest.sourceBlocks.length} source blocks.`);
     return report;
   } finally { await loading.destroy(); }
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await validate(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../generated'));
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) { const lang = language(); await validate(outputDirectory(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), lang), lang); }

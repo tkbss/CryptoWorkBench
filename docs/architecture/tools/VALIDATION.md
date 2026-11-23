@@ -1,3 +1,9 @@
+# AR-01 bilingual validation — 2026-11-06
+
+Current results and limitations are recorded in [the AR-01 publication report](../AR-01-publication-validation.md). The current edition uses the pinned implementation `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` and publishes Chapters 1–4 in English and German. Each edition has its own generated PDF, manifest and validation result. The shared test suite contains the thirteen retained regression tests and nine bilingual tests. Source, parity, repeatability and visual checks are documented in that report; independent technical and linguistic acceptance remains pending.
+
+The historical review/ZIP records below remain unchanged. Their page counts, baseline, package contents and test results apply to their original inputs, not to the AR-01 edition. Current authored sources are uncommitted for review; their manifests record exact input and tooling hashes.
+
 # Updated technical review ZIP
 
 Refreshed on **2026-10-15T16:30:05.866925+00:00** directly from the actual Architecture Recovery worktree

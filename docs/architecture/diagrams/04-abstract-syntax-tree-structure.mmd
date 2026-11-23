@@ -1,44 +1,24 @@
-%% Diagram: D04-AST - Abstract Syntax Tree Structure
-%% Baseline: 29b6b36e860ff278b845ac439dd123661760d098
-%% Evidence: ../chapters/04-language-architecture.md, Source evidence L05-L06.
-%% Flowchart structural equivalent: dotted subtype -> base; solid owner -> property target.
-%% Edge cardinalities count targets per owner. Six grouped leaf classes remain distinct classes.
-%% Relationships describe mapped syntax, not object lifetimes or runtime execution.
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-abstract-syntax-tree-structure.mmd
 flowchart TB
-    subgraph Diagram["Abstract Syntax Tree Structure [F]"]
-        S["StatementNode<br/>abstract"]
-        DS["VariableDeclarationStatementNode<br/>RawText"]
-        CS["FunctionCallStatementNode"]
-        D["VariableDeclarationNode<br/>Identifier; TypeName"]
-        E["ExpressionNode<br/>abstract"]
-        Lit["LiteralInitializerNode<br/>RawText"]
-        Call["FunctionCallExpressionNode<br/>Name; CallText"]
-        PL["ParameterListInitializerNode"]
-        PI["ParameterInitializerNode<br/>TypeName?; RawValue?; RawText"]
-        H["Tr31HeaderInitializerNode<br/>RawText"]
-        A["FunctionCallArgumentNode<br/>abstract"]
-        Leaves["Six distinct argument classes<br/>MechanismArgumentNode<br/>VariableArgumentNode<br/>LiteralArgumentNode<br/>ParameterArgumentNode<br/>InfoArgumentNode<br/>EmptyArgumentNode"]
-        Nested["NestedCallArgumentNode"]
-        DS -.->|is a| S
-        CS -.->|is a| S
-        DS -->|Declaration: 1| D
-        CS -->|Call: 1| Call
-        D -->|Initializer: 0..1| E
-        D -->|Parameters: 1| PL
-        PL -->|Items: 0..many ordered| PI
-        D -->|Tr31Header: 0..1| H
-        Lit -.->|is a| E
-        Call -.->|is a| E
-        Call -->|Arguments: 0..many ordered| A
-        Leaves -.->|each is a| A
-        Nested -.->|is a| A
-        Nested -->|Call: 1| Call
-        Legend["Dotted: subtype to base. Solid: property to target.<br/>Cardinalities describe mapper-produced records.<br/>Parameter lists and headers are outside ExpressionNode.<br/>Grouped leaves are six classes, not a wrapper class."]
-        PI ~~~ Legend
-    end
+    S["StatementNode"]
+    D["Declaration statement"]
+    A["AssignmentStatementNode"]
+    F["Function call statement"]
+    Init["Literal or call initializer"]
+    Params["Ordered parameter list"]
+    Header["TR31 header with fields"]
+    Args["Ordered argument variants"]
+    D -.->|"inherits"| S
+    A -.->|"inherits"| S
+    F -.->|"inherits"| S
+    D -->|"0..1 initializer"| Init
+    A -->|"0..1 initializer"| Init
+    D -->|"1 list"| Params
+    A -->|"1 list"| Params
+    D -->|"0..1 header"| Header
+    A -->|"0..1 header"| Header
+    F -->|"call arguments"| Args
+    Legend["Dashed: inheritance. Solid: composition [F].<br/>Grouped variants are explained in 4.5; no source spans.<br/>Lists/headers are not ExpressionNode subclasses."]
     classDef note fill:#fafafa,stroke:#888888,color:#333333
-    classDef base fill:#f4f0fa,stroke:#72518f,color:#382348
-    classDef record fill:#eaf4ed,stroke:#357348,color:#173b23
-    class S,E,A base
-    class DS,CS,D,Lit,Call,PL,PI,H,Leaves,Nested record
     class Legend note

@@ -1,44 +1,20 @@
-%% Diagram: D03-COVERAGE
-%% Baseline: efa81d6ca282ad7a2b8959d0f406f741c87006b0
-%% Evidence: ../evidence/03-project-structure-and-dependencies-baseline.md, C04, C09, C10 and D03-COVERAGE
-%% Scope authority: ../evidence/02-system-overview-baseline.md, O05
-%% Historical client and associated edges are omitted; Chapter 3 Section 3.4 preserves the complete graph.
-%% Solid arrows: direct ProjectReference; dashed arrows: CI execution/output flow.
-%% Invisible links position panels and legend only; they are not architectural relationships.
-flowchart LR
-    subgraph CI["CI Execution Paths"]
-        direction TB
-        Matrix["Four GitHub-hosted jobs<br/>windows-latest / win-x64<br/>ubuntu-latest / linux-x64<br/>macos-26 / osx-arm64<br/>macos-26-intel / osx-x64"]
-        Restore["Restore Desktop and both test roots"]
-        Build["Explicitly build Core, GUI and Desktop Host<br/>Build both test projects<br/>Release / --no-restore"]
-        Tests["Run CryptoScriptUnitTest<br/>Run CryptoWorkBenchGuiTest<br/>Complete Release suites / TRX"]
-        Publish["Publish Desktop for job RID<br/>Framework-dependent / apphost"]
-        Validate["Validate publish contents<br/>Runtime, RID, managed and native assets<br/>All InfoDocs: casing, hashes and reading<br/>Unix executable permission"]
-        Results["Upload test-results-RID<br/>TRX artifacts"]
-        Matrix -.->|One path per matrix row| Restore
-        Restore -.-> Build
-        Build -.->|Select both test suites| Tests
-        Build -.->|Desktop build succeeded; not cancelled| Publish
-        Publish -.->|Publish succeeded; not cancelled| Validate
-        Tests -.->|TRX output; test-build succeeded; not cancelled| Results
-    end
-
-    subgraph References["Project References"]
-        direction TB
-        Desktop["CryptoWorkBenchAvalonia.Desktop"]
-        Gui["CryptoWorkBenchAvalonia"]
-        Core["CryptoScript"]
-        Unit["CryptoScriptUnitTest"]
-        GuiTests["CryptoWorkBenchGuiTest"]
-        Desktop -->|Project reference| Gui
-        Gui -->|Project reference| Core
-        Unit -->|Project reference| Core
-        GuiTests -->|Project reference| Gui
-        Legend["Legend<br/>Solid A to B: A directly references B.<br/>Dashed arrows: CI execution or output flow.<br/>CI paths summarize gates, not execution order.<br/>All five projects are explicit CI build targets.<br/>Historical references: see complete inventory.<br/>No graphical application startup test."]
-        Core ~~~ Legend
-    end
-    CI ~~~ References
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 03-build-and-test-dependency-coverage.mmd
+flowchart TB
+    CI["Four runner/RID pairs"]
+    Prepare["Prepared Prism and locked restore"]
+    Build["Debug and Release builds"]
+    Tests["Core, GUI and MCP suites<br/>targeted regressions"]
+    Native["Native file-publication checks"]
+    Publish["RID publish and asset validation"]
+    Reports["Test and build diagnostics"]
+    CI -.->|"configured"| Prepare
+    Prepare -.->|"build environment"| Build
+    Build -.->|"test roots"| Tests
+    Build -.->|"native path"| Native
+    Build -.->|"desktop host"| Publish
+    Tests -.->|"TRX"| Reports
+    Publish -.->|"validation"| Reports
+    Legend["Dashed arrows: configured CI selection/output [F].<br/>Not a current successful run or complete GUI startup proof."]
     classDef note fill:#fafafa,stroke:#888888,color:#333333
-    classDef project fill:#eaf4ed,stroke:#357348,color:#173b23
-    class Matrix,Legend note
-    class Desktop,Gui,Core,Unit,GuiTests project
+    class Legend note

@@ -1,51 +1,28 @@
-%% Diagram: D04-SEQUENCE - Source-to-Operation Processing Sequence
-%% Baseline: 29b6b36e860ff278b845ac439dd123661760d098
-%% Evidence: ../chapters/04-language-architecture.md, Source evidence L04, L06-L11, L17-L20.
-%% Numbered activity-flow equivalent of a sequence view. Solid arrows: control/data progression.
-%% Dotted arrows: execution-error alternative. The loop maps only after earlier evaluation completes.
-%% Nested calls complete recursively before outer invocation; grammar recovery is not an execution gate.
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-source-to-operation-sequence.mmd
 flowchart TB
-    subgraph Diagram["Source-to-Operation Processing Sequence [F]"]
-        Caller["1 Avalonia ExecuteLine<br/>source text"]
-        Build["2 ParserBuilder.StringBuild<br/>streams, lexer, parser, listeners"]
-        Parse["3 Caller invokes program()<br/>lexer tokens; parser tree/recovery"]
-        Gate{"4 Caller gate:<br/>parser error flag?"}
-        Syntax["Report syntax error<br/>return before execution"]
-        Runner["5 CryptoScriptRunner.Execute<br/>lazy MapStatements"]
-        subgraph Loop["Statement loop - evaluate before mapping the next statement"]
-            Map["AntlrToStatement.Map<br/>one AST statement"]
-            Eval["6 StatementEvaluator<br/>declaration / call / null"]
-            Fn["7 FunctionCallEvaluator<br/>recognize function; resolve arguments<br/>nested calls finish first"]
-            Invoke["8 FunctionCall.Call<br/>construct OperationInvocation"]
-            Dispatch["9 Factory delegate calls operation<br/>algorithm arguments or value projection"]
-            Collect["10 Register declaration if applicable<br/>append evaluated statement"]
-            Map --> Eval
-            Eval -->|call or initializer call| Fn
-            Fn --> Invoke
-            Invoke --> Dispatch
-            Dispatch --> Collect
-            Eval -->|no function call| Collect
-            Collect -->|next statement| Map
-        end
-        Done["Return CryptoScriptProgram<br/>results and diagnostics"]
-        Abort["Execution failure: stop<br/>available diagnostics; exception to caller"]
-        Caller --> Build
-        Build --> Parse
-        Parse --> Gate
-        Gate -->|yes| Syntax
-        Gate -->|no| Runner
-        Runner -->|has statements| Map
-        Runner -->|empty program| Done
-        Collect -->|no statements left| Done
-        Eval -.->|evaluation exception| Abort
-        Fn -.->|recognition / argument error| Abort
-        Dispatch -.->|operation exception| Abort
-        Legend["Direct variable: value plus original SourceVariable.<br/>Nested result / named parameter: value, no source identity.<br/>Values projection drops identity and kind.<br/>Mapping failures also abort; no whole-program validation."]
-        Done ~~~ Legend
-    end
+    Host["1 Host admission and syntax reset"]
+    Parse["2 Parse source and check both flags"]
+    Reject["SyntaxError; no runner execution"]
+    Runner["3 Runner with interpreter ownership"]
+    Map["4 Map one statement"]
+    Eval["5 Evaluate declaration, assignment or call"]
+    Collect["6 Collect result; next statement"]
+    Capture["7 FinalizePresentation<br/>Attempt variable state capture"]
+    Presented["Script outcome and variables<br/>CaptureFailed = false"]
+    Stale["Same outcome; stale display<br/>CaptureFailed = true"]
+    Host -->|"source"| Parse
+    Parse -->|"syntax errors"| Reject
+    Parse -->|"syntax accepted"| Runner
+    Reject -->|"finalize rejection"| Capture
+    Runner -->|"lazy mapping"| Map
+    Map -->|"AST"| Eval
+    Eval -->|"completed"| Collect
+    Collect -->|"more statements"| Map
+    Collect -->|"finished"| Capture
+    Eval -.->|"terminating failure"| Capture
+    Capture -->|"capture succeeds"| Presented
+    Capture -.->|"capture fails"| Stale
+    Legend["Assignment prepares before replacing its target.<br/>Prior/foreign effects are not generally rolled back.<br/>Secure calls can await host input; capture can fail separately."]
     classDef note fill:#fafafa,stroke:#888888,color:#333333
-    classDef phase fill:#e8f1fb,stroke:#285780,color:#162b3d
-    classDef failure fill:#fceeee,stroke:#9b4545,color:#512525
-    class Caller,Build,Parse,Runner,Map,Eval,Fn,Invoke,Dispatch,Collect,Done phase
-    class Syntax,Abort failure
     class Legend note

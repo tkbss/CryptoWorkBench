@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { publication } from './publication.mjs';
 
 export const normalizeText = text => text.normalize('NFC').replace(/[\s\u00ad\u200b]/g, '');
 
@@ -37,8 +38,7 @@ export function assertSourceBlocks(blocks, sourceText, stage) {
 }
 
 export async function assertCurrentSources(manifest, architecture) {
-  const filesIn = async (dir, pattern) => (await fs.readdir(path.join(architecture, dir))).filter(f => pattern.test(f)).map(f => `${dir}/${f}`);
-  const current = [...await filesIn('chapters', /^\d+-.*\.md$/), ...await filesIn('evidence', /\.md$/), 'README.md', ...await filesIn('diagrams', /\.mmd$/)].sort();
+  const current = (await publication(architecture, manifest.language)).sources.sort();
   assert.deepEqual(manifest.sources.map(s => s.file).sort(), current, 'Current-source inventory differs from generation manifest; regenerate the PDF');
   for (const source of manifest.sources) {
     const bytes = await fs.readFile(path.join(architecture, source.file));

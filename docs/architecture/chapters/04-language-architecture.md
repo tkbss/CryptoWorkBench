@@ -1,245 +1,114 @@
 # 4. Language Architecture
 
-[Architecture documentation](../README.md) | [Previous: Project Structure and Dependencies](03-project-structure-and-dependencies.md) | [Source evidence](#source-evidence)
+[Architecture documentation](../README.md)
 
 | Metadata | Value |
 | --- | --- |
-| Status | Draft - pending independent review |
-| Implementation baseline | `29b6b36e860ff278b845ac439dd123661760d098` |
-| Documentation starting point | `29b6b36e860ff278b845ac439dd123661760d098`, branch `docs/architecture-recovery` |
-| Analysis and documentation date | 2026-10-16 |
-| Verification | Phase-1 static analysis, relevant local source reinspection and inspection of existing test definitions; no application build, test execution or platform run |
-
-This chapter describes the local architecture worktree at the recorded baseline. **[F]** identifies directly verified source facts, **[I]** architectural interpretations and **[Q]** unresolved matters. L01-L22 resolve through the [source evidence register](#source-evidence). Test citations identify inspected assertions, not passing test results. The baseline identifies this checkout's implementation; it does not replace the historical baselines of Chapters 1-3.
+| Status | AR-01 draft; independent technical and linguistic review pending |
+| Implementation baseline | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| Date | 2026-11-06 |
+| Verification | Static source inspection; no new application tests |
 
 ## 4.1 Scope and Language Architecture Overview
 
-**[F: L04-L08, L17, L20]** The reusable CryptoScript library owns lexer/parser construction, parse-tree mapping, its own syntax records, statement evaluation and operation dispatch. The active Avalonia editor calls `ParserBuilder.StringBuild`, invokes `CryptoScriptParser.program()` and passes the resulting context to `CryptoScriptRunner.Execute`. The GUI references Core; Core declares no GUI project reference or Avalonia package dependency.
+**[F]** CryptoScript owns lexer/parser construction, parse-tree mapping, core syntax records, evaluation and operation dispatch. The host's WorkbenchExecutionPipeline builds the parser, calls program(), gates syntax failures and awaits CryptoScriptRunner.ExecuteAsync. Core has no Avalonia/GUI project dependency. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R07](../evidence/ar-01-baseline-reconciliation.md#r07), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
-**[I]** CryptoScript is an interpreter with an explicit parse-tree-to-AST boundary and statement-oriented evaluation. The AST separates syntax from runtime objects, but the runner maps and evaluates individual statements in sequence. It does not first construct and semantically validate a complete program AST. This interpretation follows from L05-L08 and L17, rather than from the existence of generated visitor infrastructure.
+**[I]** This is an interpreter with an explicit parse-tree-to-AST boundary. Mapping and evaluation remain interleaved per statement; there is no complete-program semantic validation pass before execution. Execute(IEnumerable<StatementNode?>) also accepts AST input without parsing. CryptoScriptProgram contains evaluated results and diagnostics, not the program syntax tree. The [component view](../diagrams/04-language-components-and-dependencies.mmd) separates logical dependencies from generation relationships.
 
-The chapter follows source text through syntax analysis and AST construction to the invocation of operation delegates. Runtime execution, detailed evaluator behavior, algorithm implementations, mechanisms and cryptographic primitives belong to Chapters 5 and 6. Diagnostic internals and GUI composition belong to Chapters 7 and 10. The active scope remains the Avalonia application and reusable Core established in [Section 1.3](01-introduction.md#13-scope-and-boundaries).
-
-The [Language Components and Dependencies diagram](../diagrams/04-language-components-and-dependencies.mmd) shows logical code groups within Core and its external Avalonia caller. Solid arrows denote code dependencies/calls; dotted arrows identify grammar imports or generation. It is not a deployment diagram. Evidence: L01-L08, L12-L13 and L17-L20.
+This chapter follows source through operation invocation. Detailed runtime, cryptographic, diagnostic, GUI and MCP policies belong to their later chapters/packages. Assignment-specific validation is included because it determines the new language statement's behavior.
 
 ## 4.2 Grammar Organization and Generated Artifacts
 
-**[F: L01-L03]** `CryptoScript.g4` is a combined ANTLR grammar: it contains parser rules and an `INT` lexer rule. It imports `CryptoLexer.g4`, a lexer grammar that imports `TR31Lexer.g4`. There is no separate parser-grammar declaration using `tokenVocab` in these definitions. The import direction is `CryptoScript -> CryptoLexer -> TR31Lexer`.
+**[F]** CryptoScript.g4 is a combined ANTLR grammar with parser rules and an INT lexer rule. It imports the lexer grammar CryptoLexer.g4, which imports TR31Lexer.g4. This is not a separate parser grammar using tokenVocab. Development helpers invoke antlr4 with C# and visitor output; committed C# lexer/parser, listener/visitor interfaces and bases, token and interpreter metadata are the generated artifacts. Runtime instantiates generated C# and ANTLR simulators; it does not read g4 files or run those helpers. [R06](../evidence/ar-01-baseline-reconciliation.md#r06)
 
-| Artifact group | Implemented role | Evidence |
-| --- | --- | --- |
-| Grammar definitions | Define lexical categories and parser rules, including imported TR-31 fields | L01-L02 |
-| Generated C# | `CryptoScriptLexer`, `CryptoScriptParser`, visitor interface/base and listener interface/base | L03 |
-| Token/interpreter metadata | `CryptoScript.tokens`, `CryptoScriptLexer.tokens` and corresponding `.interp` files record generated token/interpreter metadata | L03 |
-| Handwritten extension | Partial `CryptoScriptLexer.NextToken` intercepts `DES3-RETAIL` and `#MACLEN`, then otherwise delegates to the generated lexer | L03 |
-| Generation helpers | Batch and shell scripts invoke external `antlr4` with C# output and `-visitor`; tree helpers invoke the `program` entry for inspection | L03 |
-| Runtime metadata bridge | `AntlrLanguageMetadata` reflects public generated lexer constants by prefix and reads vocabulary names | L19 |
+The handwritten partial lexer intercepts DES3-RETAIL and #MACLEN before delegating. Active AST mapping uses explicit AntlrTo* methods rather than the generated visitor/listener scaffold. Generated metadata has additional consumers: AntlrLanguageMetadata reflects token constants/vocabulary; MechanismList, ParameterTypeList and CryptoType use it. The AST has no ANTLR context fields, but the language subsystem is not independent of generated metadata. [R06](../evidence/ar-01-baseline-reconciliation.md#r06), [R08](../evidence/ar-01-baseline-reconciliation.md#r08), [R09](../evidence/ar-01-baseline-reconciliation.md#r09), [R12](../evidence/ar-01-baseline-reconciliation.md#r12)
 
-**[F: L03, L20]** The helper command generates implementation sources during development. The inspected project and workflow declarations do not invoke grammar regeneration. Runtime parsing instantiates the committed generated C# classes and ANTLR simulators; it does not execute the helper scripts or read `.g4` files. Grammar imports, generation inputs/outputs and runtime calls are therefore different relationships.
-
-**[F: L19]** Generated dependencies extend beyond parsing. `MechanismList` and `ParameterTypeList` initialize mutable lists through `AntlrLanguageMetadata`. `CryptoType` obtains type display names through generated token constants and vocabulary. These consumers depend on the generated implementation, even though the AST records contain no ANTLR types.
-
-**[F: L03, L20]** Generated C# headers identify ANTLR **4.13.2**, while the project declares `Antlr4.Runtime.Standard` **4.13.1**. The scripts do not pin the external generator version. This is an observed version/reproducibility difference; incompatibility is not established.
+Generated headers identify ANTLR 4.13.2; the runtime package is 4.13.1. Helpers do not pin the external generator, and application builds do not establish reproducible grammar regeneration. **[Q]** The authoritative generator environment remains unresolved; no incompatibility is asserted.
 
 ## 4.3 Lexical Model and Syntax
 
-**[F: L01-L02]** The following table describes grammar definitions. Acceptance by these rules does not establish executable support or cryptographic validity.
+**[F]** Declaration keywords are KEY, VAR, PARAM, PATH, TR31H, VAL and SECRET. Nominal identifiers use an ASCII letter followed by ASCII letters/digits. FN-shaped names start with uppercase then lowercase and continue with letters; FN precedes ID, so matching the nominal identifier pattern does not guarantee an ID token. Imported TR-31 tokens also overlap names. Fixed mechanism, padding, parameter and information tokens retain their lexical casing. [R06](../evidence/ar-01-baseline-reconciliation.md#r06)
 
-| Category | Implemented convention |
-| --- | --- |
-| Declaration keywords | Uppercase `KEY`, `VAR`, `PARAM`, `PATH`, `TR31H` |
-| Identifiers | ASCII letter followed by ASCII letters/digits: `[a-zA-Z][a-zA-Z0-9]*` |
-| Function-shaped names | `[A-Z][a-z][a-zA-Z]*`; implementation recognition occurs later |
-| Decimal integers | `[0-9]+`; no sign, fraction or grammar-level size limit |
-| Hexadecimal literals | `0x(...)` containing one or more hexadecimal digits; the rule does not require an even digit count |
-| Base64 literals | `b64(...)` using the specified Base64 character set; full encoding validity is not checked by the rule |
-| Normal strings | Double quotes, with the restricted `ESC` alternatives for backslash escapes |
-| Mechanisms and paddings | Enumerated uppercase/hyphenated values grouped under `MECHANISM` and `PADDING` |
-| Named parameters | Enumerated `#` names, such as `#MECH`, `#IV`, `#PAD`, `#USAGE`, `#KEYTYPE`, used as `PARAM_TYPE ':' value` |
-| Information selectors | Fixed lowercase words: `functions`, `mechanisms`, `types`, `parameters`, `paddings`, `mechanism`, `keymap` |
-| TR-31 composite literal | A quoted string immediately followed by two hexadecimal segments |
-| TR-31 header | Braces around one or more fields; each is a field-name token, colon, field-value token or integer, and semicolon |
-| Paths | Drive-prefixed, backslash UNC or slash-prefixed text continuing to the line ending |
-| Whitespace | Spaces, tabs and newlines are skipped; no comment rule is declared |
+INT contains unsigned decimal digits without a grammar size bound. HEX/Base64/string tokens have lexical shapes, not complete runtime validity guarantees; HEX does not itself require an even digit count. Strings allow the grammar's restricted escapes. Absolute drive, UNC and slash-prefixed path tokens consume through the line ending, potentially swallowing commas or parentheses. Relative paths and tilde expansion are not introduced by these rules. Runtime path classification/validation is a separate step. Whitespace is skipped and no general comment rule or statement semicolon is defined. TR-31 fields use semicolons inside braces. [R06](../evidence/ar-01-baseline-reconciliation.md#r06), [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R12](../evidence/ar-01-baseline-reconciliation.md#r12)
 
-**[F: L01]** `program` accepts zero or more declarations/calls followed by EOF. Statements have no general semicolon terminator. `expression` contains literal alternatives; it does not define arithmetic or variable-reference expressions. Function calls are separate grammar alternatives for declarations and arguments. An identifier can be an argument or parameter value, but `VAR copy = existing` is not a declaration-expression alternative.
+program accepts statement* EOF; statement selects declaration, functionCall or assignment. expression remains literal-only: there are no arithmetic or bare-variable-reference expressions. Function calls are separate initializer/argument alternatives. Thus name = expression is shorthand for the supported initializer alternatives, not a general expression language. Assignment requires a nonempty initializer; the legacy declaration parameter-list alternative still allows zero items syntactically.
 
-**[F/I: L01-L03, L21]** Token overlap restricts the nominal identifier pattern. `FN` precedes `ID`, so a function-shaped name is not an ordinary ID token merely because it also matches that character pattern. General identifiers also overlap imported TR-31 names/values. The TR-31 AST tests explicitly supply token types to bypass existing lexer conflicts; they do not demonstrate a working source-text-to-header execution path. The handwritten lexer interception is an additional lexical dependency.
-
-**[F: L01, L12, L14, L18-L19]** Source keywords and fixed lexical values retain their declared casing. Variable lookup uses unnormalized dictionary keys. Factory function lookup and `CryptoType.Parse` use parameterless `ToLower()`, while parameter storage normalizes names through ordinal case-insensitive comparisons. These are distinct policies. Runtime normalization does not broaden the source `FN` rule; syntax tests include rejection of lowercase `generateKey` (L21).
-
-**[F: L01, L15]** Path lexing accepts Windows and Unix-style absolute forms, but consumes punctuation such as commas/parentheses through the rest of the line. Relative paths and tilde expansion are not defined. Runtime path classification uses separate regular expressions: a drive prefix must be followed by a slash or backslash there, unlike the broader lexer rule. Recognition does not prove path existence, access or portability.
+CreateHeader, Info, Load/SecureLoad/Delete and secure options have contextual argument rules. FN-shaped snapshot selectors and raw conflict options must not be treated as ordinary variable lookup in every call. Variable dictionary lookup remains case-sensitive; parameter storage has its own case-insensitive normalization. Factory/type normalization does not broaden source FN syntax. [R06](../evidence/ar-01-baseline-reconciliation.md#r06), [R11](../evidence/ar-01-baseline-reconciliation.md#r11), [R12](../evidence/ar-01-baseline-reconciliation.md#r12), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
 ## 4.4 Parser Construction and Syntax Diagnostics
 
-**[F: L04]** `ParserBuilder.StringBuild` constructs `AntlrInputStream`, `CryptoScriptLexer`, `CommonTokenStream` and `CryptoScriptParser` in that order. It replaces default lexer/parser listeners with `LexerErrorListener` and `SyntaxErrorListner`, clears `SyntaxErrorList.Instance()` and returns the parser. It neither explicitly fills the token stream nor invokes a parser entry rule.
+**[F]** StringBuild verifies interpreter access, constructs AntlrInputStream, CryptoScriptLexer, CommonTokenStream and CryptoScriptParser, replaces default listeners with custom lexer/parser listeners and clears the shared syntax-error list. It returns before invoking program() and does not explicitly fill the token stream. FileBuild also verifies access and installs custom listeners, configured for console diagnostics; its reset behavior is not identical to StringBuild. [R07](../evidence/ar-01-baseline-reconciliation.md#r07)
 
-**[F: L03-L04, L20]** The caller invokes `program()`. The generated method creates `ProgramContext`, consumes statements and EOF, and reports/recovers recognition failures through the parser error handler. The token stream supplies lexer tokens during parsing. Parse-tree creation is distinct from subsequent mapping to Core-owned AST records.
+Listeners collect diagnostics rather than intentionally stopping parsing. Generated parser recovery can produce incomplete contexts. The host pipeline explicitly clears the shared list, both flags and the parser message buffer, parses, copies diagnostics and rejects either lexer or parser errors before execution. This supersedes the former parser-only GUI gate. Parser construction alone still does not implement the complete host reset/gate contract, and the runner's AST-input path is not a generic syntax gate. [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R07](../evidence/ar-01-baseline-reconciliation.md#r07), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
-| Diagnostic component | Verified behavior | Evidence |
-| --- | --- | --- |
-| `LexerErrorListener` | Sets its static flag and appends a `LexerError` to the shared list | L16 |
-| `SyntaxErrorListner` | Sets its own static flag, appends a `ParserError` and accumulates formatted text; a colon error can be redirected to the preceding token | L16 |
-| `SyntaxErrorList` | Exposes a singleton mutable list containing both error kinds | L16 |
-| Avalonia `ExecuteLine` | Checks the parser listener flag, reports its message and returns before runner execution when set | L20 |
-
-**[F: L04, L16, L20]** These listeners record diagnostics rather than deliberately throwing to terminate parsing. The GUI supplies the syntax-error gate; the runner does not add a corresponding check. That GUI gate tests the parser flag, not the lexer flag or combined list. `StringBuild` clears the list but does not reset both static flags or clear the accumulated parser message buffer. The GUI resets the parser flag after a failed parse.
-
-**[F: L04]** `FileBuild` opens a file reader and constructs the same lexer/token-stream/parser chain, but does not install the custom listeners or clear their state. It also returns before entry-rule invocation. Its behavior must not be described as identical to `StringBuild` diagnostic setup.
-
-**[F: L07-L08, L17, L20]** Semantic execution diagnostics follow another path: evaluators add `SemanticError` objects, commonly throw `SemanticErrorException`, and capture diagnostics in an execution-owned context. The GUI catches execution exceptions and reads runner diagnostics. Syntax positions originate in ANTLR callbacks; execution locations identify statements/operations. Detailed classification, redaction and presentation remain Chapter 7 responsibilities.
+Semantic diagnostics are separate: evaluators add SemanticError objects and may throw SemanticErrorException; execution-owned contexts capture them with execution/statement/operation locations. Diagnostic severity alone is not proof that execution stopped. A thrown terminating exception and a continuing diagnostic are distinct. [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
 ## 4.5 Abstract Syntax Tree and Mapping
 
-**[F: L05-L06]** The AST consists of records under `CryptoScript/Model/Ast`. The active path uses explicit static `AntlrTo*` mapping methods and constructors. Generated visitor/listener interfaces and base classes exist but are not used by this mapping path. Evaluators switch on or test Core AST node types.
+**[F]** StatementNode has declaration, function-call and assignment variants. VariableDeclarationStatementNode holds Declaration and RawText; FunctionCallStatementNode holds Call. AssignmentStatementNode holds Identifier, optional Initializer, Parameters, optional Tr31Header and RawText, but no declared type: execution resolves the existing target. VariableDeclarationNode additionally retains textual TypeName. [R08](../evidence/ar-01-baseline-reconciliation.md#r08), [R09](../evidence/ar-01-baseline-reconciliation.md#r09)
 
-| AST types | Responsibility and important properties |
-| --- | --- |
-| `StatementNode` | Abstract statement basis |
-| `VariableDeclarationStatementNode` | Holds `Declaration` and parse-tree `RawText` |
-| `FunctionCallStatementNode` | Holds the shared function-call node in `Call` |
-| `VariableDeclarationNode` | Holds `Identifier`, textual `TypeName`, optional `Initializer`, `Parameters` and optional `Tr31Header` |
-| `ExpressionNode` | Abstract basis for literal and function-call initializers |
-| `LiteralInitializerNode` | Preserves `RawText` without decoding or runtime classification |
-| `FunctionCallExpressionNode` | Holds `Name`, `CallText` and ordered `Arguments`; used in initializers, standalone calls and nested calls |
-| `FunctionCallArgumentNode` | Abstract basis for mechanism, variable, literal, parameter, information, nested-call and empty variants |
-| `ParameterListInitializerNode` | Holds ordered `Items`, including duplicates |
-| `ParameterInitializerNode` | Holds nullable `TypeName`, nullable `RawValue` and `RawText` |
-| `Tr31HeaderInitializerNode` | Holds complete header `RawText`; fields are not separate AST nodes |
+ExpressionNode has literal and function-call initializer records. FunctionCallExpressionNode stores Name, CallText and ordered Arguments. Argument variants represent mechanisms, variables, literals, parameters, information selectors, nested calls, empty recovery values, secure options and header attributes. ParameterListInitializerNode retains ordered items, including duplicates. ParameterInitializerNode retains nullable type/value text and RawText. Tr31HeaderInitializerNode now retains structured header fields as well as RawText. Parameter lists and headers are not ExpressionNode subclasses.
 
-The [Abstract Syntax Tree Structure diagram](../diagrams/04-abstract-syntax-tree-structure.mmd) uses the established flowchart notation as a structural equivalent. Dotted subtype-to-base edges mean inheritance; solid owner-to-member edges name properties and target multiplicities. Grouped argument variants represent distinct classes, not another implementation class. Evidence: L05-L06.
+AntlrToStatement selects an assignment before call/declaration and can return null for a recovery context. Explicit mappers construct records recursively without variable resolution, runtime type validation or execution. GetText-derived RawText/CallText omit skipped whitespace outside tokens and are not exact original source slices. The syntax records still do not provide general source spans, token indices, line or column fields. Missing recovery children remain a concern; mapping is not comprehensive malformed-tree validation.
 
-**[F: L06]** `AntlrToStatement.Map` wraps a declaration or call and returns null for an empty recovery context. `AntlrToVariableDeclaration.Map` copies identifier/type text, creates a literal or call initializer, always creates a parameter-list node and optionally preserves header text. `AntlrToFunctionCallExpression.Map` recursively maps arguments in order; its fallback is `EmptyArgumentNode`. `AntlrToParameterInitializer.Map` preserves missing child values as null. Mapping does not resolve variables, validate runtime types or execute calls.
+The [AST view](../diagrams/04-abstract-syntax-tree-structure.mmd) distinguishes inheritance from composition and does not invent runtime lifetimes. The original structured-header gap is superseded; syntax/runtime separation remains valid.
 
-**[F: L01, L05-L06, L21-L22]** `RawText` and `CallText` use parse-tree `GetText()`, so skipped whitespace outside tokens is absent; string-token content remains. These are textual representations, not exact source slices. No AST record stores source spans, token indices, lines or columns. Parameter-list/header nodes do not derive from `ExpressionNode`. Recovery may produce null statements or missing values, and the mapper is not a comprehensive validator for arbitrarily malformed parse trees.
+## 4.6 Declarations, Initializers and Assignments
 
-## 4.6 Declarations and Initializers
+**[F]** Declaration evaluation resolves TypeName through CryptoType.Parse. KEY literals now construct KeyVariableDeclaration and reject invalid/nonempty-byte violations; PATH uses a dedicated path preparer. VAL requires a Boolean function result; SECRET requires a function result. TR31H resolves to CryptoTypeTR31Header, and brace fields are evaluated through CreateHeader semantics. The former missing type case/header-evaluation branch is no longer current. [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R12](../evidence/ar-01-baseline-reconciliation.md#r12), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
-**[F: L01, L05-L07, L12-L14]** All five declaration keywords map to the same `VariableDeclarationNode`. Syntax retains the type name as a string; evaluation resolves it through `CryptoType.Parse` before processing the initializer.
+Function declarations check returned type and register the result. Nonempty direct parameter lists require PARAM and use ParameterInitializerEvaluator. Parameter ordering, overwrite/explicit-name behavior and legacy declaration compatibility must be distinguished from stricter assignment preparation. Syntactic acceptance, including empty declaration alternatives, is not successful initialization.
 
-| Declaration | Syntax/AST representation | Verified execution distinction |
-| --- | --- | --- |
-| KEY | Common declaration with `TypeName = KEY` | Resolves to `CryptoTypeKey`; literal construction can produce a `StringVariableDeclaration` carrying that type tag |
-| VAR | Common declaration with `TypeName = VAR` | Literal construction generally uses a string variable; path expressions select a path object |
-| PARAM | Common declaration with `TypeName = PARAM` | A nonempty parameter list builds `ParameterVariableDeclaration`; literal syntax does not itself ensure that concrete class |
-| PATH | Common declaration with `TypeName = PATH` | Recognized path expressions build `PathVariableDeclaration`; the declared type is assigned separately |
-| TR31H | Common declaration, optionally containing header text | `CryptoType.Parse` has no TR31H case and throws before header evaluation |
+**[F]** Redeclaring an existing variable identifier replaces the existing dictionary entry through VariableDictionary.Add. VariableDeclarationEvaluator registers parameter/function results directly and delegates literal registration to Expression.BuildVariable. Redeclaration validates against its own TypeName; it does not retain the previous entry's declared type. Subsequent assignment is a distinct operation: AssignmentEvaluator requires an existing target, retains its declared type and publishes a prepared replacement through VariableDictionary.Update. The stricter assignment validation and target-preservation guarantees must not be attributed to redeclaration. [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R12](../evidence/ar-01-baseline-reconciliation.md#r12)
 
-**[F: L01, L06-L07, L22]** The grammar permits four initializer forms for every declared type: literal expression, function call, zero or more `declareparam` items, or TR-31 header. The AST stores expression initializers, parameter lists and headers in separate properties. Thus `type name =` can parse through the zero-item parameter alternative and yield no value; syntactic acceptance is not successful initialization.
+AssignmentEvaluator first finds the existing target; an unknown target fails before evaluating the RHS and is not implicitly declared. Exactly one initializer category must be present. Literal assignments are supported for VAR, KEY and PATH; assignment INT overflow is rejected before the legacy expression fallback. PARAM lists require a consistent structured mechanism and validated serialization. TR31H fields become a CreateHeader call. The declared CryptoScript type is retained even when the concrete runtime representation changes.
 
-**[F: L07, L12-L13]** Literal text is evaluated through `Expression.Create`, then `Expression.BuildVariable`. Object construction depends on the expression class, while the declared `CryptoType` is assigned separately. A syntax-level KEY is therefore not proof of a concrete `KeyVariableDeclaration` with typed key metadata. For function initializers, evaluation obtains `ReturnVariable`, checks its type class against the declared type, assigns its identifier and registers that same object.
+For function initializers, ValidateCallTree checks the whole nested tree before running siblings. Print, Info, Save, Load, SecureSave, SecureLoad and Delete are rejected as void initializers. An explicit audited function set must opt in; unknown functions fail. PARAM targets restrict the tree to Parameters; PinBlockTranslate's top-level assignment result requires VAR. File-operation contracts are checked before invocation. Returned values need a compatible type, valid concrete representation and detached identity; live dictionary aliases cannot be renamed into the target.
 
-**[F: L07, L14]** Nonempty direct parameter lists require PARAM and an item selected by the evaluator's `RawText.Contains("MECH")` search. Items are evaluated in order and stored; repeated parameter names overwrite stored values, while explicit-name tracking retains their occurrence information. These checks and mutation occur during evaluation, not AST mapping.
+Preparation completes before setting identifier/type/text and calling VariableDictionary.Update once. Failure preserves the target entry; it does not roll back unrelated PARAM effects of an operation, files or earlier statements. Assignment diagnostics preserve operation context while redacting generic failures. Cancellation propagates. This is target publication atomicity under interpreter ownership, not a script transaction. [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R12](../evidence/ar-01-baseline-reconciliation.md#r12), [R13](../evidence/ar-01-baseline-reconciliation.md#r13), [R16](../evidence/ar-01-baseline-reconciliation.md#r16)
 
-**[F: L05-L07, L12, L21]** Header syntax is preserved as `Tr31HeaderInitializerNode.RawText`, but the declaration evaluator has no header-consumption branch. Although `CryptoTypeTR31Header` exists, `CryptoType.Parse` omits it. Existing tests explicitly expect type-resolution failure with no semantic error added. The separate `BlockHeader` function dispatch is not evidence that TR31H declarations execute. Parsed headers and executable header declarations must remain distinct claims.
+
+```text
+VAR target = "old"
+target = "new"
+Print(target)
+```
+
+The example demonstrates existing-target replacement. It does not introduce bare-variable-copy or arithmetic syntax. Existing tests cover sync/async behavior, unknown targets before RHS, rejected initializers, metadata preservation, integer boundaries, parameter consistency/serialization and foreign-effect limits. These assertions were inspected, not executed for this documentation.
 
 ## 4.7 Function Calls, Arguments and Variable Identity
 
-**[F: L08, L18]** Any lexical FN can become a call AST node. `FunctionCallEvaluator` first invokes `OperationFactory.CreateOperation` to recognize the name, before evaluating arguments. Implemented lookup cases are Sign, Mac, Hash, Derive, Encrypt, Decrypt, Print, Info, GenerateKey, Parameters, Wrap, Unwrap, BlockHeader and Compare. `FunctionCall.Call` later obtains the invocation-aware delegate through `CreateInvocationOperation`.
+**[F]** FN syntax alone does not establish an implemented function. Recognition, special operation contracts and argument evaluation precede invocation. Current dispatch includes Mac, Hash, Derive, Encrypt, Decrypt, Print, Info, GenerateKey, Parameters, Wrap, Unwrap, BlockHeader, CreateHeader, Check, Compare, Share, Secret, Restore, PinBlockTranslate, Save, Load, SecureSave, SecureLoad, Delete, MacPack and MacVerify; the old Sign case is absent. Secure persistence has explicit async dispatch requirements. [R11](../evidence/ar-01-baseline-reconciliation.md#r11), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
-| Source/AST argument | Evaluation | Invocation representation |
-| --- | --- | --- |
-| `MechanismArgumentNode` | Builds and validates `ArgumentMechanism` | Mechanism value and kind |
-| `VariableArgumentNode` | Looks up identifier; `ArgumentVariable.Id` holds the original object | Value, Variable kind and exact `SourceVariable` reference |
-| `LiteralArgumentNode` | Builds `ArgumentExpression` using `Expression.Create` | Value and HexLiteral/OtherLiteral kind; no source object |
-| `ParameterArgumentNode` | `ParameterEvaluator` builds `ArgumentParameter`; referenced variables become values | Serialized `Type:Value`, Parameter kind; no source object |
-| `InfoArgumentNode` | Builds `ArgumentInfo` | Selector and Info kind |
-| `NestedCallArgumentNode` | Executes inner call; reclassifies return value through `Expression.Create` | Value and NestedFunctionCall kind; returned-object identity is absent |
-| `EmptyArgumentNode` | Falls back to base `Argument` | Empty kind and null value |
+Ordinary nested calls complete depth-first, left-to-right before the outer operation. Variable arguments resolve to the original runtime object and can retain SourceVariable even if another variable has the same value. Literal arguments carry value/kind without a source object. Named parameter handling normally substitutes values; context-specific header/secure/snapshot arguments retain their dedicated representations. Most nested results are reclassified from returned value text and lose original identity; BlockHeaderVariableDeclaration is now a deliberate exception returned as ArgumentVariable.
 
-Evidence: L08-L11. `SourceVariable` is a property referencing runtime `VariableDeclaration`, not another source-language node or a standalone class.
+OperationInvocation copies its ordered argument collection and exposes it read-only, but does not clone referenced mutable variables. Values projects strings and loses kind/identity. AlgorithmCallArguments can preserve source references; reconstruction from serialized PARAM text produces a temporary and records reconstructed provenance, not original identity. FromValues cannot recover lost identity. Function/algorithm-specific adapters determine where projection occurs; the old universal value-only classification of Hash/GenerateKey and nested results must not be reused without inspecting current dispatch. [R11](../evidence/ar-01-baseline-reconciliation.md#r11)
 
-**[F: L06, L08-L10, L21]** Mapping and ordinary evaluation preserve argument ordering. Nested calls complete depth first and left to right before outer dispatch. Direct variable resolution retains object identity even when different variables contain identical values. `OperationInvocation` copies its ordered argument collection and exposes it read-only, but does not clone the referenced mutable variables. Its `Values` projection creates a string array and discards kind and identity.
-
-**[F: L08, L11, L13]** Named parameter references and nested results do not preserve direct-variable identity. `ArgumentParameter.SetValue` substitutes a referenced variable's value; special parameter rules can also retain/validate literal forms. Nested calls retain only the returned value, reclassified as an expression. The original nested structure remains in the AST but is not delivered as an unevaluated subtree to the operation.
-
-**[F: L18]** Mac, Derive, Encrypt, Decrypt, Wrap and Unwrap convert invocation arguments to `AlgorithmCallArguments`, copying value, kind and source reference. GenerateKey, Hash, BlockHeader, Sign, Print, Info and Compare project to values; Parameters also processes projected values. Identity preservation is therefore path-specific.
-
-**[F: L10, L18]** Algorithm selection can retain the original `ParameterVariableDeclaration`; when only serialized PARAM text is available, it can reconstruct an unregistered temporary. `AlgorithmCallArgument.HasReconstructedSourceVariable` distinguishes reconstructed provenance from an original reference. `AlgorithmCallArguments.FromValues` cannot recreate lost source identity. This chapter stops at that boundary; resolution policy and algorithm behavior belong to Chapter 5.
+**[I]** Syntax records preserve call structure while operations receive resolved arguments. There is no general lazy-expression subtree handed to cryptographic operations. Detailed argument resolver and algorithm policy remains a runtime/cryptography concern.
 
 ## 4.8 Processing Sequence and Execution Boundary
 
-**[F: L03-L11, L17-L20]** The active GUI path follows this sequence:
+The [processing view](../diagrams/04-source-to-operation-sequence.mmd) follows the implemented host path. **[F]** [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R07](../evidence/ar-01-baseline-reconciliation.md#r07), [R09](../evidence/ar-01-baseline-reconciliation.md#r09), [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R11](../evidence/ar-01-baseline-reconciliation.md#r11), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
-1. `ExecuteLine` supplies source text to `ParserBuilder.StringBuild`.
-2. The builder constructs the character stream, lexer, token stream and parser, and installs custom listeners.
-3. The caller invokes `program()`; tokenization and syntax analysis produce the parse tree, with error recovery where applicable.
-4. The caller checks the parser-error flag and can return before runner execution. This is the GUI's gate, not a generic runner precondition.
-5. `CryptoScriptRunner.Execute(context)` obtains a lazy `MapStatements` enumeration. It maps one statement through `AntlrToStatement`, excluding the final EOF child and retaining null recovery entries.
-6. `StatementEvaluator` evaluates that statement before the runner requests the next mapped statement. Declarations resolve types and initializers; calls first check function recognition.
-7. Function arguments are resolved in order; nested calls recurse and complete before the outer invocation. Variable, mechanism and applicable parameter/contract checks occur on this path.
-8. `FunctionCall.Call` constructs `OperationInvocation` from resolved runtime arguments.
-9. `OperationFactory.CreateInvocationOperation` supplies the delegate, which executes and sets `ReturnVariable`. Selected operations adapt to `AlgorithmCallArguments`; other paths project values.
-10. Declaration processing registers results where applicable; the runner appends evaluated statements and returns `CryptoScriptProgram` with diagnostic membership. On abort, runner diagnostics remain available and the exception propagates to the caller.
+1. Host admission encloses parsing, runner work and state capture. Syntax state is reset and StringBuild constructs the frontend; the caller invokes program().
+2. Either lexer or parser diagnostics reject the parse unit before runner execution. This rejection still enters FinalizePresentation, which attempts variable state capture. The outcome remains SyntaxError; CaptureFailed separately records capture failure, and the displayed state is marked stale. No runner is started on this path.
+3. ExecuteAsync enters interpreter ownership. MapStatements yields one mapped statement, excluding EOF and retaining null recovery entries.
+4. StatementEvaluator selects declaration, assignment, call or null. Evaluation occurs before the next statement is mapped.
+5. Declarations prepare/register their initializer. Assignments resolve the existing target, validate and prepare a replacement before publication. Calls resolve arguments and dispatch through FunctionCall/OperationFactory.
+6. SecureSave/SecureLoad standalone statements have dedicated asynchronous handling and host password requests. Cancellation is checked before statement evaluation; no check retroactively cancels a final completed operation.
+7. Results and execution diagnostics are collected. Terminating exceptions leave the loop; prior successful effects remain under their operation contracts. The runner retains the last execution's diagnostics after abort.
+8. The host waits for outstanding password callbacks to unwind, copies diagnostics/output and captures actual variable state. Capture success is distinct from script success; failed capture preserves stale presentation rather than fabricating empty runtime state.
 
-**[F/I: L07-L08, L17-L18, L21]** Semantic checks and execution are interleaved. An unknown function is checked before its arguments, but earlier statements can already have changed variables or produced output when a later statement fails. There is no separate whole-program semantic-validation component in this path. `CryptoScriptProgram` contains execution results, not the syntax tree. No rollback is established by the inspected loop.
-
-The [Source-to-Operation Processing Sequence diagram](../diagrams/04-source-to-operation-sequence.mmd) uses a numbered flowchart as the established equivalent of a sequence view. Its explicit statement loop preserves lazy mapping/evaluation; parser-error and execution-error alternatives are distinct. Its argument note distinguishes identity-bearing references from value projections. Evidence: L04, L06-L11 and L17-L20.
+The synchronous runner also takes an interpreter lease. Semantic checks and effects remain interleaved. Assignment's whole-call-tree preflight is local to that initializer, not whole-program validation. Error severity alone does not determine termination; KeyCheckValueSearchException has a continuing path. No automatic whole-script rollback is introduced.
 
 ## 4.9 Architectural Constraints and Verification Limits
 
-The following observations distinguish verified code structure, potential consequences and behavior not established by this static analysis. The source evidence register makes those distinctions traceable to the recorded baseline; diagram entries identify the sources supporting each view. Intended public contracts and platform guarantees require evidence beyond the declarations and control flow inspected here.
+**[F]** ScriptBook saving in WorkbenchSaveCommit.WriteSnapshot encodes each nonblank line with Encoding.ASCII.GetBytes and writes a newline. Non-ASCII content, including strings or path text, may be altered during serialization. CryptoScriptEditViewModel loads lines with File.ReadAllLinesAsync(filePath, pipeline.ExecutionToken), without an explicit encoding argument, and passes them to ExecuteBookAdmittedAsync. Loading reads the saved content; it does not restore characters lost during saving. This is a ScriptBook text-persistence restriction, not a claim about variable snapshot formats. [R05](../evidence/ar-01-baseline-reconciliation.md#r05)
 
-### Verified architectural characteristics
+**[F/I]** Shared variables, static output and syntax state still constrain reuse; interpreter coordination prevents competing admitted work but is not per-session storage isolation. AST records separate syntax from runtime objects yet do not carry precise source spans. Token overlap, greedy path lexing, identifier casing and value-based nested-result conversion remain relevant. Assignment explicitly rejects integer overflow; this must not be generalized to legacy declaration fallback behavior. [R06](../evidence/ar-01-baseline-reconciliation.md#r06), [R08](../evidence/ar-01-baseline-reconciliation.md#r08), [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R11](../evidence/ar-01-baseline-reconciliation.md#r11), [R12](../evidence/ar-01-baseline-reconciliation.md#r12), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
-**[F: L04-L08, L17, L20]** Language processing is reusable Core code called directly by Avalonia. AST nodes contain no generated contexts, but mappers depend on generated parser classes. `Execute(IEnumerable<StatementNode?>)` also permits AST input without parsing. Language, evaluation and operation dispatch share one Core assembly; logical diagrams do not imply separate services or assembly-enforced layers.
+Extension touchpoints remain explicit: syntax changes may require grammar regeneration, AST, mapper and evaluator changes; functions using existing call syntax need dispatch support; mechanisms/parameters depend on generated vocabulary and runtime handling. Assignment functions additionally require an audited opt-in. File/password behavior adds host and resource boundaries without changing the fact that these logical layers share a core assembly.
 
-**[F: L12, L16-L17, L19]** Variable state and syntax diagnostics use shared singleton/static objects. Semantic diagnostic contexts are execution-owned. Generated metadata also initializes runtime lists. **[I]** These boundaries support syntax-model reuse without establishing isolated language sessions or independence from generated metadata.
+**[Q]** Which preserved edge cases are promised public language contracts, which generator environment is authoritative, and what isolation/support policy is promised require owner decisions. No concurrency, platform, cryptographic conformance or application tests were newly executed for AR-01. Test references are inspected assertions. The earlier L01–L22 register and explanations remain in the exact historical Chapter 4; current R01–R16 evidence is independently tied to fbbadae2. Technical and linguistic review of this reconciled chapter remains pending.
 
-**[F/I: L01-L08, L18-L19]** Extension touchpoints are explicit: a new syntactic construct can require grammar generation, AST/mapping and evaluator changes; a function using existing call syntax can use the existing FN rule but still needs dispatch support. Mechanism/parameter vocabulary and runtime handling have additional dependencies. These are maintenance constraints derived from the code, not redesign recommendations.
-
-### Observed constraints and potential concerns
-
-| Observation | Architectural consequence | Evidence |
-| --- | --- | --- |
-| Shared variable store replaces an existing identifier entry | Runner creation does not establish a fresh variable scope; duplicate names replace entries | L07, L12 |
-| List, flags and accumulated syntax messages have different reset owners | Parser construction alone does not reset all syntax diagnostic state | L04, L16, L20 |
-| GUI gate checks parser errors, not the lexer flag | A lexer-only failure has no equivalent explicit execution gate in that method; a concrete outcome was not exercised | L16, L20 |
-| AST records have text but no spans | Precise original character locations are unavailable from AST properties alone | L05-L06, L17 |
-| Declared type and concrete variable class differ | A KEY tag does not guarantee a typed key object; class-sensitive downstream resolution can distinguish them | L07, L10, L12-L13 |
-| Nested results are reclassified from text | Returned-object identity is lost; existing tests record unquoted results falling back to an empty string expression | L08, L13, L21 |
-| TR31H mapping exists without runtime type resolution | Header syntax must not be documented as executable declaration support | L05-L07, L12, L21 |
-| INT has no grammar size limit, but runtime classification uses `int.TryParse` | Oversized decimal text can fall through to the empty-string expression fallback | L01, L13 |
-| Path tokens consume the rest of a line; runtime matching is separate | Delimiters can be consumed, and lexical path acceptance does not imply equivalent runtime classification | L01, L15 |
-| Generator version is unpinned and differs from runtime declaration | Committed generated code is inspectable; exact regeneration and compatibility are not established | L03, L20 |
-
-**[F: L01, L12, L15, L20]** Cross-platform constraints are concrete: identifiers are ASCII; variable names remain case-sensitive; absolute Windows and Unix-style paths are represented as text without normalization. ScriptBook saving uses ASCII encoding, while loading uses `File.ReadAllLines`, relevant to non-ASCII string/path content. These declarations do not establish filesystem casing, valid filenames, accessibility or successful execution on a particular operating system.
-
-### Unverified behavior and explicit limits
-
-**Unverified:** no application tests, builds, grammar generation, concurrent execution, graphical startup or platform-specific path runs were performed for this recovery. Existing test definitions corroborate intended compatibility cases but are not current execution results. PDF/diagram validation establishes publication behavior only. Cryptographic correctness and standards conformance are outside this chapter.
-
-**[Q]** Owner clarification is still needed on which preserved edge cases form the intended public language contract, the authoritative ANTLR generation environment, and the promised isolation between runners/sessions. Implementation behavior above is documented independently of those policy questions. No target architecture or speculative refactoring is proposed.
-
-### Source evidence
-
-All L entries refer to the local baseline `29b6b36e860ff278b845ac439dd123661760d098`. Paths are repository-relative; link fragments identify the first line of each stated range. Verification is static. Diagram evidence below uses the same identifiers.
-
-| ID | Sources and verified locations | Supported findings |
-| --- | --- | --- |
-| L01 | [CryptoScript/Antlr/CryptoScript.g4, lines 1-57](../../../CryptoScript/Antlr/CryptoScript.g4#L1); [CryptoLexer.g4, lines 1-34 and 36-151](../../../CryptoScript/Antlr/CryptoLexer.g4#L1) | Combined grammar, imports, parser alternatives, lexical categories, ordering and path rules |
-| L02 | [CryptoScript/Antlr/TR31Lexer.g4, lines 1-88](../../../CryptoScript/Antlr/TR31Lexer.g4#L1) | Header field-name/value vocabulary and general-token overlaps |
-| L03 | [CryptoScriptLexer.cs, lines 1-11, 35-128 and 201-208](../../../CryptoScript/Antlr/CryptoScriptLexer.cs#L1); [CryptoScriptParser.cs, lines 180-250](../../../CryptoScript/Antlr/CryptoScriptParser.cs#L180); [CryptoScriptBaseVisitor.cs, lines 27-56](../../../CryptoScript/Antlr/CryptoScriptBaseVisitor.cs#L27); [CryptoScriptLexerExtensions.cs, lines 3-47](../../../CryptoScript/Antlr/CryptoScriptLexerExtensions.cs#L3); [CompileGrammar.bat, line 1](../../../CryptoScript/Antlr/CompileGrammar.bat#L1); [compile-grammar.sh, lines 6-9](../../../CryptoScript/Antlr/compile-grammar.sh#L6); [Tree.bat, line 1](../../../CryptoScript/Antlr/Tree.bat#L1) | Generated runtime classes/vocabulary, parser recovery, unused traversal scaffold, handwritten interception and external generation helpers; generated token/interpreter files inventoried in the same directory |
-| L04 | [CryptoScript/Model/ParserBuilder.cs, lines 8-42](../../../CryptoScript/Model/ParserBuilder.cs#L8) | String/file construction, listener setup and reset differences |
-| L05 | [Model/Ast/StatementNode.cs, lines 3-9](../../../CryptoScript/Model/Ast/StatementNode.cs#L3); [VariableDeclarationNode.cs, lines 6-11](../../../CryptoScript/Model/Ast/VariableDeclarationNode.cs#L6); [ExpressionNode.cs, lines 3-4](../../../CryptoScript/Model/Ast/ExpressionNode.cs#L3); [LiteralInitializerNode.cs, lines 3-6](../../../CryptoScript/Model/Ast/LiteralInitializerNode.cs#L3); [FunctionCallExpressionNode.cs, lines 3-15](../../../CryptoScript/Model/Ast/FunctionCallExpressionNode.cs#L3); [ParameterListInitializerNode.cs, lines 3-4](../../../CryptoScript/Model/Ast/ParameterListInitializerNode.cs#L3); [ParameterInitializerNode.cs, lines 3-4](../../../CryptoScript/Model/Ast/ParameterInitializerNode.cs#L3); [Tr31HeaderInitializerNode.cs, line 3](../../../CryptoScript/Model/Ast/Tr31HeaderInitializerNode.cs#L3) | Complete Core AST inventory, properties, inheritance, composition and missing spans |
-| L06 | [AntlrToStatement.cs, lines 7-16](../../../CryptoScript/Model/AntlrToStatement.cs#L7); [AntlrToVariableDeclaration.cs, lines 8-18](../../../CryptoScript/Model/AntlrToVariableDeclaration.cs#L8); [AntlrToFunctionCallExpression.cs, lines 7-29](../../../CryptoScript/Model/AntlrToFunctionCallExpression.cs#L7); [AntlrToParameterInitializer.cs, lines 7-10](../../../CryptoScript/Model/AntlrToParameterInitializer.cs#L7) | Explicit constructors, GetText conventions, recursion, ordering and recovery values |
-| L07 | [StatementEvaluator.cs, lines 11-51](../../../CryptoScript/Model/StatementEvaluator.cs#L11); [VariableDeclarationEvaluator.cs, lines 21-110](../../../CryptoScript/Model/VariableDeclarationEvaluator.cs#L21) | Statement selection, type/parameter checks, declaration registration and absent header evaluation |
-| L08 | [FunctionCallEvaluator.cs, lines 20-118 and 128-205](../../../CryptoScript/Model/FunctionCallEvaluator.cs#L20); [ParameterEvaluator.cs, lines 5-9](../../../CryptoScript/Model/ParameterEvaluator.cs#L5) | Recognition before arguments, ordered recursive evaluation, argument kinds and semantic exceptions |
-| L09 | [FunctionCall.cs, lines 12-59](../../../CryptoScript/Model/FunctionCall.cs#L12); [OperationInvocation.cs, lines 6-62](../../../CryptoScript/Model/OperationInvocation.cs#L6) | Runtime call, ordered resolved arguments, exact source reference and value projection |
-| L10 | [CryptoAlgorithm/AlgorithmCallArguments.cs, lines 7-76](../../../CryptoScript/CryptoAlgorithm/AlgorithmCallArguments.cs#L7); [AlgorithmArgumentResolver.cs, lines 8-59](../../../CryptoScript/CryptoAlgorithm/AlgorithmArgumentResolver.cs#L8) | Algorithm-boundary representation, original/temporary object resolution and reconstruction marker |
-| L11 | [Arguments/Argument.cs, lines 11-98](../../../CryptoScript/Arguments/Argument.cs#L11) | Runtime argument classes and named-parameter value substitution |
-| L12 | [CryptoType.cs, lines 22-84](../../../CryptoScript/Model/CryptoType.cs#L22); [Variables/VariableDeclaration.cs, lines 6-12](../../../CryptoScript/Variables/VariableDeclaration.cs#L6); [VariableDictionary.cs, lines 8-49](../../../CryptoScript/Variables/VariableDictionary.cs#L8) | Type mapping, missing TR31H case, runtime value fields, singleton and identifier replacement |
-| L13 | [Expressions/Expression.cs, lines 20-113](../../../CryptoScript/Expressions/Expression.cs#L20); [ExpressionPath.cs, lines 9-14](../../../CryptoScript/Expressions/ExpressionPath.cs#L9); [Variables/KeyVariableDeclaration.cs, lines 13-68](../../../CryptoScript/Variables/KeyVariableDeclaration.cs#L13) | Literal classification, type-tag/object distinction, path text and typed key metadata |
-| L14 | [Variables/ParameterVariableDeclaration.cs, lines 17-111 and 140-142](../../../CryptoScript/Variables/ParameterVariableDeclaration.cs#L17) | Parameter storage, duplicate overwrite, explicit-name tracking and normalization |
-| L15 | [Variables/FormatConversions.cs, lines 101-144](../../../CryptoScript/Variables/FormatConversions.cs#L101) | Value-format classification and Windows/UNC/Unix path regular expressions |
-| L16 | [ErrorListner/SyntaxErrorListner.cs, lines 6-54](../../../CryptoScript/ErrorListner/SyntaxErrorListner.cs#L6); [LexerErrorListener.cs, lines 11-38](../../../CryptoScript/ErrorListner/LexerErrorListener.cs#L11); [SyntaxErrorList.cs, lines 10-21](../../../CryptoScript/ErrorListner/SyntaxErrorList.cs#L10) | Shared syntax diagnostics, separate flags, parser message accumulation and colon redirection |
-| L17 | [CryptoScriptRunner.cs, lines 21-71](../../../CryptoScript/Model/CryptoScriptRunner.cs#L21); [CryptoScriptProgram.cs, lines 10-23](../../../CryptoScript/Model/CryptoScriptProgram.cs#L10); [SemanticDiagnosticExecution.cs, lines 18-65](../../../CryptoScript/Model/SemanticDiagnosticExecution.cs#L18); [ErrorListner/DiagnosticLocation.cs, lines 7-14](../../../CryptoScript/ErrorListner/DiagnosticLocation.cs#L7) | Lazy map/evaluate loop, AST-input overload, result container and execution diagnostic locations |
-| L18 | [Operations/OperationFactory.cs, lines 10-88](../../../CryptoScript/Operations/OperationFactory.cs#L10); [CryptoOperations.cs, lines 14-94 and 261-288](../../../CryptoScript/Operations/CryptoOperations.cs#L14); [OutputOperations.cs, lines 24-25](../../../CryptoScript/Operations/OutputOperations.cs#L24); [GeneralOperations.cs, line 13](../../../CryptoScript/Operations/GeneralOperations.cs#L13) | Recognition/dispatch, object-preserving algorithm handoff and value-only projections |
-| L19 | [AntlrLanguageMetadata.cs, lines 8-29](../../../CryptoScript/Model/AntlrLanguageMetadata.cs#L8); [MechanismList.cs, lines 8-10](../../../CryptoScript/Model/MechanismList.cs#L8); [Variables/ParameterTypeList.cs, lines 12-18](../../../CryptoScript/Variables/ParameterTypeList.cs#L12); L12 | Generated constant/vocabulary coupling and runtime list initialization |
-| L20 | [CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs, lines 70-118 and 137-193](../../../CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs#L70); [GUI project, lines 38-40](../../../CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj#L38); [Core project, lines 1-21](../../../CryptoScript/CryptoScript.csproj#L1); [workflow, lines 17-30](../../../.github/workflows/dotnet.yml#L17) | Active GUI entry, syntax gate, result/error handling, line-based ScriptBooks, encoding, project/package declarations and no configured regeneration |
-| L21 | [CryptoScriptUnitTest/Tr31HeaderInitializerAstTests.cs, lines 9-68](../../../CryptoScriptUnitTest/Tr31HeaderInitializerAstTests.cs#L9); [FunctionCallExpressionAstTests.cs, lines 28-68](../../../CryptoScriptUnitTest/FunctionCallExpressionAstTests.cs#L28); [FunctionCallEvaluatorTests.cs, lines 76-150 and 169-206](../../../CryptoScriptUnitTest/FunctionCallEvaluatorTests.cs#L76); [StatementExecutionTests.cs, lines 43-117 and 148-170](../../../CryptoScriptUnitTest/StatementExecutionTests.cs#L43); [SyntaxErrorTests.cs, lines 33-62](../../../CryptoScriptUnitTest/SyntaxErrorTests.cs#L33) | Inspected test assertions for mapping, text, identity, evaluation order, incomplete header support and lexical errors; no tests executed |
-| L22 | [ParameterInitializerAstTests.cs, lines 9-70](../../../CryptoScriptUnitTest/ParameterInitializerAstTests.cs#L9); [VariableDeclarationAstTests.cs, lines 132-171](../../../CryptoScriptUnitTest/VariableDeclarationAstTests.cs#L132) | Recovery values, parameter duplicates and empty initializers; inspected assertions only |
-
-Diagram evidence: **D04-COMPONENTS** uses L01-L08, L12-L13 and L17-L20; **D04-AST** uses L05-L06; **D04-SEQUENCE** uses L04, L06-L11 and L17-L20. All are logical views of the same baseline. Flowchart notation preserves the established publication checks; edge meanings and grouping limits are stated with each diagram. No diagram adds an independently deployed component or a whole-program validation phase.
-
-[Previous: Project Structure and Dependencies](03-project-structure-and-dependencies.md) | [Return to architecture documentation](../README.md)
+[Architecture documentation](../README.md)

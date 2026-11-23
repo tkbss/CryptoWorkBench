@@ -1,46 +1,21 @@
-%% Diagram: D02-CONTAINERS
-%% Implementation baseline: d3099c80af3891ad54444e544f528c9c5ed6b93f
-%% Documentation baseline: 5c4b15d8487348ff904a04e9907caf9e00e868a0
-%% Evidence: ../evidence/02-system-overview-baseline.md, D02-CONTAINERS and O05
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 02-container-overview.mmd
 flowchart TB
-    subgraph Diagram["CryptoScript Workbench — Container Overview"]
-        direction TB
-        User(["Workbench User<br/>Person [I]"])
-        subgraph Workbench["CryptoScript Workbench [I]"]
-            direction TB
-            subgraph Desktop["Desktop application [I]"]
-                direction TB
-                DesktopClient["Avalonia UI and composition [F]<br/>Application services and presentation [F]<br/>Active desktop client [O]"]
-                DesktopCore["CryptoScript library — in-process"]
-                DesktopClient -->|"Calls parser and runner;<br/>reads and edits variables [F]"| DesktopCore
-                DesktopCore -->|"Returns results and diagnostics;<br/>raises output events [F]"| DesktopClient
-            end
-            HelpFiles[("Packaged Help Files<br/>Local InfoDocs for the desktop application [F]")]
-        end
-        subgraph Environment["Local resources [F]"]
-            direction LR
-            ScriptBooks[("ScriptBook Files<br/>User-selected local files [F]")]
-            Output["Standard output<br/>Stream used by core output operations [F]"]
-        end
-        User -->|"Edits and executes scripts;<br/>inspects results and diagnostics [F]"| DesktopClient
-        DesktopClient -->|"Reads and executes script lines;<br/>saves script books [F]"| ScriptBooks
-        DesktopClient -->|"Reads Markdown through local provider [F]"| HelpFiles
-        DesktopCore -->|"Reads Markdown for Info() [F]"| HelpFiles
-        DesktopCore -->|"Calls Console.WriteLine [F]"| Output
-        Legend["Legend<br/>The desktop frame is the application process boundary [I].<br/>CryptoScript is embedded code, not another container.<br/>Files and streams are resources, not running services.<br/>[F]: implementation; [I]: interpretation; [O]: owner scope.<br/>Arrows: local interactions; no network protocol.<br/>Output calls do not guarantee a visible terminal.<br/>Testing infrastructure is outside this runtime view."]
-        %% Invisible links position the legend; they are not architectural relationships.
-        HelpFiles ~~~ Legend
-        ScriptBooks ~~~ Legend
-        Output ~~~ Legend
+    Client["Local client"]
+    Proxy["Desktop --mcp-stdio<br/>separate proxy process [F/I]"]
+    Files["Local help, scripts and data"]
+    %% The legend names this frame; keep entering edges clear of a title.
+    subgraph Desktop[" "]
+        Mcp["LocalMcpHost<br/>local HTTPS endpoint"]
+        Host["GUI and host services"]
+        Core["CryptoScript library"]
     end
-    classDef person fill:#e8f1fb,stroke:#285780,color:#162b3d
-    classDef app fill:#e8f1fb,stroke:#285780,color:#162b3d
-    classDef library fill:#eaf4ed,stroke:#357348,color:#173b23
-    classDef resource fill:#f4f0fa,stroke:#72518f,color:#382348
+    Client -->|"STDIO"| Proxy
+    Proxy --> Mcp
+    Mcp -->|"automation contracts"| Host
+    Host -->|"parse and execute"| Core
+    Core -->|"local operations"| Files
+    Host -->|"help and ScriptBooks"| Files
+    Legend["Frame: desktop process [I]. Core/MCP are embedded libraries.<br/>Files are resources. Detailed MCP analysis: AR-MCP-01."]
     classDef note fill:#fafafa,stroke:#888888,color:#333333
-    class User person
-    class DesktopClient app
-    class DesktopCore library
-    class HelpFiles,ScriptBooks,Output resource
     class Legend note
-    style Desktop fill:#f7fbff,stroke:#285780,stroke-width:2px

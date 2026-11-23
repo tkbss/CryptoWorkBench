@@ -1,133 +1,72 @@
 # 2. System Overview
 
-[Architecture documentation](../README.md) | [Previous: Introduction](01-introduction.md) | [Baseline and evidence](../evidence/02-system-overview-baseline.md)
+[Architecture documentation](../README.md)
 
 | Metadata | Value |
 | --- | --- |
-| Status | Reviewed |
-| Implementation baseline | `d3099c80af3891ad54444e544f528c9c5ed6b93f` |
-| Documentation baseline | `5c4b15d8487348ff904a04e9907caf9e00e868a0` |
-| Documentation date | 2026-10-14 |
-| Verification | Static repository inspection; no application build, test run or runtime observation |
-
-This chapter describes the implemented system at the recorded baseline. **[F]** identifies verified implementation facts, **[O]** project-owner decisions or explicitly attributed historical context, **[I]** architectural interpretations, **[Q]** open questions and **[R]** recommendations. Owner statements are not implementation evidence. See the [evidence classifications](../evidence/02-system-overview-baseline.md#evidence-classifications).
+| Status | AR-01 draft; independent technical and linguistic review pending |
+| Implementation baseline | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| Date | 2026-11-06 |
+| Verification | Static source inspection; no new application tests |
 
 ## 2.1 System Context
 
-**[F]** The desktop application combines an Avalonia GUI project and a desktop host with the reusable CryptoScript library. The GUI accepts script input, displays results and diagnostics, exposes variable and parameter editing, and opens or saves local ScriptBook files. See [S01 and S02](../evidence/02-system-overview-baseline.md#repository-evidence).
+**[F]** The desktop combines an Avalonia GUI and desktop entry point with the reusable CryptoScript library. The user edits/executes scripts, inspects results, variables, diagnostics and local help, and opens/saves ScriptBooks. Automation contracts and an implemented local MCP integration add an external client interaction. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R04](../evidence/ar-01-baseline-reconciliation.md#r04), [R05](../evidence/ar-01-baseline-reconciliation.md#r05)
 
-**[I]** CryptoScript Workbench is modeled as one software system with one desktop application process and an embedded scripting and cryptography library. The contextual actor **Workbench User** abstracts the implemented GUI interactions; it does not assert authentication, authorization or separate administrator, auditor or key-custodian roles. The context view is the [System Context diagram](../diagrams/02-system-context.mmd).
+**[I]** The [system context](../diagrams/02-system-context.mmd) treats the workbench as one software system. The Workbench User actor abstracts GUI interactions; it does not invent administrator, auditor or key-custodian roles. A local automation client is now evidenced, so the old absence-of-network-integration finding no longer describes this baseline. This does not establish remote payment-system, database or HSM connectivity.
 
-**[O]** CryptoScript is a reusable core, and the Avalonia desktop application is the active application client. Long-term reuse by other applications is an architectural objective. See [O01 and O02](../evidence/02-system-overview-baseline.md#project-owner-decisions-and-historical-context).
-
-The system boundary follows the binding [scope definition in Chapter 1](01-introduction.md#13-scope-and-boundaries).
-
-**[F]** The inspected paths establish local file access and core `Console.WriteLine` calls. The scoped source search did not establish a business-system integration through HTTP, RPC, databases, HSMs or payment-system connections. Mechanism names such as EMV, DUKPT, ep2 and TR-31 are not evidence of communication with cards, terminals or remote systems. This is a bounded inspection result, not a claim about every possible behavior of third-party libraries. See [S05, S06, S07 and S11](../evidence/02-system-overview-baseline.md#repository-evidence).
-
-**[O]** A future web application is a long-term possibility outside the current development and architecture-recovery scope. No web architecture is defined here. This possibility is excluded from both current-state diagrams; detailed future planning belongs in Chapter 13, Architecture Evolution and Roadmap. See [O04](../evidence/02-system-overview-baseline.md#project-owner-decisions-and-historical-context).
+**[O]** The desktop remains the strategic application client, and reuse of CryptoScript is an architectural objective. A future web application remains outside current scope. MCP protocol/security design is deferred to AR-MCP-01.
 
 ## 2.2 System Responsibilities
 
-| Classification | Responsibility | Baseline evidence |
-| --- | --- | --- |
-| **[F]** | Accept GUI script lines and parse them through the shared language frontend | S02, S04 |
-| **[F]** | Map parser statements to AST nodes and evaluate declarations and function calls | S04 |
-| **[F]** | Resolve operations, validate applicable mechanism contracts and dispatch cryptographic mechanisms | S05 |
-| **[F]** | Maintain variables, keys and parameters in the in-process runtime model | S06 |
-| **[F]** | Collect syntax and semantic diagnostics and expose them to GUI presentation | S02, S06 |
-| **[F]** | Read local Markdown help, deliver output events and invoke `Console.WriteLine` in core output operations | S07 |
-| **[F]** | Save ScriptBooks and read and execute their script lines when opening them | S02 |
-| **[O]** | Use the Avalonia desktop application as the active client of the reusable core | O01, O02 |
+**[F]** The language frontend builds lexer/parser state, maps statements into core-owned AST records and evaluates declarations, assignments and calls. Runtime operations resolve arguments and mechanisms, maintain variables/keys/parameters, produce diagnostics and output, and access local resources under operation-specific contracts. [R06](../evidence/ar-01-baseline-reconciliation.md#r06), [R08](../evidence/ar-01-baseline-reconciliation.md#r08), [R09](../evidence/ar-01-baseline-reconciliation.md#r09), [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
-All S references resolve through the [repository evidence table](../evidence/02-system-overview-baseline.md#repository-evidence).
+The host coordinates admitted work, syntax rejection, asynchronous execution, password requests, output capture and detached presentation snapshots. Opening a ScriptBook is not merely passive import: the editor import path executes script lines, while excluding recorded output lines. Cancellation and host coordination are relevant; this is not a new transaction covering the complete book. [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
-Opening a ScriptBook is an execution action: `OpenScriptBook` reads lines and passes them to `ExecuteScriptBook`, which invokes the line execution path for lines other than recorded `out:` output. It is not solely a passive editor import. **[F: S02]**
-
-The dispatch includes AES and Triple-DES mechanisms, MACs, hashes, key derivation, TR-31 wrapping and PIN-block handling. This is a description of inspected dispatch paths, not a guarantee that every argument, operation or mechanism conforms to an external standard or executes successfully. **[F: S05]**
+Save/Load and secure snapshot operations, Delete, and file encryption/MAC/hash contracts extend the earlier in-memory-only overview. Do not confuse variable snapshots with ScriptBook source files. Each operation has its own validation/publication behavior; this chapter does not derive a universal filesystem transaction. [R14](../evidence/ar-01-baseline-reconciliation.md#r14), [R15](../evidence/ar-01-baseline-reconciliation.md#r15)
 
 ## 2.3 Architectural Overview
 
-**[I]** The product architecture combines one Avalonia desktop application with the reusable CryptoScript library used inside its process. The GUI directly invokes the parser and runner. No client/server boundary is established by these calls. See [S01, S02 and S04](../evidence/02-system-overview-baseline.md#repository-evidence).
+**[F/I]** A .NET project is a build definition; an assembly is a packaging boundary implied by it; a logical component groups responsibilities. None of these automatically defines another operating-system process. CryptoScript is an embedded library called in the desktop process. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R04](../evidence/ar-01-baseline-reconciliation.md#r04)
 
-| Concept | Meaning in this system |
-| --- | --- |
-| .NET project | **[F]** A build definition. Three production projects participate in the product architecture: CryptoScript, the GUI and the desktop host. The complete repository inventory is recorded separately in S01. |
-| Assembly | **[I]** A code packaging boundary implied by the project organization. No emitted assembly, publish output or resolved dependency graph was inspected. |
-| Application process | **[I]** The runtime boundary associated with starting the desktop host, which declares `WinExe`. No process was started during recovery. |
-| Logical component | **[I]** A responsibility grouping such as parsing, evaluation, cryptography or diagnostics within the desktop application process. |
-| C4 application container | **[I]** An executable application context. The desktop application is the single application container in this view. |
-| Embedded library | **[F/I]** CryptoScript is directly referenced by the GUI and called within the desktop application context. It is not a separate executable service. |
+The [container view](../diagrams/02-container-overview.mmd) includes the desktop process and the separate invocation of the same desktop executable with --mcp-stdio. That startup branch runs the pinned proxy and returns before Avalonia startup. The normal desktop can start LocalMcpHost, which delegates to the host's automation implementation through shared interfaces. Mcp is a library project, not a separate server executable project. The proxy and desktop are distinct execution contexts; the exact transport/session analysis is intentionally deferred. [R04](../evidence/ar-01-baseline-reconciliation.md#r04)
 
-**[F]** The product project-reference chain is desktop host → GUI project → CryptoScript. **[I]** The GUI and desktop entry-point projects therefore participate in one desktop application context. See S01 and S02. The [project reference diagram](../diagrams/01-project-references.mmd) shows this build-time view; it is not a complete repository inventory.
-
-The [Container Overview diagram](../diagrams/02-container-overview.mmd) shows a single desktop process containing GUI composition, application services and presentation, together with the in-process CryptoScript library. Local file resources and standard output are distinguished from the application container.
+Local help, ScriptBooks and runtime data files are resources, not deployed services. Core Console.WriteLine calls still exist, but normal desktop startup redirects inherited standard output/error to TextWriter.Null; presentation uses captured output. A call to Console.WriteLine must not be diagrammed as a guaranteed visible terminal. [R04](../evidence/ar-01-baseline-reconciliation.md#r04), [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R14](../evidence/ar-01-baseline-reconciliation.md#r14), [R15](../evidence/ar-01-baseline-reconciliation.md#r15)
 
 ## 2.4 Major System Components
 
-| Component | Implemented responsibility | Evidence |
-| --- | --- | --- |
-| Desktop startup and GUI composition | Start Avalonia; compose the shell, views, view models and services through Prism | S02 |
-| Application services and presentation | Register notification, history and documentation services; present editor output, variables, help and diagnostics through views and view models | S02, S06, S07 |
-| Language frontend and AST mapping | Construct lexer, token stream and parser; map declarations and calls to own AST nodes | S04 |
-| Execution coordination and evaluation | Evaluate statements in order and return statements and execution diagnostics | S04, S06 |
-| Operation and mechanism dispatch | Resolve functions and arguments; call the selected cryptographic implementation | S05 |
-| Variables, keys and parameters | Hold runtime declarations and expose them through the singleton variable dictionary | S06 |
-| Diagnostics | Maintain syntax error state and execution-owned semantic diagnostic contexts | S06 |
-| Output and local documentation | Raise output events, call `Console.WriteLine` and load local Markdown through the documentation provider | S07 |
-| GUI file handling and history | Open and save ScriptBooks and retain line and information history in memory | S02 |
+| Component | Responsibility |
+| --- | --- |
+| Desktop startup | Select proxy or classic desktop path; attach desktop MCP integration |
+| GUI composition | Prism/DryIoc shell, view/view-model and service composition |
+| Host services | Admission, editor coordination, execution pipeline, password interaction and presentation |
+| Automation contracts | Host-neutral interfaces, DTOs and contract representation |
+| MCP adapter | Local transport/proxy and delegation to automation interfaces |
+| Language frontend | Grammar-derived lexer/parser, syntax diagnostics and explicit AST mapping |
+| Runtime | Ordered statement evaluation, shared variables and execution-owned diagnostics |
+| Operations | Function/mechanism resolution, cryptography, persistence and file operations |
+| Documentation/output | Local InfoDocs provider, output events and host capture |
 
-These components describe responsibilities inside the desktop application; they do not imply separately deployed services. Detailed internal structure belongs in the later language, runtime, cryptographic, diagnostics and GUI chapters. See the [source positions](../evidence/02-system-overview-baseline.md#repository-evidence).
+**[F]** These responsibilities are supported by [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R04](../evidence/ar-01-baseline-reconciliation.md#r04), [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R07](../evidence/ar-01-baseline-reconciliation.md#r07), [R09](../evidence/ar-01-baseline-reconciliation.md#r09), [R13](../evidence/ar-01-baseline-reconciliation.md#r13), [R14](../evidence/ar-01-baseline-reconciliation.md#r14), [R15](../evidence/ar-01-baseline-reconciliation.md#r15). **[I]** They are logical groupings, not independently deployed services. Detailed algorithm, diagnostics, GUI and MCP internals belong to subsequent packages.
 
 ## 2.5 External Dependencies
 
-**[F]** The following are declared framework or package dependencies. Versions identify project declarations at the baseline, not restored, published or observed runtime versions. Examples of actual source use are recorded in S04, S08 and S09.
+**[F]** The product targets .NET 10. Core declares Antlr4.Runtime.Standard 4.13.1, BouncyCastle.Cryptography 2.7.0 and Newtonsoft.Json 13.0.4; framework cryptography APIs are separate from these NuGet declarations. GUI/desktop declare Avalonia 12.1.4 and related UI packages. Prism is integrated through prepared source references. Mcp declares ModelContextProtocol.AspNetCore [2.3.0] and Microsoft.AspNetCore.App. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R03](../evidence/ar-01-baseline-reconciliation.md#r03)
 
-| Dependency | System-level role |
-| --- | --- |
-| .NET 10 | Target framework of the three product projects and both test projects; the complete six-project repository inventory is recorded in S01 |
-| `Antlr4.Runtime.Standard` 4.13.1 | Lexer, token stream and parser runtime |
-| `BouncyCastle.Cryptography` 2.7.0 | Cryptographic primitives; the AES-CMAC implementation uses `CMac` and `AesEngine` |
-| `System.Security.Cryptography` | .NET cryptographic APIs; AES-CBC calls `Aes.Create()` |
-| `Newtonsoft.Json` 13.0.4 | Key model JSON serialization and deserialization |
-| Avalonia and Avalonia.Desktop 11.3.20 | GUI framework and desktop startup |
-| Prism.Avalonia and Prism.DryIoc.Avalonia 9.0.537.11130 | Application composition, dependency registration and region navigation |
-| Avalonia.AvaloniaEdit, Markdown.Avalonia and other declared UI packages | Editor, Markdown presentation, tables, icons, dialogs and additional controls |
-| NUnit, Microsoft.NET.Test.Sdk, FluentAssertions and coverage tooling | Development and test dependencies, outside the production system context |
-
-See [S01, S08, S09 and S10](../evidence/02-system-overview-baseline.md#repository-evidence). Package dependencies are not modeled as external business systems or independent application containers. GitHub Actions belongs to the development environment, not to a proven runtime integration.
+Package declarations describe dependencies, not observed restored/deployed versions. UI packages support editing, Markdown rendering, icons, dialogs and tables; they are not external business systems. NUnit, test SDKs, assertions and coverage tooling are development dependencies. Chapter 3 records package/build details.
 
 ## 2.6 Execution Environments
 
-| Environment | Verified configuration | Interpretation limit |
-| --- | --- | --- |
-| Desktop application | **[F]** `StartWithClassicDesktopLifetime` and `UsePlatformDetect()` in the desktop entry point | Defines the desktop startup path; does not prove successful execution on any operating system |
-| SDK selection | **[F]** `global.json` specifies SDK `10.0.401`, `latestPatch` roll-forward and no prerelease SDKs | Configuration only; no SDK invocation or restore was performed |
-| Ubuntu CI | **[F]** Workflow declares `ubuntu-latest`, restore, build, tests and a separate GUI-test-project invocation | Shows configured CI intent; no workflow result or desktop GUI launch was verified |
-| Windows | **[F]** Desktop project references a Windows manifest containing a Windows 10 compatibility identifier | Manifest metadata is not an executed compatibility test |
-| macOS and other desktop targets | **[I]** Platform-neutral TFM and platform detection suggest portability intent; a project comment mentions Windows, macOS and Linux | No verified macOS execution or authoritative support matrix was established |
+**[F]** The desktop uses StartWithClassicDesktopLifetime, UsePlatformDetect and Inter fonts. global.json selects SDK 10.0.401 with rollForward disabled and prerelease SDKs disallowed. CI declares Windows x64, Linux x64, macOS ARM64 and macOS Intel jobs with RID-specific publication. Its Prism-aware stages now include both build configurations, core/GUI/MCP suites, targeted regressions and a native file-publication check. [R03](../evidence/ar-01-baseline-reconciliation.md#r03), [R04](../evidence/ar-01-baseline-reconciliation.md#r04)
 
-See [S01, S02 and S10](../evidence/02-system-overview-baseline.md#repository-evidence).
-
-**[F]** CI invokes restore, build and tests for the root solution, followed by a separate GUI-test-project invocation. The GUI tests reference the GUI project but not the desktop entry-point project. The complete solution membership and test references are retained in [S01 and the repository inventory](../evidence/02-system-overview-baseline.md#repository-inventory-and-model-scope). **[I]** The CI declaration does not establish a successful desktop launch. See S10.
-
-**[Q]** Supported operating-system versions, runtime architectures and distribution prerequisites remain to be confirmed with explicit project policy and execution or publication evidence. Keep configured environments, intended targets and validated support distinct.
+The production desktop MCP pairing control is visible only on Windows in this baseline. That restriction must not be generalized into a claim that all desktop functionality is Windows-only, or that MCP is certified on every matrix platform. No current application run or CI result was observed in AR-01. Historical successful CI observations remain historical. **[Q]** Official OS/runtime versions, distribution prerequisites and interactive startup support require explicit policy and appropriate execution evidence.
 
 ## 2.7 Architectural Boundaries
 
-| Boundary | Observation and interpretation |
-| --- | --- |
-| Application process | **[F/I]** The GUI calls the library directly within the desktop process. No separate CryptoScript server is established by the inspected code. |
-| Library reuse | **[F]** The GUI project references CryptoScript. **[O]** Wider reuse is a long-term objective. **[I]** This is a code reuse boundary, not evidence of a network or security boundary. |
-| Runtime state | **[F]** `VariableDictionary` and output events are static, while semantic diagnostics have execution-owned context. **[I]** Constructing a new runner does not by itself establish an isolated variable session. |
-| GUI and core | **[F]** The GUI invokes the runner and also reads and edits variables directly. **[I]** It does not exclusively use a narrow execution-only interface. |
-| Local files | **[F]** ScriptBooks are user-selected files. Help is read by default from `AppContext.BaseDirectory/InfoDocs`. **[I]** These have different ownership and lifecycle roles. |
-| Output | **[F]** Core operations raise events and call `Console.WriteLine`. **[I]** Output is not fully delegated to a host-neutral presentation boundary. |
-| Automated testing | **[F]** Unit tests reference CryptoScript; GUI tests reference the GUI project. **[I]** These projects and configured CI belong to development and verification infrastructure rather than the desktop runtime. Complete test references are retained in S01 and the repository inventory. |
+**[F/I]** Core has no GUI/MCP project dependency. That supports reuse but does not prove complete host independence: variables and output remain shared, syntax diagnostics include static state, and operations can access files or request host interaction. InterpreterExecution coordinates ownership and state access; it does not allocate one variable dictionary per runner. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R07](../evidence/ar-01-baseline-reconciliation.md#r07), [R12](../evidence/ar-01-baseline-reconciliation.md#r12), [R13](../evidence/ar-01-baseline-reconciliation.md#r13), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
-See [S01, S02, S06 and S07](../evidence/02-system-overview-baseline.md#repository-evidence).
+The host now centralizes reset/gating of syntax diagnostics and async execution in WorkbenchExecutionPipeline. The GUI/core boundary remains broader than an execution-only facade because host services also capture/present variable state. On execution failure, previously completed effects can remain; capture success is separate from script success. A capture failure marks presentation stale and does not authorize replay. Assignment target replacement and individual file/snapshot publication contracts must not be presented as whole-script rollback. [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R10](../evidence/ar-01-baseline-reconciliation.md#r10), [R13](../evidence/ar-01-baseline-reconciliation.md#r13)
 
-**[Q]** The intended isolation between multiple runners or future sessions, the long-term GUI/core interface, the distribution of local help, and the externally visible behavior of delegated Markdown links remain unresolved. They are recorded as [Q01 through Q04](../evidence/02-system-overview-baseline.md#open-questions).
+**[Q]** Long-term client isolation policy, comprehensive platform support and external behavior of delegated help hyperlinks remain separate investigations. **[R]** Preserve the distinction between actual coordination and promised isolation, and between package, process and logical boundaries.
 
-**[R]** Preserve the distinction between runtime process boundaries, code packaging and logical responsibilities in subsequent diagrams. Future clients, integration APIs and additional architectural layers are outside this recovery step.
-
-[Previous: Introduction](01-introduction.md) | [Return to architecture documentation](../README.md)
+[Architecture documentation](../README.md)

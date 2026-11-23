@@ -47,7 +47,7 @@ dd { margin: 0; font-size: 10pt; }
 .cover-note { font-size: 8.5pt; color: #526373; }
 .contents ol { list-style: none; padding: 0; }
 .contents li { margin: 0; break-inside: avoid; }
-.contents a { display: flex; gap: 3mm; align-items: baseline; padding: 1.1mm 0; }
+.contents a { display: flex; gap: 3mm; align-items: baseline; padding: .65mm 0; }
 .contents a::after { content: target-counter(attr(href), page); margin-left: auto; font-variant-numeric: tabular-nums; }
 .toc-level-1 { margin-top: 2mm !important; font-weight: 700; }
 .toc-level-2 { padding-left: 5mm; font-size: 9pt; }

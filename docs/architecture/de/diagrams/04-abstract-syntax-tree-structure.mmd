@@ -1,0 +1,24 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-abstract-syntax-tree-structure.mmd
+flowchart TB
+    S["StatementNode"]
+    D["Deklarationsanweisung"]
+    A["AssignmentStatementNode"]
+    F["Funktionsaufrufanweisung"]
+    Init["Literal- oder Aufrufinitialisierer"]
+    Params["Geordnete Parameterliste"]
+    Header["TR31-Header mit Feldern"]
+    Args["Geordnete Argumentvarianten"]
+    D -.->|"erbt"| S
+    A -.->|"erbt"| S
+    F -.->|"erbt"| S
+    D -->|"0..1 Initialisierer"| Init
+    A -->|"0..1 Initialisierer"| Init
+    D -->|"1 Liste"| Params
+    A -->|"1 Liste"| Params
+    D -->|"0..1 Header"| Header
+    A -->|"0..1 Header"| Header
+    F -->|"Aufrufargumente"| Args
+    Legend["Gestrichelt: Vererbung. Durchgezogen: Komposition [F].<br/>Gruppierte Varianten: Abschnitt 4.5; keine Quellspannen.<br/>Listen/Header sind keine ExpressionNode-Unterklassen."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

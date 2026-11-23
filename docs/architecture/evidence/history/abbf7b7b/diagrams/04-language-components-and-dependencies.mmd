@@ -1,0 +1,45 @@
+%% Diagram: D04-COMPONENTS - Language Components and Dependencies
+%% Baseline: 29b6b36e860ff278b845ac439dd123661760d098
+%% Evidence: ../chapters/04-language-architecture.md, Source evidence L01-L08, L12-L13, L17-L20.
+%% Logical groups in one library; not deployed services. Solid: caller/dependent -> callee/dependency.
+%% Dotted: labeled grammar import or development-time generation; no automatic build generation.
+flowchart TB
+    subgraph Diagram["Language Components and Dependencies [F/I]"]
+        GUI["Avalonia editor caller"]
+        Tool["Generation helpers<br/>external antlr4 command"]
+        subgraph Core["CryptoScript Core - logical code groups"]
+            G["CryptoScript.g4<br/>combined grammar"]
+            CL["CryptoLexer.g4"]
+            TR["TR31Lexer.g4"]
+            Generated["Generated C# lexer/parser<br/>visitor/listener scaffold"]
+            Ext["Handwritten partial lexer<br/>NextToken override"]
+            Builder["ParserBuilder<br/>stream, tokens, parser"]
+            Mapper["AntlrTo* mappers"]
+            AST["Core AST records"]
+            Runner["CryptoScriptRunner"]
+            Eval["Statement / declaration /<br/>function evaluators"]
+            Ops["FunctionCall / factory<br/>operation boundary"]
+            G -.->|imports| CL
+            CL -.->|imports| TR
+            Tool -.->|reads grammar closure| G
+            Tool -.->|generates C#| Generated
+            Ext -->|partial override| Generated
+            Builder -->|constructs| Generated
+            Mapper -->|reads contexts| Generated
+            Mapper -->|constructs| AST
+            Runner -->|maps statements| Mapper
+            Runner -->|evaluates| Eval
+            Eval -->|reads syntax| AST
+            Eval -->|resolves and dispatches| Ops
+        end
+        GUI -->|builds parser| Builder
+        GUI -->|executes context| Runner
+        Legend["[F] source dependencies; [I] logical grouping.<br/>Generated classes also supply runtime metadata.<br/>Traversal scaffold exists; active mappers use direct constructors.<br/>Solid and dotted edges are not execution order."]
+        Ops ~~~ Legend
+    end
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    classDef syntax fill:#eaf4ed,stroke:#357348,color:#173b23
+    classDef code fill:#e8f1fb,stroke:#285780,color:#162b3d
+    class Legend note
+    class G,CL,TR,AST syntax
+    class GUI,Builder,Mapper,Runner,Eval,Ops,Generated,Ext,Tool code

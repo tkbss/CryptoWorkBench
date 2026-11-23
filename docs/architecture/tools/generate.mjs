@@ -7,7 +7,9 @@ import crypto from 'node:crypto';
 const tools = path.dirname(fileURLToPath(import.meta.url));
 const architecture = path.resolve(tools, '..');
 const repo = path.resolve(architecture, '../..');
-const generated = path.join(architecture, 'generated');
+const { language, outputDirectory } = await import('./publication.mjs');
+const lang = language();
+const generated = outputDirectory(architecture, lang);
 const output = path.join(generated, 'CryptoScript-Workbench-Architecture.pdf');
 // Invalidate before dependency loading, Git inspection and input parsing.
 // Failed runs retain diagnostic intermediates, never a publication or pass report.
@@ -15,6 +17,10 @@ const invalidate = () => Promise.all(['CryptoScript-Workbench-Architecture.pdf',
 await fs.mkdir(generated, { recursive: true });
 await invalidate();
 try {
+  const { publication } = await import('./publication.mjs');
+  const pub = await publication(architecture, lang);
+  const { locales } = await import('./locales.mjs');
+  const L = locales[lang];
   const { chromium } = await import('playwright');
   const { PDFDocument, PDFName, PDFNumber, PDFHexString } = await import('pdf-lib');
   const { validate } = await import('./validate.mjs');
@@ -41,21 +47,15 @@ try {
   const timestamp = date.toISOString();
   let remote = git('remote', 'get-url', 'origin').replace(/^git@github.com:/, 'https://github.com/').replace(/\.git$/, '');
   if (!remote.startsWith('https://github.com/')) throw new Error('Expected a GitHub origin for portable source links.');
-  const filesIn = async (dir, pattern) => (await fs.readdir(path.join(architecture, dir))).filter(f => pattern.test(f)).sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(f => `${dir}/${f}`);
-  const chapters = await filesIn('chapters', /^\d+-.*\.md$/);
-  const evidence = await filesIn('evidence', /\.md$/);
-  const diagrams = await filesIn('diagrams', /\.mmd$/);
-  if (!chapters.length) throw new Error('No numbered chapter files found.');
+  const { chapters, evidence, diagrams, readme, sources } = pub;
   const numbers = chapters.map(f => Number(path.basename(f).split('-')[0]));
-  if (new Set(numbers).size !== numbers.length) throw new Error('Duplicate chapter numbers.');
-  const sources = [...chapters, ...evidence, 'README.md', ...diagrams];
   const original = new Map(await Promise.all(sources.map(async file => [file, await fs.readFile(path.join(architecture, file))])));
   const sourceStatus = git('status', '--porcelain', '--', ...sources.map(f => `docs/architecture/${f}`));
   const status = git('status', '--porcelain', '--untracked-files=normal');
   const warnings = [];
   const documents = new Map();
   const inlineText = token => (token.children || []).map(c => c.type === 'softbreak' || c.type === 'hardbreak' ? '\n' : c.content).join('');
-  for (const file of [...chapters, ...evidence, 'README.md']) {
+  for (const file of [...chapters, ...evidence, readme]) {
     const text = original.get(file).toString('utf8');
     const tokens = md.parse(text, {});
     const counts = new Map();
@@ -70,11 +70,8 @@ try {
       tokens[i].attrSet('id', id);
       headings.push({ id, fragment, title, level: Number(tokens[i].tag.slice(1)) });
     }
-    const baseline = text.match(/^\|\s*(?:Analysis baseline|Implementation baseline|Baseline commit|Chapter 3 implementation baseline)\s*\|\s*`([a-f0-9]{40})`/m)?.[1];
+    const baseline = pub.config.baseline;
     documents.set(file, { file, text, tokens, headings, baseline, id: docId(file) });
-  }
-  if (original.get('README.md').toString().includes('documentation HEAD 19c79fe') && !revision.startsWith('19c79fe')) {
-    warnings.push('README Analysis checkout still identifies documentation HEAD 19c79fe. Source preserved; actual documentation revision is on the title page. Chapter 3 evidence also retains historical starting-HEAD statements.');
   }
   if (sourceStatus) warnings.push('Authoritative source files have working-tree changes; source hashes identify the rendered bytes.');
   const linkRecords = [];
@@ -110,7 +107,7 @@ try {
     if (token.type === 'link_open') token.attrSet('href', rewriteLink(token.attrGet('href'), document));
     if (token.type === 'image') throw new Error(`Image in ${document.file}: add explicit local image handling before publication.`);
   });
-  const body = file => `<section class="document ${file.startsWith('evidence/') ? 'evidence' : ''}" id="${docId(file)}" data-source="${file}">${md.renderer.render(documents.get(file).tokens, md.options, {})}</section>`;
+  const body = file => `<section class="document ${file.includes('evidence/') ? 'evidence' : ''}" id="${docId(file)}" data-source="${file}">${md.renderer.render(documents.get(file).tokens, md.options, {})}</section>`;
   const font = async (family, name) => `data:font/woff2;base64,${(await fs.readFile(path.join(tools, 'node_modules', '@fontsource', family, 'files', name))).toString('base64')}`;
   const fontCss = `@font-face{font-family:Document;src:url('${await font('noto-sans', 'noto-sans-latin-400-normal.woff2')}')}@font-face{font-family:Document;src:url('${await font('noto-sans', 'noto-sans-latin-700-normal.woff2')}');font-weight:700}@font-face{font-family:Document;src:url('${await font('noto-sans', 'noto-sans-latin-400-italic.woff2')}');font-style:italic}@font-face{font-family:Code;src:url('${await font('noto-sans-mono', 'noto-sans-mono-latin-400-normal.woff2')}')}@font-face{font-family:MathSymbols;src:url('${await font('noto-sans-symbols-2', 'noto-sans-symbols-2-math-400-normal.woff2')}')}@font-face{font-family:Symbols;src:url('${await font('noto-sans-symbols-2', 'noto-sans-symbols-2-symbols-400-normal.woff2')}')}`;
   await fs.mkdir(path.join(generated, 'diagrams'), { recursive: true });
@@ -133,14 +130,14 @@ try {
       for (const algorithm of ['dagre', 'elk']) for (const fontSize of [16, 20, 22, 23, 24, 32]) for (const baseWrappingWidth of [280, 400, 500]) {
         const wrappingWidth = baseWrappingWidth * fontSize / 16;
         const candidate = await page.evaluate(async ({ source, id, algorithm, wrappingWidth, fontSize }) => {
-          mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'default', layout: algorithm, fontSize, look: 'classic', deterministicIds: true, htmlLabels: false, markdownAutoWrap: false, flowchart: { useMaxWidth: false, wrappingWidth, rankSpacing: 8, nodeSpacing: 24, padding: 4 }, themeVariables: { fontFamily: 'Document, MathSymbols, Symbols', fontSize: `${fontSize}px` } });
+          mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'default', layout: algorithm, fontSize, look: 'classic', deterministicIds: true, htmlLabels: false, markdownAutoWrap: false, flowchart: { useMaxWidth: false, wrappingWidth, rankSpacing: 8, nodeSpacing: 24, padding: 4, subGraphTitleMargin: { top: 12, bottom: 24 } }, themeVariables: { fontFamily: 'Document, MathSymbols, Symbols', fontSize: `${fontSize}px` } });
           const { svg } = await mermaid.render(id, source);
           document.getElementById('render').innerHTML = svg;
           const el = document.querySelector('#render svg');
           const v = el.viewBox.baseVal;
           const fonts = [...el.querySelectorAll('text,tspan')].filter(e => e.textContent.trim()).map(e => parseFloat(getComputedStyle(e).fontSize));
           const graph = await mermaid.mermaidAPI.getDiagramFromText(source);
-          const boundaries = graph.db.getSubGraphs().map(n => ({ id: n.id, label: n.title }));
+          const boundaries = graph.db.getSubGraphs().map(n => ({ id: n.id, label: n.title, members: n.nodes }));
           const boundaryIds = new Set(boundaries.map(n => n.id));
           const vertices = [...graph.db.getVertices().values()].filter(n => !boundaryIds.has(n.id)).map(n => ({ id: n.id, label: n.text }));
           const edges = graph.db.getEdges().map(e => ({ from: e.start, to: e.end, label: e.text, type: e.type, stroke: e.stroke }));
@@ -156,6 +153,29 @@ try {
             for (const word of vertex.label.replace(/<[^>]*>/g, ' ').match(/[\p{L}\p{N}]+/gu) || []) if (rows.length && !rows.some(row => row.includes(word))) splitWords.push(word);
           }
           const collisions = [];
+          // An external process must not straddle or appear inside a process frame.
+          for (const boundary of boundaries) {
+            const cluster = [...el.querySelectorAll('.cluster')].find(n => n.id === boundary.id || n.id === `${id}-${boundary.id}`);
+            if (!cluster) throw new Error(`Missing boundary ${boundary.id}`);
+            const frame = cluster.querySelector('rect').getBoundingClientRect();
+            for (const vertex of vertices.filter(n => !boundary.members.includes(n.id))) {
+              const node = nodeElements.find(n => n.id.includes(`flowchart-${vertex.id}-`));
+              const box = node.getBoundingClientRect();
+              if (Math.min(box.right, frame.right) - Math.max(box.left, frame.left) > 2 && Math.min(box.bottom, frame.bottom) - Math.max(box.top, frame.top) > 2)
+                collisions.push(`External node ${vertex.id} overlaps boundary ${boundary.id}`);
+            }
+          }
+          // Boundary titles are architectural content, not decorative whitespace.
+          // A title hidden behind a node still exists in SVG text; reject that layout.
+          for (const label of el.querySelectorAll('.cluster-label')) {
+            if (!label.textContent.trim()) continue;
+            const box = label.getBoundingClientRect();
+            for (const node of [...nodeElements, ...el.querySelectorAll('.edgeLabels .label')]) {
+              const other = node.getBoundingClientRect();
+              if (Math.min(box.right, other.right) - Math.max(box.left, other.left) > 2 && Math.min(box.bottom, other.bottom) - Math.max(box.top, other.top) > 2)
+                collisions.push(`Boundary label overlaps ${node.id || node.dataset.id || 'edge label'}`);
+            }
+          }
           for (const label of el.querySelectorAll('.edgeLabels .label')) {
             const box = label.getBoundingClientRect();
             for (const vertex of vertices) {
@@ -171,6 +191,14 @@ try {
             if (getComputedStyle(line).stroke === 'none' || getComputedStyle(line).opacity === '0') continue;
             const edge = edges.find(e => line.getAttribute('data-id')?.startsWith(`L_${e.from}_${e.to}_`));
             if (!edge) continue;
+            for (const label of el.querySelectorAll('.cluster-label')) {
+              if (!label.textContent.trim()) continue;
+              const box = label.getBoundingClientRect();
+              for (let distance = 0; distance < line.getTotalLength(); distance += 5) {
+                const p = line.getPointAtLength(distance); const pt = new DOMPoint(p.x, p.y).matrixTransform(line.getScreenCTM());
+                if (pt.x > box.left + 2 && pt.x < box.right - 2 && pt.y > box.top + 2 && pt.y < box.bottom - 2) { collisions.push(`${edge.from}->${edge.to} crosses boundary title`); break; }
+              }
+            }
             for (const vertex of vertices.filter(n => n.id !== edge.from && n.id !== edge.to)) {
               const node = nodeElements.find(n => n.id.includes(`flowchart-${vertex.id}-`));
               const box = node.getBoundingClientRect();
@@ -202,7 +230,7 @@ try {
       const minPoints = rendered.minFont * fitFor(box) * 72 / 96;
       if (minPoints < 8) throw new Error(`Diagram labels below 8pt on complete A4 page: ${file} (${minPoints.toFixed(2)}pt). See generated/diagram-layout-check.json.`);
       const image = rendered.svg.replace(/<svg\b[^>]*>/, root => root.replace(/\s(?:width|height|viewBox|style|preserveAspectRatio)="[^"]*"/g, '').replace(/>$/, ` viewBox="${rendered.viewBox.join(' ')}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:${box.height}mm">`));
-      const html = `<section class="diagram-page ${box.orientation}" id="${docId(file)}"><h1>Diagram: ${escape(path.basename(file, '.mmd'))}</h1><p class="source-caption">Source: <code>diagrams/${escape(path.basename(file))}</code></p><div class="diagram-graphic">${image}</div></section>`;
+      const html = `<section class="diagram-page ${box.orientation}" id="${docId(file)}"><h1>${L.diagram}: ${escape(pub.edition.diagramTitles[path.basename(file)])}</h1><p class="source-caption">${L.source}: <code>${escape(file)}</code></p><div class="diagram-graphic">${image}</div></section>`;
       diagramHtml.set(file, html);
       diagramRecords.push({ file, viewBox: rendered.viewBox, algorithm: rendered.algorithm, fontSize: rendered.fontSize, wrappingWidth: rendered.wrappingWidth, minimumLabelPoints: minPoints, orientation: box.orientation, detailTiles: 0, splitWords: rendered.splitWords, nodeCrossings: rendered.collisions, vertices: rendered.vertices, edges: rendered.edges, boundaries: rendered.boundaries, svgSha256: sha256(rendered.svg) });
     }
@@ -217,21 +245,21 @@ try {
       const chapterDiagrams = [...new Set([...referenced, ...remaining])].filter(d => remaining.has(d) && Number(path.basename(d).split('-')[0]) === number);
       for (const diagram of chapterDiagrams) {
         content += diagramHtml.get(diagram);
-        headings.push({ id: docId(diagram), title: `Diagram: ${path.basename(diagram, '.mmd')}`, level: 1 });
+        headings.push({ id: docId(diagram), title: `${L.diagram}: ${pub.edition.diagramTitles[path.basename(diagram)]}`, level: 1 });
         remaining.delete(diagram);
       }
     }
-    for (const file of remaining) { content += diagramHtml.get(file); headings.push({ id: docId(file), title: `Diagram: ${path.basename(file, '.mmd')}`, level: 1 }); }
-    content += '<section class="appendix-start" id="appendix-evidence"><h1>Appendix A · Supporting Evidence</h1><p>The following evidence records are reproduced from the authoritative Markdown sources. Evidence identifiers and classifications retain their source meaning.</p></section>';
-    headings.push({ id: 'appendix-evidence', title: 'Appendix A · Supporting Evidence', level: 1 });
+    for (const file of remaining) { content += diagramHtml.get(file); headings.push({ id: docId(file), title: `${L.diagram}: ${pub.edition.diagramTitles[path.basename(file)]}`, level: 1 }); }
+    content += `<section class="appendix-start" id="appendix-evidence"><h1>${L.evidence}</h1><p>${L.evidenceNote}</p></section>`;
+    headings.push({ id: 'appendix-evidence', title: L.evidence, level: 1 });
     for (const file of evidence) { content += body(file); headings.push(...documents.get(file).headings); }
-    content += '<section class="appendix-start" id="appendix-entry"><h1>Appendix B · Documentation Entry Point</h1><p>The source README follows in full, including its approved plan for future chapters. Only existing chapter files are included as chapters in this PDF.</p></section>' + body('README.md');
-    headings.push({ id: 'appendix-entry', title: 'Appendix B · Documentation Entry Point', level: 1 }, ...documents.get('README.md').headings);
+    content += `<section class="appendix-start" id="appendix-entry"><h1>${L.entry}</h1><p>${L.entryNote}</p></section>` + body(readme);
+    headings.push({ id: 'appendix-entry', title: L.entry, level: 1 }, ...documents.get(readme).headings);
     const baselines = chapters.map(file => `<tr><td>${escape(documents.get(file).headings[0].title)}</td><td><code>${escape(documents.get(file).baseline || 'Not recorded in chapter metadata')}</code></td></tr>`).join('');
     const toc = headings.filter(h => h.level <= 2).map(h => `<li class="toc-level-${h.level}"><a href="#${h.id}"><span>${escape(h.title)}</span></a></li>`).join('');
-    const title = `<section class="cover"><p class="eyebrow">ARCHITECTURE RECOVERY</p><h1>CryptoScript Workbench<br>Architecture</h1><p class="subtitle">Cumulative reading and review edition</p><dl><dt>Generated (UTC)</dt><dd>${timestamp}</dd><dt>Documentation revision</dt><dd><code>${revision}</code></dd><dt>Source branch</dt><dd>${escape(branch || '(detached HEAD)')}</dd><dt>Available chapters</dt><dd>${numbers.join(', ')}${sourceStatus ? ' · source working-tree changes present' : ''}</dd><dt>Tooling state</dt><dd>${status ? 'Working tree contains uncommitted files; see generation manifest.' : 'Clean checkout.'}</dd></dl><h2>Implementation baselines recorded by the chapters</h2><table><thead><tr><th>Chapter</th><th>Recorded baseline</th></tr></thead><tbody>${baselines}</tbody></table><p class="cover-note">Markdown and Mermaid remain authoritative. Chapter review status, evidence classifications and verification limits are preserved in each source. The documentation revision is distinct from the implementation baselines.</p>${warnings.length ? `<p class="cover-note">Publication findings are recorded in <code>generation-manifest.json</code> and the tooling validation report. Source metadata has not been rewritten.</p>` : ''}</section>`;
-    const css = fontCss + await fs.readFile(path.join(tools, 'print.css'), 'utf8');
-    const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CryptoScript Workbench Architecture</title><style>${css}</style></head><body>${title}<nav class="contents" id="contents"><h1>Contents</h1><ol>${toc}</ol></nav>${content}</body></html>`;
+    const title = `<section class="cover"><p class="eyebrow">AR-01</p><h1>CryptoScript Workbench<br>${L.architecture}</h1><p class="subtitle">${L.subtitle}</p><dl><dt>${L.generated}</dt><dd>${timestamp}</dd><dt>${L.revision}</dt><dd><code>${revision}</code></dd><dt>${L.branch}</dt><dd>${escape(branch)}</dd><dt>${L.chapters}</dt><dd>${numbers.join(', ')}</dd><dt>${L.tooling}</dt><dd>${status ? L.dirty : L.clean}</dd></dl><h2>${L.baseline}</h2><table><thead><tr><th>${L.chapter}</th><th>${L.baseline}</th></tr></thead><tbody>${baselines}</tbody></table><p class="cover-note">${L.coverNote}</p></section>`;
+    const css = fontCss + (await fs.readFile(path.join(tools, 'print.css'), 'utf8')).replace('CryptoScript Workbench · Architecture', L.title).replace('Architecture Recovery · Reading edition', L.footer);
+    const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${L.title}</title><style>${css}</style></head><body>${title}<nav class="contents" id="contents"><h1>${L.contents}</h1><ol>${toc}</ol></nav>${content}</body></html>`;
     await fs.writeFile(path.join(generated, 'architecture.html'), html);
     await page.setContent(html, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
@@ -372,9 +400,10 @@ try {
     });
     const raw = await page.pdf({ preferCSSPageSize: true, printBackground: true, tagged: true });
     const pdf = await PDFDocument.load(raw);
-    pdf.setTitle('CryptoScript Workbench Architecture');
+    pdf.setTitle(L.title);
+    pdf.catalog.set(PDFName.of('Lang'), PDFHexString.fromText(lang));
     pdf.setAuthor('CryptoScript Workbench');
-    pdf.setSubject(`Architecture Recovery; chapters ${numbers.join(', ')}; documentation ${revision}`);
+    pdf.setSubject(`${L.subtitle}; ${L.revision}: ${revision}`);
     pdf.setCreationDate(date); pdf.setModificationDate(date);
     // Explicit outlines use the actual paginated heading pages, including SVG pages.
     // This avoids Chromium's treatment of cloned headings in paged HTML.
@@ -407,10 +436,10 @@ try {
     pdf.catalog.set(PDFName.of('PageMode'), PDFName.of('UseOutlines'));
     await fs.writeFile(output, await pdf.save());
     for (const [file, bytes] of original) if (sha256(await fs.readFile(path.join(architecture, file))) !== sha256(bytes)) throw new Error(`Source changed during generation: ${file}`);
-    const tooling = await Promise.all(['generate.mjs', 'validate.mjs', 'markdown.mjs', 'content-checks.mjs', 'regression.test.mjs', 'print.css', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'].map(async file => ({ file, sha256: sha256(await fs.readFile(path.join(tools, file))) })));
-    const manifest = { documentationRevision: revision, branch, generatedAt: timestamp, sourceDateEpoch: epoch || null, workingTreeStatus: status, authoritativeSourceChanges: sourceStatus, chapters, evidence, diagrams: diagramRecords, sources: [...original].map(([file, bytes]) => ({ file, sha256: sha256(bytes), bytes: bytes.length })), baselines: chapters.map(file => ({ file, implementationBaseline: documents.get(file).baseline || null })), headings: layout.headings, links: linkRecords, sourceBlocks: expectedBlocks, sourceSections, layoutPages: layout.pages, warnings, nodeVersion: process.version, platform: process.platform, chromiumVersion: browser.version(), tooling, pdfSha256: sha256(await fs.readFile(output)) };
+    const tooling = await Promise.all(['repeatability.mjs', 'publication.mjs', 'locales.mjs', 'bilingual-checks.mjs', 'bilingual.test.mjs', 'generate.mjs', 'validate.mjs', 'markdown.mjs', 'content-checks.mjs', 'regression.test.mjs', 'print.css', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'].map(async file => ({ file, sha256: sha256(await fs.readFile(path.join(tools, file))) })));
+    const manifest = { language: lang, schemaVersion: 2, documentationRevision: revision, branch, generatedAt: timestamp, sourceDateEpoch: epoch || null, workingTreeStatus: status, authoritativeSourceChanges: sourceStatus, chapters, evidence, diagrams: diagramRecords, sources: [...original].map(([file, bytes]) => ({ file, sha256: sha256(bytes), bytes: bytes.length })), baselines: chapters.map(file => ({ file, implementationBaseline: documents.get(file).baseline || null })), headings: layout.headings, links: linkRecords, sourceBlocks: expectedBlocks, sourceSections, layoutPages: layout.pages, warnings, nodeVersion: process.version, platform: process.platform, chromiumVersion: browser.version(), tooling, pdfSha256: sha256(await fs.readFile(output)) };
     await fs.writeFile(path.join(generated, 'generation-manifest.json'), JSON.stringify(manifest, null, 2));
-    await validate(generated);
+    await validate(generated, lang);
     console.log(`Generated ${output}\n${layout.pages} pages; ${chapters.length} chapters; ${evidence.length} evidence records; ${diagrams.length} diagrams.`);
     warnings.forEach(w => console.warn(`Publication finding: ${w}`));
   } finally { await browser.close(); }

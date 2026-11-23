@@ -1,0 +1,25 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-language-components-and-dependencies.mmd
+flowchart TB
+    Host["Host-Ausführungspipeline"]
+    Grammar["Grammatik-Importkette"]
+    Generated["Generierter Lexer/Parser"]
+    Parser["ParserBuilder"]
+    Map["AntlrTo*-Mapper"]
+    Ast["Kerneigene AST-Records"]
+    Runner["CryptoScriptRunner"]
+    Eval["Anweisungs-, Zuweisungs-,<br/>Deklarations- und Aufrufauswertung"]
+    Ops["Operationsdispatch"]
+    Grammar -.->|"Entwicklungserzeugung"| Generated
+    Host -->|"parsen"| Parser
+    Parser -->|"erzeugen"| Generated
+    Runner -->|"Anweisungen abbilden"| Map
+    Map -->|"erzeugen"| Ast
+    Map -->|"Kontexte lesen"| Generated
+    Host -->|"asynchron ausführen"| Runner
+    Runner -->|"auswerten"| Eval
+    Eval -->|"lesen"| Ast
+    Eval -->|"aufrufen"| Ops
+    Legend["Durchgezogen: Codeabhängigkeit. Gestrichelt: Erzeugung.<br/>Logische Gruppen teilen die Kernassembly; keine zusätzlichen Dienste."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note
