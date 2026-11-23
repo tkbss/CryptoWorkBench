@@ -9,7 +9,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $pin = '358118cd640d9a22ff8cf21c8ad197fa038b7990'
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$checkout = Join-Path $repo '.deps/prism'
+$checkout = Join-Path $repo '.deps/prism-packaging'
 function Invoke-PrismGit([string[]]$Arguments) {
     $result = & git @Arguments
     if ($LASTEXITCODE -ne 0) { throw "Prism Git operation failed: $Arguments" }

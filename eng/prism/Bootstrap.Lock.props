@@ -19,7 +19,7 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <EnableSourceLink>false</EnableSourceLink>
-    <PathMap>$([MSBuild]::NormalizeDirectory('$(_CwbRoot)', '.deps/prism'))=/_/prism/</PathMap>
+    <PathMap>$([MSBuild]::NormalizeDirectory('$(_CwbRoot)', '.deps/prism-packaging'))=/_/prism/</PathMap>
     <Copyright>Copyright (C) 2015-2026 Prism Software, LLC - all rights reserved</Copyright>
   </PropertyGroup>
 </Project>

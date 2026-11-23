@@ -35,7 +35,7 @@ foreach($name in $names){
     if(![string]::IsNullOrEmpty($previous[$name])){throw "Start bootstrap in a clean shell; existing hook: $name"}
 }
 & (Join-Path $PSScriptRoot 'Prepare-Prism.ps1')
-$checkout=Join-Path $repo '.deps/prism'
+$checkout=Join-Path $repo '.deps/prism-packaging'
 $staging=Join-Path $repo ('.packages/staging-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $staging -Force|Out-Null
 try {
@@ -105,23 +105,12 @@ if($CandidateManifest){
     if($expected.commit -ne $spec.commit -or $expected.packages.Count -ne $results.Count){throw 'Reviewed manifest mismatch.'}
     foreach($p in $results){
         $e=@($expected.packages|Where-Object id -eq $p.id)
-        if($e.Count -ne 1 -or $e[0].sha256 -ne $p.sha256 -or $e[0].assemblySha256 -ne $p.assemblySha256){foreach($actual in $results){
+        if($e.Count -ne 1 -or $e[0].sha256 -ne $p.sha256 -or $e[0].assemblySha256 -ne $p.assemblySha256){
+            foreach($actual in $results){
                 Write-Warning "$($actual.id) archive=$($actual.sha256) assembly=$($actual.assemblySha256)"
             }
-            $diagnostics=Join-Path $repo 'artifacts/ci-logs/prism-inputs'
-            New-Item -ItemType Directory -Path $diagnostics -Force | Out-Null
-            foreach($definition in $spec.packages){
-                $dir=Join-Path (Split-Path (Join-Path $checkout $definition.project)) 'obj/Release/net10.0'
-                $lines=foreach($inputPath in Get-Content (Join-Path $dir 'cwb-prism-compile-inputs.txt')){
-                    $relative=[IO.Path]::GetRelativePath($checkout,$inputPath).Replace('\','/')
-                    $content=[IO.File]::ReadAllText($inputPath).Replace("`r`n","`n")
-                    $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($content)))
-                    "$hash $relative"
-                }
-                $lines | Set-Content (Join-Path $diagnostics ($definition.assembly+'.inputs.txt'))
-                Get-ChildItem $dir -Filter '*.resources' | ForEach-Object { Write-Host "$($_.Name): $((Get-FileHash $_.FullName).Hash)" }
-            }
-            throw "Reproduction mismatch for $($p.id). Candidate packages remain in $staging; feed unchanged."}
+            throw "Reproduction mismatch for $($p.id). Candidate packages remain in $staging; feed unchanged."
+        }
     }
 }
 New-Item -ItemType Directory -Path $feed -Force|Out-Null

@@ -13,17 +13,14 @@ Requirements: Git, PowerShell 7.4+, exact .NET SDK 10.0.401. From the repository
 pwsh -NoProfile -File ./eng/prism/Bootstrap-Packages.ps1
 ```
 
-The script creates a **new** ignored `.deps/prism` checkout if absent, verifies its origin, exact
+The script creates a **new** ignored `.deps/prism-packaging` checkout if absent, verifies its origin, exact
 commit, 1,180 pinned files, extra inputs and links, restores existing reviewed upstream locks, and
 compiles only net10.0 Release outputs. Existing checkouts are never reset or patched. External
 bootstrap-only MSBuild policy retains the Microsoft.Build.Tasks.Git 10.0.303 security pin and validates
 the actual Compile list. No official Prism source/project is modified.
 
 Four canonical ZIP packages are written to `.packages/prism` only after they match
-`package-digests.json`. Fixed ZIP ordering/timestamps, uncompressed entries, virtual source paths and
-fixed copyright year make packaging reproducible on the validated Windows toolchain. The p2 recipe disables debug symbols and Source Link during Prism packaging to exclude checkout-specific data from assembly identities. Exact
-reproduction on Linux/macOS is a required, currently OPEN CI gate; mismatches fail without replacing
-the feed. Each package contains the original DLL, unchanged upstream LICENSE and provenance.
+`package-digests.json`. The p2 recipe fixes ZIP metadata, checkout line endings and generated resource text. It disables debug symbols and Source Link for the packaged DLLs. Each CI runner checks the same archive and assembly hashes before installing its local feed. Each package contains the original DLL, unchanged upstream LICENSE and provenance.
 PDB/source packages and build-only upstream dependencies are not distributed.
 
 Repeated bootstrap validates the feed and returns without rebuilding Prism. An incomplete or
@@ -38,7 +35,7 @@ After bootstrap, open `CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln` dire
 or Visual Studio. Enable the IDE's normal automatic NuGet restore, select
 `CryptoWorkBenchAvalonia.Desktop` as startup project and Debug/Any CPU, then F5.
 No prepared shell, Enter-Prism.ps1, Build.ps1, Prism source project, global MSBuild hook or global
-NuGet configuration is required. The local feed must exist before the first solution restore.
+NuGet configuration is required. The local feed must exist before the first solution restore. On Windows, use a short checkout path if Visual Studio reports a missing file deep inside the NuGet cache.
 
 ```powershell
 dotnet restore CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln --locked-mode
@@ -82,9 +79,8 @@ the probe process during those checks. The script rejects stale backup files ins
 
 The existing four-platform CI now bootstraps local packages before normal builds and runs the
 package integrity probes after the Debug build, before the Release build.
-Native macOS shader/shim and publish gates remain intact. See the integration PR for current CI results.
-Actual local results, native VS/F5 limitations and OPEN platform gates are in
-[the P1 report](../../docs/prism/P1-temporary-local-nuget.md). B4's historical CI success is not P1 CI evidence.
+Native macOS shader/shim and publish gates remain intact. See [integration PR #10](https://github.com/tkbss/CryptoWorkBench/pull/10) for current CI and acceptance results.
+The original Windows-only prototype results are archived in [the P1 report](../../docs/prism/P1-temporary-local-nuget.md). B4's historical CI success is not P1 CI evidence.
 
 For an intentional dependency update only, `Refresh-ApplicationLocks.ps1` regenerates Debug,
 Release and four RID lock sets. Review every diff, then repeat locked builds and regressions.
