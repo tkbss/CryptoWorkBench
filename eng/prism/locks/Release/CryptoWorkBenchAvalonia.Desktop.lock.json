@@ -183,6 +183,43 @@
         "resolved": "8.4.0",
         "contentHash": "tqVU8yc/ADO9oiTRyTnwhFN68hCwvkliMierptWOudIAvWY1mWCh5VFh+guwHJmpMwfg0J0rY+yyd5Oy7ty9Uw=="
       },
+      "CryptoWorkBench.Temporary.Prism.Avalonia": {
+        "type": "Transitive",
+        "resolved": "1.0.0-prism.358118cd640d.p2",
+        "contentHash": "fGWSuEOqMiPVHjpBmZWaqhix0w8OhP6NEYSfIggRHIIyFaSPziMka02Hzm2xvduWADMJmPusO6SA2tzx07BW8w==",
+        "dependencies": {
+          "Avalonia": "[12.1.1, 13.0.0)",
+          "Avalonia.Markup.Xaml.Loader": "[12.1.1, 13.0.0)",
+          "CryptoWorkBench.Temporary.Prism.Core": "[1.0.0-prism.358118cd640d.p2]",
+          "System.Configuration.ConfigurationManager": "[10.0.0]"
+        }
+      },
+      "CryptoWorkBench.Temporary.Prism.Core": {
+        "type": "Transitive",
+        "resolved": "1.0.0-prism.358118cd640d.p2",
+        "contentHash": "YWV8gBXQ21I8+I5hkonQslKmFSxt+86tKLPTlHMZY7vOOFrP3RV0kmx/F1uoeVeQHJbfj40vdRN/Mghv90ZTBw==",
+        "dependencies": {
+          "CryptoWorkBench.Temporary.Prism.Events": "[1.0.0-prism.358118cd640d.p2]",
+          "Prism.Container.Abstractions": "[9.0.114]"
+        }
+      },
+      "CryptoWorkBench.Temporary.Prism.DryIoc.Avalonia": {
+        "type": "Transitive",
+        "resolved": "1.0.0-prism.358118cd640d.p2",
+        "contentHash": "lafXR1yEF+R+UdMuL7A5tcFPxg0Sc+pGkvqXlOJvdhMIwnJRVmvmeIcUtHKF7eoenXFkOfSMlTor95zIaoRUIA==",
+        "dependencies": {
+          "Avalonia": "[12.1.1, 13.0.0)",
+          "Avalonia.Markup.Xaml.Loader": "[12.1.1, 13.0.0)",
+          "CryptoWorkBench.Temporary.Prism.Avalonia": "[1.0.0-prism.358118cd640d.p2]",
+          "CryptoWorkBench.Temporary.Prism.Core": "[1.0.0-prism.358118cd640d.p2]",
+          "Prism.Container.DryIoc": "[9.0.114]"
+        }
+      },
+      "CryptoWorkBench.Temporary.Prism.Events": {
+        "type": "Transitive",
+        "resolved": "1.0.0-prism.358118cd640d.p2",
+        "contentHash": "ffDkG2yqMWEnAkMGj1WexE3OKqxUHIZTE348/HYjyZU5GrfxkvVeW8E+B+paM+B4HyaMAH/JagzRPtxhfAiy3A=="
+      },
       "DialogHost.Avalonia": {
         "type": "Transitive",
         "resolved": "0.12.3",
@@ -498,24 +535,6 @@
         "resolved": "10.0.13",
         "contentHash": "ZjTwxzhiw2TMEzIbUDkMF0dfDB2I4NQgIfKD0ELu9/5Mk+SRGdKZcD0/lvBrRCAPo6KN2r0BW86MRancoyJkoA=="
       },
-      "Microsoft.NETFramework.ReferenceAssemblies": {
-        "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
-        "dependencies": {
-          "Microsoft.NETFramework.ReferenceAssemblies.net461": "1.0.3"
-        }
-      },
-      "Microsoft.NETFramework.ReferenceAssemblies.net461": {
-        "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "AmOJZwCqnOCNp6PPcf9joyogScWLtwy0M1WkqfEQ0M9nYwyDD7EX9ZjscKS5iYnyvteX7kzSKFCKt9I9dXA6mA=="
-      },
-      "Microsoft.Sbom.Targets": {
-        "type": "Transitive",
-        "resolved": "4.1.5",
-        "contentHash": "i5z+cNu/cOcdO0AgFB8aXk8w6In2H+haaDfSgd9ImvQIK+rSHavHZIogVoAZLL8jLwYx4bAcs5b7EyuMMG4mQQ=="
-      },
       "ModelContextProtocol": {
         "type": "Transitive",
         "resolved": "2.3.0",
@@ -697,6 +716,8 @@
           "Avalonia.Themes.Fluent": "[12.1.4, )",
           "CryptoScript": "[1.0.0, )",
           "CryptoWorkBench.Automation.Abstractions": "[1.0.0, )",
+          "CryptoWorkBench.Temporary.Prism.Avalonia": "[1.0.0-prism.358118cd640d.p2, 1.0.0-prism.358118cd640d.p2]",
+          "CryptoWorkBench.Temporary.Prism.DryIoc.Avalonia": "[1.0.0-prism.358118cd640d.p2, 1.0.0-prism.358118cd640d.p2]",
           "DialogHost.Avalonia": "[0.12.3, )",
           "Dock.Avalonia": "[12.1.0.13, )",
           "Dock.Avalonia.Themes.Fluent": "[12.1.0.13, )",
@@ -705,48 +726,7 @@
           "FluentIcons.Avalonia": "[2.1.344, )",
           "Markdown.Avalonia": "[12.0.2, )",
           "MessageBox.Avalonia": "[12.0.0, )",
-          "Prism.Avalonia": "[1.0.0, )",
-          "Prism.DryIoc.Avalonia": "[1.0.0, )",
           "UVtools.AvaloniaControls": "[5.2.0, )"
-        }
-      },
-      "prism.avalonia": {
-        "type": "Project",
-        "dependencies": {
-          "Avalonia": "[12.1.1, )",
-          "Avalonia.Markup.Xaml.Loader": "[12.1.1, )",
-          "Microsoft.NETFramework.ReferenceAssemblies": "[1.0.3, )",
-          "Microsoft.Sbom.Targets": "[4.1.5, )",
-          "Prism.Core": "[1.0.0, )",
-          "System.Configuration.ConfigurationManager": "[10.0.0, )"
-        }
-      },
-      "prism.core": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.NETFramework.ReferenceAssemblies": "[1.0.3, )",
-          "Microsoft.Sbom.Targets": "[4.1.5, )",
-          "Prism.Container.Abstractions": "[9.0.114, )",
-          "Prism.Events": "[1.0.0, )"
-        }
-      },
-      "prism.dryioc.avalonia": {
-        "type": "Project",
-        "dependencies": {
-          "Avalonia": "[12.1.1, )",
-          "Avalonia.Markup.Xaml.Loader": "[12.1.1, )",
-          "Microsoft.NETFramework.ReferenceAssemblies": "[1.0.3, )",
-          "Microsoft.Sbom.Targets": "[4.1.5, )",
-          "Prism.Avalonia": "[1.0.0, )",
-          "Prism.Container.DryIoc": "[9.0.114, )",
-          "Prism.Core": "[1.0.0, )"
-        }
-      },
-      "prism.events": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.NETFramework.ReferenceAssemblies": "[1.0.3, )",
-          "Microsoft.Sbom.Targets": "[4.1.5, )"
         }
       }
     }

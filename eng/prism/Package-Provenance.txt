@@ -1,0 +1,10 @@
+Temporary CryptoWorkBench-only packaging of unchanged official Prism source.
+Repository: https://github.com/PrismLibrary/Prism.git
+Commit: 358118cd640d9a22ff8cf21c8ad197fa038b7990
+Target: net10.0, Release; assembly identities and namespaces retained.
+These are NOT official Prism NuGet packages.
+The upstream LICENSE is included unchanged. No additional license is granted.
+Use relies on the owner's reported temporary permission for unchanged official
+source compilation and use/distribution of assemblies with CryptoWorkBench.
+No publication to public or external NuGet feeds is authorized.
+Replace with owner-approved official Avalonia-12-compatible Prism packages.

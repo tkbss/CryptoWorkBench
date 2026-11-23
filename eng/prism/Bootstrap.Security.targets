@@ -20,7 +20,7 @@
     <Error Condition="'$(Configuration)' != 'Debug' And '$(Configuration)' != 'Release'"
            Text="Temporary Prism supports only Debug and Release lockfiles." />
     <Error Condition="'$(CwbTemporaryPrismPolicy)' != 'true'"
-           Text="Temporary Prism requires Enter-Prism.ps1 and its early Lock.props hook." />
+           Text="Prism source packaging requires Bootstrap-Packages.ps1 and its isolated bootstrap policy." />
     <Error Condition="!Exists('$(NuGetLockFilePath)')"
            Text="Required temporary Prism lockfile is missing: $(NuGetLockFilePath). Restore the reviewed lockfile; restore must not create it implicitly." />
     <Error Condition="'$(_CwbActualLock)' != '$(_CwbExpectedLock)'"

@@ -1,0 +1,8 @@
+<Project>
+  <ItemGroup>
+    <CwbPrismPackage Include="$(_CwbRoot).packages/prism/cryptoworkbench.temporary.prism.events.1.0.0-prism.358118cd640d.p2.nupkg" ExpectedHash="417FCAB8F428027F040A9BDB5DFC7830DB0D2957EFB5F7CB262377BFCA67BD83" />
+    <CwbPrismPackage Include="$(_CwbRoot).packages/prism/cryptoworkbench.temporary.prism.core.1.0.0-prism.358118cd640d.p2.nupkg" ExpectedHash="B36E1A9E44886ADF599A239F856D75586E2957EF32A33A8AF21A7D7D02A1B2DC" />
+    <CwbPrismPackage Include="$(_CwbRoot).packages/prism/cryptoworkbench.temporary.prism.avalonia.1.0.0-prism.358118cd640d.p2.nupkg" ExpectedHash="832A82CD08A4A44D9823F7ABA87939C613D2A4E963FF08C131329B083DFDCC43" />
+    <CwbPrismPackage Include="$(_CwbRoot).packages/prism/cryptoworkbench.temporary.prism.dryioc.avalonia.1.0.0-prism.358118cd640d.p2.nupkg" ExpectedHash="697B1A134A587477D3AAFB5F47FFCADA899E8D17BE832714A27BE733CE93AB4E" />
+  </ItemGroup>
+</Project>

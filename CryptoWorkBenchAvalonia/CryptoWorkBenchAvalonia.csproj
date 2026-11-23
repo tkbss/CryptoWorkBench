@@ -40,8 +40,8 @@
     <PackageReference Include="MessageBox.Avalonia" Version="12.0.0" />
     <!-- MessageBox's minimum is a nightly; select the compatible stable release. -->
     <PackageReference Include="DialogHost.Avalonia" Version="0.12.3" />
-    <ProjectReference Include="../.deps/prism/src/Avalonia/Prism.Avalonia/Prism.Avalonia.csproj" />
-    <ProjectReference Include="../.deps/prism/src/Avalonia/Prism.DryIoc.Avalonia/Prism.DryIoc.Avalonia.csproj" />
+    <PackageReference Include="CryptoWorkBench.Temporary.Prism.Avalonia" Version="[1.0.0-prism.358118cd640d.p2]" />
+    <PackageReference Include="CryptoWorkBench.Temporary.Prism.DryIoc.Avalonia" Version="[1.0.0-prism.358118cd640d.p2]" />
     <PackageReference Include="UVtools.AvaloniaControls" Version="5.2.0" />
   </ItemGroup>
 

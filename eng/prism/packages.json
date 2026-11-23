@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0-prism.358118cd640d.p2",
+  "commit": "358118cd640d9a22ff8cf21c8ad197fa038b7990",
+  "packages": [
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.Events",
+      "project": "src/Prism.Events/Prism.Events.csproj",
+      "assembly": "Prism.Events",
+      "dependencies": {}
+    },
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.Core",
+      "project": "src/Prism.Core/Prism.Core.csproj",
+      "assembly": "Prism",
+      "dependencies": {
+        "CryptoWorkBench.Temporary.Prism.Events": "[1.0.0-prism.358118cd640d.p2]",
+        "Prism.Container.Abstractions": "[9.0.114]"
+      }
+    },
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.Avalonia",
+      "project": "src/Avalonia/Prism.Avalonia/Prism.Avalonia.csproj",
+      "assembly": "Prism.Avalonia",
+      "dependencies": {
+        "CryptoWorkBench.Temporary.Prism.Core": "[1.0.0-prism.358118cd640d.p2]",
+        "Avalonia": "[12.1.1,13.0.0)",
+        "Avalonia.Markup.Xaml.Loader": "[12.1.1,13.0.0)",
+        "System.Configuration.ConfigurationManager": "[10.0.0]"
+      }
+    },
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.DryIoc.Avalonia",
+      "project": "src/Avalonia/Prism.DryIoc.Avalonia/Prism.DryIoc.Avalonia.csproj",
+      "assembly": "Prism.DryIoc.Avalonia",
+      "dependencies": {
+        "CryptoWorkBench.Temporary.Prism.Core": "[1.0.0-prism.358118cd640d.p2]",
+        "CryptoWorkBench.Temporary.Prism.Avalonia": "[1.0.0-prism.358118cd640d.p2]",
+        "Avalonia": "[12.1.1,13.0.0)",
+        "Avalonia.Markup.Xaml.Loader": "[12.1.1,13.0.0)",
+        "Prism.Container.DryIoc": "[9.0.114]"
+      }
+    }
+  ]
+}

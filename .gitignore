@@ -459,6 +459,7 @@ $RECYCLE.BIN/
 
 # Temporary official Prism checkout (prepared by eng/prism/Prepare-Prism.ps1)
 /.deps/
+/.packages/
 # Configuration lockfiles are source inputs, not build outputs.
 !/eng/prism/locks/Debug/
 !/eng/prism/locks/Debug/*.json

@@ -1,0 +1,44 @@
+{
+  "commit": "358118cd640d9a22ff8cf21c8ad197fa038b7990",
+  "sdk": "10.0.401",
+  "targetFramework": "net10.0",
+  "configuration": "Release",
+  "packages": [
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.Events",
+      "version": "1.0.0-prism.358118cd640d.p2",
+      "file": "cryptoworkbench.temporary.prism.events.1.0.0-prism.358118cd640d.p2.nupkg",
+      "sha256": "417fcab8f428027f040a9bdb5dfc7830db0d2957efb5f7cb262377bfca67bd83",
+      "assembly": "Prism.Events.dll",
+      "assemblyIdentity": "Prism.Events, Version=1.0.0.0, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59",
+      "assemblySha256": "d44974575d1a46a5f188d35e8e019dd9617f62c02da968585a0d1c8a815b36dc"
+    },
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.Core",
+      "version": "1.0.0-prism.358118cd640d.p2",
+      "file": "cryptoworkbench.temporary.prism.core.1.0.0-prism.358118cd640d.p2.nupkg",
+      "sha256": "b36e1a9e44886adf599a239f856d75586e2957ef32a33a8af21a7d7d02a1b2dc",
+      "assembly": "Prism.dll",
+      "assemblyIdentity": "Prism, Version=1.0.0.0, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59",
+      "assemblySha256": "cf2598d3e0afd905dd483a6d64ee19582160ec4503ec46ed894bc418a7c7e27e"
+    },
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.Avalonia",
+      "version": "1.0.0-prism.358118cd640d.p2",
+      "file": "cryptoworkbench.temporary.prism.avalonia.1.0.0-prism.358118cd640d.p2.nupkg",
+      "sha256": "832a82cd08a4a44d9823f7aba87939c613d2a4e963ff08c131329b083dfdcc43",
+      "assembly": "Prism.Avalonia.dll",
+      "assemblyIdentity": "Prism.Avalonia, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "assemblySha256": "bf98e2f78dcd5c9331db8095be06b6c39f881acee1726d4cf690078382079128"
+    },
+    {
+      "id": "CryptoWorkBench.Temporary.Prism.DryIoc.Avalonia",
+      "version": "1.0.0-prism.358118cd640d.p2",
+      "file": "cryptoworkbench.temporary.prism.dryioc.avalonia.1.0.0-prism.358118cd640d.p2.nupkg",
+      "sha256": "697b1a134a587477d3aafb5f47ffcada899e8d17be832714a27be733ce93ab4e",
+      "assembly": "Prism.DryIoc.Avalonia.dll",
+      "assemblyIdentity": "Prism.DryIoc.Avalonia, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "assemblySha256": "234b9b5f50da7acae143b6926bb0397135f90b5b28003225a9ea281bb0b04701"
+    }
+  ]
+}

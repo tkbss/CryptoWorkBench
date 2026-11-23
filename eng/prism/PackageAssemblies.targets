@@ -1,0 +1,14 @@
+<Project>
+  <Target Name="ValidateResolvedPrismAssemblies" AfterTargets="ResolveAssemblyReferences" Condition="'$(_CwbScopedProject)' == 'true' And '$(_CwbPrismProject)' != 'true'">
+    <ItemGroup>
+      <_CwbPrismReference Include="@(ReferencePath)" Condition="'%(ReferencePath.Filename)%(ReferencePath.Extension)' == 'Prism.Events.dll'" ExpectedHash="D44974575D1A46A5F188D35E8E019DD9617F62C02DA968585A0D1C8A815B36DC" />
+      <_CwbPrismReference Include="@(ReferencePath)" Condition="'%(ReferencePath.Filename)%(ReferencePath.Extension)' == 'Prism.dll'" ExpectedHash="CF2598D3E0AFD905DD483A6D64EE19582160EC4503EC46ED894BC418A7C7E27E" />
+      <_CwbPrismReference Include="@(ReferencePath)" Condition="'%(ReferencePath.Filename)%(ReferencePath.Extension)' == 'Prism.Avalonia.dll'" ExpectedHash="BF98E2F78DCD5C9331DB8095BE06B6C39F881ACEE1726D4CF690078382079128" />
+      <_CwbPrismReference Include="@(ReferencePath)" Condition="'%(ReferencePath.Filename)%(ReferencePath.Extension)' == 'Prism.DryIoc.Avalonia.dll'" ExpectedHash="234B9B5F50DA7ACAE143B6926BB0397135F90B5B28003225A9EA281BB0B04701" />
+    </ItemGroup>
+    <GetFileHash Files="@(_CwbPrismReference)" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="_CwbHashedReference" />
+    </GetFileHash>
+    <Error Condition="'%(_CwbHashedReference.FileHash)' != '%(_CwbHashedReference.ExpectedHash)'" Text="Resolved Prism assembly differs from reviewed package: %(_CwbHashedReference.Identity)." />
+  </Target>
+</Project>

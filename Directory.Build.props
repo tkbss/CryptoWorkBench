@@ -3,4 +3,5 @@
     <Nullable>enable</Nullable>
     <AvaloniaVersion>12.1.4</AvaloniaVersion>
   </PropertyGroup>
+  <Import Project="$(MSBuildThisFileDirectory)eng/prism/ApplicationPackages.props" />
 </Project>

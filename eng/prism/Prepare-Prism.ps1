@@ -16,7 +16,7 @@ function Invoke-PrismGit([string[]]$Arguments) {
     $result
 }
 if (-not (Test-Path -LiteralPath $checkout)) {
-    if ($VerifyOnly) { throw 'Prism checkout is missing. Run Enter-Prism.ps1 first.' }
+    if ($VerifyOnly) { throw 'Prism checkout is missing. Run Bootstrap-Packages.ps1 first.' }
     Invoke-PrismGit @('init', $checkout)
     Invoke-PrismGit @('-C', $checkout, 'config', 'core.autocrlf', 'false')
     Invoke-PrismGit @('-C', $checkout, 'remote', 'add', 'origin', 'https://github.com/PrismLibrary/Prism.git')
