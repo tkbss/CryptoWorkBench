@@ -28,6 +28,7 @@
   </Target>
   <Target Name="VerifyTemporaryPrismCompileInputs" BeforeTargets="CoreCompile"
           Condition="'$(_CwbPrismProject)' == 'true' And '$(DesignTimeBuild)' != 'true'">
+    <Exec Condition="!$([MSBuild]::IsOSPlatform('Windows'))" Command="pwsh -NoProfile -File &quot;$(MSBuildThisFileDirectory)Normalize-PrismBuildInputs.ps1&quot; -IntermediateDirectory &quot;$(MSBuildProjectDirectory)/$(IntermediateOutputPath).&quot; -AssemblyInfo &quot;$(MSBuildProjectDirectory)/$(GeneratedAssemblyInfoFile)&quot;" />
     <WriteLinesToFile File="$(IntermediateOutputPath)cwb-prism-compile-inputs.txt" Lines="@(Compile->'%(FullPath)')" Overwrite="true" />
     <WriteLinesToFile File="$(IntermediateOutputPath)cwb-prism-generated-inputs.txt"
                       Lines="$(GeneratedAssemblyInfoFile);$(GeneratedGlobalUsingsFile);$(TargetFrameworkMonikerAssemblyAttributesPath)" Overwrite="true" />

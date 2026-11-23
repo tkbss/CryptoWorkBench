@@ -81,6 +81,20 @@ foreach($p in $spec.packages){
             try{$stream.Write($entry.Value)}finally{$stream.Dispose()}
         }
     }finally{$archive.Dispose()}
+    # ZipArchive stamps the host OS in the central directory even for stored entries.
+    # These small archives have no comment or ZIP64 records. Keep Windows creator ID 0.
+    $archivePath=Join-Path $staging $file
+    $bytes=[IO.File]::ReadAllBytes($archivePath)
+    $end=$bytes.Length-22
+    if([BitConverter]::ToUInt32($bytes,$end) -ne 0x06054b50){throw 'Unexpected ZIP trailer.'}
+    $offset=[BitConverter]::ToInt32($bytes,$end+16)
+    foreach($entry in $entries.Keys){
+        if([BitConverter]::ToUInt32($bytes,$offset) -ne 0x02014b50){throw 'Unexpected ZIP directory entry.'}
+        $bytes[$offset+5]=0
+        $offset+=46+[BitConverter]::ToUInt16($bytes,$offset+28)+[BitConverter]::ToUInt16($bytes,$offset+30)+[BitConverter]::ToUInt16($bytes,$offset+32)
+    }
+    if($offset -ne $end){throw 'Unexpected ZIP central directory length.'}
+    [IO.File]::WriteAllBytes($archivePath,$bytes)
     $results+= [ordered]@{id=$p.id;version=$spec.version;file=$file;sha256=(Get-FileHash -LiteralPath (Join-Path $staging $file)).Hash.ToLowerInvariant();assembly=$p.assembly+'.dll';assemblyIdentity=$identity.FullName;assemblySha256=(Get-FileHash -LiteralPath $dll).Hash.ToLowerInvariant()}
 }
 $manifest=[ordered]@{commit=$spec.commit;sdk='10.0.401';targetFramework='net10.0';configuration='Release';packages=$results}
