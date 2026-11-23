@@ -127,7 +127,6 @@ namespace CryptoScript.Model
                 return FileEncryption.FileDecryptCoordinator.Decrypt(resolvedArguments, path, invocation.CancellationToken);
             return algorithm.Decrypt(resolvedArguments);
         }
-        public VariableDeclaration BlockHeader(OperationInvocation invocation) => BlockHeader(invocation.Values);
         public VariableDeclaration Wrap(OperationInvocation invocation)
         {
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
