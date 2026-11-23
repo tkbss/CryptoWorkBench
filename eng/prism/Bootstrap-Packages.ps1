@@ -91,7 +91,10 @@ if($CandidateManifest){
     if($expected.commit -ne $spec.commit -or $expected.packages.Count -ne $results.Count){throw 'Reviewed manifest mismatch.'}
     foreach($p in $results){
         $e=@($expected.packages|Where-Object id -eq $p.id)
-        if($e.Count -ne 1 -or $e[0].sha256 -ne $p.sha256 -or $e[0].assemblySha256 -ne $p.assemblySha256){throw "Reproduction mismatch for $($p.id). Candidate packages remain in $staging; feed unchanged."}
+        if($e.Count -ne 1 -or $e[0].sha256 -ne $p.sha256 -or $e[0].assemblySha256 -ne $p.assemblySha256){foreach($actual in $results){
+                Write-Warning "$($actual.id) archive=$($actual.sha256) assembly=$($actual.assemblySha256)"
+            }
+            throw "Reproduction mismatch for $($p.id). Candidate packages remain in $staging; feed unchanged."}
     }
 }
 New-Item -ItemType Directory -Path $feed -Force|Out-Null
