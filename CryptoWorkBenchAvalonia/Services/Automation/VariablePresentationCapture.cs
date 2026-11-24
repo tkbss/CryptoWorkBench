@@ -8,11 +8,13 @@ namespace CryptoWorkBenchAvalonia.Services.Automation;
 
 internal static class VariablePresentationCapture
 {
-    internal static IReadOnlyList<VariableModel> Capture()
+    internal static IReadOnlyList<VariableModel> Capture() => Capture(VariableDictionary.Instance());
+
+    internal static IReadOnlyList<VariableModel> Capture(VariableDictionary store)
     {
         InterpreterExecution.VerifyAccess();
         var snapshot = new List<VariableModel>();
-        foreach (var v in VariableDictionary.Instance().GetVariables())
+        foreach (var v in store.GetVariables())
         {
             var dv = new VariableModel()
             {

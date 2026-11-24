@@ -103,7 +103,7 @@ public class PinBlockTranslationReviewRegressionTests
     public void ContractErrorsRetainCategoryAndExecutionContext(string side, bool missing, bool nested)
     {
         var parameter = (ParameterVariableDeclaration)Get(side);
-        if (missing) parameter.GetParameters().Remove("#PAN");
+        if (missing) parameter.EditMetadata(map => map.Remove("#PAN"));
         else parameter.SetParameter("IV", "0x(0000000000000000)");
         var unchanged = Snapshot();
         var runner = new CryptoScriptRunner();

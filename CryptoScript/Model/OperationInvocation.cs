@@ -74,6 +74,20 @@ public sealed class OperationInvocation
 
     public IReadOnlyList<ResolvedCallArgument> Arguments => arguments;
 
+    internal VariableDictionary Store { get; init; } = VariableDictionary.Instance();
+    private readonly InterpreterExecution.Frame? frame = InterpreterExecution.CaptureFrame();
+    internal void VerifyOrigin()
+    {
+        InterpreterExecution.VerifyFrame(frame);
+        InterpreterExecution.VerifyStore(Store);
+    }
+
+    internal void Verify()
+    {
+        VerifyOrigin();
+        foreach (var argument in arguments) Store.ValidateArgument(argument.SourceVariable);
+    }
+
     public ISemanticDiagnosticSink? DiagnosticSink { get; }
     public CancellationToken CancellationToken { get; }
     public Ast.SourcePosition? Source { get; init; }

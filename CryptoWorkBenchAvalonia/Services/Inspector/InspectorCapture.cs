@@ -38,13 +38,13 @@ internal static class InspectorCapture
                 {
                     if (InterpreterHostQueue.StateRevision != handle.Stamp.Revision ||
                         !handle.Stamp.Origin.TryGetTarget(out var origin) ||
-                        !ReferenceEquals(VariableDictionary.Instance().Get(handle.Stamp.Identifier), origin))
+                        !ReferenceEquals(service.Store.Get(handle.Stamp.Identifier), origin))
                         throw new StaleInspectorSelectionException();
                     return origin;
                 }
                 if (spec.Property is { } property && spec.Member is InspectorMember.PropertyPage or InspectorMember.PropertyValue)
                 {
-                    var projector = InterpreterExecution.AccessState(() => new InspectorProjector(Resolve(), cancellation)
+                    var projector = service.AccessJobState(() => new InspectorProjector(Resolve(), cancellation)
                     {
                         Index = spec.Member == InspectorMember.PropertyValue ? ImmutableDictionary.CreateBuilder<string,CapturedSlice>() : null
                     });
@@ -52,7 +52,7 @@ internal static class InspectorCapture
                     if (spec.Member == InspectorMember.PropertyPage)
                     {
                         using var steps = projector.DescribeSteps(property,result => page = result).GetEnumerator();
-                        while (InterpreterExecution.AccessState(() => { Resolve(); return steps.MoveNext(); }))
+                        while (service.AccessJobState(() => { Resolve(); return steps.MoveNext(); }))
                             cancellation.ThrowIfCancellationRequested();
                         string? captured = page!.ExactScalar;
                         if (captured == null && page.StringLength.HasValue)
@@ -62,7 +62,7 @@ internal static class InspectorCapture
                     }
                     else
                     {
-                        using var tokens = InterpreterExecution.AccessState(() => projector.Encode(property).GetEnumerator());
+                        using var tokens = service.AccessJobState(() => projector.Encode(property).GetEnumerator());
                         var encoded = new byte[65536];
                         string remainder = "";
                         bool finished = false;
@@ -70,7 +70,7 @@ internal static class InspectorCapture
                         while (!finished || remainder.Length != 0)
                         {
                             cancellation.ThrowIfCancellationRequested();
-                            int used = InterpreterExecution.AccessState(() =>
+                            int used = service.AccessJobState(() =>
                             {
                                 Resolve();
                                 return projector.ReadChunk(tokens,encoded,ref remainder,out finished);
@@ -87,7 +87,7 @@ internal static class InspectorCapture
                     long length = payload.Length / 2;
                     return new SnapshotPart(handle.Stamp, spec.Member, spec.ShareIndex, 0, length, length, payload, Page: page, Request: property, Index: projector.Index?.ToImmutable());
                 }
-                InterpreterExecution.AccessState(() =>
+                service.AccessJobState(() =>
                 {
                     var root = Resolve();
                     var type = root.GetType();
@@ -126,7 +126,7 @@ internal static class InspectorCapture
                 {
                     cancellation.ThrowIfCancellationRequested();
                     int step = (int)Math.Min(count - consumed, share == null ? buffer.Length / 2 : buffer.Length);
-                    InterpreterExecution.AccessState(() =>
+                    service.AccessJobState(() =>
                     {
                         Resolve();
                         int offset = checked((int)(spec.Offset + consumed));

@@ -27,8 +27,16 @@ public sealed class Ep2PanReceiptEncryption : CryptoAlgorithm
         return result;
     }
 
-    public override StringVariableDeclaration Encrypt(AlgorithmCallArguments arguments) => Transform(arguments, true);
-    public override StringVariableDeclaration Decrypt(AlgorithmCallArguments arguments) => Transform(arguments, false);
+    public override StringVariableDeclaration Encrypt(AlgorithmCallArguments arguments)
+    {
+        arguments.Verify();
+        return Transform(arguments, true);
+    }
+    public override StringVariableDeclaration Decrypt(AlgorithmCallArguments arguments)
+    {
+        arguments.Verify();
+        return Transform(arguments, false);
+    }
     public override StringVariableDeclaration Encrypt(string[] parameters) => throw LegacyCall();
     public override StringVariableDeclaration Decrypt(string[] parameters) => throw LegacyCall();
     private static ArgumentException LegacyCall() =>

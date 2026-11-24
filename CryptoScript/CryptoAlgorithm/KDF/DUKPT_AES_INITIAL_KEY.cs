@@ -28,6 +28,7 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
 
     public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
+        parameters.Verify();
         ParameterVariableDeclaration parameter =
             AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
@@ -42,7 +43,7 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
         if (bdkBytes.Length is not (16 or 24 or 32))
             throw new ArgumentException($"{MechanismName} BDK must be 128, 192 or 256 bits.");
 
-        byte[] initialKeyId = ResolveDataBytes(parameters.Arguments[2].Value!);
+        byte[] initialKeyId = ResolveDataBytes(parameters.Store, parameters.Arguments[2].Value!);
         if (initialKeyId.Length != 8)
             throw new ArgumentException($"{MechanismName} IKID must be exactly 64 bits (8 bytes).");
 
@@ -93,10 +94,10 @@ public sealed class DUKPT_AES_INITIAL_KEY : CryptoAlgorithm
         return ConvertHex(value, "BDK");
     }
 
-    private static byte[] ResolveDataBytes(string value)
+    private static byte[] ResolveDataBytes(VariableDictionary store, string value)
     {
         string format;
-        if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+        if (store.Get(value) is StringVariableDeclaration declared)
         {
             value = declared.Value;
             format = declared.ValueFormat;

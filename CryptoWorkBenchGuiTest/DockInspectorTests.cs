@@ -122,18 +122,19 @@ public class DockInspectorTests
         string key = "#" + new string('k', 125) + "🌙tail";
         // Synthetic metadata exercises the general dictionary template independently of KDF's allowed names.
         declaration.GetParameters().Add(key, "\"short Ω\"");
+        var expectedParameters = declaration.GetParameters().ToArray();
         h.Service.Mutate(() => CryptoScript.Variables.VariableDictionary.Instance().Add(declaration), h.Variables.ApplyVariables);
         h.Show(DockShellState.VariablesId);
         var view = h.Presentation.Variables!;
         var grid = view.GetVisualDescendants().OfType<DataGrid>().Single(g => g.Name == "VariablesGrid");
-        var selected = h.Variables.DataVariables.Single(v => v.Identifier == declaration.Id);
+        var selected = h.Variables.DataVariables.Single(v => v.Identifier == "paramsForDisplay");
         grid.SelectedItem = selected;
         h.Pump();
         var nested = view.GetVisualDescendants().OfType<DataGrid>().Single(g => g.Name == "ParametersGrid");
-        Assert.That(selected.Parameters.Select(p => p.Parameter), Is.EqualTo(declaration.GetParameters().Keys));
+        Assert.That(selected.Parameters.Select(p => p.Parameter), Is.EqualTo(expectedParameters.Select(pair => pair.Key)));
         foreach (var entry in selected.Parameters)
         {
-            var original = declaration.GetParameters().Single(kv => kv.Key == entry.Parameter);
+            var original = expectedParameters.Single(kv => kv.Key == entry.Parameter);
             Assert.That(entry.Parameter, Is.SameAs(original.Key));
             Assert.That(entry.Value, Is.SameAs(original.Value));
             string[] expectedCells = [entry.Parameter == key ? key[..126] + "…" : original.Key,

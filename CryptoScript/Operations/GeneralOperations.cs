@@ -10,7 +10,11 @@ namespace CryptoScript.Operations
 {
     public class GeneralOperations
     {
-        public static VariableDeclaration Compare(OperationInvocation invocation) => Compare(invocation.Values);
+        public static VariableDeclaration Compare(OperationInvocation invocation)
+        {
+            invocation.Verify();
+            return Compare(invocation.Values);
+        }
 
         public static VariableDeclaration Compare(params string[] args) 
         {

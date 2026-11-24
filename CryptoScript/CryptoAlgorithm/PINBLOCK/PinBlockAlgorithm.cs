@@ -60,8 +60,11 @@ public sealed partial class PinBlockAlgorithm : CryptoAlgorithm
         return WrapCore(AlgorithmCallArguments.FromValues(parameters), legacyCall: true);
     }
 
-    public override StringVariableDeclaration Wrap(AlgorithmCallArguments parameters) =>
-        WrapCore(parameters, legacyCall: false);
+    public override StringVariableDeclaration Wrap(AlgorithmCallArguments parameters)
+    {
+        parameters.Verify();
+        return WrapCore(parameters, legacyCall: false);
+    }
 
     public override VariableDeclaration Unwrap(string[] parameters)
     {
@@ -69,8 +72,11 @@ public sealed partial class PinBlockAlgorithm : CryptoAlgorithm
         return UnwrapCore(AlgorithmCallArguments.FromValues(parameters), legacyCall: true);
     }
 
-    public override VariableDeclaration Unwrap(AlgorithmCallArguments parameters) =>
-        UnwrapCore(parameters, legacyCall: false);
+    public override VariableDeclaration Unwrap(AlgorithmCallArguments parameters)
+    {
+        parameters.Verify();
+        return UnwrapCore(parameters, legacyCall: false);
+    }
 
     private StringVariableDeclaration WrapCore(AlgorithmCallArguments arguments, bool legacyCall)
     {
@@ -227,7 +233,7 @@ public sealed partial class PinBlockAlgorithm : CryptoAlgorithm
             throw new ArgumentException("PIN-block operations require a KEY variable as the second argument.");
 
         string value = argument.Value ?? throw new ArgumentException("Missing PIN-block key argument.");
-        if (VariableDictionary.Instance().Get(value) is KeyVariableDeclaration declared)
+        if (argument.Store.Get(value) is KeyVariableDeclaration declared)
             return declared;
         if (FormatConversions.ParseString(value) == FormatConversions.HEX)
         {
@@ -258,7 +264,7 @@ public sealed partial class PinBlockAlgorithm : CryptoAlgorithm
             throw new ArgumentException("PIN-block operations require a VAR variable as the third argument.");
 
         string value = argument.Value ?? throw new ArgumentException("Missing PIN-block data argument.");
-        if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared &&
+        if (argument.Store.Get(value) is StringVariableDeclaration declared &&
             declared.Type is CryptoTypeVar)
         {
             return declared;
@@ -283,7 +289,7 @@ public sealed partial class PinBlockAlgorithm : CryptoAlgorithm
 
         return argument.SourceVariable is null &&
                argument.Value is not null &&
-               ReferenceEquals(VariableDictionary.Instance().Get(argument.Value), parameters);
+               ReferenceEquals(argument.Store.Get(argument.Value), parameters);
     }
 
     private byte[] EncodeFormat1(

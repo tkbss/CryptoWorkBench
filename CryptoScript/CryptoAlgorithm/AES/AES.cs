@@ -168,9 +168,9 @@ namespace CryptoScript.CryptoAlgorithm.AES
             parameter = AlgorithmArgumentResolver.ResolveParameter(arguments.Arguments[0]);
             key = AlgorithmArgumentResolver.ResolveKey(arguments.Arguments[1]);
             string p = arguments.Arguments[2].Value!;
-            if (VariableDictionary.Instance().Get(p) as StringVariableDeclaration != null)
+            if (arguments.Store.Get(p) as StringVariableDeclaration != null)
             {
-                data = VariableDictionary.Instance().Get(p) as StringVariableDeclaration;
+                data = arguments.Store.Get(p) as StringVariableDeclaration;
 
             }
             else
@@ -193,6 +193,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
 
         public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
         {
+parameters.Verify();
 
             ParseArguments(parameters);
             KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.MacGenerate,
@@ -216,6 +217,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
 
         public override StringVariableDeclaration Encrypt(AlgorithmCallArguments parameters)
         {
+parameters.Verify();
 
             ParseArguments(parameters);
             KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.Encrypt,
@@ -266,6 +268,7 @@ namespace CryptoScript.CryptoAlgorithm.AES
 
         public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
+            parameters.Verify();
             ParseArguments(parameters);
             KeyMetadataValidator.Validate(key!, KeyAlgorithm.Aes, KeyUsage.Decrypt,
                 "Decrypt", parameter!.Mechanism, parameters.DiagnosticSink);

@@ -19,9 +19,12 @@ namespace CryptoScript.Model
         }
         public static Statement BuildVariable(Statement stmt,string Id, CryptoType type) 
         {
+            using var admission = InterpreterExecution.EnterStandaloneOperation();
+            if (stmt is not Expression) return stmt;
+            using var reservation = VariableDictionary.Instance().Reserve(Id);
+            if (reservation is null) throw VariableDeclarationEvaluator.Duplicate(Id);
             var prepared = PrepareVariable(stmt, Id, type);
-            if (stmt is Expression && prepared is VariableDeclaration variable)
-                VariableDictionary.Instance().Add(variable);
+            if (prepared is VariableDeclaration variable) reservation.Publish(variable);
             return prepared;
         }
 

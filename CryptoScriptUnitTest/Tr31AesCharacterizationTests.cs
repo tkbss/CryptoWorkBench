@@ -243,6 +243,7 @@ public class Tr31AesCharacterizationTests
 
     private static TR31String Wrap(int bits, string wrappedKeyMechanism, string header, string? random)
     {
+        VariableDictionary.Instance().Clear();
         Run($"KEY ck=GenerateKey(AES-CBC,0x({Sequence(0, bits / 8)})) " +
             $"KEY cv=GenerateKey({wrappedKeyMechanism},0x({Sequence(32, bits / 8)})) " +
             $"PARAM cp=#MECH:WRAP-AES-TR31 #BLKH:\"{header}\" " +
@@ -252,6 +253,7 @@ public class Tr31AesCharacterizationTests
 
     private static void CheckUnwrap(string input, string key, int bits)
     {
+        if (VariableDictionary.Instance().Contains("ci")) Run("Delete(ci,cu,cr)");
         Run($"VAR ci={input} PARAM cu=#MECH:WRAP-AES-TR31 KEY cr=Unwrap(cu,ck,ci)");
         var result = (KeyVariableDeclaration)VariableDictionary.Instance().Get("cr");
         Assert.Multiple(() =>

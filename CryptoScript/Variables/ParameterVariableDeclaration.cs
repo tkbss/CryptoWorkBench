@@ -14,14 +14,17 @@ namespace CryptoScript.Variables
     
     public class ParameterVariableDeclaration : VariableDeclaration
     {
-        public BlockHeaderVariableDeclaration? HeaderReference { get; private set; }
-        private readonly List<string> explicitParameterNames = new();
+        private BlockHeaderVariableDeclaration? headerReference;
+        internal BlockHeaderVariableDeclaration? BoundHeader => headerReference;
+        public BlockHeaderVariableDeclaration? HeaderReference { get => ReadOwned(headerReference); private set => headerReference = value; }
+        private List<string> explicitParameterNames = new();
 
         internal IReadOnlyList<string> ExplicitParameterNames => explicitParameterNames;
 
         // Some legacy AES factories normalize explicit padding. File operations must
         // still reject an invalid declaration without changing existing VAR behavior.
-        internal string? OriginalExplicitPadding { get; set; }
+        private string? originalExplicitPadding;
+        internal string? OriginalExplicitPadding { get => ReadOwned(originalExplicitPadding); set => Change(ref originalExplicitPadding, value); }
 
         // Snapshot restoration deliberately bypasses setters and BuildValue: those paths
         // rebuild text, change provenance and may add parameters.
@@ -40,40 +43,71 @@ namespace CryptoScript.Variables
         // Private staging preserves declaration provenance without parsing serialized values.
         internal ParameterVariableDeclaration StagePinTranslation()
         {
-            var stage = new ParameterVariableDeclaration { Id = Id, _mechanism = _mechanism };
-            stage.ParameterTypeValue = new Dictionary<string, string>(ParameterTypeValue);
-            stage.explicitParameterNames.AddRange(explicitParameterNames);
-            stage.Value = Value;
+            var stage = FromSnapshot(_mechanism, ParameterTypeValue, explicitParameterNames, Value, headerReference);
+            stage.Id = Id;
+            stage.OriginalExplicitPadding = OriginalExplicitPadding;
             return stage;
         }
+
+        private bool Matches(ParameterVariableDeclaration stage) =>
+            _mechanism == stage._mechanism && Value == stage.Value &&
+            headerReference == stage.headerReference && OriginalExplicitPadding == stage.OriginalExplicitPadding &&
+            ParameterTypeValue.SequenceEqual(stage.ParameterTypeValue) &&
+            explicitParameterNames.SequenceEqual(stage.explicitParameterNames);
 
         internal static void CommitPinTranslation(ParameterVariableDeclaration source,
             ParameterVariableDeclaration sourceStage, ParameterVariableDeclaration target,
             ParameterVariableDeclaration targetStage)
         {
-            // All allocation, validation and virtual setters run on private stages before here.
-            // The interpreter is synchronous. These non-throwing reference assignments publish
-            // the pair without callbacks or fallible SetParameter/rollback operations.
-            source.PublishPinTranslation(sourceStage);
-            target.PublishPinTranslation(targetStage);
+            lock (InterpreterExecution.Gate)
+            {
+                source.Owner?.ValidateArgument(source);
+                target.Owner?.ValidateArgument(target);
+                if (source.Owner != target.Owner) throw new InvalidOperationException("Different PARAM owners.");
+                bool sourceChanged = !source.Matches(sourceStage), targetChanged = !target.Matches(targetStage);
+                if (!sourceChanged && !targetChanged) return;
+                source.Owner?.RecordMutation(source);
+                if (sourceChanged) source.Publish(sourceStage);
+                if (targetChanged) target.Publish(targetStage);
+            }
         }
 
-        private void PublishPinTranslation(ParameterVariableDeclaration stage)
+        private void Publish(ParameterVariableDeclaration stage)
         {
             ParameterTypeValue = stage.ParameterTypeValue;
-            base.Value = stage.Value;
+            _mechanism = stage._mechanism;
+            headerReference = stage.headerReference;
+            originalExplicitPadding = stage.originalExplicitPadding;
+            explicitParameterNames = stage.explicitParameterNames;
+            SetPreparedValue(stage.Value);
+        }
+
+        private void Mutate(Action<ParameterVariableDeclaration> apply)
+        {
+            lock (InterpreterExecution.Gate)
+            {
+                if (Owner == null) { apply(this); return; }
+                Owner.ValidateArgument(this);
+                var stage = StagePinTranslation();
+                apply(stage);
+                if (Matches(stage)) return;
+                Owner.RecordMutation(this);
+                Publish(stage);
+            }
         }
 
         internal void RecordExplicitParameter(string type)
         {
             string normalizedType = type.StartsWith('#') ? type : "#" + type;
-            string canonicalType = ParameterTypeList.Instance.ParameterTypes.Find(
+            string canonicalType = ParameterTypeList.Instance.ParameterTypes.FirstOrDefault(
                 item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase))
                 ?? normalizedType;
-            explicitParameterNames.Add(canonicalType);
+            Mutate(stage => stage.explicitParameterNames.Add(canonicalType));
         }
 
-        public void SetInstance(string parameters)
+        public void SetInstance(string parameters) => Mutate(stage => stage.ApplyInstance(parameters));
+
+        private void ApplyInstance(string parameters)
         {            
             MechanismParameterContractValidator.ValidateSerializedEmvCryptogramParameters(parameters);
             MechanismParameterContractValidator.ValidateSerializedEmvMasterParameters(parameters);
@@ -102,8 +136,12 @@ namespace CryptoScript.Variables
         string _mechanism = string.Empty;
         public string Mechanism 
         {
-            get { return _mechanism; }
-            set { _mechanism = value;SetParameter("MECH",_mechanism); }
+            get { return ReadOwned(_mechanism); }
+            set => Mutate(stage =>
+            {
+                stage._mechanism = value;
+                stage.ApplyParameter("MECH", value, null);
+            });
         } 
         
         
@@ -111,8 +149,11 @@ namespace CryptoScript.Variables
         Dictionary<string, string> ParameterTypeValue = new Dictionary<string, string>();
         public Dictionary<string, string> GetParameters() 
         {
-            return ParameterTypeValue;
+            var map = ReadOwned(ParameterTypeValue);
+            return Owner != null ? new(map, StringComparer.Ordinal) : map;
         }
+        internal void DetachParameters() => ParameterTypeValue = new(ParameterTypeValue, StringComparer.Ordinal);
+
         public ParameterVariableDeclaration() 
         {
             Type = new CryptoTypeParameters();
@@ -122,11 +163,7 @@ namespace CryptoScript.Variables
         {
             ParameterMechanismen(Mechanism);
             //_value = string.Empty;
-            Value= string.Empty;
-            foreach (var item in ParameterTypeValue)
-            {
-                Value += item.Key + ":" + item.Value;
-            }
+            Value = string.Concat(ParameterTypeValue.Select(item => item.Key + ":" + item.Value));
             
         }
         private void ParameterMechanismen(string mech)
@@ -140,14 +177,28 @@ namespace CryptoScript.Variables
                 ParameterTypeValue.Add("#MECH", mech);
             
         }
-        public void SetParameter(string type, string value)
+        public void SetParameter(string type, string value) => SetParameter(type, value, null);
+
+        private void SetParameter(string type, string value, BlockHeaderVariableDeclaration? reference)
+        {
+            lock (InterpreterExecution.Gate)
+            {
+                if (reference != null) Owner?.ValidateArgument(reference);
+                Mutate(stage => stage.ApplyParameter(type, value, reference));
+            }
+        }
+
+        private void ApplyParameter(string type, string value, BlockHeaderVariableDeclaration? reference)
         {
             string normalizedType = type.StartsWith('#') ? type : "#" + type;
-            string? t = ParameterTypeList.Instance.ParameterTypes.Find(
+            string? t = ParameterTypeList.Instance.ParameterTypes.FirstOrDefault(
                 item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase));
             if (t == null)
                 throw new ArgumentException($"Unknown parameter name '{type}'.", nameof(type));
-            if (t == "#BLKH") HeaderReference = null;
+            if (t == "#BLKH" && HeaderReference != reference)
+            {
+                HeaderReference = reference;
+            }
 
             if (ParameterTypeValue.ContainsKey(t))
             {
@@ -168,8 +219,9 @@ namespace CryptoScript.Variables
         }
         public string GetParameter(string type)
         {
+            ReadOwned(ParameterTypeValue);
             string normalizedType = type.StartsWith('#') ? type : "#" + type;
-            string? t = ParameterTypeList.Instance.ParameterTypes.Find(
+            string? t = ParameterTypeList.Instance.ParameterTypes.FirstOrDefault(
                 item => item.Equals(normalizedType, StringComparison.OrdinalIgnoreCase));
             if (t != null && ParameterTypeValue.ContainsKey(t))
             {
@@ -183,21 +235,24 @@ namespace CryptoScript.Variables
 
         public override string PrintOutput()
         {
-            BuildValue();
-            return Value;
+            lock (InterpreterExecution.Gate)
+            {
+                var map = ReadOwned(ParameterTypeValue);
+                string text = string.Concat(map.Select(p => p.Key + ":" + p.Value));
+                return map.ContainsKey("#MECH") ? text : text + "#MECH:" + Mechanism;
+            }
         }
         public void SetParameter(ArgumentParameter p)
         {
-            SetParameter(p.Type, p.Value);
-            if (p.Type.Equals("#BLKH", StringComparison.OrdinalIgnoreCase))
-                HeaderReference = p.HeaderReference;
+            SetParameter(p.Type, p.Value, p.HeaderReference);
 
         }
         public void ParseToDictionary(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
                 return;
-            ParameterTypeValue = new Dictionary<string, string>();      
+            Owner?.ValidateArgument(this);
+            var prepared = new Dictionary<string, string>();
             var segments = input.Split('#', StringSplitOptions.RemoveEmptyEntries);
             foreach (var segment in segments)
             {                
@@ -208,7 +263,26 @@ namespace CryptoScript.Variables
                 // Key wieder mit '#' herstellen
                 string key = "#" + segment.Substring(0, colonIndex).Trim();
                 string value = segment.Substring(colonIndex + 1).Trim();
-                ParameterTypeValue[key] = value;
+                prepared[key] = value;
+            }
+            ReplaceParameters(prepared);
+        }
+
+        // Accept an independent metadata snapshot. Retained caller collections cannot mutate a live root.
+        public void ReplaceParameters(IReadOnlyDictionary<string, string> parameters)
+        {
+            ArgumentNullException.ThrowIfNull(parameters);
+            var prepared = new Dictionary<string, string>(parameters, StringComparer.Ordinal);
+            lock (InterpreterExecution.Gate)
+            {
+                Owner?.ValidateArgument(this);
+                if (!ParameterTypeValue.SequenceEqual(prepared))
+                {
+                    Owner?.RecordMutation(this);
+                    if (ParameterTypeValue.GetValueOrDefault("#BLKH") != prepared.GetValueOrDefault("#BLKH"))
+                        HeaderReference = null;
+                    ParameterTypeValue = prepared;
+                }
             }            
         }
 

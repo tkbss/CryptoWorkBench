@@ -9,7 +9,7 @@ public static class DeleteOperations
 {
     internal static bool IsDelete(string name) => name.Equals("Delete", StringComparison.OrdinalIgnoreCase);
 
-    internal static IEnumerable<Argument> ResolveArguments(FunctionCallExpressionNode call)
+    internal static IEnumerable<Argument> ResolveArguments(FunctionCallExpressionNode call, VariableDictionary dictionary)
     {
         if (call.Arguments.Count == 0)
             throw new SnapshotArgumentException("Delete requires at least one variable or ALL.");
@@ -23,7 +23,6 @@ public static class DeleteOperations
         }
         if (names.Distinct(StringComparer.Ordinal).Count() != names.Length)
             throw new SnapshotArgumentException("Delete does not accept duplicate selectors.");
-        var dictionary = VariableDictionary.Instance();
         var arguments = new List<Argument>();
         foreach (string name in names)
         {
@@ -36,8 +35,9 @@ public static class DeleteOperations
 
     public static VariableDeclaration? Delete(OperationInvocation invocation)
     {
+        invocation.VerifyOrigin();
         ArgumentNullException.ThrowIfNull(invocation);
-        var dictionary = VariableDictionary.Instance();
+        var dictionary = invocation.Store;
         var existing = dictionary.GetVariables().ToArray();
         bool all = invocation.Arguments.Count == 1 && invocation.Arguments[0] is
             { Kind: ResolvedCallArgumentKind.SnapshotSelector, Value: "ALL" };

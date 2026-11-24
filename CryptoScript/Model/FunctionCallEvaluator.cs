@@ -17,7 +17,10 @@ namespace CryptoScript.Model
 
         public static Statement EvaluateFunctionCall(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter)
-            => EvaluateFunctionCall(call, semanticErrors, evaluateParameter, null, null);
+        {
+            using var admission = InterpreterExecution.EnterStandaloneOperation();
+            return EvaluateFunctionCall(call, semanticErrors, evaluateParameter, null, null);
+        }
 
         internal static Statement EvaluateFunctionCall(Ast.FunctionCallExpressionNode call,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
@@ -59,7 +62,7 @@ namespace CryptoScript.Model
                 using (InterpreterExecution.EnterState(runner: true))
                 {
                     ValidateArgumentContracts(call, errors);
-                    prepared = SecureSaveOperations.Prepare(call);
+                    prepared = SecureSaveOperations.Prepare(call, execution.Store);
                 }
                 using (prepared)
                 {
@@ -98,7 +101,7 @@ namespace CryptoScript.Model
                 using (InterpreterExecution.EnterState(runner: true))
                 {
                     ValidateArgumentContracts(call, errors);
-                    prepared = SecureLoadOperations.Prepare(call, context.CancellationToken);
+                    prepared = SecureLoadOperations.Prepare(call, context.CancellationToken, execution.Store);
                 }
                 using (prepared)
                 {
@@ -129,6 +132,7 @@ namespace CryptoScript.Model
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
             FunctionCall fc, SemanticDiagnosticExecution? execution)
         {
+            var store = execution?.Store ?? VariableDictionary.Instance();
             string functionName = call.Name;
             fc.CallText = DeleteOperations.IsDelete(functionName) ? "Delete(<redacted>)" : SnapshotOperations.IsSnapshot(functionName)
                 ? $"{SnapshotOperations.CanonicalName(functionName)}(<redacted>)" : call.CallText;
@@ -145,9 +149,9 @@ namespace CryptoScript.Model
                 execution?.Report(se, fc.Location!, SemanticDiagnosticCode.UnknownFunction);
                 throw new SemanticErrorException() { SemanticError=se};
             }
-            FileEncryption.FileEncryptionContract.Validate(call, semanticErrors);
-            FileEncryption.FileMacContract.Validate(call, semanticErrors);
-            FileEncryption.FileHashContract.Validate(call, semanticErrors);
+            FileEncryption.FileEncryptionContract.Validate(call, semanticErrors, store: store);
+            FileEncryption.FileMacContract.Validate(call, semanticErrors, store: store);
+            FileEncryption.FileHashContract.Validate(call, semanticErrors, store: store);
             ValidateArgumentContracts(call, semanticErrors);
             if (SecureSaveOperations.IsSecureSave(functionName) || SecureLoadOperations.IsSecureLoad(functionName))
             {
@@ -162,8 +166,8 @@ namespace CryptoScript.Model
             {
                 try
                 {
-                    fc.Arguments.AddRange(DeleteOperations.IsDelete(functionName) ? DeleteOperations.ResolveArguments(call) : SnapshotOperations.IsLoad(functionName)
-                        ? SnapshotOperations.ResolveLoadArguments(call) : SnapshotOperations.ResolveSaveArguments(call));
+                    fc.Arguments.AddRange(DeleteOperations.IsDelete(functionName) ? DeleteOperations.ResolveArguments(call, store) : SnapshotOperations.IsLoad(functionName)
+                        ? SnapshotOperations.ResolveLoadArguments(call, store) : SnapshotOperations.ResolveSaveArguments(call, store));
                     fc.Call(execution);
                     return fc;
                 }
@@ -242,7 +246,10 @@ namespace CryptoScript.Model
 
         public static Statement EvaluateArgument(Ast.FunctionCallArgumentNode argument, string functionName,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter)
-            => EvaluateArgumentCore(argument, functionName, semanticErrors, evaluateParameter, null, null);
+        {
+            using var admission = InterpreterExecution.EnterStandaloneOperation();
+            return EvaluateArgumentCore(argument, functionName, semanticErrors, evaluateParameter, null, null);
+        }
 
         private static Statement EvaluateArgumentCore(Ast.FunctionCallArgumentNode argument, string functionName,
             List<SemanticError> semanticErrors, Func<string, string, ArgumentParameter> evaluateParameter,
@@ -307,9 +314,10 @@ namespace CryptoScript.Model
             }
             if (argument is Ast.VariableArgumentNode variable)
             {
+                var store = execution?.Store ?? VariableDictionary.Instance();
                 string Id = variable.Identifier;
                 //Id is a variable so
-                if (!VariableDictionary.Instance().Contains(Id))
+                if (!store.Contains(Id))
                 {
                     SemanticError se=new SemanticError() { Type = "Variable",Identifier=Id };
                     se.Message = "Error  variable : " + Id + " is not declared";
@@ -317,7 +325,7 @@ namespace CryptoScript.Model
                     throw new SemanticErrorException() { SemanticError=se};
                 }
                 ArgumentVariable argVar = new ArgumentVariable();
-                argVar.Id = VariableDictionary.Instance().Get(Id);
+                argVar.Id = store.Get(Id);
                 return argVar;
             }
             if (argument is Ast.LiteralArgumentNode literal)

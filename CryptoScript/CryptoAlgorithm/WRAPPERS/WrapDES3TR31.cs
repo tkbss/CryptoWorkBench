@@ -15,6 +15,7 @@ public class WrapDES3TR31 : CryptoAlgorithm
 
     public override StringVariableDeclaration Wrap(AlgorithmCallArguments parameters)
     {
+        parameters.Verify();
         ParameterVariableDeclaration p =
             AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         string header = Tr31HeaderBinding.Definition(p)?.Version ?? FormatConversions.ToString(p.GetParameter("#BLKH"));
@@ -56,13 +57,14 @@ public class WrapDES3TR31 : CryptoAlgorithm
 
     public override KeyVariableDeclaration Unwrap(AlgorithmCallArguments parameters)
     {
+        parameters.Verify();
         var p = AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         KeyVariableDeclaration protectionKey = AlgorithmArgumentResolver.ResolveTr31Key(parameters.Arguments[1]);
         KeyMetadataValidator.Validate(protectionKey, KeyAlgorithm.Tdea, KeyUsage.UnwrapKey,
             "Unwrap", MechanismName, parameters.DiagnosticSink);
         string input = parameters.Arguments[2].SourceVariable is StringVariableDeclaration source
             ? source.Value : parameters.Arguments[2].Value!;
-        if (VariableDictionary.Instance().Get(input) is StringVariableDeclaration declared)
+        if (parameters.Store.Get(input) is StringVariableDeclaration declared)
             input = declared.Value;
         string wire;
         char version;

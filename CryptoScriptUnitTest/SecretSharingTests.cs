@@ -131,18 +131,23 @@ public class SecretSharingTests
     {
         Run("KEY k=GenerateKey(AES-ECB,128) PARAM p=Parameters(SECRET_SHAMIR,#PARTS:3,#MINPARTS:2)");
         var key=(KeyVariableDeclaration)Get("k"); key.Usage=new(KeyUsageMode.Restricted,KeyUsage.Encrypt);
-        key.KeyAttributes.Add(new OptionalBlock{ID="AA",Length=4,Data="original"});
+        key.KeyAttributes = [new OptionalBlock { ID = "AA", Length = 4, Data = "original" }];
         Run("SECRET s=Share(p,k)");
         var source=(SecretVariableDeclaration)Get("s");
         Assert.That(source.SecretSet.Descriptor.Profile,Is.EqualTo(SecretDescriptor.Profile11B));
-        key.KeyAttributes[0].Data="changed"; key.Usage=KeyUsagePolicy.Unspecified; key.KeyType=KeyType.Secret(KeyAlgorithm.Unknown);
+        var keyAttributes = key.KeyAttributes;
+        keyAttributes[0].Data = "changed";
+        key.KeyAttributes = keyAttributes; key.Usage=KeyUsagePolicy.Unspecified; key.KeyType=KeyType.Secret(KeyAlgorithm.Unknown);
         VariableDictionary.Instance().Clear();VariableDictionary.Instance().Add(source);
         Run("KEY restored=Restore(s)");
         var result=(KeyVariableDeclaration)Get("restored");
         Assert.That(result.KeyType.Algorithm,Is.EqualTo(KeyAlgorithm.Aes));
         Assert.That(result.Usage.AllowedUsages,Is.EqualTo(KeyUsage.Encrypt));
         Assert.That(result.KeyAttributes[0].Data,Is.EqualTo("original"));
-        result.KeyAttributes[0].Data="again";Run("KEY second=Restore(s)");
+        var restoredAttributes = result.KeyAttributes;
+        restoredAttributes[0].Data = "again";
+        result.KeyAttributes = restoredAttributes;
+        Run("KEY second=Restore(s)");
         Assert.That(((KeyVariableDeclaration)Get("second")).KeyAttributes[0].Data,Is.EqualTo("original"));
     }
     [Test]
@@ -150,6 +155,7 @@ public class SecretSharingTests
     {
         Run("KEY k=0x(00FF) PARAM p=#MECH:SECRET_SPLIT #PARTS:2 SECRET s=Share(p,k) KEY r=Restore(s)");
         Assert.That(Get("r").Value,Is.EqualTo("0x(00ff)"));
+        VariableDictionary.Instance().Clear();
         Run("PARAM p=Parameters(SECRET_SHAMIR,#PARTS:5,#MINPARTS:3) SECRET s=Secret(p,0x(FFAA))");
         Assert.That(((SecretVariableDeclaration)Get("s")).SecretSet.Shares.Count,Is.EqualTo(1));
         Run("KEY r=Restore(s)",true);
@@ -201,6 +207,7 @@ public class SecretSharingTests
         {
             var rows=group.Reverse().ToArray();
             string shares=string.Join(",",rows.Select(f=> format=="X-Y" ? $"0x({int.Parse(f[4]):X2}{f[5]})" : format=="Y-X" ? $"0x({f[5]}{int.Parse(f[4]):X2})" : $"{f[4]},0x({f[5]})"));
+            VariableDictionary.Instance().Clear();
             Run($"PARAM p=Parameters(SECRET_SHAMIR,#PARTS:255,#MINPARTS:3,#POLYNOM:\"SHAMIR-GF256-{group.Key}\",#SHAREFORMAT:\"{format}\") SECRET s=Secret(p,{shares}) KEY r=Restore(s)");
             Assert.That(Get("r").Value,Is.EqualTo($"0x({rows[0][1]})").IgnoreCase);
         }
@@ -227,7 +234,6 @@ public class SecretSharingTests
         Run("PARAM p=Parameters(SECRET_SHAMIR,#PARTS:3,#MINPARTS:2) KEY k=GenerateKey(AES-ECB,128)");
         var p=(ParameterVariableDeclaration)Get("p"); var k=(KeyVariableDeclaration)Get("k");
         var invocation=new OperationInvocation([new(p.Value,ResolvedCallArgumentKind.Variable,p),new(k.Value,ResolvedCallArgumentKind.Variable,k)]);
-        VariableDictionary.Instance().Clear(); // Objects, not lookup by strings, remain authoritative.
         var secret=(SecretVariableDeclaration)SecretOperations.Share(invocation);
         Assert.That(SecretSharingEngine.Restore(secret.SecretSet),Is.EqualTo(FormatConversions.HexStringToByteArray(k.Value)));
         foreach(string bad in new[]{"\"AES\"","\"\"","SHAMIR-GF256-11B"})
@@ -238,6 +244,8 @@ public class SecretSharingTests
         p.SetParameter("#POLYNOM","\"SHAMIR-GF256-11B\"");p.SetParameter("#SHAREFORMAT","bad");
         Assert.Throws<ArgumentException>(()=>SecretOperations.Share(invocation));
         Assert.Throws<ArgumentException>(()=>SecretOperations.Share(new OperationInvocation([new(p.Value,ResolvedCallArgumentKind.OtherLiteral),new(k.Value,ResolvedCallArgumentKind.OtherLiteral)])));
+        VariableDictionary.Instance().Clear();
+        Assert.Throws<InvalidOperationException>(() => SecretOperations.Share(invocation));
     }
 
     [Test]

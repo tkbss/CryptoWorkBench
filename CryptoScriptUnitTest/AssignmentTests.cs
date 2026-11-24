@@ -106,7 +106,7 @@ public class AssignmentTests
         Assert.That(key.KeySizeInBits.Bits, Is.EqualTo(128));
         key.Usage = KeyUsagePolicy.Restricted(KeyUsage.Encrypt);
         key.DerivationMechanism = "assignment-test";
-        key.KeyAttributes.Add(new() { ID = "KS", Length = 8, Data = "1234" });
+        key.KeyAttributes = [.. key.KeyAttributes, new() { ID = "KS", Length = 8, Data = "1234" }];
         var attributes = key.KeyAttributes.ToArray();
         await Run("KEY found=0x(FF) found=Check(" + key.Kcv + ")", asynchronous);
         var found = (KeyVariableDeclaration)Get("found");

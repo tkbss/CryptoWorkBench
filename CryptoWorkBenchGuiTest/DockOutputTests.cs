@@ -58,8 +58,8 @@ public sealed class DockOutputTests
 
     [Test] public Task UnknownSourceAndMultilineUnicodeAreNotGuessed() => Run(async h =>
     {
-        await h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(_ =>
-        { new OutputOperations().Print(["ä€😀\n0x(AB)\nYWJj=="]); return Task.CompletedTask; })]);
+        await h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(context =>
+        { context.Print("ä€😀\n0x(AB)\nYWJj=="); return Task.CompletedTask; })]);
         var entry = h.Session.Output.Entries.Single();
         Assert.That(entry.Text, Is.EqualTo("out: ä€😀\n0x(AB)\nYWJj=="));
         Assert.That(entry.SourceLine, Is.Null); Assert.That(entry.SourceColumn, Is.Null);
@@ -120,8 +120,8 @@ public sealed class DockOutputTests
     [TestCase(false)][TestCase(true)]
     public Task SelectionAndCtrlCCopyExactText(bool floating) => Run(async h =>
     {
-        await h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(_ =>
-        { new OutputOperations().Print(["ä€😀\n0x(AB)\nYWJj=="]); return Task.CompletedTask; })]);
+        await h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(context =>
+        { context.Print("ä€😀\n0x(AB)\nYWJj=="); return Task.CompletedTask; })]);
         h.Show(DockShellState.OutputId); var host = floating ? h.Float(DockShellState.OutputId) : h.Window;
         var text = h.Presentation.Output!.GetVisualDescendants().OfType<SelectableTextBlock>().Single(t => t.Name == "PrintText");
         var before = h.Service.CaptureSaveIntent()!.Snapshot;
@@ -137,7 +137,7 @@ public sealed class DockOutputTests
         h.Layout.Close(DockShellState.OutputId);
         var work = h.Session.ViewModel.ExecuteLineAsync("", cancellationToken: stop.Token,
             testStatements: [new AsyncInfrastructureStatement(async context =>
-            { new OutputOperations().Print(["partial"]); started.SetResult(); await Task.Delay(Timeout.Infinite, stop.Token); })]);
+            { context.Print("partial"); started.SetResult(); await Task.Delay(Timeout.Infinite, stop.Token); })]);
         await started.Task; Assert.That(h.Session.Output.Entries, Is.Empty);
         stop.Cancel(); await work;
         Assert.That(h.Session.Output.Entries.Single().Text, Is.EqualTo("out: partial"));
@@ -190,8 +190,8 @@ public sealed class DockOutputTests
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var finish = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var host = h.Float(DockShellState.OutputId);
-        var work = h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(async _ =>
-        { new OutputOperations().Print(["before shutdown"]); started.SetResult(); await finish.Task; new OutputOperations().Print(["late"]); })]);
+        var work = h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(async context =>
+        { context.Print("before shutdown"); started.SetResult(); await finish.Task; context.Print("late"); })]);
         await started.Task;
         h.Window.Close(); Assert.That(h.Service.IsStopping, Is.True);
         Assert.That(h.Window.IsVisible, Is.True, "Shutdown must drain the accepted operation.");
@@ -210,8 +210,8 @@ public sealed class DockOutputTests
     [Test] public Task LongOutputIsScrollableWithoutExpandingWindow() => Run(async h =>
     {
         string payload = new string('A', 20000);
-        await h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(_ =>
-        { new OutputOperations().Print([payload]); return Task.CompletedTask; })]);
+        await h.Session.ViewModel.ExecuteLineAsync("", testStatements: [new AsyncInfrastructureStatement(context =>
+        { context.Print(payload); return Task.CompletedTask; })]);
         h.Show(DockShellState.OutputId);
         Assert.That(h.Session.Output.Entries.Single().Text, Is.EqualTo("out: " + payload));
         Assert.That(h.Presentation.Output!.Bounds.Width, Is.LessThanOrEqualTo(h.Window.Bounds.Width));

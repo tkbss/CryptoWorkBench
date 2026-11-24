@@ -33,7 +33,7 @@ namespace CryptoScriptUnitTest
         {
             string input = "VAR v1= \"ExampleString\"0x(ABCD1234)0x(1234567890ABCDEF)";
                            
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -50,7 +50,7 @@ namespace CryptoScriptUnitTest
                            "PARAM p=#BLKH:\"D0144P0AE00E0000\" #MECH:WRAP-AES-TR31 " +
                            "#RND:0x(1A87BBFA2CFE78D383E5F4C6AA83473C1C2965473CE206BB855B01533782)" +
                            "VAR block=Wrap(p,kbpk,ik)";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -71,7 +71,7 @@ namespace CryptoScriptUnitTest
                            "VAR tr31Blk=\"D0144P0AE00E00002C77FA3F4A553BED6E88AE5C172A4166E3D4ACA8E2AC71C158A476FAC12C13C3829DE55D3AB54C48F4C4FEF7AC75E90FC47F1B77E7B19A73ED46E64410082557\"" +
                            "PARAM p=#MECH:WRAP-AES-TR31" +
                            "KEY ik=Unwrap(p,kbpk,tr31Blk)";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -89,7 +89,7 @@ namespace CryptoScriptUnitTest
                            "VAR tr31Blk=\"D0112P0AE00E0000B82679114F470F540165EDFBF7E250FCEA43F810D215F8D207E2E417C07156A27E8E31DA05F7425509593D03A457DC34\"" +
                            "PARAM p=#MECH:WRAP-AES-TR31" +
                            "KEY ik=Unwrap(p,kbpk,tr31Blk)";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -106,7 +106,7 @@ namespace CryptoScriptUnitTest
                 "KEY kbpk = GenerateKey(AES-CBC,0x(FA36E44278DB3AB5F298F9F7DA8F1F88)) " +
                 "PARAM p=#MECH:WRAP-AES-TR31" +
                 "KEY ik=Unwrap(p,kbpk,block)";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);

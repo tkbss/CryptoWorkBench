@@ -29,6 +29,7 @@ public sealed class KDF_EMV_AC_SESSION : CryptoAlgorithm
 
     public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
+        parameters.Verify();
         ArgumentNullException.ThrowIfNull(parameters);
         if (parameters.Arguments.Count != 3)
             throw new ArgumentException($"{MechanismName} Derive requires exactly three arguments.");

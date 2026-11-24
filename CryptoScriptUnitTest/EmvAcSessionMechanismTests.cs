@@ -106,7 +106,6 @@ public class EmvAcSessionMechanismTests
         ((StringVariableDeclaration)reference.Statements[4]).Value.Should().Be("0x(0001)");
 
         Action action = () => Execute(
-            declarations +
             $"KEY output=Derive(p,master,Decrypt(decryptParameters,decryptKey,0x({ciphertext})))");
 
         action.Should().Throw<SemanticErrorException>()

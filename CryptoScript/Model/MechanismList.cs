@@ -1,27 +1,10 @@
-namespace CryptoScript.Model
+using System.Collections.Immutable;
+
+namespace CryptoScript.Model;
+
+public sealed class MechanismList
 {
-    public class MechanismList
-    {
-        private static MechanismList? instance = null;
-        private static readonly object padlock = new object();
-        public List<string> Mechanisms { get; set; }
-        MechanismList()
-        {
-            Mechanisms = AntlrLanguageMetadata.GetMechanisms();
-        }
-        public static MechanismList Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                    {
-                        instance = new MechanismList();
-                    }
-                    return instance;
-                }
-            }
-        }
-    }
+    public static MechanismList Instance { get; } = new();
+    public IReadOnlyList<string> Mechanisms { get; } = AntlrLanguageMetadata.GetMechanisms().ToImmutableList();
+    private MechanismList() { }
 }

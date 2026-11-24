@@ -65,6 +65,7 @@ public sealed class KDF_EP2_SESSION : CryptoAlgorithm
 
     public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
+        parameters.Verify();
         ParameterVariableDeclaration parameter =
             AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))

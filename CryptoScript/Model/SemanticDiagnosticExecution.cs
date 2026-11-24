@@ -19,6 +19,7 @@ internal sealed class SemanticDiagnosticExecution
         CancellationToken = cancellationToken;
     }
 
+    internal Variables.VariableDictionary Store { get; init; } = Variables.VariableDictionary.Instance();
     internal CancellationToken CancellationToken { get; }
     internal Guid ExecutionId { get; } = Guid.NewGuid();
     internal IReadOnlyList<SemanticError> GetSnapshot() => sink.GetSnapshot();

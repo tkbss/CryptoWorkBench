@@ -13,6 +13,7 @@ public static class KeyCheckOperations
 
     public static VariableDeclaration Check(OperationInvocation invocation)
     {
+        invocation.Verify();
         var args = invocation.Values;
         if (args.Length is < 1 or > 2)
             throw new ArgumentException("Check expects a HEX value and an optional method (KCV, KCVC, KCVK).");
@@ -34,7 +35,7 @@ public static class KeyCheckOperations
         byte[] prefix = Convert.FromHexString(hex);
         try
         {
-            var matches = VariableDictionary.Instance().GetVariables().OfType<KeyVariableDeclaration>()
+            var matches = invocation.Store.GetVariables().OfType<KeyVariableDeclaration>()
                 .Where(key => methods.Any(method => Matches(key, method, prefix))).ToArray();
             if (matches.Length != 1)
                 throw new KeyCheckValueSearchException(new SemanticError

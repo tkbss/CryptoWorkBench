@@ -142,11 +142,12 @@ public partial class SecureSaveTests
         var runner = new CryptoScriptRunner();
         runner.PasswordRequested += (_, r) =>
         {
-            path.Value = Path.Combine(directory, "other.json"); data.Value = "changed";
+            Assert.Throws<ExecutionBusyException>(() => path.Value = Path.Combine(directory, "other.json"));
+            Assert.Throws<ExecutionBusyException>(() => data.Value = "changed");
             return Task.FromResult(Supply(r));
         };
         await runner.ExecuteAsync(Parse("SecureSave(path, data, #SECUREKDF:PBKDF2)"));
-        Assert.That(File.Exists(path.Value), Is.False);
+        Assert.That(File.Exists(Path.Combine(directory, "other.json")), Is.False);
         var roots = new VariableSnapshotJsonSerializer().Deserialize(SecureContainerTestReader.Read(File.ReadAllText(originalPath), "päss🔐\0"));
         Assert.That(roots.Single().Value, Is.EqualTo(originalValue));
     }

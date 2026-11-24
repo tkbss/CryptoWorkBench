@@ -65,7 +65,8 @@ public class CanonicalKeyMaterialTests
             Assert.That(Key("k"), Is.SameAs(baseReference));
             Assert.That(key.KeyType, Is.SameAs(keyType));
             Assert.That(key.Usage, Is.SameAs(usage));
-            Assert.That(key.KeyAttributes, Is.SameAs(attributes));
+            Assert.That(key.KeyAttributes, Is.EqualTo(attributes));
+            Assert.That(key.KeyAttributes, Is.Not.SameAs(attributes));
             Assert.That(key.PrintOutput(), Does.Contain("Value: " + material).And.Not.Contain("KeyValue:"));
             Assert.That(typeof(KeyVariableDeclaration).GetProperty("KeyValue"), Is.Null);
         });

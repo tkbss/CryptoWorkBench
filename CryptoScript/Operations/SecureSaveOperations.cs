@@ -23,14 +23,15 @@ internal static class SecureSaveOperations
     internal static bool IsVoidSnapshot(string name) => IsSecureSave(name) || SecureLoadOperations.IsSecureLoad(name) || SnapshotOperations.IsSnapshot(name);
     internal static string CanonicalName(string name) => IsSecureSave(name) ? "SecureSave" : SecureLoadOperations.IsSecureLoad(name) ? "SecureLoad" : SnapshotOperations.CanonicalName(name);
 
-    internal static PreparedSecureSave Prepare(FunctionCallExpressionNode call)
+    internal static PreparedSecureSave Prepare(FunctionCallExpressionNode call, VariableDictionary? store = null)
     {
+        InterpreterExecution.CaptureFrame()?.ObserveBoundary?.Invoke(OperationBoundary.SecureSavePreflight);
         int optionStart = call.Arguments.TakeWhile(a => a is not SecureOptionArgumentNode).Count();
         if (call.Arguments.Take(optionStart).Any(a => a is not VariableArgumentNode) ||
             call.Arguments.Skip(optionStart).Any(a => a is not SecureOptionArgumentNode))
             throw new SecureSaveException("InvalidArguments");
         var options = SecureSaveOptions.Parse(call.Arguments.Skip(optionStart).Cast<SecureOptionArgumentNode>());
-        var resolved = SnapshotOperations.ResolveSaveArguments(call with { Arguments = call.Arguments.Take(optionStart).ToArray() })
+        var resolved = SnapshotOperations.ResolveSaveArguments(call with { Arguments = call.Arguments.Take(optionStart).ToArray() }, store ?? VariableDictionary.Instance())
             .Cast<ArgumentVariable>().Select(a => a.Id!).ToArray();
         if (resolved.Length < 2 || resolved[0] is not PathVariableDeclaration { Type: CryptoTypePath } path)
             throw new SecureSaveException("InvalidPathReference");
@@ -75,6 +76,7 @@ internal static class SecureSaveOperations
                         RandomNumberGenerator.GetBytes(16), RandomNumberGenerator.GetBytes(12), context.CancellationToken);
                 }
                 finally { CryptographicOperations.ZeroMemory(password); }
+                context.Verify();
                 SnapshotByteFilePublisher.Write(prepared.Destination, envelope, SecureSaveOptions.FileLimit,
                     VariableSnapshotWriteMode.CreateNew, context.CancellationToken);
             }, context.CancellationToken).ConfigureAwait(false);

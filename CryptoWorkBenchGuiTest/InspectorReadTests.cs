@@ -259,7 +259,7 @@ public class InspectorReadTests
         await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
         await session.Pending;
         await session.ReadAsync(new(InspectorMember.Value));
-        h.Service.Mutate(() => { if (assignment) VariableDictionary.Instance().Add(new StringVariableDeclaration {Id="x", Value="new"}); else root.Value="new"; });
+        h.Service.Mutate(() => { if (assignment) VariableDictionary.Instance().Update(new StringVariableDeclaration {Id="x", Value="new"}); else root.Value="new"; });
         await session.ReadAsync(new(InspectorMember.Text));
         Assert.That(session.Historical, Is.True);
         h.Service.AdmissionCheckpoint = _ => Assert.Fail("Stale handle was readmitted");
@@ -596,9 +596,9 @@ public class InspectorReadTests
     [Test]
     public Task NullAndEmptyAreDifferentCapturedValues() => GuiTestSession.RunAsync(async () =>
     {
-        await using var h = new Host();
         foreach (var value in new string?[] { null, "" })
         {
+            await using var h = new Host();
             var handle = h.Select(new StringVariableDeclaration { Id = "value", Value = value! });
             var part = await InspectorCapture.ReadAsync(h.Service, handle, new(InspectorMember.Value), () => true, default);
             using (part.Payload) { Assert.That(part.IsNull, Is.EqualTo(value == null)); Assert.That(part.Count, Is.Zero); }
@@ -656,7 +656,7 @@ public class InspectorReadTests
         var finish = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var read = service.RunInspectorReadAsync(async token =>
         {
-            InterpreterExecution.AccessState(() => { started.SetResult(); return true; });
+            service.AccessJobState(() => { started.SetResult(); return true; });
             await finish.Task.WaitAsync(token); return 42;
         }, () => true);
         await started.Task;

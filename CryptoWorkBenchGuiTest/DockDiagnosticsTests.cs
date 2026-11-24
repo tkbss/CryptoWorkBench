@@ -244,7 +244,7 @@ public sealed class DockDiagnosticsTests
         var task = h.Session.ViewModel.ExecuteLineAsync("", cancellationToken: stop.Token,
             testStatements: [new AsyncInfrastructureStatement(async context =>
             {
-                context.Diagnostics.Report(Warning()); new OutputOperations().Print(["partial"]);
+                context.Diagnostics.Report(Warning()); context.Print("partial");
                 started.SetResult(); await Task.Delay(Timeout.Infinite, context.CancellationToken);
             })]);
         await started.Task; stop.Cancel(); await task;

@@ -4,20 +4,21 @@ namespace CryptoScript.CryptoAlgorithm;
 
 internal static class LegacyDeriveArgumentAdapter
 {
-    internal static AlgorithmCallArguments Create(IEnumerable<string> values)
+    internal static AlgorithmCallArguments Create(IEnumerable<string> values, VariableDictionary? store = null)
     {
         ArgumentNullException.ThrowIfNull(values);
         return new AlgorithmCallArguments(
             values.Select(value => new AlgorithmCallArgument(value)),
-            isLegacyDeriveCall: true);
+            isLegacyDeriveCall: true, store: store);
     }
 
     internal static KeyVariableDeclaration ResolveKey(AlgorithmCallArgument argument)
     {
         ArgumentNullException.ThrowIfNull(argument);
 
+        argument.Verify();
         string value = argument.Value ?? throw new ArgumentException("wrong key argument");
-        KeyVariableDeclaration[] matches = VariableDictionary.Instance().GetVariables()
+        KeyVariableDeclaration[] matches = argument.Store.GetVariables()
             .OfType<KeyVariableDeclaration>()
             .Where(key => key.Value == value)
             .ToArray();

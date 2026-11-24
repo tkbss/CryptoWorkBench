@@ -244,7 +244,7 @@ public class AsyncPasswordInfrastructureTests
     [Test]
     public async Task InheritedExecutionContextDoesNotAuthorizeConcurrentStateAccess()
     {
-        await InterpreterExecution.RunAsync(async () =>
+        await InterpreterExecution.RunAsync(CryptoScript.Variables.VariableDictionary.Instance(), async host =>
         {
             // The async callback itself must not hold a thread-bound state lease:
             // its continuation may run before the synchronous prefix has unwound.
@@ -254,7 +254,7 @@ public class AsyncPasswordInfrastructureTests
                 Assert.Throws<ExecutionBusyException>(() => VariableDictionary.Instance().Clear());
                 Assert.Throws<ExecutionBusyException>(() => ParserBuilder.StringBuild("VAR a=0x(01)"));
             });
-            return InterpreterExecution.AccessState(() => VariableDictionary.Instance().GetVariables().Count());
+            return InterpreterExecution.AccessState(host, () => VariableDictionary.Instance().GetVariables().Count());
         });
         Assert.That(InterpreterExecution.IsBusy, Is.False);
     }

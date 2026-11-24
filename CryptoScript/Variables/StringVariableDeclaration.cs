@@ -6,7 +6,7 @@ namespace CryptoScript.Variables
     {
         
         
-        public string GMAC { get; set; } = string.Empty;
+        public string GMAC { get => ReadOwned(field); set => Change(ref field, value); } = string.Empty;
         public StringVariableDeclaration()
         {
             Id = string.Empty;

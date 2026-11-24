@@ -23,54 +23,93 @@ namespace CryptoScript.Variables
         private KeySize _keySizeInBits = global::CryptoScript.Variables.KeySize.Unknown;
         private string _keySize = string.Empty;
 
-        public string DerivationMechanism { get; set; } = string.Empty;
+        public string DerivationMechanism { get => ReadOwned(field); set => Change(ref field, value); } = string.Empty;
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public KeyType KeyType
         {
-            get => _keyType;
-            set => _keyType = value ?? throw new ArgumentNullException(nameof(value));
+            get => ReadOwned(_keyType);
+            set => Change(ref _keyType, value ?? throw new ArgumentNullException(nameof(value)));
         }
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
         public KeyUsagePolicy Usage
         {
-            get => _usage;
-            set => _usage = value ?? throw new ArgumentNullException(nameof(value));
+            get => ReadOwned(_usage);
+            set => Change(ref _usage, value ?? throw new ArgumentNullException(nameof(value)));
         }
         public KeySize KeySizeInBits
         {
-            get => _keySizeInBits;
+            get => ReadOwned(_keySizeInBits);
             set
             {
-                if (_keySizeInBits.IsKnown && _keySizeInBits != value)
-                    throw new ArgumentException("KeySizeInBits conflicts with the existing key size.", nameof(value));
-
-                _keySizeInBits = value;
-                if (value.IsKnown)
-                    _keySize = value.Bits.ToString(CultureInfo.InvariantCulture);
+                lock (Model.InterpreterExecution.Gate)
+                {
+                    if (_keySizeInBits.IsKnown && _keySizeInBits != value)
+                        throw new ArgumentException("KeySizeInBits conflicts with the existing key size.", nameof(value));
+                    SetSize(value, value.IsKnown ? value.Bits.ToString(CultureInfo.InvariantCulture) : _keySize);
+                }
             }
         }
+
         public string KeySize
         {
-            get => _keySize;
+            get => ReadOwned(_keySize);
             set
             {
-                value ??= string.Empty;
-                if (ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out ulong bits) && bits > 0)
+                lock (Model.InterpreterExecution.Gate)
                 {
-                    var typedSize = new KeySize(bits);
-                    if (_keySizeInBits.IsKnown && _keySizeInBits != typedSize)
-                        throw new ArgumentException("KeySize conflicts with KeySizeInBits.", nameof(value));
-                    _keySizeInBits = typedSize;
+                    value ??= string.Empty;
+                    var size = _keySizeInBits;
+                    if (ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out ulong bits) && bits > 0)
+                    {
+                        size = new KeySize(bits);
+                        if (_keySizeInBits.IsKnown && _keySizeInBits != size)
+                            throw new ArgumentException("KeySize conflicts with KeySizeInBits.", nameof(value));
+                    }
+                    else if (size.IsKnown)
+                        throw new ArgumentException("KeySize must represent the known KeySizeInBits value.", nameof(value));
+                    SetSize(size, value);
                 }
-                else if (_keySizeInBits.IsKnown)
-                {
-                    throw new ArgumentException("KeySize must represent the known KeySizeInBits value.", nameof(value));
-                }
-
-                _keySize = value;
             }
         }
-        public List<OptionalBlock> KeyAttributes { get; set; } = new List<OptionalBlock>();
+
+        private void SetSize(KeySize size, string text)
+        {
+            ReadOwned(_keySize);
+            if (_keySizeInBits == size && _keySize == text) return;
+            Owner?.RecordMutation(this);
+            _keySizeInBits = size;
+            _keySize = text;
+        }
+
+        private List<OptionalBlock> attributes = new();
+        private static List<OptionalBlock> CopyAttributes(List<OptionalBlock> blocks)
+        {
+            // Every published KEY must have the array required by the snapshot contract.
+            ArgumentNullException.ThrowIfNull(blocks);
+            return blocks.Select(b => new OptionalBlock { ID = b.ID, Length = b.Length, Data = b.Data }).ToList();
+        }
+        private static (string? Id, int Length, string? Data) Fields(OptionalBlock block) =>
+            (block.ID, block.Length, block.Data);
+
+        internal void DetachAttributes() => attributes = CopyAttributes(attributes);
+        public List<OptionalBlock> KeyAttributes
+        {
+            get => Owner != null ? CopyAttributes(ReadOwned(attributes)) : ReadOwned(attributes);
+            set
+            {
+                lock (Model.InterpreterExecution.Gate)
+                {
+                    if (Owner == null) { attributes = value; return; }
+                    Model.InterpreterExecution.VerifyExecution();
+                    Model.InterpreterExecution.VerifyObjectRead(Owner, this);
+                    var prepared = CopyAttributes(value);
+                    if (attributes.Select(Fields).SequenceEqual(prepared.Select(Fields)))
+                        return;
+                    Owner.RecordMutation(this);
+                    attributes = prepared;
+                }
+            }
+        }
         public override string PrintOutput()
         {
             static string Available(string? value) => string.IsNullOrEmpty(value) ? "N/A" : value;

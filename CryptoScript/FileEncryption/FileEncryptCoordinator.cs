@@ -29,6 +29,7 @@ internal static class FileEncryptCoordinator
             output.Write(header);
             FileCipherStream.Process(source, output, key, metadata, header, encrypt: true, token);
             output.Flush(flushToDisk: true);
+            InterpreterExecution.CaptureFrame()?.ObserveBoundary?.Invoke(OperationBoundary.EncryptedFileFlushed);
             beforePublish?.Invoke();
             for (int number = 0; number < maximumCandidates; number++)
             {

@@ -9,7 +9,8 @@ namespace CryptoScript.Model
     public class Statement
     {
         
-        public string Text { get; set; }    
+        protected virtual void VerifyTextChange() { }
+        public virtual string Text { get; set { VerifyTextChange(); field = value; } }
         public Statement()
         {
             Text = string.Empty;    
