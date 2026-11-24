@@ -1,0 +1,20 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 03-build-and-test-dependency-coverage.mmd
+flowchart TB
+    CI["Vier Runner-/RID-Paare"]
+    Prepare["Vorbereitetes Prism und gesperrtes Restore"]
+    Build["Debug- und Release-Builds"]
+    Tests["Kern-, GUI- und MCP-Suiten<br/>gezielte Regressionen"]
+    Native["Native Dateipublikationsprüfungen"]
+    Publish["RID-Veröffentlichung und Assetprüfung"]
+    Reports["Test- und Build-Diagnosen"]
+    CI -.->|"konfiguriert"| Prepare
+    Prepare -.->|"Build-Umgebung"| Build
+    Build -.->|"Testwurzeln"| Tests
+    Build -.->|"nativer Pfad"| Native
+    Build -.->|"Desktop-Host"| Publish
+    Tests -.->|"TRX"| Reports
+    Publish -.->|"Validierung"| Reports
+    Legend["Gestrichelte Pfeile: konfigurierte CI-Auswahl/Ausgabe [F].<br/>Kein aktueller Erfolgslauf oder vollständiger GUI-Startnachweis."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

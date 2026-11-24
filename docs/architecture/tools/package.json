@@ -1,0 +1,26 @@
+{
+  "name": "cryptoscript-architecture-pdf",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "engines": { "node": ">=22.16" },
+  "scripts": {
+    "generate": "node generate.mjs",
+    "validate": "node validate.mjs",
+    "test": "node --test regression.test.mjs bilingual.test.mjs",
+    "check:sources": "node bilingual-checks.mjs",
+    "generate:de": "node generate.mjs --lang de",
+    "validate:de": "node validate.mjs --lang de"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans": "5.3.0",
+    "@fontsource/noto-sans-mono": "5.3.0",
+    "@fontsource/noto-sans-symbols-2": "5.3.0",
+    "markdown-it": "15.0.2",
+    "mermaid": "12.2.0",
+    "pagedjs": "0.4.3",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.4.299",
+    "playwright": "1.64.0"
+  }
+}

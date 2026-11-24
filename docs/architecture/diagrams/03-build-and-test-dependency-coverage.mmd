@@ -1,0 +1,20 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 03-build-and-test-dependency-coverage.mmd
+flowchart TB
+    CI["Four runner/RID pairs"]
+    Prepare["Prepared Prism and locked restore"]
+    Build["Debug and Release builds"]
+    Tests["Core, GUI and MCP suites<br/>targeted regressions"]
+    Native["Native file-publication checks"]
+    Publish["RID publish and asset validation"]
+    Reports["Test and build diagnostics"]
+    CI -.->|"configured"| Prepare
+    Prepare -.->|"build environment"| Build
+    Build -.->|"test roots"| Tests
+    Build -.->|"native path"| Native
+    Build -.->|"desktop host"| Publish
+    Tests -.->|"TRX"| Reports
+    Publish -.->|"validation"| Reports
+    Legend["Dashed arrows: configured CI selection/output [F].<br/>Not a current successful run or complete GUI startup proof."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

@@ -43,6 +43,8 @@ Untracked application content was also present under `CryptoScript/CryptoAlgorit
 
 All entries below are **[F] verified implementation facts** established by static inspection at the baseline. They identify declarations and calls; they do not report executed tests or observed runtime success.
 
+E01 and E02 retain the original four-production-project inventory and inspected entry points, including the historical development client. Repository presence does not determine product architecture scope. The owner decision recorded in [O05](02-system-overview-baseline.md#project-owner-decisions-and-historical-context) excludes that client from the architecture and diagrams. The [complete six-project inventory](02-system-overview-baseline.md#repository-inventory-and-model-scope) also records the test projects and all direct project references.
+
 | ID | Repository sources | Inspected elements and supported observations |
 | --- | --- | --- |
 | E01 | [Core project](../../../CryptoScript/CryptoScript.csproj), [console project](../../../CryptoWorkBenchConsole/CryptoWorkBenchConsole.csproj), [GUI project](../../../CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj), [desktop project](../../../CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj) | `TargetFramework` is `net10.0` in these four files. Console and GUI each declare a `ProjectReference` to CryptoScript. Desktop declares a `ProjectReference` to the GUI. The core declares ANTLR runtime, BouncyCastle and Newtonsoft.Json packages; GUI and desktop declare Avalonia packages. |
@@ -52,7 +54,7 @@ All entries below are **[F] verified implementation facts** established by stati
 
 ## Interpretation and Planning Sources
 
-**[I] Shared core with console and GUI entry points:** Derived from the three direct project references in E01 and frontend calls in E02. This is an architectural interpretation of those facts, not a separate deployment or service boundary.
+**[I] Desktop application with a reusable core:** Derived from the desktop-to-GUI-to-core references in E01 and GUI calls in E02. CryptoScript is used within the desktop application process. The product architecture is deliberately narrower than the repository inventory, following the owner scope decision in O05.
 
 **[P] Product version scope:** The architecture-recovery task specifies symmetric cryptography as the version 1 focus and classical asymmetric cryptography, certificate handling, CMS and post-quantum mechanisms as planned version 2 scope. The task is the source of that planning scope, not implementation evidence. E04 corroborates the planned status of specific asymmetric mechanisms, but does not establish the broader version 2 delivery plan or support for certificates, CMS or post-quantum mechanisms.
 
@@ -63,7 +65,8 @@ All entries below are **[F] verified implementation facts** established by stati
 **D01:** [Project reference overview](../diagrams/01-project-references.mmd).
 
 - Classification: **[F]**, based on the `ProjectReference` declarations in E01.
-- Scope: Four production projects; test projects and external packages are omitted.
+- Scope: The three production projects in the product architecture (desktop host, GUI and CryptoScript) and their two direct references; projects outside the model, test projects and external packages are omitted. This is not a complete repository inventory.
+- Selection authority: The owner scope decision in [O05](02-system-overview-baseline.md#project-owner-decisions-and-historical-context); the implementation baseline and E01 source evidence remain unchanged.
 - Legend: Each solid arrow means a direct project reference. The arrow starts at the referencing project and ends at the referenced project.
 - Abstraction: Build-time project relationships only; arrows do not represent runtime messages, execution order or deployment connections.
 - Source of truth: Mermaid source and baseline project declarations. Rendered files are reproducible outputs.

@@ -1,0 +1,28 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-source-to-operation-sequence.mmd
+flowchart TB
+    Host["1 Hostzulassung und Syntaxreset"]
+    Parse["2 Quelle parsen und beide Flags prüfen"]
+    Reject["SyntaxError; keine Runner-Ausführung"]
+    Runner["3 Runner mit Interpreterzuständigkeit"]
+    Map["4 Eine Anweisung abbilden"]
+    Eval["5 Deklaration, Zuweisung oder Aufruf auswerten"]
+    Collect["6 Ergebnis sammeln; nächste Anweisung"]
+    Capture["7 FinalizePresentation<br/>Variablenzustand zu erfassen versuchen"]
+    Presented["Skriptergebnis und Variablen<br/>CaptureFailed = false"]
+    Stale["Gleiches Ergebnis; veraltete Anzeige<br/>CaptureFailed = true"]
+    Host -->|"Quelltext"| Parse
+    Parse -->|"Syntaxfehler"| Reject
+    Parse -->|"Syntax akzeptiert"| Runner
+    Reject -->|"Zurückweisung finalisieren"| Capture
+    Runner -->|"schrittweise Abbildung"| Map
+    Map -->|"AST"| Eval
+    Eval -->|"abgeschlossen"| Collect
+    Collect -->|"weitere Anweisungen"| Map
+    Collect -->|"beendet"| Capture
+    Eval -.->|"terminierender Fehler"| Capture
+    Capture -->|"Erfassung erfolgreich"| Presented
+    Capture -.->|"Erfassung scheitert"| Stale
+    Legend["Zuweisung bereitet vor dem Zielersatz vor.<br/>Frühere/fremde Wirkungen werden nicht allgemein zurückgerollt.<br/>Sichere Aufrufe warten ggf. auf Hosteingabe; Erfassung kann separat scheitern."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

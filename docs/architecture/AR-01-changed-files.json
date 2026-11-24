@@ -1,0 +1,958 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-11-10T10:24:31.322Z",
+  "implementationBaseline": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+  "documentationBaseline": "abbf7b7b2f22f1bbc06c5c8b28702831099e097f",
+  "worktree": "C:/Users/stefa/Documents/projects/GITHUB/CryptoWorkBench/artifacts/worktrees/ar-01",
+  "branch": "codex/ar-01-baseline-reconciliation",
+  "head": "3c6c8e9292a1e091bbbd3c571c08d46746ce3218",
+  "mergeParents": [
+    "abbf7b7b2f22f1bbc06c5c8b28702831099e097f",
+    "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb"
+  ],
+  "stagedFiles": [],
+  "allNonArchitectureTrackedFilesMatchImplementation": true,
+  "originalBranchTipsVerified": {
+    "master": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+    "docs/architecture-recovery": "abbf7b7b2f22f1bbc06c5c8b28702831099e097f",
+    "feature/gui-g1": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+    "feature/prism-local-nuget": "c3586fe5b07116fb314fddc46148e78d679e808b",
+    "feature/script-assignment": "a34ffbdc580d00b4d8eb7fabef5b8569099ea512"
+  },
+  "authoredFilesCount": 58,
+  "authoredFiles": [
+    {
+      "status": "??",
+      "path": "docs/architecture/AR-01-changed-files.json",
+      "sha256": null,
+      "note": "Self inventory; digest omitted to avoid recursion"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/AR-01-F1-correction-report.md",
+      "bytes": 18586,
+      "sha256": "66155ea7399cd12dd84be715ec5f818b0072ef227910325cd38b99136af6fdde"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/AR-01-integration-report.md",
+      "bytes": 3883,
+      "sha256": "47381a1ac3a00be7233bc811ade9d0579d432364cab65024e48db7cfb0f81535"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/AR-01-publication-validation.md",
+      "bytes": 15811,
+      "sha256": "605922eb3eb5eb86e3b784f7b76646d245fabf2e94997f4d95d89682de087455"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/chapters/01-introduction.md",
+      "bytes": 6934,
+      "sha256": "fa3e7e8aaedfae3f0ced32bb921847e7c83ea54d9251fc86747e6d75fb8929a6"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/chapters/02-system-overview.md",
+      "bytes": 10014,
+      "sha256": "8c2ceeaa4c16aafc7535dfbeaaebfbdbe5052286540e3d24b34fe2a8230d4461"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/chapters/03-project-structure-and-dependencies.md",
+      "bytes": 10312,
+      "sha256": "62276e64712e97e13a3bc20afac913633b0fc79c06a367ba5554886a7ee95435"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/chapters/04-language-architecture.md",
+      "bytes": 20939,
+      "sha256": "cf396424ef5e521a0b1fe27be109e2957199be0a454e15a154951347a6ac3ae7"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/chapters/01-introduction.md",
+      "bytes": 7701,
+      "sha256": "035dac17d9c0466298a50d5c9cdac353040eeea9f8f4df53985efa4f5d5da19e"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/chapters/02-system-overview.md",
+      "bytes": 10996,
+      "sha256": "7d47af5baed8e68a478428e3698adc2ef330c5d664380a7ade9d5f9eb61b7a1d"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/chapters/03-project-structure-and-dependencies.md",
+      "bytes": 11131,
+      "sha256": "b93e0f2eba92251a2c32fc8bb75afc45e3b3cdcebdbd16fd196ad17a34541323"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/chapters/04-language-architecture.md",
+      "bytes": 23305,
+      "sha256": "41c9c9d29cbd41b9362b87ba94d644204c1634549e72574648fa958b60d57960"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/diagrams/01-project-references.mmd",
+      "bytes": 692,
+      "sha256": "d1c6c824b4a308d50830827239d1aeb24188fcdb99884c396f2ebed4b3f91e52"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/diagrams/02-container-overview.mmd",
+      "bytes": 963,
+      "sha256": "fc7bbd40b90a0361d08fef9f39371572df06a15e190f364eaf28aebfd9772b97"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/diagrams/02-system-context.mmd",
+      "bytes": 663,
+      "sha256": "0c23d7dc0e5f2afd2f33d0582c1403a07341ffce49a7c9e49d3b27d5642e4aca"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/diagrams/03-build-and-test-dependency-coverage.mmd",
+      "bytes": 979,
+      "sha256": "b24c9cdd2d5504a37bd460f12d15d4b6b8bca668a50085ea551f78799dec4fa1"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/diagrams/04-abstract-syntax-tree-structure.mmd",
+      "bytes": 997,
+      "sha256": "7eeae654283f2594e67aaeaaa231bb71759848c7ecf684ba5c5ef272772505c1"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/diagrams/04-language-components-and-dependencies.mmd",
+      "bytes": 1091,
+      "sha256": "2242407e2677d1b0fef24286f726bb22e96a9688506de32ad32d764737187068"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/diagrams/04-source-to-operation-sequence.mmd",
+      "bytes": 1512,
+      "sha256": "30d614de6494960527c9cc6e563607e69bd27657520fd09160852bd964a636c9"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/evidence/ar-01-baseline-reconciliation.md",
+      "bytes": 23853,
+      "sha256": "74c8929032968cea67324e7e9214b66e47ce62d04cf5b15cc27b88aa43c27951"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/de/README.md",
+      "bytes": 4231,
+      "sha256": "6925e5ea020848096208566c909c8f6882c0d4c71267bbb806f1251b85d95e22"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/decisions/ar-01-bilingual-publication.md",
+      "bytes": 4377,
+      "sha256": "5d67e4468ecee11bca8cd584979e25b16062e4e55ed0a38d05cb2fc3eff71865"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/diagrams/01-project-references.mmd",
+      "bytes": 668,
+      "sha256": "ece4600ba792153239f6d245158991e6f9901c4943618fb937006a1c9a961281"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/diagrams/02-container-overview.mmd",
+      "bytes": 934,
+      "sha256": "e8149e43ab4ca16c73395b318fb42d28f82345da8bd7fe0209a6688affcf8c68"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/diagrams/02-system-context.mmd",
+      "bytes": 615,
+      "sha256": "8ae13b6099d52bfbdb04441ab354400f9f373b90face27ea8fedbc827310137e"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/diagrams/03-build-and-test-dependency-coverage.mmd",
+      "bytes": 939,
+      "sha256": "04298ad9bfe80b75fe9bb6573303aba1dd06e90d6d6239cb22c7297c41788830"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/diagrams/04-abstract-syntax-tree-structure.mmd",
+      "bytes": 972,
+      "sha256": "b35e9d5c32fecf1c27c4462e0b5615d335ee154cb9c79655ca23b4f093476317"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/diagrams/04-language-components-and-dependencies.mmd",
+      "bytes": 1043,
+      "sha256": "854eca1d1f8b82e9117a92d18c3c1a174ab0ecd1b11c37b24b7acd470b2820ea"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/diagrams/04-source-to-operation-sequence.mmd",
+      "bytes": 1405,
+      "sha256": "99eadbe96997d994c3a5c036423664f2f09aeab73fce637a9d50fe8646ff151f"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/ar-01-baseline-reconciliation.md",
+      "bytes": 23757,
+      "sha256": "fe03a5db4be4d5f88b545d2946594b31fdfbba3a6c92c1d2fa452cbec093c5c7"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/ar-01-source-register.json",
+      "bytes": 48472,
+      "sha256": "36e6708e8d9004af1731b458fd33298546e22699906f1d6d5304a310f6d72904"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/01-introduction.md",
+      "bytes": 10862,
+      "sha256": "1efd4b83cd242103f1dcc8f33ae3a83346f2b01f06499305c03d210fdbf92325"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/02-system-overview.md",
+      "bytes": 14466,
+      "sha256": "db16ad288631ea68c24ad9f93103df064219f7f05ab56c828237586d1ff534f4"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/03-project-structure-and-dependencies.md",
+      "bytes": 20535,
+      "sha256": "26f4cf024b831a164100be1cccb56c988d2ab37b54752ac9a75cb13870b38d86"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/04-language-architecture.md",
+      "bytes": 37956,
+      "sha256": "a0c4e62ba7e910037541305af5d654d769c12e6abade23d10398f01a6e91e6c1"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/01-project-references.mmd",
+      "bytes": 1337,
+      "sha256": "edfed590bd117ba5d43d00908db9cbfc4d19b063070a0f04a9ae4abbdbcb39f3"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/02-container-overview.mmd",
+      "bytes": 2921,
+      "sha256": "6c65819177b3ccafe129dcf4e4a963ac63a76280a0a87d9f2bfcea5af2753c99"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/02-system-context.mmd",
+      "bytes": 1670,
+      "sha256": "2a30134c2435e37923ad05d60890e3a7084632ea81d589b7b2be9ac195399354"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/03-build-and-test-dependency-coverage.mmd",
+      "bytes": 2701,
+      "sha256": "c1466803824b4ab401b175f8a3c268d0ca20dbd1ed3a06bc88c727d6ee27aea7"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/04-abstract-syntax-tree-structure.mmd",
+      "bytes": 2331,
+      "sha256": "64934b43ca9819dd5648378974724e520dd7537b6ce26945897c66cb1a24087d"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/04-language-components-and-dependencies.mmd",
+      "bytes": 2423,
+      "sha256": "8193ff6c5189cbcbc98b05997f45179cbbf4324b935f5cd1c0ba4f14de4cf352"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/04-source-to-operation-sequence.mmd",
+      "bytes": 3038,
+      "sha256": "959e72f3b6c99f8a30af2bcc8a8b0dabc17af83ad8f358972f70e49b11aca613"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/evidence/history/abbf7b7b/README.md",
+      "bytes": 8249,
+      "sha256": "f3a21fa3ff1fcada138e2f7c2e9825800c3a5ad9646d71b0ed2a8a48485c3e9b"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/publication.json",
+      "bytes": 1847,
+      "sha256": "8168160ef29a8ca68d3bb9fc73accd29162cfb96ecb00e52faeb5da57c32f986"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/README.md",
+      "bytes": 3952,
+      "sha256": "709a0c0624fa4a31d3e28aad730088213a62f226e175b3dfa9f70206b75a63fd"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/tools/bilingual-checks.mjs",
+      "bytes": 5723,
+      "sha256": "1b368d5f616a6c2372b8a4bb75d76d45b8d6549140beeb1889457ed32176c22d"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/tools/bilingual.test.mjs",
+      "bytes": 8720,
+      "sha256": "ccd71156e0d7232ad151c8418f273658300d024f36ea89fa84d452af34643117"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/content-checks.mjs",
+      "bytes": 2622,
+      "sha256": "36d3a9ab402bb48252bc0be082cd725ff3effd85a6be74891339b5e5e8409900"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/generate.mjs",
+      "bytes": 37197,
+      "sha256": "60d58b582f24d29cb015ad9c9c6f0d522b6d6f3c9eac040fd0ce5eae8b85ef76"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/tools/locales.mjs",
+      "bytes": 2333,
+      "sha256": "1c90dececb4dd6b18fac7fb39ef3fdf7c5383b1bfea52439959aac3f3e609a3e"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/package.json",
+      "bytes": 805,
+      "sha256": "16c65dd0194a72a8a8b6d1f8822e9f55675d253d1257967b5cbbe4a07b8d7065"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/print.css",
+      "bytes": 4347,
+      "sha256": "2bf12be112993c88bce29e0f8292d1f92ed91475714dee96b642bd3b2383db04"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/tools/publication.mjs",
+      "bytes": 2208,
+      "sha256": "5ae1ad82b55eb40a8c510ee6f197fd1e535531a5038a0937dedf5e4f80d883e5"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/README.md",
+      "bytes": 16316,
+      "sha256": "b7f7ce0fbfc6ffcfbbf82f98c989283af018b604715101355ef6110ffca5c6d7"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/regression.test.mjs",
+      "bytes": 10896,
+      "sha256": "6ed83377c1f943348fd94f57aee17359e92e5a4ce7816219480ba92781c8166b"
+    },
+    {
+      "status": "??",
+      "path": "docs/architecture/tools/repeatability.mjs",
+      "bytes": 2684,
+      "sha256": "c65e45342a978b80c193c711d0bd0c05c114bb6893c4d01545654c01c8b6d951"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/validate.mjs",
+      "bytes": 10096,
+      "sha256": "e68858844792b4b4a8b641cb9348139bd0fd9db21b0e75c31508a1cf3c2ee55c"
+    },
+    {
+      "status": " M",
+      "path": "docs/architecture/tools/VALIDATION.md",
+      "bytes": 30346,
+      "sha256": "0ace59d49c65872101571cb05acb4e4b71bae68a1ded1805ee03d469028994f8"
+    }
+  ],
+  "generatedArtifacts": [
+    {
+      "path": "docs/architecture/generated/CryptoScript-Workbench-Architecture.pdf",
+      "bytes": 362610,
+      "sha256": "b50722417fc9628e33d11af4cf66485e8dfc66d28d04c0672aac0e2cba9513d0",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/generation-manifest.json",
+      "bytes": 225703,
+      "sha256": "020f8a19229421a42f9f525548c2b1ece2824e428e80299f97d2608d1c2349ab",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/validation.json",
+      "bytes": 3651,
+      "sha256": "55f4fe1280c17d6b6859a49f725850fef279a8e41604ccf65720a38c2da3ee5a",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/de/CryptoScript-Workbench-Architecture.pdf",
+      "bytes": 367283,
+      "sha256": "c66f76ba61931a97c03805b84d6c18cce6f0f8ba9230ed908816a35236fa5ad4",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/de/generation-manifest.json",
+      "bytes": 234345,
+      "sha256": "4ab77fd9468cad54564ddc8e37129cca7ccf7a35f3cb0ef4c18cc28d0981edc9",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/de/validation.json",
+      "bytes": 3651,
+      "sha256": "e7a20c0b64937d1591524598d6b42d4e80628837250bbad904fc8725bafdddc7",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/repeatability.json",
+      "bytes": 1218,
+      "sha256": "3e01ed1c0c55d5657aef0f1035d9997a65e6ba3b3bc7b7e76854aaf0e8f45d3e",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/regression-results.txt",
+      "bytes": 5196,
+      "sha256": "bed44932673b85c582cfb7fe93d63eb409b922ad0d9b9104dfede32b545473d1",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/source-validation.json",
+      "bytes": 431,
+      "sha256": "bed4c0301b805a853da92fe861dc6a944cc849532700e1431559faa90ef0092f",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/standalone-en.txt",
+      "bytes": 101,
+      "sha256": "254dfe110b438fdecc61f82dd1c4b9cc4bb29f7fa5d2f2c82e532188d3b5da4e",
+      "ignored": true
+    },
+    {
+      "path": "docs/architecture/generated/standalone-de.txt",
+      "bytes": 101,
+      "sha256": "dc1bfdc3c7c2292a643bd3a1f4e91ea227a848c7ced9628ed39abf1fd662832a",
+      "ignored": true
+    }
+  ],
+  "historicalArchiveVerified": [
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/01-introduction.md",
+      "sha256": "1efd4b83cd242103f1dcc8f33ae3a83346f2b01f06499305c03d210fdbf92325"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/02-system-overview.md",
+      "sha256": "db16ad288631ea68c24ad9f93103df064219f7f05ab56c828237586d1ff534f4"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/03-project-structure-and-dependencies.md",
+      "sha256": "26f4cf024b831a164100be1cccb56c988d2ab37b54752ac9a75cb13870b38d86"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/chapters/04-language-architecture.md",
+      "sha256": "a0c4e62ba7e910037541305af5d654d769c12e6abade23d10398f01a6e91e6c1"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/01-project-references.mmd",
+      "sha256": "edfed590bd117ba5d43d00908db9cbfc4d19b063070a0f04a9ae4abbdbcb39f3"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/02-container-overview.mmd",
+      "sha256": "6c65819177b3ccafe129dcf4e4a963ac63a76280a0a87d9f2bfcea5af2753c99"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/02-system-context.mmd",
+      "sha256": "2a30134c2435e37923ad05d60890e3a7084632ea81d589b7b2be9ac195399354"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/03-build-and-test-dependency-coverage.mmd",
+      "sha256": "c1466803824b4ab401b175f8a3c268d0ca20dbd1ed3a06bc88c727d6ee27aea7"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/04-abstract-syntax-tree-structure.mmd",
+      "sha256": "64934b43ca9819dd5648378974724e520dd7537b6ce26945897c66cb1a24087d"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/04-language-components-and-dependencies.mmd",
+      "sha256": "8193ff6c5189cbcbc98b05997f45179cbbf4324b935f5cd1c0ba4f14de4cf352"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/diagrams/04-source-to-operation-sequence.mmd",
+      "sha256": "959e72f3b6c99f8a30af2bcc8a8b0dabc17af83ad8f358972f70e49b11aca613"
+    },
+    {
+      "path": "docs/architecture/evidence/history/abbf7b7b/README.md",
+      "sha256": "f3a21fa3ff1fcada138e2f7c2e9825800c3a5ad9646d71b0ed2a8a48485c3e9b"
+    }
+  ],
+  "preservedTrackedPaths": [
+    "docs/architecture/AP5-analysis.md",
+    "docs/architecture/AP5-final-inventory.md",
+    "docs/architecture/AP5-report.md",
+    "docs/architecture/AS-01-R1-review.txt",
+    "docs/architecture/AS-01-removal-report.txt",
+    "docs/architecture/D01-validation.md",
+    "docs/architecture/G01-report.md",
+    "docs/architecture/G02-report.md",
+    "docs/architecture/G03-report.md",
+    "docs/architecture/K01-key-literal-fix-validation.md",
+    "docs/architecture/KEY-Value-cleanup-report.md",
+    "docs/architecture/L1-B1-independent-review.md",
+    "docs/architecture/L1-B2-corrections-report.md",
+    "docs/architecture/L1-B3-independent-rereview.md",
+    "docs/architecture/L1-B4-mechanism-consistency-fix.md",
+    "docs/architecture/L1-B5-final-independent-rereview.md",
+    "docs/architecture/L1-B6-param-serialization-boundary-fix.md",
+    "docs/architecture/L1-B7-final-independent-review.md",
+    "docs/architecture/L1-I1-master-integration.md",
+    "docs/architecture/L1-assignment-report.md",
+    "docs/architecture/S01-F-validation.md",
+    "docs/architecture/S01-validation.md",
+    "docs/architecture/S01-variable-json-snapshots.md",
+    "docs/architecture/S02-validation.md",
+    "docs/architecture/S03-validation.md",
+    "docs/architecture/S04-validation.md",
+    "docs/architecture/S05-B1-validation.md",
+    "docs/architecture/S05-B2-validation.md",
+    "docs/architecture/S06-validation.md",
+    "docs/architecture/TR31-header-builder-report.md",
+    "docs/architecture/TR31-review-corrections-report.md",
+    "docs/architecture/chapters/09-data-flows-and-execution-sequences.md",
+    "docs/architecture/evidence/01-introduction-baseline.md",
+    "docs/architecture/evidence/02-system-overview-baseline.md",
+    "docs/architecture/evidence/03-project-structure-and-dependencies-baseline.md",
+    "docs/architecture/evidence/G02-review-fixes/baseline-core.txt",
+    "docs/architecture/evidence/G02-review-fixes/baseline-gui.txt",
+    "docs/architecture/evidence/G02-review-fixes/build-core.txt",
+    "docs/architecture/evidence/G02-review-fixes/build-gui.txt",
+    "docs/architecture/evidence/G02-review-fixes/commit-inventory.txt",
+    "docs/architecture/evidence/G02-review-fixes/core-full.trx",
+    "docs/architecture/evidence/G02-review-fixes/documents.txt",
+    "docs/architecture/evidence/G02-review-fixes/g02-and-docs.trx",
+    "docs/architecture/evidence/G02-review-fixes/g02-focused.trx",
+    "docs/architecture/evidence/G02-review-fixes/gui-full.trx",
+    "docs/architecture/evidence/G02-review-fixes/l3-build-core.txt",
+    "docs/architecture/evidence/G02-review-fixes/l3-build-gui.txt",
+    "docs/architecture/evidence/G02-review-fixes/l3-core-full.trx",
+    "docs/architecture/evidence/G02-review-fixes/l3-focused.trx",
+    "docs/architecture/evidence/G02-review-fixes/l3-gui-full.trx",
+    "docs/architecture/evidence/G02-review-fixes/l3-gui-retry.trx",
+    "docs/architecture/evidence/G02-review-fixes/l3-verification.txt",
+    "docs/architecture/evidence/G02-review-fixes/verification.txt",
+    "docs/architecture/evidence/G02-vectors.py",
+    "docs/architecture/evidence/G03/G03Reference.java",
+    "docs/architecture/evidence/G03/baseline-core.trx.gz",
+    "docs/architecture/evidence/G03/bc-java/.gitattributes",
+    "docs/architecture/evidence/G03/bc-java/LICENSE.html",
+    "docs/architecture/evidence/G03/bc-java/Polynomial.java",
+    "docs/architecture/evidence/G03/bc-java/SHA256SUMS.txt",
+    "docs/architecture/evidence/G03/bc-java/SecretShare.java",
+    "docs/architecture/evidence/G03/bc-java/SecretSplitter.java",
+    "docs/architecture/evidence/G03/bc-java/ShamirSecretSplitter.java",
+    "docs/architecture/evidence/G03/bc-java/ShamirSecretSplitterTest.java",
+    "docs/architecture/evidence/G03/bc-java/ShamirSplitSecret.java",
+    "docs/architecture/evidence/G03/bc-java/ShamirSplitSecretShare.java",
+    "docs/architecture/evidence/G03/bc-java/SplitSecret.java",
+    "docs/architecture/evidence/G03/core-final.trx.gz",
+    "docs/architecture/evidence/G03/core-first.trx.gz",
+    "docs/architecture/evidence/G03/core-second.trx.gz",
+    "docs/architecture/evidence/G03/csharp-vectors.txt",
+    "docs/architecture/evidence/G03/g03-focused.trx.gz",
+    "docs/architecture/evidence/G03/g03-reference.trx.gz",
+    "docs/architecture/evidence/G03/gui-final.trx.gz",
+    "docs/architecture/evidence/G03/gui-first.trx.gz",
+    "docs/architecture/evidence/G03/java-cross-tests.txt",
+    "docs/architecture/evidence/G03/java-original-tests.txt",
+    "docs/architecture/evidence/G03/java-vectors.txt",
+    "docs/architecture/evidence/G03/reference-verification.txt",
+    "docs/architecture/evidence/G03/roundtrip.trx.gz",
+    "docs/architecture/evidence/G03/run-reference.ps1",
+    "docs/architecture/evidence/G03/security-final/core-final.trx.gz",
+    "docs/architecture/evidence/G03/security-final/focused.trx.gz",
+    "docs/architecture/evidence/G03/security-final/gui-final.trx.gz",
+    "docs/architecture/evidence/G03/security-final/verification.txt",
+    "docs/architecture/evidence/G03/verification.txt",
+    "docs/architecture/tools/REVIEW-METADATA.md"
+  ],
+  "priorValidationHistoryPreserved": true,
+  "worktrees": [
+    {
+      "path": "C:/Users/stefa/Documents/projects/GITHUB/CryptoWorkBench",
+      "head": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+      "branch": "refs/heads/master",
+      "observation": "Read-only F1 snapshot; no writes to other worktrees",
+      "status": []
+    },
+    {
+      "path": "C:/Users/stefa/Documents/ChatGPT/CryptoWorkBench-Mcp/prism-local-nuget",
+      "head": "c3586fe5b07116fb314fddc46148e78d679e808b",
+      "branch": "refs/heads/feature/prism-local-nuget",
+      "observation": "Read-only F1 snapshot; no writes to other worktrees",
+      "status": [
+        " M .github/scripts/Invoke-PrismCi.ps1",
+        " M .github/workflows/dotnet.yml",
+        " M .gitignore",
+        " M CryptoScript/Native/FilePublication.targets",
+        " M CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+        " M CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln",
+        " M Directory.Build.props",
+        " M Directory.Build.targets",
+        " M NuGet.Config",
+        " D eng/prism/Build.ps1",
+        " D eng/prism/Enter-Prism.ps1",
+        " D eng/prism/Leave-Prism.ps1",
+        " D eng/prism/Lock.props",
+        " M eng/prism/Prepare-Prism.ps1",
+        " D eng/prism/PrismSecurity.targets",
+        " M eng/prism/README.md",
+        " D eng/prism/Test-Integration.ps1",
+        " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+        " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+        " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+        "?? CryptoWorkBenchGuiTest/PrismPackageIntegrationTests.cs",
+        "?? docs/prism/P1-dependency-graph.json",
+        "?? docs/prism/P1-temporary-local-nuget.md",
+        "?? eng/prism/ApplicationPackages.props",
+        "?? eng/prism/Bootstrap-NuGet.Config",
+        "?? eng/prism/Bootstrap-Packages.ps1",
+        "?? eng/prism/Bootstrap.Lock.props",
+        "?? eng/prism/Bootstrap.Security.targets",
+        "?? eng/prism/Package-Provenance.txt",
+        "?? eng/prism/PackageAssemblies.targets",
+        "?? eng/prism/PackageDigests.props",
+        "?? eng/prism/Refresh-ApplicationLocks.ps1",
+        "?? eng/prism/Test-LocalPackages.ps1",
+        "?? eng/prism/Test-Regression.ps1",
+        "?? eng/prism/package-digests.json",
+        "?? eng/prism/packages.json"
+      ]
+    },
+    {
+      "path": "C:/Users/stefa/Documents/projects/GITHUB/CryptoWorkBench/artifacts/worktrees/ar-01",
+      "head": "3c6c8e9292a1e091bbbd3c571c08d46746ce3218",
+      "branch": "refs/heads/codex/ar-01-baseline-reconciliation",
+      "observation": "Read-only F1 snapshot; no writes to other worktrees",
+      "status": [
+        " M docs/architecture/README.md",
+        " M docs/architecture/chapters/01-introduction.md",
+        " M docs/architecture/chapters/02-system-overview.md",
+        " M docs/architecture/chapters/03-project-structure-and-dependencies.md",
+        " M docs/architecture/chapters/04-language-architecture.md",
+        " M docs/architecture/diagrams/01-project-references.mmd",
+        " M docs/architecture/diagrams/02-container-overview.mmd",
+        " M docs/architecture/diagrams/02-system-context.mmd",
+        " M docs/architecture/diagrams/03-build-and-test-dependency-coverage.mmd",
+        " M docs/architecture/diagrams/04-abstract-syntax-tree-structure.mmd",
+        " M docs/architecture/diagrams/04-language-components-and-dependencies.mmd",
+        " M docs/architecture/diagrams/04-source-to-operation-sequence.mmd",
+        " M docs/architecture/tools/README.md",
+        " M docs/architecture/tools/VALIDATION.md",
+        " M docs/architecture/tools/content-checks.mjs",
+        " M docs/architecture/tools/generate.mjs",
+        " M docs/architecture/tools/package.json",
+        " M docs/architecture/tools/print.css",
+        " M docs/architecture/tools/regression.test.mjs",
+        " M docs/architecture/tools/validate.mjs",
+        "?? docs/architecture/AR-01-F1-correction-report.md",
+        "?? docs/architecture/AR-01-changed-files.json",
+        "?? docs/architecture/AR-01-integration-report.md",
+        "?? docs/architecture/AR-01-publication-validation.md",
+        "?? docs/architecture/de/README.md",
+        "?? docs/architecture/de/chapters/01-introduction.md",
+        "?? docs/architecture/de/chapters/02-system-overview.md",
+        "?? docs/architecture/de/chapters/03-project-structure-and-dependencies.md",
+        "?? docs/architecture/de/chapters/04-language-architecture.md",
+        "?? docs/architecture/de/diagrams/01-project-references.mmd",
+        "?? docs/architecture/de/diagrams/02-container-overview.mmd",
+        "?? docs/architecture/de/diagrams/02-system-context.mmd",
+        "?? docs/architecture/de/diagrams/03-build-and-test-dependency-coverage.mmd",
+        "?? docs/architecture/de/diagrams/04-abstract-syntax-tree-structure.mmd",
+        "?? docs/architecture/de/diagrams/04-language-components-and-dependencies.mmd",
+        "?? docs/architecture/de/diagrams/04-source-to-operation-sequence.mmd",
+        "?? docs/architecture/de/evidence/ar-01-baseline-reconciliation.md",
+        "?? docs/architecture/decisions/ar-01-bilingual-publication.md",
+        "?? docs/architecture/evidence/ar-01-baseline-reconciliation.md",
+        "?? docs/architecture/evidence/ar-01-source-register.json",
+        "?? docs/architecture/evidence/history/abbf7b7b/README.md",
+        "?? docs/architecture/evidence/history/abbf7b7b/chapters/01-introduction.md",
+        "?? docs/architecture/evidence/history/abbf7b7b/chapters/02-system-overview.md",
+        "?? docs/architecture/evidence/history/abbf7b7b/chapters/03-project-structure-and-dependencies.md",
+        "?? docs/architecture/evidence/history/abbf7b7b/chapters/04-language-architecture.md",
+        "?? docs/architecture/evidence/history/abbf7b7b/diagrams/01-project-references.mmd",
+        "?? docs/architecture/evidence/history/abbf7b7b/diagrams/02-container-overview.mmd",
+        "?? docs/architecture/evidence/history/abbf7b7b/diagrams/02-system-context.mmd",
+        "?? docs/architecture/evidence/history/abbf7b7b/diagrams/03-build-and-test-dependency-coverage.mmd",
+        "?? docs/architecture/evidence/history/abbf7b7b/diagrams/04-abstract-syntax-tree-structure.mmd",
+        "?? docs/architecture/evidence/history/abbf7b7b/diagrams/04-language-components-and-dependencies.mmd",
+        "?? docs/architecture/evidence/history/abbf7b7b/diagrams/04-source-to-operation-sequence.mmd",
+        "?? docs/architecture/publication.json",
+        "?? docs/architecture/tools/bilingual-checks.mjs",
+        "?? docs/architecture/tools/bilingual.test.mjs",
+        "?? docs/architecture/tools/locales.mjs",
+        "?? docs/architecture/tools/publication.mjs",
+        "?? docs/architecture/tools/repeatability.mjs"
+      ]
+    },
+    {
+      "path": "C:/Users/stefa/Documents/projects/GITHUB/CryptoWorkBench/artifacts/worktrees/gui-g1",
+      "head": "7ecac04483c10722c4cb4b459e3f6cb5157c6af1",
+      "branch": "refs/heads/feature/gui-g1",
+      "observation": "Read-only F1 snapshot; no writes to other worktrees",
+      "status": [
+        " M CryptoScript/Model/AntlrToFunctionCallExpression.cs",
+        " M CryptoScript/Model/Ast/FunctionCallExpressionNode.cs",
+        " M CryptoScript/Model/FunctionCall.cs",
+        " M CryptoScript/Model/FunctionCallEvaluator.cs",
+        " M CryptoScript/Model/OperationInvocation.cs",
+        " M CryptoScript/Operations/OutputOperations.cs",
+        " M CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+        " M CryptoWorkBenchAvalonia.Desktop/Program.cs",
+        " M CryptoWorkBenchAvalonia/App.axaml.cs",
+        " M CryptoWorkBenchAvalonia/Controls/WorkbenchTextArea.cs",
+        " M CryptoWorkBenchAvalonia/Controls/WorkbenchTextEditor.cs",
+        " M CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+        " M CryptoWorkBenchAvalonia/Models/DiagnosticDisplayItem.cs",
+        " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+        " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+        " M CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+        " M CryptoWorkBenchAvalonia/Services/InfoCompletionController.cs",
+        " M CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+        " M CryptoWorkBenchAvalonia/ViewModels/StatusViewModel.cs",
+        " M CryptoWorkBenchAvalonia/Views/CryptoScriptEditView.axaml.cs",
+        " M CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+        " M CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.cs",
+        " M CryptoWorkBenchGuiTest/WorkbenchReviewRegressionTests.cs",
+        " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Debug/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Debug/CryptoWorkBenchGuiTest.lock.json",
+        " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/CryptoWorkBenchGuiTest.lock.json",
+        " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/linux-x64/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/osx-arm64/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/osx-x64/CryptoWorkBenchAvalonia.lock.json",
+        " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.Desktop.lock.json",
+        " M eng/prism/locks/Release/rid/win-x64/CryptoWorkBenchAvalonia.lock.json",
+        "?? CryptoScriptUnitTest/PrintSourceTests.cs",
+        "?? CryptoWorkBenchAvalonia.Desktop/NativeDockWindowTrace.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockContainerIdentity.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockContainerRoles.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockDiagnosticsView.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockDocumentWindowChrome.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockLayoutAction.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockLayoutStore.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockLifecycleTrace.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockOutputService.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockOutputView.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.Persistence.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockShellLayout.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockShellPresentation.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockShellState.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml",
+        "?? CryptoWorkBenchAvalonia/Shell/DockShellWindow.axaml.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockTraceOutput.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockVariablesView.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/DockWindowGeometry.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/EditorDockFactory.cs",
+        "?? CryptoWorkBenchAvalonia/Shell/SourceNavigationResult.cs",
+        "?? CryptoWorkBenchGuiTest/DockDiagnosticsNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockDiagnosticsTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockEditorNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockEditorTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockFinalIntegrationTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockGroupDocumentRedockTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockIntegrationNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockLayoutFailureTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockLayoutNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockLayoutRoleNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockLayoutRoleTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockLayoutTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockMouseRedockTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockNativeAcceptanceProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockNativeChromeTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockOperationContractTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockOperationNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockOutputNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockOutputTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockPartialFailureNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockPartialFailureTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockPersistenceCleanupTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockPersistenceNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockRedockNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockShellNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockShellTests.cs",
+        "?? CryptoWorkBenchGuiTest/DockToolNativeProbe.cs",
+        "?? CryptoWorkBenchGuiTest/DockToolTests.cs",
+        "?? CryptoWorkBenchGuiTest/EditorReviewCorrectionTests.G108.cs",
+        "?? CryptoWorkBenchGuiTest/Fixtures/dock-schema1-pre-a02.json",
+        "?? docs/gui/G1-01-dock-feasibility.md",
+        "?? docs/gui/G1-02-shell-implementation.md",
+        "?? docs/gui/G1-03-editor-mcp-integration.md",
+        "?? docs/gui/G1-04-variables-info-integration.md",
+        "?? docs/gui/G1-05-output-pipeline.md",
+        "?? docs/gui/G1-06-diagnostics-navigation.md",
+        "?? docs/gui/G1-07-layout-persistence.md",
+        "?? docs/gui/G1-08-final-validation.md",
+        "?? docs/gui/G1-08-native-acceptance-checklist.md",
+        "?? docs/gui/G1-A01-docking-architecture-review.md",
+        "?? docs/gui/G1-A02-maximize-layout-roles.md",
+        "?? docs/gui/G1-A03-persistence-cleanup-roles.md",
+        "?? docs/gui/G1-A04-R1-actual-callback-audit.md",
+        "?? docs/gui/G1-A04-R2-test-cleanup.md",
+        "?? docs/gui/G1-A04-R3-partial-failure-audit.md",
+        "?? docs/gui/G1-A04-R4-partial-failure-correction.md",
+        "?? docs/gui/G1-A04-dock-operation-contract.md",
+        "?? docs/gui/G1-A05-M1-final-owner-acceptance.md",
+        "?? docs/gui/G1-A05-native-chrome-input-acceptance.md",
+        "?? docs/gui/G1-A06-cross-platform-final-validation.md",
+        "?? docs/gui/G1-N1-F01-F2-native-window-investigation.md",
+        "?? docs/gui/G1-N1-F01-mouse-redock-correction.md",
+        "?? docs/gui/G1-N1-F03-group-document-redock.md",
+        "?? docs/gui/evidence/G1-01-results.json",
+        "?? docs/gui/evidence/G1-02-results.json",
+        "?? docs/gui/evidence/G1-03-results.json",
+        "?? docs/gui/evidence/G1-04-results.json",
+        "?? docs/gui/evidence/G1-05-results.json",
+        "?? docs/gui/evidence/G1-06-results.json",
+        "?? docs/gui/evidence/G1-07-results.json",
+        "?? docs/gui/evidence/G1-08-results.json",
+        "?? docs/gui/evidence/G1-A02-results.json",
+        "?? docs/gui/evidence/G1-A03-results.json",
+        "?? docs/gui/evidence/G1-A04-R4-results.json",
+        "?? docs/gui/evidence/G1-A04-results.json",
+        "?? docs/gui/evidence/G1-A05-results.json",
+        "?? docs/gui/evidence/G1-A06-results.json",
+        "?? docs/gui/evidence/G1-N1-F01-F2-results.json",
+        "?? docs/gui/evidence/G1-N1-F01-results.json",
+        "?? docs/gui/evidence/G1-N1-F03-results.json",
+        "?? eng/gui/Test-DockNativeTrace.ps1",
+        "?? eng/gui/Validate-G1LayoutRoles.ps1",
+        "?? eng/gui/Validate-G1NativeAcceptance.ps1",
+        "?? eng/gui/Validate-G1Platform.ps1",
+        "?? eng/gui/Validate-G1Shell.ps1",
+        "?? eng/gui/native/G1ShellProbe.csproj",
+        "?? eng/gui/native/Program.cs",
+        "?? eng/gui/native/packages.lock.json",
+        "?? prototypes/G1DockFeasibility/G1DockFeasibility.csproj",
+        "?? prototypes/G1DockFeasibility/NativeProbe.cs",
+        "?? prototypes/G1DockFeasibility/ProbeWorkspace.cs",
+        "?? prototypes/G1DockFeasibility/Program.cs",
+        "?? prototypes/G1DockFeasibility/README.md",
+        "?? prototypes/G1DockFeasibility/Session.cs",
+        "?? prototypes/G1DockFeasibility/Tests/DockTests.cs",
+        "?? prototypes/G1DockFeasibility/Tests/G1DockFeasibility.Tests.csproj",
+        "?? prototypes/G1DockFeasibility/Tests/packages.lock.json",
+        "?? prototypes/G1DockFeasibility/Validate.ps1",
+        "?? prototypes/G1DockFeasibility/Views.cs",
+        "?? prototypes/G1DockFeasibility/packages.lock.json"
+      ]
+    },
+    {
+      "path": "C:/Users/stefa/Documents/projects/GITHUB/CryptoWorkBench/artifacts/worktrees/script-assignment",
+      "head": "a34ffbdc580d00b4d8eb7fabef5b8569099ea512",
+      "branch": "refs/heads/feature/script-assignment",
+      "observation": "Read-only F1 snapshot; no writes to other worktrees",
+      "status": []
+    }
+  ],
+  "commitPolicy": "Only the authorized isolated integration merge is committed. Authored changes are uncommitted; no push.",
+  "f1": {
+    "reviewDate": "2026-11-10",
+    "findings": [
+      "F-R1-01",
+      "F-R1-02",
+      "F-R1-03"
+    ],
+    "changedFilesCount": 13,
+    "changedFiles": [
+      {
+        "path": "docs/architecture/AR-01-F1-correction-report.md",
+        "beforeSha256": null,
+        "afterSha256": "66155ea7399cd12dd84be715ec5f818b0072ef227910325cd38b99136af6fdde"
+      },
+      {
+        "path": "docs/architecture/AR-01-changed-files.json",
+        "beforeSha256": "34d6ce2b4c8c37ab836057b87698969fea5bbcd4a044b9fafeeff45893dadf8d",
+        "afterSha256": null
+      },
+      {
+        "path": "docs/architecture/AR-01-publication-validation.md",
+        "beforeSha256": "7a8a7cca94041adafc54b2e118d407a8b5d1411d74d042be7057840c3d55e870",
+        "afterSha256": "605922eb3eb5eb86e3b784f7b76646d245fabf2e94997f4d95d89682de087455"
+      },
+      {
+        "path": "docs/architecture/chapters/04-language-architecture.md",
+        "beforeSha256": "f48db52d8ba931725a9750cd8bd6fa007bed4f4832910673e8f26e553681fa82",
+        "afterSha256": "cf396424ef5e521a0b1fe27be109e2957199be0a454e15a154951347a6ac3ae7"
+      },
+      {
+        "path": "docs/architecture/de/chapters/02-system-overview.md",
+        "beforeSha256": "42c3afde112840dc702438359188a8b02fc5302021fcd635c3959d7596f68b63",
+        "afterSha256": "7d47af5baed8e68a478428e3698adc2ef330c5d664380a7ade9d5f9eb61b7a1d"
+      },
+      {
+        "path": "docs/architecture/de/chapters/04-language-architecture.md",
+        "beforeSha256": "62bf884e92e9e285414263b3d06fad4f17fc1d93fd85d947e3386591f5fdbe31",
+        "afterSha256": "41c9c9d29cbd41b9362b87ba94d644204c1634549e72574648fa958b60d57960"
+      },
+      {
+        "path": "docs/architecture/de/diagrams/04-source-to-operation-sequence.mmd",
+        "beforeSha256": "ab562440b749e2a69297afde5e292e2dfb890e2bc914118a6368aabdebaf4cd9",
+        "afterSha256": "30d614de6494960527c9cc6e563607e69bd27657520fd09160852bd964a636c9"
+      },
+      {
+        "path": "docs/architecture/de/evidence/ar-01-baseline-reconciliation.md",
+        "beforeSha256": "f0d1be56c3bed7bf1ad57490a0a9c0e934a07afa94b8b42d91bede59a7aba3d5",
+        "afterSha256": "74c8929032968cea67324e7e9214b66e47ce62d04cf5b15cc27b88aa43c27951"
+      },
+      {
+        "path": "docs/architecture/decisions/ar-01-bilingual-publication.md",
+        "beforeSha256": "5bba1b32dc5138f10f3a857853f6ba4b7e96ef9eb7c8bdd89733d0e0b929a059",
+        "afterSha256": "5d67e4468ecee11bca8cd584979e25b16062e4e55ed0a38d05cb2fc3eff71865"
+      },
+      {
+        "path": "docs/architecture/diagrams/04-source-to-operation-sequence.mmd",
+        "beforeSha256": "d53fe5110c82ed854ae959dcfbb6c045a99064756905dc50434bd84db418c56f",
+        "afterSha256": "99eadbe96997d994c3a5c036423664f2f09aeab73fce637a9d50fe8646ff151f"
+      },
+      {
+        "path": "docs/architecture/evidence/ar-01-baseline-reconciliation.md",
+        "beforeSha256": "79ac84eca81e5753d2f1180c83e7fdd9c7276d09e6454f19bd60c52c29c2eed8",
+        "afterSha256": "fe03a5db4be4d5f88b545d2946594b31fdfbba3a6c92c1d2fa452cbec093c5c7"
+      },
+      {
+        "path": "docs/architecture/evidence/ar-01-source-register.json",
+        "beforeSha256": "869e7a272f79b84dc2633d88ad70ff598e363b432663c280aa83d9de7a2a134d",
+        "afterSha256": "36e6708e8d9004af1731b458fd33298546e22699906f1d6d5304a310f6d72904"
+      },
+      {
+        "path": "docs/architecture/tools/bilingual.test.mjs",
+        "beforeSha256": "f3f6d9eee0895333c112e231a3bdd2699b6c61dcb37c4590c633f5fb0f5d903e",
+        "afterSha256": "ccd71156e0d7232ad151c8418f273658300d024f36ea89fa84d452af34643117"
+      }
+    ],
+    "beforeSnapshot": "artifacts/ar-01-f1/before.json",
+    "preservationEvidence": "artifacts/ar-01-f1/preservation.json",
+    "reviewEvidencePreserved": true
+  }
+}

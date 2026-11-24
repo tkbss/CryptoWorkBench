@@ -1,16 +1,16 @@
-%% Title: Production project reference overview
-%% Classification: Verified implementation fact [F]
-%% Baseline: d3099c80af3891ad54444e544f528c9c5ed6b93f
-%% Evidence: ../evidence/01-introduction-baseline.md, E01 and D01
-%% Legend: A solid arrow points from a referencing project to a referenced project.
-%% Scope: Four production projects; test projects and external packages are omitted.
-%% Edges describe build-time references, not runtime messages or execution order.
-flowchart LR
-    Console["CryptoWorkBenchConsole"]
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 01-project-references.mmd
+flowchart TB
+    Desktop["Desktop host"]
+    Gui["Avalonia GUI"]
     Core["CryptoScript"]
-    Gui["CryptoWorkBenchAvalonia"]
-    Desktop["CryptoWorkBenchAvalonia.Desktop"]
-
-    Console -->|Project reference| Core
-    Gui -->|Project reference| Core
-    Desktop -->|Project reference| Gui
+    Mcp["Mcp library"]
+    Contracts["Automation.Abstractions"]
+    Desktop -->|"references"| Gui
+    Desktop -->|"references"| Mcp
+    Gui -->|"references"| Core
+    Gui -->|"references"| Contracts
+    Mcp -->|"references"| Contracts
+    Legend["Solid arrows: direct first-party project references [F].<br/>Build dependencies, not messages. Prism and tests: Chapter 3."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

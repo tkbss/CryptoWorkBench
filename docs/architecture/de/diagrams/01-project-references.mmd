@@ -1,0 +1,16 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 01-project-references.mmd
+flowchart TB
+    Desktop["Desktop-Host"]
+    Gui["Avalonia-GUI"]
+    Core["CryptoScript"]
+    Mcp["Mcp-Bibliothek"]
+    Contracts["Automation.Abstractions"]
+    Desktop -->|"referenziert"| Gui
+    Desktop -->|"referenziert"| Mcp
+    Gui -->|"referenziert"| Core
+    Gui -->|"referenziert"| Contracts
+    Mcp -->|"referenziert"| Contracts
+    Legend["Durchgezogene Pfeile: direkte eigene Projektreferenzen [F].<br/>Build-Abhängigkeiten, keine Nachrichten. Prism und Tests: Kapitel 3."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

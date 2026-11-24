@@ -1,0 +1,12 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 02-system-context.mmd
+flowchart TB
+    User["Workbench-Benutzer [I]"]
+    System["CryptoScript Workbench [I]<br/>Desktop und wiederverwendbarer Kern"]
+    Client["Lokaler Automatisierungsclient [F]"]
+    User -->|"bearbeiten und ausführen"| System
+    System -->|"Ergebnisse und Diagnosen"| User
+    Client -->|"implementierte MCP-Integration"| System
+    Legend["[F] Quellentatsache; [I] Modellinterpretation.<br/>Keine erfundene Geschäftssystem- oder künftige Webintegration."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

@@ -1,0 +1,5 @@
+# Paged.js' legacy polyfill dependencies have optional postinstall scripts.
+# They are unnecessary for this isolated browser renderer.
+ignoredBuiltDependencies:
+  - core-js
+  - es5-ext

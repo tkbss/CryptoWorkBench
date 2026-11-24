@@ -1,0 +1,24 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-abstract-syntax-tree-structure.mmd
+flowchart TB
+    S["StatementNode"]
+    D["Declaration statement"]
+    A["AssignmentStatementNode"]
+    F["Function call statement"]
+    Init["Literal or call initializer"]
+    Params["Ordered parameter list"]
+    Header["TR31 header with fields"]
+    Args["Ordered argument variants"]
+    D -.->|"inherits"| S
+    A -.->|"inherits"| S
+    F -.->|"inherits"| S
+    D -->|"0..1 initializer"| Init
+    A -->|"0..1 initializer"| Init
+    D -->|"1 list"| Params
+    A -->|"1 list"| Params
+    D -->|"0..1 header"| Header
+    A -->|"0..1 header"| Header
+    F -->|"call arguments"| Args
+    Legend["Dashed: inheritance. Solid: composition [F].<br/>Grouped variants are explained in 4.5; no source spans.<br/>Lists/headers are not ExpressionNode subclasses."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note
