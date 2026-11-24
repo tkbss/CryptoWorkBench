@@ -1,0 +1,879 @@
+{
+  "schemaVersion": 1,
+  "baseline": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+  "entries": [
+    {
+      "id": "R01",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/CryptoScript.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "acf996109c5f8094372a705d732708b8ae70c82b7014f50b024c314e6c0d1e14",
+          "lines": 285,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/CryptoScript.csproj"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "fd85b894195532cd2a4de549f50ab80615a707dbdd5d44b68024cadde20e47b0",
+          "lines": 55,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "ac21b0b89614d6c9d75be4ebc57e64eddfb7ad201a4396d267262bc5f092c7ed",
+          "lines": 27,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj"
+        },
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/CryptoWorkBench.Automation.Abstractions.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e1a91ad3b17614202de10e44136c7dbcc5e9cf97d5dea39cdae0418edeb2e8b9",
+          "lines": 4,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBench.Automation.Abstractions/CryptoWorkBench.Automation.Abstractions.csproj"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp/CryptoWorkBench.Mcp.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "5ab7f17152b1dd7c388eb2288980c96417c2420f681e541b019d7b6253d4e9d9",
+          "lines": 9,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBench.Mcp/CryptoWorkBench.Mcp.csproj"
+        }
+      ]
+    },
+    {
+      "id": "R02",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScriptUnitTest/CryptoScriptUnitTest.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "6538edfbe1d7d978888979141c17086e13a5f6ead1157c35dd9937b412d3a514",
+          "lines": 46,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScriptUnitTest/CryptoScriptUnitTest.csproj"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "496a8f33a4f9f810657e257786048ee49d0f02e1bb83dd89a2ecb2c80f04b7d8",
+          "lines": 33,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchGuiTest/CryptoWorkBenchGuiTest.csproj"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e71dd762064fdc5ae57e0a244da0c41a1b9acda0c3c2d3337feb537977ccaa58",
+          "lines": 11,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBench.Mcp.Tests/CryptoWorkBench.Mcp.Tests.csproj"
+        },
+        {
+          "path": "CryptoWorkBench.sln",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "c7b2cab7e870f876f3ea55e17b8f7ef02c402b8cc151236f1694c7deece8eba2",
+          "lines": 50,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBench.sln"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "9fbe26bad7bb44782c763e4e70fbacf104e8b945f45a35abc1bf9b32d8be2edb",
+          "lines": 102,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln"
+        },
+        {
+          "path": "eng/mcp/native/B3NativeProbe.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "6e818ea6f0220d58281a014ae608b9ff427fa082cb9225dfbe524cab2ae002dc",
+          "lines": 13,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/eng/mcp/native/B3NativeProbe.csproj"
+        },
+        {
+          "path": "TestInfrastructure/Avalonia.Headless.Backport/Avalonia.Headless.Backport.csproj",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "c56a10e571d614eb38ab0be0ed4998955669f5b2aa93de70c24bf2772c4c6fdd",
+          "lines": 61,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/TestInfrastructure/Avalonia.Headless.Backport/Avalonia.Headless.Backport.csproj"
+        }
+      ]
+    },
+    {
+      "id": "R03",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "Directory.Build.props",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "47ab4a871d47a86345722582eac11e94c29256a1ee54e181dea724ca6694abba",
+          "lines": 7,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/Directory.Build.props"
+        },
+        {
+          "path": "Directory.Build.targets",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "f8b607debe47515fbac2e8ff0f679b1c1173e2925580915fc371d44321e45744",
+          "lines": 11,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/Directory.Build.targets"
+        },
+        {
+          "path": "global.json",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "4e7d5022b2a5a8d02bb951bb264a4c8613eabc332572a0af5f9743d23f23d84e",
+          "lines": 8,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/global.json"
+        },
+        {
+          "path": "NuGet.Config",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "f545a7e2ea14ac53cdfb91217cae67b8ff14275313f6298f9a3331d205b6c948",
+          "lines": 8,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/NuGet.Config"
+        },
+        {
+          "path": "eng/prism/Lock.props",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "11af206f7c0c1d18d6d9c047e73aadab38c93ab23f532bf58486c17d198ecd20",
+          "lines": 18,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/eng/prism/Lock.props"
+        },
+        {
+          "path": "eng/prism/ProjectScope.props",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "eb98be14326fcfb38c7eb8a327c76ceedf5898850cc03a13516ece46c076af09",
+          "lines": 16,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/eng/prism/ProjectScope.props"
+        },
+        {
+          "path": "eng/prism/Prepare-Prism.ps1",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "b1081adb3f7b184de5fcd39b51845631526785b92e078a40332a612a7dd212f1",
+          "lines": 99,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/eng/prism/Prepare-Prism.ps1"
+        },
+        {
+          "path": "eng/prism/Build.ps1",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "abb56fbe42cc20ebf936e56a9a1e2f44b2f7dfeb7b585555d42972c72237b079",
+          "lines": 20,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/eng/prism/Build.ps1"
+        },
+        {
+          "path": ".github/workflows/dotnet.yml",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e64de21352cb888dd1aa8599be4bf0a0e1a4b968ee9310c76bd98e7ec8605447",
+          "lines": 85,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/.github/workflows/dotnet.yml"
+        },
+        {
+          "path": ".github/scripts/Invoke-PrismCi.ps1",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "65e43c6ea9eaf7228060dda6c81c131f8cfb930915ee96beb0f4ffad44dc5147",
+          "lines": 67,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/.github/scripts/Invoke-PrismCi.ps1"
+        },
+        {
+          "path": ".github/scripts/Validate-DesktopPublish.ps1",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "db75c4c700f3dea905b4f6c5224019a3ae02c6d11de4ca4086e61ca63c30bad3",
+          "lines": 134,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/.github/scripts/Validate-DesktopPublish.ps1"
+        },
+        {
+          "path": "CryptoScript/Native/FilePublication.targets",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "0e73e25310e5086e4f4d38ec02fa6eb2855f210f66d2c2ecdd3167376c002630",
+          "lines": 28,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Native/FilePublication.targets"
+        }
+      ]
+    },
+    {
+      "id": "R04",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia.Desktop/Program.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "82de65a29777dfeb8b6c31ee43e4cbd615e39a92ee8a5d2d9d857e5cd4725745",
+          "lines": 35,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia.Desktop/Program.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e01077b2d28249a0e09995cb7f0d885c5f4a53d3e25e82e2c05fb6315ce61dfb",
+          "lines": 134,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/App.axaml.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "356a7709d521dbece81550837f0ca26b5a2aa51981a2f4c89601368109798d46",
+          "lines": 140,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/App.axaml.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp/LocalMcpHost.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "fb2c312822fccdb78ce502451ef3f7f67863d648d1dbbeb049523c0a54870031",
+          "lines": 143,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBench.Mcp/LocalMcpHost.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp/PinnedMcpStdio.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "c6cb08a243bde39558e0662174f6ccfb578bad752b0fb3ab703972aacf400a3b",
+          "lines": 117,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBench.Mcp/PinnedMcpStdio.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/AutomationV2.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "170b05b04529678035d0cc9b93ab931e0b7c946ac3ea017c114ab20c1edb12db",
+          "lines": 66,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBench.Automation.Abstractions/AutomationV2.cs"
+        }
+      ]
+    },
+    {
+      "id": "R05",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "2c98e763d60df597172d89279ea51df4ccc027a28699c1771d0e1f2993b88c15",
+          "lines": 184,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/InterpreterHostQueue.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "a428a7eadc3e3d11f29e371810a922e571f179003c9cb3a9f4f63879c417704b",
+          "lines": 82,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/Services/InterpreterHostQueue.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "0fb4711ff7e784adec68c69725badd4803dd72ebaeb653a0c0e62f47f9771780",
+          "lines": 418,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/VariablePresentationCapture.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "dc358650b001529dfea8e9f484baeebd5117d59a3ad70e080e4d6059f758c4b4",
+          "lines": 68,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/Services/Automation/VariablePresentationCapture.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/ViewModels/VariableViewModel.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "c41402b0b3e1b89c9edf82a0e2fad07b7e57140aa3b7e834dd9731a496138de5",
+          "lines": 212,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/ViewModels/VariableViewModel.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/ViewModels/StatusViewModel.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e62de40ec002537d781f1ede5738bf60a5ddab29d6dfbe7def10686804cd977f",
+          "lines": 50,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/ViewModels/StatusViewModel.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "bce16bbaba9136cb1771efa4b8dcd629099311710704ad82979c32b5115f98de",
+          "lines": 199,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs"
+        }
+      ]
+    },
+    {
+      "id": "R06",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Antlr/CryptoScript.g4",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "affd2d90434ec5b80093545359f7fb282adfbe14138d1c055c3f95edb04faa0c",
+          "lines": 95,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/CryptoScript.g4"
+        },
+        {
+          "path": "CryptoScript/Antlr/CryptoLexer.g4",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "bada9dc0b09e71cd9ecb6e4aa344b8712c67f5b815a909b68b0e357a33aec67e",
+          "lines": 185,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/CryptoLexer.g4"
+        },
+        {
+          "path": "CryptoScript/Antlr/TR31Lexer.g4",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "56c18ff0117d6736fd2826d1e4e3069532e4624827b0bf87efb7fe12c6066994",
+          "lines": 88,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/TR31Lexer.g4"
+        },
+        {
+          "path": "CryptoScript/Antlr/CryptoScriptLexer.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "ddf57c37946c18e397552506d9723bbcc42313540f25122bc0cd9541dc4a3be9",
+          "lines": 1259,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/CryptoScriptLexer.cs"
+        },
+        {
+          "path": "CryptoScript/Antlr/CryptoScriptParser.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "856793efcde4189b385b81c74beab215d7b44c076675ba8128b0fc03dde23ad5",
+          "lines": 2248,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/CryptoScriptParser.cs"
+        },
+        {
+          "path": "CryptoScript/Antlr/CryptoScriptLexerExtensions.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "77c2eed92d331c9637fa09a4480eb0f21507355e4f158e5c01eeff4c040fba48",
+          "lines": 50,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/CryptoScriptLexerExtensions.cs"
+        },
+        {
+          "path": "CryptoScript/Antlr/CompileGrammar.bat",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "ea3d64b4ad8c0b3e4b7aab7d2b423bbc8a7dc1cdba64e6b2c273d418b5afadd2",
+          "lines": 1,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/CompileGrammar.bat"
+        },
+        {
+          "path": "CryptoScript/Antlr/compile-grammar.sh",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "eba832e059454eac5eba4758da9e8676e28045ed7da1c027848de823b08ecc6e",
+          "lines": 11,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Antlr/compile-grammar.sh"
+        }
+      ]
+    },
+    {
+      "id": "R07",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Model/ParserBuilder.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "d1d95297e4a8546c014aae4a059a0aadd58281b7bbf8a053bb2a2949ffc91372",
+          "lines": 52,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/ParserBuilder.cs"
+        },
+        {
+          "path": "CryptoScript/ErrorListner/LexerErrorListener.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "063d04cdd4b28fd5466202baced6005169c45a9b6f244b5479d3aa6abf373c61",
+          "lines": 63,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/ErrorListner/LexerErrorListener.cs"
+        },
+        {
+          "path": "CryptoScript/ErrorListner/SyntaxErrorListner.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "d3ca0b6c5f4de355918cf38f2ee500f359ecaf80caf59e36c5382f3a2c678939",
+          "lines": 81,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/ErrorListner/SyntaxErrorListner.cs"
+        },
+        {
+          "path": "CryptoScript/ErrorListner/SyntaxErrorList.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "23727da5f039d41496764ea93ad1929c5d6971ebb24b8478090637aa0dfe4a0c",
+          "lines": 25,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/ErrorListner/SyntaxErrorList.cs"
+        }
+      ]
+    },
+    {
+      "id": "R08",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Model/Ast/StatementNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "ed737beedb6185c24cc7f9f98ceaca32bd2a3739564c84a8ee90e9ecfb00cef6",
+          "lines": 11,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/StatementNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/AssignmentStatementNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "9ceb752bf0ac66dce81b744b58e68b99cb583c62bb8cae394a24c596722b91d3",
+          "lines": 10,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/AssignmentStatementNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/VariableDeclarationNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "40c160d5ce67a9da988aa412c249bc3edaaf15a1a9825849b708a8177fc13deb",
+          "lines": 13,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/VariableDeclarationNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/ExpressionNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "484e1daae1e5c21f4f788a815694c4055c80d99e8f89ba1407bfbb805c229b38",
+          "lines": 6,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/ExpressionNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/LiteralInitializerNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "948c022ab65260ed0e4c9c8de6702a78ca1952ca730fe4c0101c12668ba84be9",
+          "lines": 8,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/LiteralInitializerNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/FunctionCallExpressionNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "fdea73c66fce2b2c09bd06247737e2fbba26d4481df67739358d37a04e98492f",
+          "lines": 19,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/FunctionCallExpressionNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/ParameterListInitializerNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "01c3046edfd58a7a198974892bd471c95f4baee7664ed0e36cb0a71294c13ec5",
+          "lines": 6,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/ParameterListInitializerNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/ParameterInitializerNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "8697ee44b0e327232f45be93b1238daef83f834ee379b5ceaf779ef209b0a90e",
+          "lines": 6,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/ParameterInitializerNode.cs"
+        },
+        {
+          "path": "CryptoScript/Model/Ast/Tr31HeaderInitializerNode.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "bd4f9761da73dde2013bff283b2e8a5571f07e923575828ee43d7dbaf16b9771",
+          "lines": 6,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/Ast/Tr31HeaderInitializerNode.cs"
+        }
+      ]
+    },
+    {
+      "id": "R09",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Model/AntlrToStatement.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "5bfeb4a32153ec0d5867dd6f58f41ff4fcdf1244060a44964c506aac1f91c0b6",
+          "lines": 22,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/AntlrToStatement.cs"
+        },
+        {
+          "path": "CryptoScript/Model/AntlrToAssignment.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "9d4e62cc4386daf53d0f1e560fc5c8ad0acf057c46c75098c34a1ebadd8a587b",
+          "lines": 18,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/AntlrToAssignment.cs"
+        },
+        {
+          "path": "CryptoScript/Model/AntlrToVariableDeclaration.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "03e1f76d8512d067a37fd773b672f3f4852b9d464f7769c8de38128adc8cc81d",
+          "lines": 24,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/AntlrToVariableDeclaration.cs"
+        },
+        {
+          "path": "CryptoScript/Model/AntlrToFunctionCallExpression.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e6d442e87eaa1ffd773b4de82f790974457b9108e6f7b8cc65ff80712ff18f21",
+          "lines": 60,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/AntlrToFunctionCallExpression.cs"
+        },
+        {
+          "path": "CryptoScript/Model/AntlrToParameterInitializer.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "98b47a5363ad40c85032e00043baa7486659f27c75cb17869492cb9d4e5118b5",
+          "lines": 14,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/AntlrToParameterInitializer.cs"
+        }
+      ]
+    },
+    {
+      "id": "R10",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Model/StatementEvaluator.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "1af19ca966f1756e2f29f9e3899038b8917d9a9454ce03f17a66bf56607e66b8",
+          "lines": 64,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/StatementEvaluator.cs"
+        },
+        {
+          "path": "CryptoScript/Model/AssignmentEvaluator.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "1ad72884fa3cdf9a6fa20ec026abe8239554c348ffc3758be0b9dc536852335d",
+          "lines": 189,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/AssignmentEvaluator.cs"
+        },
+        {
+          "path": "CryptoScript/Model/VariableDeclarationEvaluator.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "5a078872e45cb000e323e4a1424a69aaacce35ae7433e500b128443e6bbeff2e",
+          "lines": 155,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/VariableDeclarationEvaluator.cs"
+        },
+        {
+          "path": "CryptoScript/Model/ParameterInitializerEvaluator.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "00b83cac82656b2e4688da9fde2478316f7cb6919a0ba315c209ad5366caa8d0",
+          "lines": 135,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/ParameterInitializerEvaluator.cs"
+        },
+        {
+          "path": "CryptoScript/Model/PathInitializerEvaluator.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "d98b015d0bccb70dcc25af270f8156146bb66a2d634e3717dd24c2c9318810e8",
+          "lines": 30,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/PathInitializerEvaluator.cs"
+        },
+        {
+          "path": "CryptoScript/Expressions/Expression.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "f46698d63f0eac168cf35f57a4fa45896e630b8f7d4e21c2c85ce33979853a49",
+          "lines": 162,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Expressions/Expression.cs"
+        }
+      ]
+    },
+    {
+      "id": "R11",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Model/FunctionCallEvaluator.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "d7d377fde1ee68aa4ad3fb249f8cb4d2b1dd403cafd05010d4b74fd52b9d4b35",
+          "lines": 516,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/FunctionCallEvaluator.cs"
+        },
+        {
+          "path": "CryptoScript/Model/FunctionCall.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "2cf2659a09e05c1394bf03d1bd53173b14925cf4d102966266b6e28a6676fe7e",
+          "lines": 69,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/FunctionCall.cs"
+        },
+        {
+          "path": "CryptoScript/Model/OperationInvocation.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "ddb24246acddd4a130b7d8a7376df0d9cc7f6cd87186fcaf457ed9f1a2056769",
+          "lines": 83,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/OperationInvocation.cs"
+        },
+        {
+          "path": "CryptoScript/Arguments/Argument.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "54628b912a3d28aa8c32d9a0f410377e9216b95a5d3222ec2ab1ddd1903fef35",
+          "lines": 122,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Arguments/Argument.cs"
+        },
+        {
+          "path": "CryptoScript/Model/ParameterEvaluator.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "ae8541d003143d828b645776ecc60dfd25ada11069ef78eded1ddf2f1d2766b6",
+          "lines": 13,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/ParameterEvaluator.cs"
+        },
+        {
+          "path": "CryptoScript/CryptoAlgorithm/AlgorithmCallArguments.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "545ad11537cbdb0c0580049b40e44c0f5cd24928c7206dfec08d39f312456e4f",
+          "lines": 89,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/CryptoAlgorithm/AlgorithmCallArguments.cs"
+        },
+        {
+          "path": "CryptoScript/CryptoAlgorithm/AlgorithmArgumentResolver.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "c7caf60d0505af4f2dbc8df5c552cd3f8e2d6e5e9fbfeb66f3a74b379709b4e3",
+          "lines": 89,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/CryptoAlgorithm/AlgorithmArgumentResolver.cs"
+        }
+      ]
+    },
+    {
+      "id": "R12",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Model/CryptoType.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "5b62e37f77fe11da3ca24863d346b53da6fc3429615e8d46aeb2bfe6afd16290",
+          "lines": 103,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/CryptoType.cs"
+        },
+        {
+          "path": "CryptoScript/Variables/VariableDictionary.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "c2da028249ff652b21a0662d231a93e839eab3a62c22208e347ed7dc5eed28f8",
+          "lines": 71,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Variables/VariableDictionary.cs"
+        },
+        {
+          "path": "CryptoScript/Variables/KeyVariableDeclaration.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e397f2ae5c9c7b70a6a164b660aecdf5ca218812f8021a25f1469c8f6dac3fa7",
+          "lines": 128,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Variables/KeyVariableDeclaration.cs"
+        },
+        {
+          "path": "CryptoScript/Variables/ParameterVariableDeclaration.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "4ea76680b0e424f148dc2d4ed7244e8e06c025ffbb5e8a512fb905be58ec9ba5",
+          "lines": 217,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Variables/ParameterVariableDeclaration.cs"
+        },
+        {
+          "path": "CryptoScript/Variables/FormatConversions.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "412b2e71124e9f4ffe6d9fb82c977c168ac496c063fb957b7859cf007a5035e3",
+          "lines": 153,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Variables/FormatConversions.cs"
+        },
+        {
+          "path": "CryptoScript/Model/AntlrLanguageMetadata.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "01b65183e4b42a0d47acbc904f8ad170208594e7c0585030c0f10ab2f3029529",
+          "lines": 33,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/AntlrLanguageMetadata.cs"
+        },
+        {
+          "path": "CryptoScript/Model/MechanismList.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "5d0f740f84dc579105b60071a8b6b02da842ae6d755b173a720b053d976d32e3",
+          "lines": 28,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/MechanismList.cs"
+        },
+        {
+          "path": "CryptoScript/Variables/ParameterTypeList.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "0df4a3c500c683a842bad7d05d892562b846b953cab72457f3cd02854ad81cd1",
+          "lines": 37,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Variables/ParameterTypeList.cs"
+        }
+      ]
+    },
+    {
+      "id": "R13",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Model/CryptoScriptRunner.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "b31f3233ff31d3ceb4ab514d05e685fbed5b5fcde42a9a3c419b01ea2c1ff522",
+          "lines": 238,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/CryptoScriptRunner.cs"
+        },
+        {
+          "path": "CryptoScript/Model/InterpreterExecution.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "d986dc32219a9878f23eb2982ff250e45fba2427770ab2d1a46e388c908254ad",
+          "lines": 135,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/InterpreterExecution.cs"
+        },
+        {
+          "path": "CryptoScript/Model/CryptoScriptProgram.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "fe6e0d0872547a4f8ff9facd0d4a3ba8f2e3f2efdadfd071d7f631b0042bb77b",
+          "lines": 26,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/CryptoScriptProgram.cs"
+        },
+        {
+          "path": "CryptoScript/Model/SemanticDiagnosticExecution.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "1a0e43d75cab1681be9cf3eaa4c9665b28b67c6610c27b5ca7e0e1a1ea4d20e5",
+          "lines": 99,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Model/SemanticDiagnosticExecution.cs"
+        },
+        {
+          "path": "CryptoScript/ErrorListner/DiagnosticLocation.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "b12e9051c5c5efa494745bc78339bc76c22321dd3590ec5502dd7d6239ccf0c7",
+          "lines": 15,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/ErrorListner/DiagnosticLocation.cs"
+        }
+      ]
+    },
+    {
+      "id": "R14",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Operations/OperationFactory.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "5857218c6e4dd7c58d79680d35cfa5c875ef2a258c1af1af6d9b75a83136e448",
+          "lines": 129,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Operations/OperationFactory.cs"
+        },
+        {
+          "path": "CryptoScript/CryptoAlgorithm/AlgorithmFactory.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "91b78fd77adc807037345809d9e3ea9d667f283b40d38ca6e28527cfb97e8da4",
+          "lines": 96,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/CryptoAlgorithm/AlgorithmFactory.cs"
+        },
+        {
+          "path": "CryptoScript/Operations/OutputOperations.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "321fceb20a0bed279666ab857487d9a9ffefa8e71d6627c180e6342b22dc15be",
+          "lines": 66,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Operations/OutputOperations.cs"
+        },
+        {
+          "path": "CryptoScript/Operations/HeaderOperations.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "bae85e25e8ad81e48572f45b61ba57f096f5f313e5507f2a803b0e7fc4b103e3",
+          "lines": 23,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Operations/HeaderOperations.cs"
+        },
+        {
+          "path": "CryptoScript/Operations/SnapshotOperations.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "54d545a836c0215d54e47d31a03f9bd127aaf8ea1956492783306b1b2818e5a6",
+          "lines": 164,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Operations/SnapshotOperations.cs"
+        },
+        {
+          "path": "CryptoScript/Operations/SecureSaveOperations.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "371ace70d3f93b08efc07fafaec72688889d6dfea59f5b169d7fb4abc7e46ae1",
+          "lines": 89,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Operations/SecureSaveOperations.cs"
+        },
+        {
+          "path": "CryptoScript/Operations/SecureLoadOperations.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "cfcbe3820b23040cd7114d7839ee32054bb799c40d85fa7a3e63f5c2c1e4b8bc",
+          "lines": 68,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Operations/SecureLoadOperations.cs"
+        },
+        {
+          "path": "CryptoScript/Operations/DeleteOperations.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "61914f4720118bb7ae6a78864be8005ceef796638878034dcfed401bea09cdb0",
+          "lines": 66,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Operations/DeleteOperations.cs"
+        }
+      ]
+    },
+    {
+      "id": "R15",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScript/Documentation/FileInfoDocumentationProvider.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "f8f612654846155e83a023d8fc7a8f1d9b523a8636d3959d556584cb97074e34",
+          "lines": 99,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Documentation/FileInfoDocumentationProvider.cs"
+        },
+        {
+          "path": "CryptoScript/Documentation/InfoDocumentCatalog.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "808780eb1ee38e6eb06200ec2e77fcc66dee05ed5a34d749e93dc39eb47646e7",
+          "lines": 179,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/Documentation/InfoDocumentCatalog.cs"
+        },
+        {
+          "path": "CryptoScript/FileEncryption/FileEncryptionContract.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "84dcc7090fbff69868a1187fc53f975c4f0cd5c22692da35dc1b596781a59a35",
+          "lines": 31,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/FileEncryption/FileEncryptionContract.cs"
+        },
+        {
+          "path": "CryptoScript/FileEncryption/FileMacContract.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "8b8b19c8e06c55c278a188e4d4a268b5e6ccad4850960a62f6e399a3f20a8123",
+          "lines": 48,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/FileEncryption/FileMacContract.cs"
+        },
+        {
+          "path": "CryptoScript/FileEncryption/FileHashContract.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "9e02bd980225d4a069c660d775f4c468d02ed48d254774334103658d2184d478",
+          "lines": 32,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScript/FileEncryption/FileHashContract.cs"
+        }
+      ]
+    },
+    {
+      "id": "R16",
+      "verification": "static source inspection; test definitions are not executed results",
+      "sources": [
+        {
+          "path": "CryptoScriptUnitTest/AssignmentTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "2b102b0a572f31ad8cae6d96a0fa95821df48db11f4f17f1e6db84aa6a9ca383",
+          "lines": 297,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScriptUnitTest/AssignmentTests.cs"
+        },
+        {
+          "path": "CryptoScriptUnitTest/AssignmentCorrectionTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "9b60908e5621a25e43945d48aa36e05323108206060206865f4bb21d2cb80cb6",
+          "lines": 191,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScriptUnitTest/AssignmentCorrectionTests.cs"
+        },
+        {
+          "path": "CryptoScriptUnitTest/ParameterAssignmentConsistencyTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "220d936223db7f7eeb4b63d3e496ca451d69ec7594b0990669d394e30575fae3",
+          "lines": 166,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScriptUnitTest/ParameterAssignmentConsistencyTests.cs"
+        },
+        {
+          "path": "CryptoScriptUnitTest/ParameterAssignmentSerializationTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "e76e95a11ec41eda178966b36fedb9cb3b9fdc53920aebf2e2b29664e91da22d",
+          "lines": 211,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScriptUnitTest/ParameterAssignmentSerializationTests.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/AssignmentMcpIntegrationTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "2ef87ec5e019848131be1877a9c11f8875ac8dca852c07583c578532af68ad03",
+          "lines": 55,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchGuiTest/AssignmentMcpIntegrationTests.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/CryptoScriptExecutionPresentationTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "dbd546836f092735f1c702f7052dcdfa47bb4ae9f5aafa54187ec71c11922295",
+          "lines": 567,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoWorkBenchGuiTest/CryptoScriptExecutionPresentationTests.cs"
+        },
+        {
+          "path": "CryptoScriptUnitTest/Tr31HeaderInitializerAstTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "cce3277fb8cf646af9df8b291b35ad80e964b07df075ebd7d79cb46fcba9dbdc",
+          "lines": 76,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScriptUnitTest/Tr31HeaderInitializerAstTests.cs"
+        },
+        {
+          "path": "CryptoScriptUnitTest/FunctionCallEvaluatorTests.cs",
+          "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+          "sha256": "13ce1a3f8af4d49c5bf8a906868400753edf2a46980acd8c9912067ba7bc278e",
+          "lines": 528,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/CryptoScriptUnitTest/FunctionCallEvaluatorTests.cs"
+        }
+      ]
+    }
+  ],
+  "absentPaths": [
+    "CryptoWorkBenchConsole/CryptoWorkBenchConsole.csproj",
+    "CryptoWorkBenchConsole/Program.cs",
+    "CryptoWorkBenchGuiTest/ConsoleSemanticDiagnosticTests.cs",
+    "CryptoScript/CryptoAlgorithm/AsymmetricCryptoAlgorithm.cs",
+    "CryptoScript/CryptoAlgorithm/RSA/Rsa.cs"
+  ]
+}

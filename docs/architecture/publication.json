@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "baseline": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+  "documentationBaseline": "abbf7b7b2f22f1bbc06c5c8b28702831099e097f",
+  "edition": "AR-01",
+  "chapters": [
+    "01-introduction.md",
+    "02-system-overview.md",
+    "03-project-structure-and-dependencies.md",
+    "04-language-architecture.md"
+  ],
+  "excludedChapters": [
+    "09-data-flows-and-execution-sequences.md"
+  ],
+  "diagrams": [
+    "01-project-references.mmd",
+    "02-system-context.mmd",
+    "02-container-overview.mmd",
+    "03-build-and-test-dependency-coverage.mmd",
+    "04-language-components-and-dependencies.mmd",
+    "04-abstract-syntax-tree-structure.mmd",
+    "04-source-to-operation-sequence.mmd"
+  ],
+  "languages": {
+    "en": {
+      "prefix": "",
+      "diagramTitles": {
+        "01-project-references.mmd": "Product project references",
+        "02-system-context.mmd": "System context",
+        "02-container-overview.mmd": "Container overview",
+        "03-build-and-test-dependency-coverage.mmd": "Build and test coverage",
+        "04-language-components-and-dependencies.mmd": "Language components",
+        "04-abstract-syntax-tree-structure.mmd": "Abstract syntax tree",
+        "04-source-to-operation-sequence.mmd": "Source to operation"
+      }
+    },
+    "de": {
+      "prefix": "de/",
+      "diagramTitles": {
+        "01-project-references.mmd": "Projektreferenzen des Produkts",
+        "02-system-context.mmd": "Systemkontext",
+        "02-container-overview.mmd": "Containerübersicht",
+        "03-build-and-test-dependency-coverage.mmd": "Build- und Testabdeckung",
+        "04-language-components-and-dependencies.mmd": "Sprachkomponenten",
+        "04-abstract-syntax-tree-structure.mmd": "Abstrakter Syntaxbaum",
+        "04-source-to-operation-sequence.mmd": "Vom Quelltext zur Operation"
+      }
+    }
+  }
+}

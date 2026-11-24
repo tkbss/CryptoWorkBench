@@ -1,0 +1,25 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-language-components-and-dependencies.mmd
+flowchart TB
+    Host["Host execution pipeline"]
+    Grammar["Grammar import chain"]
+    Generated["Generated lexer/parser"]
+    Parser["ParserBuilder"]
+    Map["AntlrTo* mappers"]
+    Ast["Core AST records"]
+    Runner["CryptoScriptRunner"]
+    Eval["Statement, assignment,<br/>declaration and call evaluators"]
+    Ops["Operation dispatch"]
+    Grammar -.->|"development generation"| Generated
+    Host -->|"parse"| Parser
+    Parser -->|"construct"| Generated
+    Runner -->|"map statements"| Map
+    Map -->|"construct"| Ast
+    Map -->|"read contexts"| Generated
+    Host -->|"execute asynchronously"| Runner
+    Runner -->|"evaluate"| Eval
+    Eval -->|"read"| Ast
+    Eval -->|"invoke"| Ops
+    Legend["Solid: code dependency. Dashed: generation.<br/>Logical groups share the core assembly; no extra services."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

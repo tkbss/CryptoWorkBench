@@ -1,0 +1,28 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 04-source-to-operation-sequence.mmd
+flowchart TB
+    Host["1 Host admission and syntax reset"]
+    Parse["2 Parse source and check both flags"]
+    Reject["SyntaxError; no runner execution"]
+    Runner["3 Runner with interpreter ownership"]
+    Map["4 Map one statement"]
+    Eval["5 Evaluate declaration, assignment or call"]
+    Collect["6 Collect result; next statement"]
+    Capture["7 FinalizePresentation<br/>Attempt variable state capture"]
+    Presented["Script outcome and variables<br/>CaptureFailed = false"]
+    Stale["Same outcome; stale display<br/>CaptureFailed = true"]
+    Host -->|"source"| Parse
+    Parse -->|"syntax errors"| Reject
+    Parse -->|"syntax accepted"| Runner
+    Reject -->|"finalize rejection"| Capture
+    Runner -->|"lazy mapping"| Map
+    Map -->|"AST"| Eval
+    Eval -->|"completed"| Collect
+    Collect -->|"more statements"| Map
+    Collect -->|"finished"| Capture
+    Eval -.->|"terminating failure"| Capture
+    Capture -->|"capture succeeds"| Presented
+    Capture -.->|"capture fails"| Stale
+    Legend["Assignment prepares before replacing its target.<br/>Prior/foreign effects are not generally rolled back.<br/>Secure calls can await host input; capture can fail separately."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note

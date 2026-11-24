@@ -1,0 +1,21 @@
+%% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
+%% Diagram identity 02-container-overview.mmd
+flowchart TB
+    Client["Local client"]
+    Proxy["Desktop --mcp-stdio<br/>separate proxy process [F/I]"]
+    Files["Local help, scripts and data"]
+    %% The legend names this frame; keep entering edges clear of a title.
+    subgraph Desktop[" "]
+        Mcp["LocalMcpHost<br/>local HTTPS endpoint"]
+        Host["GUI and host services"]
+        Core["CryptoScript library"]
+    end
+    Client -->|"STDIO"| Proxy
+    Proxy --> Mcp
+    Mcp -->|"automation contracts"| Host
+    Host -->|"parse and execute"| Core
+    Core -->|"local operations"| Files
+    Host -->|"help and ScriptBooks"| Files
+    Legend["Frame: desktop process [I]. Core/MCP are embedded libraries.<br/>Files are resources. Detailed MCP analysis: AR-MCP-01."]
+    classDef note fill:#fafafa,stroke:#888888,color:#333333
+    class Legend note
