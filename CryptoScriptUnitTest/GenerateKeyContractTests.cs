@@ -49,6 +49,8 @@ public class GenerateKeyContractTests
         if (route == "Runner")
         {
             var parser = ParserBuilder.StringBuild($"KEY generated=GenerateKey({mechanism},{size})");
+            if (VariableDictionary.Instance().Contains("generated"))
+                new CryptoScriptRunner().Execute(ParserBuilder.StringBuild("Delete(generated)").program());
             var runner = new CryptoScriptRunner();
             var program = runner.Execute(parser.program());
             Assert.That(parser.NumberOfSyntaxErrors, Is.Zero);

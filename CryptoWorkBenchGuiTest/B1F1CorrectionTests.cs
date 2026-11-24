@@ -375,7 +375,7 @@ public class B1F1CorrectionTests
             {
                 variable = new ParameterVariableDeclaration { Id = variable.Id };
                 variable.SetParameter("PAD", "NONE"); variable.SetParameter("IV", "old");
-                foreign.Mutate(() => dictionary.Add(variable));
+                foreign.Mutate(() => dictionary.Update(variable));
             }
             row.Value = "bad";
             vm.ModifyVariableCommand.Execute(row);

@@ -12,8 +12,11 @@ public sealed class MAC_EMV_ARPC_METHOD_2 : CryptoAlgorithm
     public override ParameterVariableDeclaration GenerateParameters(string mechanism, string[] parameters) =>
         EmvAcArgumentContract.GenerateParameters(MechanismName, mechanism, parameters);
 
-    public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters) =>
-        EmvArpcArgumentContract.Execute(MechanismName, parameters, method2: true);
+    public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
+    {
+        parameters.Verify();
+        return EmvArpcArgumentContract.Execute(MechanismName, parameters, method2: true);
+    }
 
     public override StringVariableDeclaration Mac(string[] parameters) =>
         throw new ArgumentException("EMV ARPC requires structured arguments with genuine PARAM and KEY references.");

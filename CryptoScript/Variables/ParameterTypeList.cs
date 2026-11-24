@@ -1,36 +1,20 @@
+using System.Collections.Immutable;
 using CryptoScript.Model;
 
-namespace CryptoScript.Variables
+namespace CryptoScript.Variables;
+
+public sealed class ParameterTypeList
 {
-    public class ParameterTypeList
+    public static ParameterTypeList Instance { get; } = new();
+    public IReadOnlyList<string> Paddings { get; } = AntlrLanguageMetadata.GetPaddings().ToImmutableList();
+    public IReadOnlyList<string> Mechanism => MechanismList.Instance.Mechanisms;
+    public IReadOnlyList<string> ParameterTypes { get; }
+
+    private ParameterTypeList()
     {
-        private static ParameterTypeList? instance = null;
-        private static readonly object padlock = new object();
-        public List<string> Paddings { get; set; }
-        public List<string> Mechanism { get; set; }
-        public List<string> ParameterTypes { get; set; }
-        ParameterTypeList()
-        {
-            Paddings = AntlrLanguageMetadata.GetPaddings();
-            // Load's call option is language metadata, never a PARAM/mechanism field.
-            ParameterTypes = AntlrLanguageMetadata.GetParameters().Where(name => name != "#ONCONFLICT").ToList();
-            Mechanism = AntlrLanguageMetadata.GetMechanisms();
-            if (!ParameterTypes.Contains("#MACLEN"))
-                ParameterTypes.Add("#MACLEN");
-        }
-        public static ParameterTypeList Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                    {
-                        instance = new ParameterTypeList();
-                    }
-                    return instance;
-                }
-            }
-        }
+        // Load's call option is language metadata, never a PARAM/mechanism field.
+        var names = AntlrLanguageMetadata.GetParameters().Where(name => name != "#ONCONFLICT").ToList();
+        if (!names.Contains("#MACLEN")) names.Add("#MACLEN");
+        ParameterTypes = names.ToImmutableList();
     }
 }

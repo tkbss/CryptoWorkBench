@@ -30,7 +30,11 @@ namespace CryptoScript.Model
             ReturnVariable = null;
             Invocation = null;
         }
-        public void Call() => Call(null);
+        public void Call()
+        {
+            using var admission = InterpreterExecution.EnterStandaloneOperation();
+            Call(null);
+        }
 
         internal void Call(SemanticDiagnosticExecution? execution)
         {
@@ -39,8 +43,10 @@ namespace CryptoScript.Model
                 {
                     Mechanism = Arguments.OfType<ArgumentMechanism>().FirstOrDefault()?.Mechanism?.Value
                 };
+            var store = execution?.Store ?? VariableDictionary.Instance();
+            foreach (var arg in Arguments.OfType<ArgumentVariable>()) store.ValidateArgument(arg.Id);
             Invocation = new OperationInvocation(Arguments.Select(ResolveArgument),
-                execution?.CreateSink(Location!), execution?.CancellationToken ?? default) { Source = Source };
+                execution?.CreateSink(Location!), execution?.CancellationToken ?? default) { Source = Source, Store = store };
             execution?.BeforeOperation(this);
             var function = execution is null ? OperationFactory.CreateInvocationOperation(Name)
                 : execution.CreateOperation(Name);

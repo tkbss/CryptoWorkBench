@@ -1,8 +1,11 @@
 using CryptoScript.ErrorListner;
 using CryptoScript.Model.Ast;
+using CryptoScript.Variables;
 
 namespace CryptoScript.Model
 {
+    internal enum OperationBoundary { FileContract, EncryptedFileFlushed, SecureSavePreflight }
+
     /// <summary>Frontend coordinator: map and execute one statement at a time.</summary>
     public class CryptoScriptRunner
     {
@@ -11,13 +14,22 @@ namespace CryptoScript.Model
         private readonly Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation;
         private readonly Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory;
         private int passwordRequestActive;
+        internal Action<OperationBoundary>? ObserveBoundary { get; init; }
         public Guid RunnerId { get; } = Guid.NewGuid();
         /// <summary>Identity of the execution actually entered, including a finished or aborted run.
         /// Remains unchanged when cancellation prevents entry into the runner.</summary>
         public Guid? ExecutionId => (activeExecution ?? lastExecution)?.ExecutionId;
         public event PasswordRequestHandler? PasswordRequested;
 
+        private readonly VariableDictionary? requestedStore;
+        public VariableDictionary Store => requestedStore ?? InterpreterExecution.UnqualifiedRunnerStore();
+
         public CryptoScriptRunner() { }
+        public CryptoScriptRunner(VariableDictionary store) =>
+            requestedStore = store ?? throw new ArgumentNullException(nameof(store));
+
+        internal CryptoScriptRunner(VariableDictionary store, Action<FunctionCall, ISemanticDiagnosticSink> beforeOperation)
+            : this(store) => this.beforeOperation = beforeOperation;
 
         // Controlled transport-test seam; never registered as a script function or mechanism.
         internal CryptoScriptRunner(Action<FunctionCall, ISemanticDiagnosticSink> beforeOperation)
@@ -27,7 +39,7 @@ namespace CryptoScript.Model
 
         // Instance-local algorithm selection for tests of the actual operation dispatch.
         internal CryptoScriptRunner(Action<FunctionCall, ISemanticDiagnosticSink>? beforeOperation,
-            Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory)
+            Func<string, CryptoAlgorithm.CryptoAlgorithm>? algorithmFactory) : this()
         {
             this.beforeOperation = beforeOperation;
             this.algorithmFactory = algorithmFactory;
@@ -48,8 +60,9 @@ namespace CryptoScript.Model
 
         public CryptoScriptProgram Execute(IEnumerable<StatementNode?> statements)
         {
-            using var lease = InterpreterExecution.Enter();
-            var execution = new SemanticDiagnosticExecution(beforeOperation, algorithmFactory);
+            using var lease = InterpreterExecution.Enter(Store);
+            InterpreterExecution.CaptureFrame()!.ObserveBoundary = ObserveBoundary;
+            var execution = new SemanticDiagnosticExecution(beforeOperation, algorithmFactory) { Store = Store };
             var parentExecution = activeExecution;
             activeExecution = execution;
             try
@@ -76,16 +89,39 @@ namespace CryptoScript.Model
         }
 
         public Task<CryptoScriptProgram> ExecuteAsync(CryptoScriptParser.ProgramContext context,
-            CancellationToken cancellationToken = default) => ExecuteAsync(MapStatements(context), cancellationToken);
+            CancellationToken cancellationToken = default) => ExecuteAsync(context, cancellationToken, null);
 
         public Task<CryptoScriptProgram> ExecuteAsync(IEnumerable<StatementNode?> statements,
-            CancellationToken cancellationToken = default) =>
-            InterpreterExecution.RunRunnerAsync(() => ExecuteAsyncCore(statements, cancellationToken), cancellationToken);
+            CancellationToken cancellationToken = default) => ExecuteAsync(statements, cancellationToken, null);
+
+        public Task<CryptoScriptProgram> ExecuteAsync(InterpreterExecution.HostAdmission admission,
+            CryptoScriptParser.ProgramContext context, CancellationToken token = default) =>
+            ExecuteAsync(admission, context, token, null);
+
+        public Task<CryptoScriptProgram> ExecuteAsync(InterpreterExecution.HostAdmission admission,
+            IEnumerable<StatementNode?> statements, CancellationToken token = default) =>
+            ExecuteAsync(admission, statements, token, null);
+
+        public Task<CryptoScriptProgram> ExecuteAsync(CryptoScriptParser.ProgramContext context,
+            CancellationToken cancellationToken, OutputOperations.Observer? output) => ExecuteAsync(MapStatements(context), cancellationToken, output);
+
+        public Task<CryptoScriptProgram> ExecuteAsync(IEnumerable<StatementNode?> statements,
+            CancellationToken cancellationToken, OutputOperations.Observer? output) =>
+            InterpreterExecution.RunRunnerAsync(Store, () => ExecuteAsyncCore(statements, cancellationToken), cancellationToken, output: output);
+
+        public Task<CryptoScriptProgram> ExecuteAsync(InterpreterExecution.HostAdmission admission,
+            CryptoScriptParser.ProgramContext context, CancellationToken token, OutputOperations.Observer? output) =>
+            ExecuteAsync(admission, MapStatements(context), token, output);
+
+        public Task<CryptoScriptProgram> ExecuteAsync(InterpreterExecution.HostAdmission admission,
+            IEnumerable<StatementNode?> statements, CancellationToken token, OutputOperations.Observer? output) =>
+            InterpreterExecution.RunRunnerAsync(Store, () => ExecuteAsyncCore(statements, token), token, admission, output);
 
         private async Task<CryptoScriptProgram> ExecuteAsyncCore(IEnumerable<StatementNode?> statements,
             CancellationToken token)
         {
-            var execution = new SemanticDiagnosticExecution(beforeOperation, algorithmFactory, token);
+            InterpreterExecution.CaptureFrame()!.ObserveBoundary = ObserveBoundary;
+            var execution = new SemanticDiagnosticExecution(beforeOperation, algorithmFactory, token) { Store = Store };
             var parentExecution = activeExecution;
             activeExecution = execution;
             try

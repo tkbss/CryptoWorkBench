@@ -108,7 +108,7 @@ public class DukptTdeaInitialKeyTests
     private static KeyVariableDeclaration Derive(string bdk, string ksn) =>
         Execute($"KEY bdk=GenerateKey(DES3-ECB,0x({bdk})) " +
                 $"PARAM p=Parameters({Mechanism}) " +
-                $"KEY output=Derive(p,bdk,0x({ksn}))")
+                $"KEY output=Derive(p,bdk,0x({ksn}))", new VariableDictionary())
             .Statements[2].Should().BeOfType<KeyVariableDeclaration>().Subject;
 
     private static KeyVariableDeclaration DeriveWithRegisteredKey(string bdk, string ksn)
@@ -126,12 +126,12 @@ public class DukptTdeaInitialKeyTests
     private static ParameterVariableDeclaration Parameter(string script) =>
         Execute(script).Statements[0].Should().BeOfType<ParameterVariableDeclaration>().Subject;
 
-    private static CryptoScriptProgram Execute(string input)
+    private static CryptoScriptProgram Execute(string input, VariableDictionary? store = null)
     {
         var parser = ParserBuilder.StringBuild(input);
         var context = parser.program();
         SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
         LexerErrorListener.LexerErrorOccured.Should().BeFalse();
-        return new CryptoScriptRunner().Execute(context);
+        return new CryptoScriptRunner(store ?? VariableDictionary.Instance()).Execute(context);
     }
 }

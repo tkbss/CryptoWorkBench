@@ -192,7 +192,7 @@ public class PinBlockTranslationTests
         var source = (ParameterVariableDeclaration)Get("source");
         source.SetParameter(field, "\"stale\"");
         var target = (ParameterVariableDeclaration)Get("target");
-        target.GetParameters().Remove("#RANDOM");
+        target.EditMetadata(map => map.Remove("#RANDOM"));
         Execute(Call);
         Assert.That(source.GetParameter(field), Is.EqualTo(expected));
         Assert.That(target.GetParameter("RANDOM"), Does.Match(@"^0x\([0-9A-F]{16}\)$"));
@@ -212,12 +212,12 @@ public class PinBlockTranslationTests
         switch (failure)
         {
             case "target-field": target.SetParameter("RANDOM", "0x(00)"); break;
-            case "target-length": target.Mechanism = PinBlockTranslationRules.Mechanism(3); target.GetParameters().Remove("#RANDOM"); target.SetParameter("FILL", "0x(AA)"); break;
+            case "target-length": target.Mechanism = PinBlockTranslationRules.Mechanism(3); target.EditMetadata(map => map.Remove("#RANDOM")); target.SetParameter("FILL", "0x(AA)"); break;
             case "source-block": Get("block").Value = "0x(00)"; break;
             case "target-key": Get("tk").Value = "0x(00)"; break;
             case "source-key": Get("sk").Value = "0x(00)"; break;
             case "extra-param": target.SetParameter("IV", "0x(00)"); break;
-            case "missing-pan": target.GetParameters().Remove("#PAN"); break;
+            case "missing-pan": target.EditMetadata(map => map.Remove("#PAN")); break;
             case "invalid-pan": target.SetParameter("PAN", "0x(123456789A)"); break;
             case "mechanism": target.Mechanism = "AES-ECB"; break;
         }

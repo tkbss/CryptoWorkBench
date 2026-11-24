@@ -393,6 +393,6 @@ public class EmvApplicationCryptogramTests
         var context = parser.program();
         SyntaxErrorListner.SyntaxErrorOccured.Should().BeFalse();
         LexerErrorListener.LexerErrorOccured.Should().BeFalse();
-        return new CryptoScriptRunner().Execute(context);
+        return new CryptoScriptRunner(new VariableDictionary()).Execute(context);
     }
 }

@@ -8,15 +8,16 @@ namespace CryptoScript.FileEncryption;
 internal static class FileMacContract
 {
     internal static void Validate(FunctionCallExpressionNode call, List<SemanticError> errors,
-        string? declarationType = null, bool nested = false)
+        string? declarationType = null, bool nested = false, VariableDictionary? store = null)
     {
+        store ??= VariableDictionary.Instance();
         bool pack = call.Name.Equals("MacPack", StringComparison.OrdinalIgnoreCase);
         bool verify = call.Name.Equals("MacVerify", StringComparison.OrdinalIgnoreCase);
         if (pack || verify)
         {
             string expected = pack ? "PATH" : "VAL";
             var references = call.Arguments.OfType<VariableArgumentNode>()
-                .Select(a => VariableDictionary.Instance().Get(a.Identifier)).ToArray();
+                .Select(a => store.Get(a.Identifier)).ToArray();
             if (nested || declarationType is not null && declarationType != expected ||
                 call.Arguments.Count != 3 || references.Length != 3 ||
                 references[0] is not ParameterVariableDeclaration || references[1] is not KeyVariableDeclaration ||
@@ -31,7 +32,7 @@ internal static class FileMacContract
         }
         bool file = call.Name.Equals("Mac", StringComparison.OrdinalIgnoreCase) &&
             call.Arguments.Count == 3 && call.Arguments[2] is VariableArgumentNode variable &&
-            VariableDictionary.Instance().Get(variable.Identifier) is PathVariableDeclaration;
+            store.Get(variable.Identifier) is PathVariableDeclaration;
         if (file && (nested || declarationType is not null && declarationType != "VAR" ||
             call.Arguments.Any(a => a is NestedCallArgumentNode)))
         {
@@ -42,6 +43,6 @@ internal static class FileMacContract
             throw new SemanticErrorException { SemanticError = error };
         }
         foreach (var argument in call.Arguments.OfType<NestedCallArgumentNode>())
-            Validate(argument.Call, errors, nested: true);
+            Validate(argument.Call, errors, nested: true, store: store);
     }
 }

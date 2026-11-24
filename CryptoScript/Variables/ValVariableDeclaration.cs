@@ -9,27 +9,36 @@ public sealed class ValVariableDeclaration : VariableDeclaration
     private readonly CryptoTypeVal type = new();
     public ValVariableDeclaration(bool value)
     {
+        type.Freeze();
         this.value = value;
         ValueFormat = FormatConversions.STR;
     }
 
     public override CryptoType? Type
     {
-        get => type;
+        get => ReadOwned(type);
         set
         {
-            if (value is not CryptoTypeVal) throw new ArgumentException("VAL requires its Boolean type.");
+            lock (InterpreterExecution.Gate)
+            {
+                if (KeepBoundType(type, value)) return;
+                if (value is not CryptoTypeVal) throw new ArgumentException("VAL requires its Boolean type.");
+            }
         }
     }
 
     public override string Value
     {
-        get => value ? "true" : "false";
-        set => this.value = value switch
+        get => ReadOwned(value) ? "true" : "false";
+        set
+        {
+            bool next = value switch
         {
             "true" => true,
             "false" => false,
             _ => throw new ArgumentException("VAL requires true or false.")
-        };
+            };
+            Change(ref this.value, next);
+        }
     }
 }

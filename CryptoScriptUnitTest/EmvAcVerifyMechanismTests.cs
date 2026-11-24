@@ -155,7 +155,7 @@ public class EmvAcVerifyMechanismTests
         EmvAcFixtures.Execute(EmvAcFixtures.Prefix() +
             $"PARAM p=Parameters({Mechanism},#EXPECTED:0x({EmvAcFixtures.AesAc}))");
         var parameters = (ParameterVariableDeclaration)VariableDictionary.Instance().Get("p");
-        parameters.GetParameters()["#MECH"] = "MAC-EMV-AC";
+        parameters.EditMetadata(map => map["#MECH"] = "MAC-EMV-AC");
         Assert.Throws<ArgumentException>(() => new MAC_EMV_AC_VERIFY().Mac(EmvAcFixtures.Structured()));
     }
 

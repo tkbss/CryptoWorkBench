@@ -17,18 +17,19 @@ internal static class CwmCoordinator
 
     internal static VariableDeclaration Execute(OperationInvocation invocation, bool verify)
     {
+        invocation.Verify();
         if (invocation.Arguments.Count != 3 || invocation.Arguments.Any(a => a.Kind != ResolvedCallArgumentKind.Variable) ||
             invocation.Arguments[0].SourceVariable is not ParameterVariableDeclaration p ||
             invocation.Arguments[1].SourceVariable is not KeyVariableDeclaration ||
             invocation.Arguments[2].SourceVariable is not PathVariableDeclaration path)
             throw new ArgumentException("MacPack/MacVerify require exactly PARAM, KEY, PATH variable references.");
-        var args = new AlgorithmCallArguments(invocation.Arguments.Select(a => new AlgorithmCallArgument(a.Value, a.SourceVariable, a.Kind)), invocation.DiagnosticSink);
+        var args = new AlgorithmCallArguments(invocation.Arguments.Select(a => new AlgorithmCallArgument(a.Value, a.SourceVariable, a.Kind)), false, invocation.DiagnosticSink, invocation.Store);
         if (!MechanismRegistry.TryGet(p.Mechanism, out var entry) || p.Mechanism != entry!.CanonicalName)
             throw new ArgumentException("CWM requires a canonical mechanism name.");
         // Validate the caller's mechanism and key before any filesystem operation.
         int macLength = FileMacCoordinator.Validate(args, verify);
         // Preparation below repeats technical checks, but must not emit duplicate metadata warnings.
-        args = new AlgorithmCallArguments(args.Arguments);
+        args = new AlgorithmCallArguments(args.Arguments, false, store: invocation.Store);
         var effective = Parameters(p);
         invocation.CancellationToken.ThrowIfCancellationRequested();
         string full = SnapshotByteFilePublisher.ValidatePath(path);

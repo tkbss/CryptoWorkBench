@@ -129,24 +129,21 @@ namespace CryptoScriptUnitTest
         }
 
         [Test]
-        public void Variable_Redeclaration_ReplacesRegisteredDeclaration()
+        public void RedeclarationPreservesKeyAndSkipsFunctionDispatch()
         {
-            var prog = new CryptoScriptRunner();
-            var context = Parse("KEY k1=GenerateKey(AES-CBC,128) VAR k1=0x(123)");
-
-            var result = prog.Execute(context);
-
-            Assert.That(prog.SemanticErrors, Is.Empty);
-            Assert.That(result.Statements, Has.Count.EqualTo(2));
-            Assert.That(result.Statements[0], Is.TypeOf<KeyVariableDeclaration>());
-            Assert.That(result.Statements[1], Is.TypeOf<StringVariableDeclaration>());
-            var replacement = (StringVariableDeclaration)result.Statements[1];
-            Assert.That(replacement.Id, Is.EqualTo("k1"));
-            Assert.That(replacement.Type, Is.TypeOf<CryptoTypeVar>());
-            Assert.That(replacement.Value, Is.EqualTo("0x(123)"));
-            Assert.That(replacement, Is.Not.SameAs(result.Statements[0]));
-            Assert.That(VariableDictionary.Instance().Get("k1"), Is.SameAs(replacement));
-            Assert.That(VariableDictionary.Instance().GetVariables(), Is.EqualTo(new[] { replacement }));
+            int calls = 0;
+            var runner = new CryptoScriptRunner((_, _) => calls++);
+            var store = VariableDictionary.Instance();
+            runner.Execute(Parse("KEY k1=GenerateKey(AES-CBC,128)"));
+            var original = store.Get("k1");
+            var value = original.Value;
+            var revision = store.Revision;
+            Assert.Throws<SemanticErrorException>(() => runner.Execute(Parse("VAR k1=Print(k1)")));
+            Assert.That(calls, Is.EqualTo(1));
+            Assert.That(runner.Diagnostics.Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.InvalidDeclaration));
+            Assert.That(store.Get("k1"), Is.SameAs(original));
+            Assert.That(original.Value, Is.EqualTo(value));
+            Assert.That(store.Revision, Is.EqualTo(revision));
         }
 
         private static CryptoScriptParser.ProgramContext Parse(string input)

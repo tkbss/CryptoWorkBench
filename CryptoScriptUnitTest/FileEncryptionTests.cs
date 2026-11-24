@@ -82,6 +82,37 @@ public class FileEncryptionTests
         });
     }
 
+    [Test]
+    public void FreshPathInitializerPublishesFileAndDuplicateStopsBeforeFileContract()
+    {
+        byte[] payload = [0, 255, 1];
+        var input = Source(payload);
+        var (p, k) = Parameters();
+        Register(input, p, k);
+        var boundaries = new List<OperationBoundary>();
+        int dispatch = 0;
+        var runner = new CryptoScriptRunner((_, _) => dispatch++) { ObserveBoundary = boundaries.Add };
+        const string script = "PATH encrypted=Encrypt(p,k,source)";
+        runner.Execute(Parse(script));
+        Assert.That(boundaries, Does.Contain(OperationBoundary.FileContract));
+        Assert.That(boundaries.Count(b => b == OperationBoundary.EncryptedFileFlushed), Is.EqualTo(1));
+        Assert.That(dispatch, Is.EqualTo(1));
+        var store = VariableDictionary.Instance();
+        var root = store.Get("encrypted");
+        var encrypted = File.ReadAllBytes(root.Value);
+        Assert.That(Read(root.Value).Ciphertext.Length, Is.GreaterThan(0));
+        var revision = store.Revision;
+        boundaries.Clear(); dispatch = 0;
+        var error = Assert.Throws<SemanticErrorException>(() => runner.Execute(Parse(script)));
+        Assert.That(error!.SemanticError!.Message, Is.EqualTo("Variable 'encrypted' is already declared."));
+        Assert.That((boundaries.Count, dispatch), Is.EqualTo((0, 0)));
+        Assert.That(store.Get("encrypted"), Is.SameAs(root));
+        Assert.That(store.Revision, Is.EqualTo(revision));
+        Assert.That(File.ReadAllBytes(root.Value), Is.EqualTo(encrypted));
+        Assert.That(File.ReadAllBytes(input.Value), Is.EqualTo(payload));
+        Assert.That(Directory.GetFiles(directory), Is.EquivalentTo(new[] { input.Value, root.Value }));
+    }
+
     [Test] public void RunnerReturnsPathAndPrintsIt()
     {
         var source = Source([0, 255, 1]); var (p, k) = Parameters(); Register(source, p, k);

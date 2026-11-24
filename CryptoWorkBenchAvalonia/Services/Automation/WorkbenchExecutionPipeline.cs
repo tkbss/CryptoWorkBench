@@ -35,6 +35,8 @@ internal sealed record SyntaxDiagnostic(string Line, string Column, string Symbo
 /// <summary>Runs one parse unit within an already admitted host operation.</summary>
 internal sealed class WorkbenchExecutionPipeline
 {
+    internal CryptoScript.Variables.VariableDictionary Store { get; init; } = CryptoScript.Variables.VariableDictionary.Instance();
+    internal InterpreterExecution.HostAdmission? HostAdmission { get; init; }
     internal Guid ExecutionId { get; init; } = Guid.NewGuid();
     internal EditorCoordinator.ExecutionIntent? EditorIntent { get; init; }
     internal void CancelStaleDestination() => CancellationObserved?.Invoke(CancellationReason.User);
@@ -56,7 +58,7 @@ internal sealed class WorkbenchExecutionPipeline
                 Array.Empty<SyntaxDiagnostic>(), false) with { Outcome = ExecutionState.Cancelled });
         string? syntax = null;
         IReadOnlyList<SyntaxDiagnostic> syntaxDiagnostics = Array.Empty<SyntaxDiagnostic>();
-        var context = InterpreterExecution.AccessState(() =>
+        var context = InterpreterExecution.AccessState(HostAdmission, () =>
         {
             SyntaxErrorList.Instance().Clear();
             SyntaxErrorListner.SyntaxErrorOccured = false;
@@ -79,7 +81,7 @@ internal sealed class WorkbenchExecutionPipeline
             return Finish(FinalizePresentation(false, syntax, null, Array.Empty<SemanticError>(), null,
                 Array.Empty<ExecutionOutput>(), syntaxDiagnostics, false) with { Outcome = ExecutionState.SyntaxError });
 
-        var runner = testRunner ?? new CryptoScriptRunner();
+        var runner = testRunner ?? new CryptoScriptRunner(Store);
         var previousExecution = runner.ExecutionId;
         var pending = new List<Task<PasswordResponse>>();
         Task<PasswordResponse> Request(object sender, PasswordRequestEventArgs request)
@@ -98,8 +100,8 @@ internal sealed class WorkbenchExecutionPipeline
         void Print(OutputOperations.PrintResult result) { lock (output) output.Add(new("print", result.Text) { Source = result.Source }); }
         void Info(string text) { lock (output) output.Add(new("info", text)); }
         runner.PasswordRequested += Request;
-        OutputOperations.PrintResultEvent += Print;
-        OutputOperations.InfoEvent += Info;
+        var observer = new OutputOperations.Observer(Print, Info);
+        using var collection = observer.Subscribe();
         bool succeeded = false;
         ExecutionState outcome = ExecutionState.Failed;
         string status;
@@ -109,8 +111,14 @@ internal sealed class WorkbenchExecutionPipeline
             try
             {
                 BeforeRunnerStart?.Invoke();
-                if (testStatements is null) await runner.ExecuteAsync(context, token).ConfigureAwait(false);
-                else await runner.ExecuteAsync(testStatements, token).ConfigureAwait(false);
+                var runnerTask = (HostAdmission, testStatements) switch
+                {
+                    ({ } host, null) => runner.ExecuteAsync(host, context, token, observer),
+                    ({ } host, { } nodes) => runner.ExecuteAsync(host, nodes, token, observer),
+                    (null, null) => runner.ExecuteAsync(context, token, observer),
+                    _ => runner.ExecuteAsync(testStatements!, token, observer)
+                };
+                await runnerTask.ConfigureAwait(false);
                 succeeded = true;
                 outcome = ExecutionState.Completed;
                 status = "Line successfull parsed";
@@ -140,8 +148,6 @@ internal sealed class WorkbenchExecutionPipeline
             }
             runner.PasswordRequested -= Request;
             WaitingForUser?.Invoke(false);
-            OutputOperations.PrintResultEvent -= Print;
-            OutputOperations.InfoEvent -= Info;
         }
         var diagnostics = runner.Diagnostics.Select(Copy).ToArray();
         var errorCopy = error is null ? null : Copy(error);
@@ -156,13 +162,13 @@ internal sealed class WorkbenchExecutionPipeline
 
     private ExecutionPresentation Finish(ExecutionPresentation result) { result = result with { ExecutionId = ExecutionId }; Publish?.Invoke(result); return result; }
 
-    private static ExecutionPresentation FinalizePresentation(bool succeeded, string status, Guid? runnerId,
+    private ExecutionPresentation FinalizePresentation(bool succeeded, string status, Guid? runnerId,
         IReadOnlyList<SemanticError> diagnostics, SemanticError? error,
         IReadOnlyList<ExecutionOutput> output, IReadOnlyList<SyntaxDiagnostic> syntaxDiagnostics, bool executionStarted)
     {
         IReadOnlyList<VariableModel> variables = Array.Empty<VariableModel>();
         bool captureFailed = false;
-        try { variables = InterpreterExecution.AccessState(VariablePresentationCapture.Capture); }
+        try { variables = InterpreterExecution.AccessState(HostAdmission, () => VariablePresentationCapture.Capture(Store)); }
         catch (Exception)
         {
             // Capture is attempted once. Preserve the already completed script

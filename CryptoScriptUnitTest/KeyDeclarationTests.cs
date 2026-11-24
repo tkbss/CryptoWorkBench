@@ -193,7 +193,7 @@ namespace CryptoScriptUnitTest
         public void GeneratePredefinedAES256KBPKTest()
         {
             string input = "KEY kbpk=GenerateKey(AES-CBC,0x(EF0BA217D99A6D7033227079B3C3F5B16E31E828659AE1A6B5A757C2D8D20133))";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -207,7 +207,7 @@ namespace CryptoScriptUnitTest
         {
             string input = "KEY kbpk=GenerateKey(AES-CBC,0x(EF0BA217D99A6D7033227079B3C3F5B16E31E828659AE1A6B5A757C2D8D20133)) " +
                             "KEY ik=GenerateKey(AES-CBC,0x(A714752E27B680B646CB110D6EB31C5C))";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -220,7 +220,7 @@ namespace CryptoScriptUnitTest
         public void GenerateKeyRandomAES128_Test()
         {
             string input = "KEY key2=GenerateKey(AES-CBC,128)";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -235,14 +235,14 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(variable.KeySize == "128");
             var key = FormatConversions.HexStringToByteArray(variable.Value);
             ClassicAssert.IsTrue(key.Length == 16);
-            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(prog.Store.Contains(variable.Id));
         }
         [Test]
         public void GenerateKeyWitVARDataTest() 
         {
             string input = "VAR data=0x(A714752E27B680B646CB110D6EB31C5C) " +
                            "KEY k=GenerateKey(AES-CBC,data)";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);

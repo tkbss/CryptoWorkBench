@@ -47,6 +47,7 @@ public sealed class Ep2Mac : CryptoAlgorithm
 
     public override StringVariableDeclaration Mac(AlgorithmCallArguments arguments)
     {
+        arguments.Verify();
         ArgumentNullException.ThrowIfNull(arguments);
         if (arguments.Arguments.Count != 3)
             throw new ArgumentException("EP2 Mac requires exactly three arguments.");

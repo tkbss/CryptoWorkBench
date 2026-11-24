@@ -14,7 +14,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void DefaultParameters_AES_CCM_Test()
         {
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "PARAM p1=Parameters(AES-CCM)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -26,7 +26,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void DefaultParameters_AES_CBC_Test()
         {
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "PARAM p1=Parameters(AES-CBC)";
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
@@ -41,7 +41,7 @@ namespace CryptoScriptUnitTest
             Assert.That(variable.GetParameter("PAD") == "PKCS-7");
             Assert.That(variable.GetParameter("MECH") == "AES-CBC");
             ClassicAssert.IsTrue(variable.Id == "p1");
-            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(prog.Store.Contains(variable.Id));
             ClassicAssert.IsTrue(string.IsNullOrEmpty(variable.GetParameter("NONCE")));
             ClassicAssert.IsTrue(string.IsNullOrEmpty(variable.GetParameter("COUNTER")));
         }
@@ -49,7 +49,7 @@ namespace CryptoScriptUnitTest
         public void Default_Parameters_AES_CTR_Test()
         {
             string input = "PARAM p6=Parameters(#MECH:AES-CTR,#NONCE:0x(00112233445566778899AABB),#COUNTER:0x(00000000))";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -60,13 +60,13 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(variable.Value.Contains("#COUNTER:0x(00000000)"));
             ClassicAssert.IsTrue(variable.GetParameter("NONCE") == "0x(00112233445566778899AABB)");
             ClassicAssert.IsTrue(variable.GetParameter("COUNTER") == "0x(00000000)");
-            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(prog.Store.Contains(variable.Id));
         }
         [Test]
         public void Default_Parameters_AES_GCM_Test()
         {
             string input = "PARAM p6=Parameters(#MECH:AES-GCM)";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -74,14 +74,14 @@ namespace CryptoScriptUnitTest
             var variable = res.Statements[0] as ParameterVariableDeclaration;
             Assert.That(variable.Value.Contains("AES-GCM"));           
             Assert.That(variable.GetParameter("ADATA") == "\"DEFAULT_GCM_AUTHENTICATION_DATA\"");
-            Assert.That(VariableDictionary.Instance().Contains(variable.Id));
+            Assert.That(prog.Store.Contains(variable.Id));
         }
 
         [Test]
         public void Default_Parameters_AES_CBC_Test()
         {
             string input = "PARAM p2=Parameters(AES-CBC,#PAD:PKCS-7,#IV:0x(000102030405060708090A0B0C0D0E0F))";
-            CryptoScriptRunner prog = new CryptoScriptRunner();
+            CryptoScriptRunner prog = new CryptoScriptRunner(new VariableDictionary());
             CryptoScriptParser parser = ParserBuilder.StringBuild(input);
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
@@ -94,7 +94,7 @@ namespace CryptoScriptUnitTest
             ClassicAssert.IsTrue(variable.GetParameter("PAD") == "PKCS-7");
             ClassicAssert.IsTrue(variable.Mechanism == "AES-CBC");
             ClassicAssert.IsTrue(variable.Id == "p2");
-            ClassicAssert.IsTrue(VariableDictionary.Instance().Contains(variable.Id));
+            ClassicAssert.IsTrue(prog.Store.Contains(variable.Id));
         }
     }
 }

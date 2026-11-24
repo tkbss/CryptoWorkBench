@@ -28,6 +28,7 @@ public sealed class KDF_EMV_MASTER_A : CryptoAlgorithm
 
     public override KeyVariableDeclaration Derive(AlgorithmCallArguments arguments)
     {
+        arguments.Verify();
         ArgumentNullException.ThrowIfNull(arguments);
         if (arguments.Arguments.Count != 3)
             throw new ArgumentException("KDF-EMV-MASTER-A Derive requires exactly three arguments.");

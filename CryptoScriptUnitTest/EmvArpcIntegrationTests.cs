@@ -120,11 +120,11 @@ public class EmvArpcIntegrationTests
         EmvAcFixtures.Reset();
         Prepare(mechanism);
         var p = (ParameterVariableDeclaration)VariableDictionary.Instance().Get("p");
-        p.GetParameters().Add("#UNKNOWN", "private");
+        p.EditMetadata(map => map.Add("#UNKNOWN", "private"));
         var error = Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR result=Mac(p,sk,arqc)"));
         Assert.That(error!.SemanticError!.ErrorCode, Is.EqualTo(FunctionContractError.UnknownParameter));
-        p.GetParameters().Remove("#UNKNOWN");
-        p.GetParameters()["#MECH"] = "AES-CMAC";
+        p.EditMetadata(map => map.Remove("#UNKNOWN"));
+        p.EditMetadata(map => map["#MECH"] = "AES-CMAC");
         Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR result=Mac(p,sk,arqc)"));
     }
 

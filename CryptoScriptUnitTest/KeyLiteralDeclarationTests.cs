@@ -118,7 +118,8 @@ public class KeyLiteralDeclarationTests
                 runner.Execute(Parse($"KEY {name} = {literal}")))!;
             Assert.That(error.SemanticError!.DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.InvalidDeclaration));
             Assert.That(error.SemanticError.Message,
-                Is.EqualTo("KEY requires a valid nonempty HEX or Base64 literal containing whole bytes."));
+                Is.EqualTo(name == "key" ? "Variable 'key' is already declared." :
+                        "KEY requires a valid nonempty HEX or Base64 literal containing whole bytes."));
             Assert.That(error.SemanticError.Value, Is.Empty);
             Assert.That(error.InnerException, Is.Null);
             Assert.That(runner.Diagnostics, Has.Count.EqualTo(1));

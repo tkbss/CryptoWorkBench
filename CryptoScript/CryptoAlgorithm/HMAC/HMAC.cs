@@ -67,13 +67,14 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
 
         public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
         {
+            parameters.Verify();
             ParameterVariableDeclaration parameter =
                 AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
             NormalizeAndValidateMechanism(parameter.Mechanism);
             KeyVariableDeclaration key = AlgorithmArgumentResolver.ResolveKey(parameters.Arguments[1]);
             KeyMetadataValidator.Validate(key, KeyAlgorithm.Hmac, KeyUsage.MacGenerate,
                 "Mac", parameter.Mechanism, parameters.DiagnosticSink);
-            StringVariableDeclaration data = ResolveData(parameters.Arguments[2].Value!);
+            StringVariableDeclaration data = ResolveData(parameters.Store, parameters.Arguments[2].Value!);
 
             return CreateMode(parameter.Mechanism).ModeMac(parameter, key, data);
         }
@@ -105,9 +106,9 @@ namespace CryptoScript.CryptoAlgorithm.HMAC
             return mechanism;
         }
 
-        private static StringVariableDeclaration ResolveData(string value)
+        private static StringVariableDeclaration ResolveData(VariableDictionary store, string value)
         {
-            if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+            if (store.Get(value) is StringVariableDeclaration declared)
                 return declared;
 
             string format = FormatConversions.ParseString(value);
