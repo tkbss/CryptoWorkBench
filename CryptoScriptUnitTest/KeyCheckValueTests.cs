@@ -99,11 +99,11 @@ public class KeyCheckValueTests
     }
 
     [Test]
-    public void FailedRedeclarationRetainsExistingKeyAndLongInputCannotMatch()
+    public void LongInputCannotMatchAndRetainsExistingKey()
     {
         var key = Key();
         VariableDictionary.Instance().Add(key);
-        var program = Run("KEY original=Check(0x(C6A13B37878F5B826F4F8162A1C8D87900)) VAR after=0x(01)");
+        var program = Run("KEY missing=Check(0x(C6A13B37878F5B826F4F8162A1C8D87900)) VAR after=0x(01)");
         Assert.That(program.Diagnostics.Single().DiagnosticCode, Is.EqualTo(SemanticDiagnosticCode.KeyCheckValueNotFound));
         Assert.That(Get("original"), Is.SameAs(key));
     }
@@ -154,7 +154,10 @@ public class KeyCheckValueTests
         Assert.That(copy.Usage, Is.EqualTo(key.Usage));
         Assert.That(copy.DerivationMechanism, Is.EqualTo(key.DerivationMechanism));
         Assert.That(copy.KeyAttributes[0], Is.Not.SameAs(key.KeyAttributes[0]));
-        copy.KeyAttributes[0].Data = "changed";
+        var attributes = copy.KeyAttributes;
+        attributes[0].Data = "changed";
+        copy.KeyAttributes = attributes;
+        Assert.That(copy.KeyAttributes[0].Data, Is.EqualTo("changed"));
         Assert.That(key.KeyAttributes[0].Data, Is.EqualTo("test"));
         Assert.That(key.Id, Is.EqualTo("original"));
     }

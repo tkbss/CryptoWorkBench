@@ -14,8 +14,11 @@ public sealed class MAC_EMV_AC : CryptoAlgorithm
     public override ParameterVariableDeclaration GenerateParameters(string mechanism, string[] parameters) =>
         EmvAcArgumentContract.GenerateParameters(MechanismName, mechanism, parameters);
 
-    public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters) =>
-        EmvAcArgumentContract.Execute(MechanismName, parameters, verify: false);
+    public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
+    {
+        parameters.Verify();
+        return EmvAcArgumentContract.Execute(MechanismName, parameters, verify: false);
+    }
 
     // New mechanisms have no value-only compatibility contract. Existing MACs keep theirs.
     public override StringVariableDeclaration Mac(string[] parameters) =>

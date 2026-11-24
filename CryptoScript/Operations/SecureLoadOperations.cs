@@ -6,7 +6,7 @@ using CryptoScript.Variables;
 
 namespace CryptoScript.Operations;
 
-internal sealed record PreparedSecureLoad(SecureEnvelope Envelope, string[] Names, bool Replace) : IDisposable
+internal sealed record PreparedSecureLoad(VariableDictionary Store, SecureEnvelope Envelope, string[] Names, bool Replace) : IDisposable
 {
     public void Dispose() => Envelope.Dispose();
 }
@@ -15,7 +15,7 @@ internal static class SecureLoadOperations
 {
     internal static bool IsSecureLoad(string name) => name.Equals("SecureLoad", StringComparison.OrdinalIgnoreCase);
 
-    internal static PreparedSecureLoad Prepare(FunctionCallExpressionNode call, CancellationToken token)
+    internal static PreparedSecureLoad Prepare(FunctionCallExpressionNode call, CancellationToken token, VariableDictionary store)
     {
         if (call.Arguments.Count == 0 || call.Arguments[0] is not VariableArgumentNode source)
             throw new SecureLoadException("InvalidSelection");
@@ -29,11 +29,11 @@ internal static class SecureLoadOperations
         }
         if (names.Count > SecureSaveOptions.RootLimit || names.Distinct(StringComparer.Ordinal).Count() != names.Count ||
             names.Contains("ALL", StringComparer.Ordinal) && names.Count != 1) throw new SecureLoadException("InvalidSelection");
-        if (VariableDictionary.Instance().Get(source.Identifier) is not PathVariableDeclaration { Type: CryptoTypePath } path)
+        if (store.Get(source.Identifier) is not PathVariableDeclaration { Type: CryptoTypePath } path)
             throw new SecureLoadException("InvalidPathReference");
         if (!AesGcm.IsSupported) throw new SecureLoadException("UnsupportedPlatform");
         byte[] bytes = SecureSnapshotByteReader.Read(path, token);
-        try { return new(SecureEnvelope.Parse(bytes), names.ToArray(), replace); }
+        try { return new(store, SecureEnvelope.Parse(bytes), names.ToArray(), replace); }
         finally { CryptographicOperations.ZeroMemory(bytes); }
     }
 
@@ -60,7 +60,7 @@ internal static class SecureLoadOperations
                 finally { CryptographicOperations.ZeroMemory(payload); }
             }, context.CancellationToken).ConfigureAwait(false);
             using (InterpreterExecution.EnterState(runner: true))
-                SnapshotOperations.PublishLoadedRoots(roots, prepared.Names, prepared.Replace, context.CancellationToken, secure: true);
+                SnapshotOperations.PublishLoadedRoots(prepared.Store, roots, prepared.Names, prepared.Replace, context.CancellationToken, secure: true);
         }
         finally { if (password is not null) CryptographicOperations.ZeroMemory(password); }
     }

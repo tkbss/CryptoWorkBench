@@ -102,15 +102,16 @@ public sealed partial class WorkbenchAutomationService
     }
 
     internal void ReadVariableValue(VariableDeclaration declaration, Func<bool> validate, Action<string> present) =>
-        InterpreterHostQueue.RunState(() =>
+        InterpreterHostQueue.RunState(Store, () =>
         {
             ValidateStateAccess(null, validate);
+            if (!ReferenceEquals(Store.Get(declaration.Id), declaration)) throw new ExecutionBusyException();
             return declaration.Value;
         }, present);
 
     internal IReadOnlyList<VariableModel> Mutate(Action mutation,
         Action<IReadOnlyList<VariableModel>>? present = null, long? expectedVersion = null,
-        Func<bool>? validate = null) => InterpreterHostQueue.RunState(() =>
+        Func<bool>? validate = null) => InterpreterHostQueue.RunState(Store, () =>
     {
         ValidateStateAccess(expectedVersion, validate);
         IReadOnlyList<VariableModel> captured;
@@ -121,11 +122,13 @@ public sealed partial class WorkbenchAutomationService
 
     internal static IReadOnlyList<VariableModel> ClearAdmitted() => Shared.ClearAdmittedState();
 
-    internal IReadOnlyList<VariableModel> ClearAdmittedState() => InterpreterExecution.AccessState(() =>
+    internal T AccessJobState<T>(Func<T> read) => InterpreterExecution.AccessState(current.Value?.Admission, read);
+
+    internal IReadOnlyList<VariableModel> ClearAdmittedState() => AccessJobState(() =>
     {
         var job = current.Value ?? throw new ExecutionBusyException();
         if (job.InspectorRead) throw new InvalidOperationException("Inspector reads cannot reset the workspace.");
-        VariableDictionary.Instance().Clear();
+        InterpreterExecution.ClearState(job.Admission ?? throw new ExecutionBusyException());
         NotifyInspectorReset();
         lock (sync) job.Effects = true;
         return CaptureMutation();

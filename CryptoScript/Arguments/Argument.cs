@@ -59,16 +59,18 @@ namespace CryptoScript.Model
         {
             
         }
-        public void SetParameter(string type, string value)
+        public void SetParameter(string type, string value) => SetParameter(type, value, VariableDictionary.Instance());
+
+        internal void SetParameter(string type, string value, VariableDictionary store)
         {
             Type = type;
-            SetValue(value);
+            SetValue(value, store);
         }
-        private void SetValue(string value)
+        private void SetValue(string value, VariableDictionary store)
         {
             HeaderReference = null;
             if (Type.Equals("#BLKH", StringComparison.OrdinalIgnoreCase) &&
-                VariableDictionary.Instance().Get(value) is BlockHeaderVariableDeclaration header)
+                store.Get(value) is BlockHeaderVariableDeclaration header)
             {
                 if (header.Definition is null) throw new ArgumentException("TR31H has no validated header definition.");
                 HeaderReference = header;
@@ -111,8 +113,8 @@ namespace CryptoScript.Model
                 Value = value;
                 return;
             }
-            if (VariableDictionary.Instance().Contains(value))
-                Value = VariableDictionary.Instance().Get(value).Value;
+            if (store.Contains(value))
+                Value = store.Get(value).Value;
             else
                 throw new ArgumentException("Unknown parameter value : " + value);
         }

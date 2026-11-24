@@ -10,7 +10,13 @@ public static class AssignmentEvaluator
     public static VariableDeclaration Evaluate(AssignmentStatementNode assignment,
         List<SemanticError> errors, Func<FunctionCallExpressionNode, Statement> evaluateFunctionCall)
     {
-        var variables = VariableDictionary.Instance();
+        using var admission = InterpreterExecution.EnterStandaloneOperation();
+        return Evaluate(assignment, errors, evaluateFunctionCall, VariableDictionary.Instance());
+    }
+
+    internal static VariableDeclaration Evaluate(AssignmentStatementNode assignment, List<SemanticError> errors,
+        Func<FunctionCallExpressionNode, Statement> evaluateFunctionCall, VariableDictionary variables)
+    {
         var target = variables.Get(assignment.Identifier);
         if (target is null)
             throw Error(errors, assignment, SemanticDiagnosticCode.UnknownVariable,
@@ -39,9 +45,9 @@ public static class AssignmentEvaluator
             if (call is not null)
             {
                 ValidateCallTree(call, type, assignment, errors);
-                FileEncryption.FileEncryptionContract.Validate(call, errors, type.Name);
-                FileEncryption.FileMacContract.Validate(call, errors, type.Name);
-                FileEncryption.FileHashContract.Validate(call, errors, type.Name);
+                FileEncryption.FileEncryptionContract.Validate(call, errors, type.Name, store: variables);
+                FileEncryption.FileMacContract.Validate(call, errors, type.Name, store: variables);
+                FileEncryption.FileHashContract.Validate(call, errors, type.Name, store: variables);
                 function = true;
                 var result = evaluateFunctionCall(call) as FunctionCall;
                 if (result?.ReturnVariable?.Type is null)
@@ -55,7 +61,7 @@ public static class AssignmentEvaluator
                     throw Error(errors, assignment, SemanticDiagnosticCode.FunctionContractViolation,
                         "Function result does not satisfy the declared type contract.");
                 // Audited operations return detached objects. Never rename/mutate a live alias.
-                if (variables.GetVariables().Any(value => ReferenceEquals(value, prepared)))
+                if (prepared.Owner != null)
                     throw Error(errors, assignment, SemanticDiagnosticCode.FunctionContractViolation,
                         "Assignment requires a detached function result.");
             }
@@ -63,7 +69,7 @@ public static class AssignmentEvaluator
             {
                 if (type is not CryptoTypeParameters) throw TypeMismatch(errors, assignment);
                 prepared = ParameterInitializerEvaluator.Prepare(target.Id, type.Name,
-                    assignment.Parameters.Items, errors, ParameterEvaluator.Evaluate, requireStructuredMechanism: true);
+                    assignment.Parameters.Items, errors, (t, v) => ParameterEvaluator.Evaluate(t, v, variables), requireStructuredMechanism: true);
             }
             else if (assignment.Initializer is LiteralInitializerNode literal)
             {
@@ -96,11 +102,14 @@ public static class AssignmentEvaluator
                 }
             }
 
-            prepared.Id = target.Id;
+            variables.VerifyResult(prepared);
+            prepared.Id = assignment.Identifier;
             prepared.Type = type;
             prepared.Text = assignment.RawText;
             // No callbacks, validation or allocation after publication.
-            variables.Update(prepared);
+            if (!variables.TryAssign(target, prepared))
+                throw Error(errors, assignment, SemanticDiagnosticCode.InvalidAssignmentInitializer,
+                    "Assignment target changed during evaluation.");
             return prepared;
         }
         catch (SemanticErrorException exception)
@@ -133,7 +142,7 @@ public static class AssignmentEvaluator
         }
     }
 
-    private static bool ValidRepresentation(VariableDeclaration value) => value.Type switch
+    internal static bool ValidRepresentation(VariableDeclaration value) => value.Type switch
     {
         CryptoTypeVar => true,
         CryptoTypeKey => value is KeyVariableDeclaration key && key.KeySizeInBits.IsKnown,

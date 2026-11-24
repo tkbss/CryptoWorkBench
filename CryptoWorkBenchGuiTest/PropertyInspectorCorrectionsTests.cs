@@ -358,7 +358,7 @@ public class PropertyInspectorCorrectionsTests
                 var pr = new InspectorProjector(param,token);
                 var path = MapPath(pr);
                 using var it = (navigate ? pr.DescribeSteps(new(path,655),_=>{}) : pr.Encode(new(path))).GetEnumerator();
-                while (CryptoScript.Model.InterpreterExecution.AccessState(it.MoveNext))
+                while (service.AccessJobState(it.MoveNext))
                 {
                     work=pr.TraversalWork;
                     if (work>=1024) stop.Cancel();

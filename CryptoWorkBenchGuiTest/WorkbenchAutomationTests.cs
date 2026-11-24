@@ -35,6 +35,25 @@ public class WorkbenchAutomationTests
     }
 
     [Test]
+    public async Task TwoHostOriginsCaptureAndEditOnlyTheirOwnVariables()
+    {
+        var a = new WorkbenchAutomationService(TimeProvider.System, new VariableDictionary());
+        var b = new WorkbenchAutomationService(TimeProvider.System, new VariableDictionary());
+        var first = await a.ExecuteSubmissionAsync("VAR shared=0x(01)", NoPassword);
+        var second = await b.ExecuteSubmissionAsync("VAR shared=0x(02)", NoPassword);
+        Assert.That(first.Variables.Single().Value, Is.EqualTo("0x(01)"));
+        Assert.That(second.Variables.Single().Value, Is.EqualTo("0x(02)"));
+        var origin = a.Store.Get("shared");
+        long revision = b.Store.Revision;
+        Assert.Throws<ExecutionBusyException>(() => b.ReadVariableValue(origin, () => true, _ => Assert.Fail()));
+        a.Mutate(() => origin.Value = "0x(03)");
+        Assert.That(b.Refresh().Single().Value, Is.EqualTo("0x(02)"));
+        Assert.That(a.Refresh().Single().Value, Is.EqualTo("0x(03)"));
+        Assert.That(b.Store.Revision, Is.EqualTo(revision));
+        Assert.That(VariableDictionary.Instance().Contains("shared"), Is.False);
+    }
+
+    [Test]
     public async Task SubmissionRunsMultipleStatementsAndFreshRunnersShareState()
     {
         var first = await service.ExecuteSubmissionAsync("VAR one=0x(01) VAR two=Compare(one,one)", NoPassword);
@@ -169,6 +188,102 @@ public class WorkbenchAutomationTests
         { using var answer = await context.RequestPasswordAsync(PasswordPurpose.SecureLoad); }) });
         Assert.That(execution.Succeeded, Is.False);
         Assert.That(execution.Status, Does.Contain("cancelled by user"));
+    }
+
+    [TestCase(false), TestCase(true)]
+    public async Task SuspendedJobRetainsOnlyItsOwnOrderedOutput(bool info)
+    {
+        var a = new WorkbenchAutomationService(TimeProvider.System, new VariableDictionary());
+        var b = new WorkbenchAutomationService(TimeProvider.System, new VariableDictionary());
+        var entered = Signal<bool>();
+        var release = Signal<bool>();
+        string first = info ? "Info(keymap)" : "Print(0x(AA))";
+        string other = info ? "Info(Delete)" : "Print(0x(BB))";
+        StatementNode Node(string script) => AntlrToStatement.Map(ParserBuilder.StringBuild(script).program().statement(0))!;
+        var nodes = new StatementNode[] { Node(first), new AsyncInfrastructureStatement(async context =>
+        {
+            using var answer = await context.RequestPasswordAsync(PasswordPurpose.SecureLoad);
+        }), Node("Print(0x(CC))") };
+        var pending = a.ExecuteSubmissionAsync("", async (_, request) =>
+        {
+            entered.SetResult(true);
+            await release.Task;
+            return PasswordResponse.Supplied(request.RequestId, PasswordSecret.TakeOwnership("test".ToCharArray()));
+        }, testStatements: nodes);
+        try
+        {
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            var raw = new OutputOperations();
+            if (info) Assert.Throws<ExecutionBusyException>(() => raw.Info(["Delete"]));
+            else Assert.Throws<ExecutionBusyException>(() => raw.Print(["0x(BB)"]));
+            await Assert.ThatAsync(() => b.ExecuteSubmissionAsync(other, NoPassword), Throws.TypeOf<ExecutionBusyException>());
+        }
+        finally { release.TrySetResult(true); }
+        var firstResult = await pending;
+        var second = await b.ExecuteSubmissionAsync(other, NoPassword);
+        Assert.That(firstResult.Succeeded && second.Succeeded, Is.True);
+        Assert.That(firstResult.Output.Select(o => o.Kind), Is.EqualTo(new[] { info ? "info" : "print", "print" }));
+        Assert.That(firstResult.Output[0].Text, Is.Not.Empty.And.Not.EqualTo(second.Output.Single().Text));
+        Assert.That(firstResult.Output[1].Text, Is.EqualTo("out: 0x(CC)"));
+        var stored = (await a.GetExecutionAsync(WorkbenchAutomationService.LocalCaller, firstResult.ExecutionId, default)).Data!;
+        Assert.That(stored.Outputs.Select(o => o.Sequence), Is.EqualTo(new long[] { 1, 2 }));
+        Assert.That(stored.Outputs.Select(o => o.Kind.ToString().ToLowerInvariant()), Is.EqualTo(firstResult.Output.Select(o => o.Kind)));
+    }
+
+    [TestCase(false, false), TestCase(false, true), TestCase(true, false), TestCase(true, true)]
+    public async Task SecureSaveReceiptPreservesCollectorPosition(bool info, bool late)
+    {
+        var local = new WorkbenchAutomationService(TimeProvider.System, new VariableDictionary());
+        var target = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".json");
+        local.Store.Add(new PathVariableDeclaration { Id = "path", Type = new CryptoTypePath(), Value = target });
+        var waiting = Signal<bool>();
+        var resume = Signal<bool>();
+        var seen = 0;
+        void Throw()
+        {
+            seen++;
+            throw new IOException("subscriber fault");
+        }
+        void OnPrint(OutputOperations.PrintResult value) { if (value.Text == "out: 0x(22)") Throw(); }
+        void OnInfo(string _) => Throw();
+        void Subscribe() { if (info) OutputOperations.InfoEvent += OnInfo; else OutputOperations.PrintResultEvent += OnPrint; }
+        if (!late) Subscribe();
+        var pending = local.ExecuteSubmissionAsync("VAR item=1 Print(0x(11)) SecureSave(path,item,#SECUREKDF:PBKDF2) " +
+            (info ? "Info(keymap)" : "Print(0x(22))"), async (_, request) =>
+        {
+            waiting.TrySetResult(true);
+            await resume.Task;
+            PasswordSecret Secret() => PasswordSecret.TakeOwnership("receipt-test".ToCharArray());
+            return PasswordResponse.Supplied(request.RequestId, Secret(), Secret());
+        });
+        try
+        {
+            await waiting.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            if (late) Subscribe();
+            if (info) Assert.Throws<ExecutionBusyException>(() => new OutputOperations().Info(["keymap"]));
+            else Assert.Throws<ExecutionBusyException>(() => new OutputOperations().Print(["0x(22)"]));
+            resume.SetResult(true);
+            var result = await pending.WaitAsync(TimeSpan.FromSeconds(30));
+            Assert.That((result.Succeeded, seen), Is.EqualTo((false, 1)));
+            Assert.That(result.Output[0].Text, Is.EqualTo("out: 0x(11)"));
+            string[] kinds = late ? ["print", info ? "info" : "print"] : ["print"];
+            Assert.That(result.Output.Select(o => o.Kind), Is.EqualTo(kinds));
+            if (late) Assert.That(result.Output[1].Text, info ? Is.Not.Empty : Is.EqualTo("out: 0x(22)"));
+            var receipt = (await local.GetExecutionAsync(WorkbenchAutomationService.LocalCaller, result.ExecutionId, default)).Data!;
+            Assert.That(receipt.State.ToString(), Is.EqualTo("Aborted"));
+            Assert.That(receipt.Outputs.Select(o => o.Kind.ToString().ToLowerInvariant()), Is.EqualTo(kinds));
+            Assert.That(receipt.Outputs.Select(o => o.Sequence), Is.EqualTo(Enumerable.Range(1, kinds.Length)));
+        }
+        finally
+        {
+            resume.TrySetResult(true);
+            OutputOperations.PrintResultEvent -= OnPrint;
+            OutputOperations.InfoEvent -= OnInfo;
+            try { await pending; } finally { File.Delete(target); }
+        }
+        var recovered = await local.ExecuteSubmissionAsync("Print(0x(33))", NoPassword);
+        Assert.That(recovered.Succeeded, Is.True);
+        Assert.That(recovered.Output.Single().Text, Is.EqualTo("out: 0x(33)"));
     }
 
     [Test]

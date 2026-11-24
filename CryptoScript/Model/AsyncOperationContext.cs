@@ -14,5 +14,29 @@ internal sealed class AsyncOperationContext(
 {
     internal CancellationToken CancellationToken { get; } = cancellationToken;
     internal ISemanticDiagnosticSink Diagnostics { get; } = diagnostics;
-    internal Task<PasswordResponse> RequestPasswordAsync(PasswordPurpose purpose) => request(purpose, CancellationToken);
+    private readonly InterpreterExecution.Frame? frame = InterpreterExecution.CaptureFrame();
+    internal void Verify()
+    {
+        using var access = InterpreterExecution.EnterState(runner: true);
+        InterpreterExecution.VerifyFrame(frame);
+    }
+
+    internal void Print(string text)
+    {
+        using var access = InterpreterExecution.EnterState(runner: true);
+        InterpreterExecution.VerifyFrame(frame);
+        new OutputOperations().Print([text]);
+    }
+
+    internal async Task<PasswordResponse> RequestPasswordAsync(PasswordPurpose purpose)
+    {
+        Verify();
+        var response = await request(purpose, CancellationToken).ConfigureAwait(false);
+        try
+        {
+            Verify();
+            return response;
+        }
+        catch { response.Dispose(); throw; }
+    }
 }

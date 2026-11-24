@@ -13,7 +13,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void MAC_AES_CMAC_Test()
         {
-            var prog = new CryptoScriptRunner();
+            var prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "KEY mack1=GenerateKey(AES-CMAC,128) " +
                 "PARAM macp2=Parameters(AES-CMAC) " +
                 "VAR macc1 = Mac(macp2,mack1,0x(00112233445566778899AABBCCDDEEFF))";                
@@ -21,16 +21,16 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(variable.Id));
+            Assert.That(prog.Store.Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(pv.Id));
+            Assert.That(prog.Store.Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(crypto.Id));
+            Assert.That(prog.Store.Contains(crypto.Id));
         }
         [Test]
         public void MAC_AES_GMAC_Test()
         {
-            var prog = new CryptoScriptRunner();
+            var prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "KEY mack1=GenerateKey(AES-GMAC,256) " +
                 "PARAM macp2=Parameters(AES-GMAC) " +
                 "VAR macc1 = Mac(macp2,mack1,0x(00112233445566778899AABBCCDDEEFF))";
@@ -38,16 +38,16 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(variable.Id));
+            Assert.That(prog.Store.Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(pv.Id));
+            Assert.That(prog.Store.Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(crypto.Id));
+            Assert.That(prog.Store.Contains(crypto.Id));
         }
         [Test]
         public void MAC_AES_CMAC_wrong_mode_in_generate_key_Test()
         {
-            var prog = new CryptoScriptRunner();
+            var prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "KEY mack2=GenerateKey(AES-ECB,128) " +
                 "PARAM macp3=Parameters(AES-CMAC) " +
                 "VAR macc2 = Mac(macp3,mack2,0x(00112233445566778899AABBCCDDEEFF))";
@@ -55,16 +55,16 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(variable.Id));
+            Assert.That(prog.Store.Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(pv.Id));
+            Assert.That(prog.Store.Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(crypto.Id));
+            Assert.That(prog.Store.Contains(crypto.Id));
         }
         [Test]
         public void MAC_AES_CMAC_wrong_operation_Test()
         {
-            var prog = new CryptoScriptRunner();
+            var prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "KEY mack3=GenerateKey(AES-ECB,128) " +
                 "PARAM macp4=Parameters(AES-CMAC) " +
                 "VAR macc3 = Encrypt(macp4,mack3,0x(00112233445566778899AABBCCDDEEFF))";

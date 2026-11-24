@@ -51,6 +51,7 @@ public class Tr31ReviewRegressionTests
     private static string Quote(string s) => Newtonsoft.Json.JsonConvert.SerializeObject(s);
     private static void SetupAes(char algorithm, bool typed)
     {
+        VariableDictionary.Instance().Clear();
         Run($"KEY kbpk=GenerateKey(AES-CBC,0x({Kbpk})) " +
             $"TR31H h=CreateHeader(KBVID:D,KEYU:D0,ALGO:{algorithm},MODEU:B,EXP:E) " +
             "PARAM p=#MECH:WRAP-AES-TR31" + (typed ? " #BLKH:h" : ""));
@@ -70,9 +71,10 @@ public class Tr31ReviewRegressionTests
         {
             SetupAes(algorithm, typed);
             var block = Authenticated(bits, algorithm);
+            Run("VAR input=0x(00)");
             foreach (string representation in new[] { block.ToString(), Quote(Wire(block)) })
             {
-                Run("VAR input=" + representation);
+                Run("input=" + representation);
                 var before = VariableDictionary.Instance().GetVariables().ToDictionary(v => v.Id, v => v.Value);
                 Assert.Throws<SemanticErrorException>(() => Run("KEY rejected=Unwrap(p,kbpk,input)"));
                 Assert.That(VariableDictionary.Instance().Contains("rejected"), Is.False);
@@ -105,6 +107,7 @@ public class Tr31ReviewRegressionTests
         Run($"KEY kbpk=GenerateKey(DES3-CBC,0x({kbpk})) " +
             $"TR31H h=CreateHeader(KBVID:{version},KEYU:D0,ALGO:T,MODEU:B,EXP:E) " +
             "PARAM p=#MECH:WRAP-DES3-TR31 #BLKH:h");
+        Run("VAR input=0x(00)");
         foreach (int bits in new[] { 0, 9, 64, 256, 264 })
         {
             byte[] clear = new byte[32];
@@ -114,7 +117,7 @@ public class Tr31ReviewRegressionTests
             var block = version == 'B'
                 ? Tr31VersionBWrap.Wrap(header, Convert.FromHexString(kbpk), clear, analysisKeys: true)
                 : Tr31TdeaVariantWrap.Wrap(header, Convert.FromHexString(kbpk), clear, analysisKeys: true);
-            Run("VAR input=" + new TR31String(header, block.Ciphertext, block.Mac));
+            Run("input=" + new TR31String(header, block.Ciphertext, block.Mac));
             Assert.Throws<SemanticErrorException>(() => Run("KEY rejected=Unwrap(p,kbpk,input)"));
             Assert.That(VariableDictionary.Instance().Contains("rejected"), Is.False);
         }
@@ -204,6 +207,7 @@ public class Tr31ReviewRegressionTests
         foreach (string version in new[] { "A", "B", "C", "D" })
         {
             string mechanism = version == "D" ? "AES" : "DES3";
+            VariableDictionary.Instance().Clear();
             string explicitPadding = version == "B" && label == "\\\\ab" ? ",OPTID:PB,OPTBD:\"0000\"" : "";
             Run($"KEY kbpk=GenerateKey({mechanism}-CBC,192) KEY key=GenerateKey({mechanism}-CBC,128) " +
                 $"TR31H h=CreateHeader(KBVID:{version},KEYU:D0,ALGO:{(version == "D" ? "A" : "T")},MODEU:B,EXP:E,OPTID:LB,OPTBD:{Quote(label)}{explicitPadding}) " +
@@ -221,6 +225,7 @@ public class Tr31ReviewRegressionTests
             foreach (string text in representations)
             {
                 VariableDictionary.Instance().Add(new StringVariableDeclaration { Id = "input", Value = text });
+                if (VariableDictionary.Instance().Contains("recovered")) Run("Delete(recovered,raw,legacyRecovered)");
                 Run("KEY recovered=Unwrap(p,kbpk,input)");
                 var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("recovered");
                 Assert.That(recovered.Value, Is.EqualTo(VariableDictionary.Instance().Get("key").Value).IgnoreCase);

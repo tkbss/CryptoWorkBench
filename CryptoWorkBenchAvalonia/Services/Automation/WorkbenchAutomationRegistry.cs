@@ -59,8 +59,11 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     public Guid InstanceId { get; } = Guid.NewGuid();
 
     public WorkbenchAutomationService() : this(TimeProvider.System) { }
-    internal WorkbenchAutomationService(TimeProvider timeProvider)
+    internal VariableDictionary Store { get; }
+    internal WorkbenchAutomationService(TimeProvider timeProvider) : this(timeProvider, VariableDictionary.Instance()) { }
+    internal WorkbenchAutomationService(TimeProvider timeProvider, VariableDictionary store)
     {
+        Store = store;
         clock = timeProvider;
         variables = new("0", clock.GetUtcNow(), true, [], false);
         editorBridge.InspectorInputChanged += OnInspectorInputChanged;
@@ -73,6 +76,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
 
     private sealed class Job
     {
+        internal InterpreterExecution.HostAdmission? Admission;
         internal bool InspectorRead;
         internal Action? InspectorInvalidated;
         internal Action? InspectorFailureCleanup;
@@ -434,14 +438,15 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     {
         try
         {
-            return await InterpreterHostQueue.RunAdmittedAsync(async () =>
+            return await InterpreterHostQueue.RunAdmittedAsync(Store, async admission =>
             {
+                job.Admission = admission;
                 current.Value = job;
                 try
                 {
                     if (!job.InspectorRead)
                     {
-                        InterpreterExecution.AccessState(() => { EnsureRecovered(); return true; });
+                        InterpreterExecution.AccessState(admission, () => { EnsureRecovered(); return true; });
                         lock (sync)
                         {
                             job.PendingVariables = variables;
@@ -449,7 +454,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                         }
                     }
                     var pipeline = new WorkbenchExecutionPipeline {
-                        ExecutionId = job.Id,
+                        HostAdmission = admission, Store = Store, ExecutionId = job.Id,
                         ValidateJob = () =>
                         {
                             lock (sync) if (!ReferenceEquals(current.Value, job) || !ReferenceEquals(active, job) || job.ResourcesReleased)
@@ -476,6 +481,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
                 {
                     await ReleaseResourcesAsync(job).ConfigureAwait(false);
                     FinalizeJob(job);
+                    job.Admission = null;
                     current.Value = null;
                     if (job.InspectorRead && job.CleanupFailed)
                         throw new InvalidOperationException("Inspector read resource finalization failed.");
@@ -699,7 +705,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         if (current.Value?.InspectorRead == true) throw new InvalidOperationException("Inspector reads cannot capture mutations.");
         try
         {
-            var captured = VariablePresentationCapture.Capture();
+            var captured = VariablePresentationCapture.Capture(Store);
             lock (sync)
             {
                 var snapshot = AutomationProjection.Variables(captured, Version, clock.GetUtcNow());
@@ -729,7 +735,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
         try
         {
             var models = new List<VariableModel>();
-            foreach (var variable in VariableDictionary.Instance().GetVariables())
+            foreach (var variable in Store.GetVariables())
             {
                 var model = new VariableModel { Identifier = variable.Id, Type = variable.Type?.Name ?? "PATH" };
                 if (variable is KeyVariableDeclaration key)
@@ -748,7 +754,7 @@ public sealed partial class WorkbenchAutomationService : IWorkbenchAutomationSer
     }
 
     internal IReadOnlyList<VariableModel> Refresh(Action<IReadOnlyList<VariableModel>>? present = null) =>
-        InterpreterHostQueue.RunState(CaptureMutation, present);
+        InterpreterHostQueue.RunState(Store, CaptureMutation, present);
 
     public void StopAccepting() { lock (sync) stopping = true; }
     private Task? shutdownQuiescence;

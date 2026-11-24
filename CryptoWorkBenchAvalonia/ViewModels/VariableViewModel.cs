@@ -86,7 +86,6 @@ public class VariableViewModel : ViewModelBase
         {
             if (variable is not ParameterVariableDeclaration parameters) return;
             parameters.SetParameter(key, item.Value);
-            VariableDictionary.Instance().Update(parameters);
         });
     }
 
@@ -112,7 +111,7 @@ public class VariableViewModel : ViewModelBase
         {
             bool CurrentDraft() => originalPublication == publication && ReferenceEquals(SelectedVariable, selected) &&
                 coordinator.IsActiveGuiOperation(ticket) && draftRevision == Services.InterpreterHostQueue.StateRevision &&
-                ReferenceEquals(VariableDictionary.Instance().Get(draft.Identifier), original);
+                ReferenceEquals(Automation.Store.Get(draft.Identifier), original);
             try
             {
                 if (mutation == null)

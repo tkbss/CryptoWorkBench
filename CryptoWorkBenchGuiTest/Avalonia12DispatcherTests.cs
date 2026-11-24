@@ -41,17 +41,17 @@ public class Avalonia12DispatcherTests
     [Test]
     public Task HandoffDoesNotGrantWorkerInterpreterCapabilityToUi() => Ui(async () =>
     {
-        await Task.Run(() => InterpreterExecution.RunAsync(async () =>
+        await Task.Run(() => InterpreterExecution.RunAsync(CryptoScript.Variables.VariableDictionary.Instance(), async host =>
         {
-            Assert.That(await Dispatcher.UIThread.InvokeAsync(() => InterpreterExecution.AccessState(() => true)), Is.True,
+            Assert.That(await Dispatcher.UIThread.InvokeAsync(() => InterpreterExecution.AccessState(host, () => true)), Is.True,
                 "positive control: raw capture transports the ambient Core scope");
             bool denied = await UiDispatch.InvokeAsync(() =>
             {
-                try { InterpreterExecution.AccessState(() => true); return false; }
+                try { InterpreterExecution.AccessState(host, () => true); return false; }
                 catch (ExecutionBusyException) { return true; }
             });
             Assert.That(denied, Is.True);
-            Assert.That(InterpreterExecution.AccessState(() => true), Is.True,
+            Assert.That(InterpreterExecution.AccessState(host, () => true), Is.True,
                 "the worker keeps its original capability");
             return true;
         }));

@@ -90,6 +90,7 @@ public class KDF_HKDF : CryptoAlgorithm
 
     public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
+        parameters.Verify();
         ParameterVariableDeclaration parameter =
             AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         string mechanism = NormalizeMechanism(parameter.Mechanism);

@@ -42,12 +42,20 @@ namespace CryptoScript.CryptoAlgorithm
         }
         public virtual StringVariableDeclaration Mac(AlgorithmCallArguments parameters) =>
             Mac(parameters.Values);
+        internal virtual StringVariableDeclaration Hash(VariableDictionary store, string[] parameters) =>
+            Hash(parameters);
         public virtual StringVariableDeclaration Hash(string[] parameters)
         {
             return new StringVariableDeclaration();
         }
         public virtual KeyVariableDeclaration Derive(string[] parameters) =>
             Derive(LegacyDeriveArgumentAdapter.Create(parameters));
+        public KeyVariableDeclaration Derive(VariableDictionary store, string[] parameters)
+        {
+            using var lease = Model.InterpreterExecution.Enter(store);
+            return Derive(LegacyDeriveArgumentAdapter.Create(parameters, store));
+        }
+
         public virtual KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
         {
             throw new NotSupportedException("The selected mechanism does not support key derivation.");

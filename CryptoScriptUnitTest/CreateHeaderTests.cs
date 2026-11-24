@@ -83,6 +83,7 @@ public class CreateHeaderTests
         string transported = algorithm == "A" ? "AES" : "DES3";
         foreach (string optional in new[] { "", ",OPTID:LB,OPTBD:\"Test\"", ",OPTID:LB,OPTBD:\"Test\",OPTID:WP,OPTBD:\"000\"" })
         {
+            VariableDictionary.Instance().Clear();
             Header($"KBVID:{version},KEYU:D0,ALGO:{algorithm},MODEU:B,EXP:E{optional}");
             Run($"KEY kbpk=GenerateKey({wrapping}-CBC,{(version == "D" ? 256 : 192)}) " +
                 $"KEY transportKey=GenerateKey({transported}-CBC,{bits}) " +
@@ -97,7 +98,7 @@ public class CreateHeaderTests
             Assert.That(block.Block.Length % (version == "D" ? 16 : 8), Is.Zero);
             Assert.That(VariableDictionary.Instance().Get("recovered").Value,
                 Is.EqualTo(VariableDictionary.Instance().Get("transportKey").Value).IgnoreCase);
-            Run($"VAR wire=\"{wire}\" KEY recovered=Unwrap(p,kbpk,wire)");
+            Run($"VAR wire=\"{wire}\" recovered=Unwrap(p,kbpk,wire)");
             Assert.Multiple(() =>
             {
                 Assert.That(VariableDictionary.Instance().Get("recovered").Value,
@@ -116,7 +117,7 @@ public class CreateHeaderTests
         string before = h.Value;
         Run("KEY kbpk=GenerateKey(AES-CBC,256) PARAM p=#MECH:WRAP-AES-TR31 #BLKH:header");
         foreach (int bits in new[] { 128, 192, 256 })
-            Run($"KEY transportKey=GenerateKey(AES-CBC,{bits}) VAR wrapped=Wrap(p,kbpk,transportKey) KEY recovered=Unwrap(p,kbpk,wrapped)");
+            Run($"KEY transportKey{bits}=GenerateKey(AES-CBC,{bits}) VAR wrapped{bits}=Wrap(p,kbpk,transportKey{bits}) KEY recovered{bits}=Unwrap(p,kbpk,wrapped{bits})");
         Assert.That(h.Value, Is.EqualTo(before));
         Assert.That(h.Definition!.ExpectedLength, Is.Null);
     }
@@ -198,9 +199,9 @@ public class CreateHeaderTests
         Assert.Throws<SemanticErrorException>(() => Run("VAR wrapped=Wrap(p,kbpk,transportKey)"));
         foreach (var pair in values) Assert.That(VariableDictionary.Instance().Get(pair.Key).Value, Is.EqualTo(pair.Value));
         Assert.That(VariableDictionary.Instance().Contains("wrapped"), Is.False);
-        Header();
-        Run("PARAM p=#MECH:WRAP-AES-TR31 #BLKH:header VAR wrapped=Wrap(p,kbpk,transportKey)");
-        Header(Basic.Replace("EXP:E", "EXP:N"));
+        Run($"header=CreateHeader({Basic})");
+        Run("p=#MECH:WRAP-AES-TR31 #BLKH:header VAR wrapped=Wrap(p,kbpk,transportKey)");
+        Run($"header=CreateHeader({Basic.Replace("EXP:E", "EXP:N")})");
         Run("PARAM q=#MECH:WRAP-AES-TR31 #BLKH:header");
         Assert.Throws<SemanticErrorException>(() => Run("KEY bad=Unwrap(q,kbpk,wrapped)"));
     }
@@ -323,7 +324,7 @@ public class CreateHeaderTests
             "PARAM p=#MECH:WRAP-AES-TR31 #BLKH:header VAR wrapped=Wrap(p,kbpk,transportKey) KEY recovered=Unwrap(p,kbpk,wrapped)");
         var block = TR31String.FromString(VariableDictionary.Instance().Get("wrapped").Value);
         string wire = block.Block + Convert.ToHexString(block.Cryptogram) + Convert.ToHexString(block.Mac);
-        Run("VAR wire=" + Newtonsoft.Json.JsonConvert.SerializeObject(wire) + " KEY recovered=Unwrap(p,kbpk,wire)");
+        Run("VAR wire=" + Newtonsoft.Json.JsonConvert.SerializeObject(wire) + " recovered=Unwrap(p,kbpk,wire)");
         var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("recovered");
         Assert.That(recovered.KeyAttributes!.Single(b => b.ID == "LB").Data, Is.EqualTo(label));
         Assert.That(recovered.Value, Is.EqualTo(VariableDictionary.Instance().Get("transportKey").Value).IgnoreCase);
@@ -334,6 +335,7 @@ public class CreateHeaderTests
     {
         foreach (var v in Tr31VersionDTransportVectors.All.Where(v => v.Header.Length == 16 && v.Algorithm is 'A' or 'T'))
         {
+            VariableDictionary.Instance().Clear();
             Header($"KBVID:D,KEYU:D0,ALGO:{v.Algorithm},MODEU:B,EXP:E");
             Run($"KEY kbpk=GenerateKey(AES-CBC,0x({v.Kbpk})) " +
                 $"KEY transportKey=GenerateKey({(v.Algorithm == 'A' ? "AES" : "DES3")}-CBC,0x({v.Key})) " +
@@ -343,6 +345,7 @@ public class CreateHeaderTests
         foreach (int i in new[] { 0, 3 })
         {
             var v = Tr31ReferenceVectors.All[i];
+            VariableDictionary.Instance().Clear();
             Header($"KBVID:{v.Header[0]},KEYU:P0,ALGO:T,MODEU:E,EXP:E");
             Run($"KEY kbpk=GenerateKey(DES3-CBC,0x({v.Kbpk})) KEY transportKey=GenerateKey(DES3-CBC,0x({v.Key})) " +
                 $"PARAM p=#MECH:WRAP-DES3-TR31 #BLKH:header #RND:0x({v.ObfuscationPadding}{v.CipherBlockPadding}) VAR wrapped=Wrap(p,kbpk,transportKey)");
@@ -365,8 +368,8 @@ public class CreateHeaderTests
         {
             char[] changed = wire.ToCharArray();
             changed[offset] = changed[offset] == '0' ? '1' : '0';
-            Run($"VAR altered=\"{new string(changed)}\"");
-            Assert.Throws<SemanticErrorException>(() => Run("KEY recovered=Unwrap(p,kbpk,altered)"));
+            Run($"VAR altered{offset}=\"{new string(changed)}\"");
+            Assert.Throws<SemanticErrorException>(() => Run($"KEY recovered=Unwrap(p,kbpk,altered{offset})"));
             Assert.That(VariableDictionary.Instance().Contains("recovered"), Is.False);
         }
         Run($"VAR trailing=\"{wire}00\"");

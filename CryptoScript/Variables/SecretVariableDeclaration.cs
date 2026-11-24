@@ -10,7 +10,7 @@ public sealed class SecretVariableDeclaration : VariableDeclaration
         SecretSet = secretSet ?? throw new ArgumentNullException(nameof(secretSet));
         Type = new CryptoTypeSecret();
     }
-    public SecretSet SecretSet { get; }
+    public SecretSet SecretSet { get => ReadOwned(field); private init; }
     // General variable display and diagnostics must not accidentally disclose shares.
     public override string Value { get => "SECRET"; set { } }
     public override string PrintOutput()

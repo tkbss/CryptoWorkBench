@@ -39,7 +39,7 @@ public class Tr31ScriptIntegrationTests
             Assert.That(Convert.ToHexString(b.Cryptogram), Is.EqualTo(v.Ciphertext));
         });
         CheckKey(v.Key);
-        Run($"VAR wire=\"{v.CompleteBlock}\" KEY r=Unwrap(p,k,wire)");
+        Run($"VAR wire=\"{v.CompleteBlock}\" r=Unwrap(p,k,wire)");
         CheckKey(v.Key);
         var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("r");
         Assert.That(recovered.KeyAttributes!.Any(a => a.ID == "HDR" && a.Data == v.Header[..16]), Is.True);
@@ -63,7 +63,7 @@ public class Tr31ScriptIntegrationTests
         });
         CheckKey(v.Key);
 
-        Run($"VAR wire=\"{v.CompleteBlock}\" KEY r=Unwrap(p,k,wire)");
+        Run($"VAR wire=\"{v.CompleteBlock}\" r=Unwrap(p,k,wire)");
         CheckKey(v.Key);
         var recovered = (KeyVariableDeclaration)VariableDictionary.Instance().Get("r");
         Assert.That(recovered.KeyAttributes!.Any(a => a.ID == "HDR" && a.Data == v.Header[..16]), Is.True);

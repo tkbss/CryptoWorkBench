@@ -10,6 +10,7 @@ public static class SecretOperations
 {
     public static VariableDeclaration Share(OperationInvocation invocation)
     {
+        invocation.Verify();
         if (invocation.Arguments.Count != 2 || invocation.Arguments[0].SourceVariable is not ParameterVariableDeclaration p ||
             invocation.Arguments[1].SourceVariable is not { Type: CryptoTypeKey } key)
             throw new ArgumentException("Share requires (PARAM, KEY) variable references.");
@@ -30,6 +31,7 @@ public static class SecretOperations
 
     public static VariableDeclaration Secret(OperationInvocation invocation)
     {
+        invocation.Verify();
         if (invocation.Arguments.Count < 2 || invocation.Arguments[0].SourceVariable is not ParameterVariableDeclaration p)
             throw new ArgumentException("Secret requires a PARAM reference and at least one share.");
         var settings = SecretParameters.Read(p);
@@ -68,6 +70,7 @@ public static class SecretOperations
 
     public static VariableDeclaration Restore(OperationInvocation invocation)
     {
+        invocation.Verify();
         if (invocation.Arguments.Count != 1 || invocation.Arguments[0].SourceVariable is not SecretVariableDeclaration source)
             throw new ArgumentException("Restore requires one SECRET variable reference.");
         byte[] material = SecretSharingEngine.Restore(source.SecretSet);

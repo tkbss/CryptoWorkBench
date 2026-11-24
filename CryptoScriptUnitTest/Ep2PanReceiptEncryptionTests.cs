@@ -143,7 +143,7 @@ public class Ep2PanReceiptEncryptionTests
         var algorithm = new Ep2PanReceiptEncryption();
         Assert.Throws<ArgumentException>(() => algorithm.GenerateParameters("AES-ECB"));
         Run(Prefix()); var p = (ParameterVariableDeclaration)Variable("p");
-        p.GetParameters().Remove("#MECH");
+        p.EditMetadata(map => map.Remove("#MECH"));
         Assert.Throws<ArgumentException>(() => algorithm.Encrypt(Arguments()));
         p.Mechanism = "AES-ECB";
         Assert.Throws<ArgumentException>(() => algorithm.Encrypt(Arguments()));

@@ -11,8 +11,11 @@ namespace CryptoScript.Model
     
     public class CryptoOperations
     {
-        public VariableDeclaration PinBlockTranslate(OperationInvocation invocation) =>
-            CryptoAlgorithm.PINBLOCK.PinBlockAlgorithm.Translate(invocation, algorithmFactory);
+        public VariableDeclaration PinBlockTranslate(OperationInvocation invocation)
+        {
+            invocation.Verify();
+            return CryptoAlgorithm.PINBLOCK.PinBlockAlgorithm.Translate(invocation, algorithmFactory);
+        }
 
         public VariableDeclaration PinBlockTranslate(string[] arguments) =>
             throw new ArgumentException("PinBlockTranslate requires structured variable references.");
@@ -28,6 +31,7 @@ namespace CryptoScript.Model
 
         public VariableDeclaration GenerateParameters(OperationInvocation invocation)
         {
+            invocation.Verify();
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration sourceParameter)
                 MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
                     sourceParameter.Mechanism, sourceParameter, CryptoScriptFunction.Parameters);
@@ -55,6 +59,7 @@ namespace CryptoScript.Model
         }
         public VariableDeclaration GenerateKey(OperationInvocation invocation)
         {
+            invocation.Verify();
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration parameters)
                 MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
                     parameters.Mechanism, parameters, CryptoScriptFunction.GenerateKey);
@@ -62,6 +67,7 @@ namespace CryptoScript.Model
         }
         public VariableDeclaration Mac(OperationInvocation invocation)
         {
+            invocation.Verify();
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
@@ -81,6 +87,7 @@ namespace CryptoScript.Model
         }
         public VariableDeclaration Hash(OperationInvocation invocation)
         {
+            invocation.Verify();
             if (invocation.Arguments.Count != 2)
                 throw new ArgumentException("wrong number of arguments");
             if (invocation.Arguments[1].SourceVariable is PathVariableDeclaration path)
@@ -93,10 +100,13 @@ namespace CryptoScript.Model
             if (invocation.Arguments.FirstOrDefault()?.SourceVariable is ParameterVariableDeclaration parameters)
                 MechanismParameterContractValidator.ValidateEmvCryptogramParameterSupport(
                     parameters.Mechanism, parameters, CryptoScriptFunction.Hash);
-            return Hash(invocation.Values);
+            var values = invocation.Values;
+            var algorithm = DetermineAlgorithm(invocation.Store, values);
+            return algorithm.Hash(invocation.Store, values);
         }
         public VariableDeclaration Derive(OperationInvocation invocation)
         {
+            invocation.Verify();
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
@@ -105,6 +115,7 @@ namespace CryptoScript.Model
         }
         public VariableDeclaration Encrypt(OperationInvocation invocation)
         {
+            invocation.Verify();
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
@@ -117,6 +128,7 @@ namespace CryptoScript.Model
         }
         public VariableDeclaration Decrypt(OperationInvocation invocation)
         {
+            invocation.Verify();
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
@@ -127,9 +139,14 @@ namespace CryptoScript.Model
                 return FileEncryption.FileDecryptCoordinator.Decrypt(resolvedArguments, path, invocation.CancellationToken);
             return algorithm.Decrypt(resolvedArguments);
         }
-        public VariableDeclaration BlockHeader(OperationInvocation invocation) => BlockHeader(invocation.Values);
+        public VariableDeclaration BlockHeader(OperationInvocation invocation)
+        {
+            invocation.Verify();
+            return BlockHeader(invocation.Values);
+        }
         public VariableDeclaration Wrap(OperationInvocation invocation)
         {
+            invocation.Verify();
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
@@ -140,6 +157,7 @@ namespace CryptoScript.Model
         }
         public VariableDeclaration Unwrap(OperationInvocation invocation)
         {
+            invocation.Verify();
             AlgorithmCallArguments arguments = ToAlgorithmArguments(invocation);
             if (arguments.Arguments.Count != 3)
                 throw new ArgumentException("wrong number of arguments");
@@ -289,14 +307,17 @@ namespace CryptoScript.Model
             var returnValue = algo.Unwrap(args);
             return returnValue;
         }
-        private CryptoAlgorithm.CryptoAlgorithm DetermineAlgorithm(params string[] args) 
+        private CryptoAlgorithm.CryptoAlgorithm DetermineAlgorithm(params string[] args) =>
+            DetermineAlgorithm(VariableDictionary.Instance(), args);
+
+        private CryptoAlgorithm.CryptoAlgorithm DetermineAlgorithm(VariableDictionary store, string[] args)
         {
             ParameterVariableDeclaration? parameter = null;
             foreach (var p in args)
             {
-                if (VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration != null)
+                if (store.Get(p) as ParameterVariableDeclaration != null)
                 {
-                    parameter = VariableDictionary.Instance().Get(p) as ParameterVariableDeclaration;
+                    parameter = store.Get(p) as ParameterVariableDeclaration;
                     break;
                 }
                 if(FormatConversions.ParseString(p) == FormatConversions.PAR)
@@ -326,7 +347,7 @@ namespace CryptoScript.Model
         private static AlgorithmCallArguments ToAlgorithmArguments(OperationInvocation invocation) =>
             new(invocation.Arguments.Select(argument =>
                 new AlgorithmCallArgument(argument.Value, argument.SourceVariable, argument.Kind)),
-                invocation.DiagnosticSink);
+                false, invocation.DiagnosticSink, invocation.Store);
 
         private (CryptoAlgorithm.CryptoAlgorithm Algorithm, AlgorithmCallArguments Arguments,
                 ParameterVariableDeclaration Parameters)

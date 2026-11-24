@@ -275,7 +275,7 @@ public class EmvParameterLossAndDiagnosticRegressionTests
         EmvAcFixtures.Execute("PARAM p=Parameters(HASH-SHA256) VAR data=0x(" + EmvAcFixtures.Data + ")");
         var p = (ParameterVariableDeclaration)VariableDictionary.Instance().Get("p");
         string staleValue = p.Value;
-        p.GetParameters().Add(name.ToLowerInvariant(), "0x(3030)");
+        p.EditMetadata(map => map.Add(name.ToLowerInvariant(), "0x(3030)"));
         var snapshot = p.GetParameters().ToArray();
         var runner = new CryptoScriptRunner();
         var error = Assert.Throws<SemanticErrorException>(() =>
@@ -734,7 +734,7 @@ public class EmvAcMechanismTests
         var error = Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR ac=Mac(p,sk,data)"));
         Assert.That(error!.SemanticError!.Message, Does.Contain("size metadata"));
         key.Value = "0x(" + EmvAcFixtures.AesKey + ")";
-        ((ParameterVariableDeclaration)VariableDictionary.Instance().Get("p")).GetParameters().Add("#UNKNOWN", "secret");
+        ((ParameterVariableDeclaration)VariableDictionary.Instance().Get("p")).EditMetadata(map => map.Add("#UNKNOWN", "secret"));
         Assert.Throws<SemanticErrorException>(() => EmvAcFixtures.Execute("VAR ac=Mac(p,sk,data)"));
     }
 

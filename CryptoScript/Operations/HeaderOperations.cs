@@ -8,6 +8,7 @@ internal static class HeaderOperations
 {
     internal static VariableDeclaration CreateHeader(OperationInvocation invocation)
     {
+        invocation.Verify();
         if (invocation.Arguments.Any(a => a.Kind != ResolvedCallArgumentKind.HeaderAttribute))
             throw new ArgumentException("CreateHeader accepts only named TR-31 attributes.");
         return new BlockHeaderVariableDeclaration

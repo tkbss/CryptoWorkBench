@@ -65,6 +65,7 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
 
     public override KeyVariableDeclaration Derive(AlgorithmCallArguments parameters)
     {
+        parameters.Verify();
         ParameterVariableDeclaration parameter =
             AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
         if (!NormalizeMechanism(parameter.Mechanism).Equals(MechanismName, StringComparison.OrdinalIgnoreCase))
@@ -88,7 +89,7 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
             throw new ArgumentException(
                 $"{MechanismName} {keyTypeName} is stronger than the {initialKeyBits}-bit AES Initial Key.");
 
-        byte[] ksn = ResolveDataBytes(parameters.Arguments[2].Value!);
+        byte[] ksn = ResolveDataBytes(parameters.Store, parameters.Arguments[2].Value!);
         if (ksn.Length != 12)
             throw new ArgumentException($"{MechanismName} KSN must be exactly 96 bits (12 bytes).");
         byte[] initialKeyId = ksn[..8];
@@ -178,10 +179,10 @@ public sealed class DUKPT_AES_WORKING_KEY : CryptoAlgorithm
         return ConvertValue(value, format, "Initial Key");
     }
 
-    private static byte[] ResolveDataBytes(string value)
+    private static byte[] ResolveDataBytes(VariableDictionary store, string value)
     {
         string format;
-        if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+        if (store.Get(value) is StringVariableDeclaration declared)
         {
             value = declared.Value;
             format = declared.ValueFormat;

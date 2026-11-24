@@ -7,7 +7,7 @@ namespace CryptoScriptUnitTest
         [Test]
         public void AEAD_AES_GCM_Test()
         {
-            var prog = new CryptoScriptRunner();
+            var prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "KEY gcmk1=GenerateKey(AES-GCM,256) " +
                 "PARAM gcmp2=Parameters(AES-GCM) " +
                 "VAR gcmc1 = Encrypt(gcmp2,gcmk1,0x(00112233445566778899AABBCCDDEEFF))"+
@@ -16,18 +16,18 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(variable.Id));
+            Assert.That(prog.Store.Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(pv.Id));
+            Assert.That(prog.Store.Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(crypto.Id));
+            Assert.That(prog.Store.Contains(crypto.Id));
             var plaintext = res.Statements[3] as StringVariableDeclaration;
             Assert.That(plaintext.Value.ToUpper() == "0x(00112233445566778899AABBCCDDEEFF)".ToUpper());
         }
         [Test]
         public void AEAD_AES_CCM_Test()
         {
-            var prog = new CryptoScriptRunner();
+            var prog = new CryptoScriptRunner(new VariableDictionary());
             string input = "KEY gcmk1=GenerateKey(AES-GCM,256) " +
                 "PARAM gcmp2=Parameters(AES-CCM) " +
                 "VAR gcmc1 = Encrypt(gcmp2,gcmk1,0x(00112233445566778899AABBCCDDEEFF))" +
@@ -36,11 +36,11 @@ namespace CryptoScriptUnitTest
             CryptoScriptParser.ProgramContext context = parser.program();
             var res = prog.Execute(context);
             var variable = res.Statements[0] as KeyVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(variable.Id));
+            Assert.That(prog.Store.Contains(variable.Id));
             var pv = res.Statements[1] as ParameterVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(pv.Id));
+            Assert.That(prog.Store.Contains(pv.Id));
             var crypto = res.Statements[2] as StringVariableDeclaration;
-            Assert.That(VariableDictionary.Instance().Contains(crypto.Id));
+            Assert.That(prog.Store.Contains(crypto.Id));
             var plaintext = res.Statements[3] as StringVariableDeclaration;
             Assert.That(plaintext.Value.ToUpper() == "0x(00112233445566778899AABBCCDDEEFF)".ToUpper());
         }

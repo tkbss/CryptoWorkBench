@@ -19,7 +19,7 @@ public static class SnapshotOperations
     internal static bool IsSnapshot(string name) => IsSave(name) || IsLoad(name);
     internal static string CanonicalName(string name) => IsLoad(name) ? "Load" : "Save";
 
-    internal static IEnumerable<Argument> ResolveLoadArguments(FunctionCallExpressionNode call)
+    internal static IEnumerable<Argument> ResolveLoadArguments(FunctionCallExpressionNode call, VariableDictionary dictionary)
     {
         if (call.Arguments.Count == 0 || call.Arguments[0] is not VariableArgumentNode source)
             throw new SnapshotArgumentException("Load requires a PATH variable as its first argument.");
@@ -27,7 +27,6 @@ public static class SnapshotOperations
         // call, expression or generic parameter evaluator runs during import resolution.
         if (call.Arguments.Skip(1).Any(argument => argument is not VariableArgumentNode and not ParameterArgumentNode))
             throw new SnapshotArgumentException("Load accepts only snapshot identifiers and a final #ONCONFLICT parameter.");
-        var dictionary = VariableDictionary.Instance();
         if (!dictionary.Contains(source.Identifier))
             throw new SnapshotArgumentException("Load references an undeclared PATH variable.", SemanticDiagnosticCode.UnknownVariable);
         if (dictionary.Get(source.Identifier) is not PathVariableDeclaration { Type: CryptoTypePath } path)
@@ -45,9 +44,10 @@ public static class SnapshotOperations
 
     public static VariableDeclaration? Load(OperationInvocation invocation)
     {
+        invocation.VerifyOrigin();
         ArgumentNullException.ThrowIfNull(invocation);
         var arguments = invocation.Arguments;
-        var dictionary = VariableDictionary.Instance();
+        var dictionary = invocation.Store;
         if (arguments.Count == 0 || arguments[0].Kind != ResolvedCallArgumentKind.Variable ||
             arguments[0].SourceVariable is not PathVariableDeclaration { Type: CryptoTypePath } path ||
             !ReferenceEquals(dictionary.Get(path.Id), path))
@@ -69,16 +69,15 @@ public static class SnapshotOperations
             else
                 throw new SnapshotArgumentException("Load accepts #ONCONFLICT:REJECT or #ONCONFLICT:REPLACE once, as the last argument.");
         }
-        PublishLoadedRoots(roots, names, replace);
+        PublishLoadedRoots(dictionary, roots, names, replace);
         return null;
     }
 
-    internal static void PublishLoadedRoots(IReadOnlyList<VariableDeclaration> roots, IReadOnlyList<string> names,
+    internal static void PublishLoadedRoots(VariableDictionary dictionary, IReadOnlyList<VariableDeclaration> roots, IReadOnlyList<string> names,
         bool replace, CancellationToken token = default, bool secure = false)
     {
         Exception Failure(string category, string message, SemanticDiagnosticCode code = SemanticDiagnosticCode.FunctionContractViolation) =>
             secure ? new SecureLoadException(category) : new SnapshotArgumentException(message, code);
-        var dictionary = VariableDictionary.Instance();
         if (names.Distinct(StringComparer.Ordinal).Count() != names.Count)
             throw Failure("InvalidSelection", "Load does not accept duplicate selectors.");
         bool all = names.Contains("ALL", StringComparer.Ordinal);
@@ -92,7 +91,7 @@ public static class SnapshotOperations
         var selectedNames = selected.Select(variable => variable.Id).ToHashSet(StringComparer.Ordinal);
         var replaced = existing.Where(variable => selectedNames.Contains(variable.Id))
             .ToHashSet(ReferenceEqualityComparer.Instance);
-        if (!replace && replaced.Count != 0)
+        if ((!replace && replaced.Count != 0) || selectedNames.Any(dictionary.IsReserved))
             throw Failure("NameConflict", "Load rejected a variable name conflict.");
         // PARAM.HeaderReference is the only direct variable-to-variable reference in
         // the supported model. Use object identity, never an identifier-based relink.
@@ -111,7 +110,7 @@ public static class SnapshotOperations
 
     // Contextual ALL selection: no lexer keyword and no value-based variable lookup.
     // Validate syntax before evaluating any argument, so nested calls cannot have side effects.
-    internal static IEnumerable<Argument> ResolveSaveArguments(FunctionCallExpressionNode call)
+    internal static IEnumerable<Argument> ResolveSaveArguments(FunctionCallExpressionNode call, VariableDictionary dictionary)
     {
         if (call.Arguments.Count < 2)
             throw new SnapshotArgumentException("Save requires a PATH reference and at least one variable or ALL.");
@@ -121,7 +120,6 @@ public static class SnapshotOperations
         bool all = names.Skip(1).Contains("ALL", StringComparer.Ordinal);
         if (all && names.Length != 2)
             throw new SnapshotArgumentException("Save ALL cannot be combined with other selections.");
-        var dictionary = VariableDictionary.Instance();
         var arguments = new List<Argument>();
         for (int i = 0; i < names.Length; i++)
         {
@@ -141,13 +139,14 @@ public static class SnapshotOperations
 
     public static VariableDeclaration? Save(OperationInvocation invocation)
     {
+        invocation.VerifyOrigin();
         ArgumentNullException.ThrowIfNull(invocation);
         var arguments = invocation.Arguments;
         if (arguments.Count < 2 ||
             arguments[0].Kind != ResolvedCallArgumentKind.Variable ||
             arguments[0].SourceVariable is not PathVariableDeclaration { Type: CryptoTypePath } path)
             throw new SnapshotArgumentException("Save requires a PATH variable as its first argument.");
-        var dictionary = VariableDictionary.Instance();
+        var dictionary = invocation.Store;
         foreach (var argument in arguments)
             if (argument.Kind != ResolvedCallArgumentKind.Variable ||
                 argument.SourceVariable is not { } variable ||

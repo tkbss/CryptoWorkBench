@@ -1,4 +1,5 @@
 using CryptoScript.Model;
+using CryptoScript.Variables;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,7 +43,7 @@ internal static class InterpreterHostQueue
 
     // Reservation was acquired atomically with the service registry entry.
     // Never schedule an accepted task with a cancellable Task.Run token.
-    internal static async Task<T> RunAdmittedAsync<T>(Func<Task<T>> job)
+    internal static async Task<T> RunAdmittedAsync<T>(VariableDictionary store, Func<InterpreterExecution.HostAdmission, Task<T>> job)
     {
         // The service owns the reservation through registry/resource finalization.
         WithinJob.Value = true;
@@ -51,7 +52,7 @@ internal static class InterpreterHostQueue
             Task<T> execution;
             // Accepted jobs do not retain caller AsyncLocals (including future HTTP scopes).
             using (ExecutionContext.SuppressFlow())
-                execution = Task.Run(() => InterpreterExecution.RunAsync(job, CancellationToken.None));
+                execution = Task.Run(() => InterpreterExecution.RunAsync(store, job, CancellationToken.None));
             return await execution.ConfigureAwait(false);
         }
         finally { WithinJob.Value = false; }
@@ -59,11 +60,14 @@ internal static class InterpreterHostQueue
 
     // Short UI mutations only; never waits on a task or dispatcher. Also suitable
     // for acquiring admission before a future asynchronous save commit.
-    internal static T RunState<T>(Func<T> action, Action<T>? present = null)
+    internal static T RunState<T>(Func<T> action, Action<T>? present = null) =>
+        RunState(VariableDictionary.Instance(), action, present);
+
+    internal static T RunState<T>(VariableDictionary store, Func<T> action, Action<T>? present = null)
     {
         using var reservation = Reserve();
         T result;
-        using (InterpreterExecution.Enter()) result = action();
+        using (InterpreterExecution.Enter(store)) result = action();
         // Publish on the caller's UI thread while admission is still held.
         // CollectionChanged may reenter host commands; those must receive Busy.
         present?.Invoke(result);

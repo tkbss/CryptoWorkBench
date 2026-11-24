@@ -39,6 +39,7 @@ public sealed class Ep2Tr31KeyBlock : CryptoAlgorithm
 
     public override StringVariableDeclaration Wrap(AlgorithmCallArguments arguments)
     {
+        arguments.Verify();
         var (p, kbpk) = Resolve(arguments, CryptoScriptFunction.Wrap);
         KeyVariableDeclaration key = RequireKey(arguments.Arguments[2]);
         KeyMetadataValidator.Validate(key, KeyAlgorithm.Hmac, KeyUsage.None, "Wrap", Mechanism, arguments.DiagnosticSink);
@@ -56,6 +57,7 @@ public sealed class Ep2Tr31KeyBlock : CryptoAlgorithm
 
     public override KeyVariableDeclaration Unwrap(AlgorithmCallArguments arguments)
     {
+        arguments.Verify();
         var (p, kbpk) = Resolve(arguments, CryptoScriptFunction.Unwrap);
         var input = arguments.Arguments[2];
         if (!Original(input) || input.SourceVariable is not StringVariableDeclaration block || block.Type is not CryptoTypeVar ||

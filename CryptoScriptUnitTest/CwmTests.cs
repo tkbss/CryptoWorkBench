@@ -497,9 +497,9 @@ public class CwmTests
         await runner.ExecuteAsync(Parse("PATH container = MacPack(p,k,source)\nVAL valid = MacVerify(p,k,container)"));
         Assert.That(VariableDictionary.Instance().Get("valid"), Is.TypeOf<ValVariableDeclaration>());
         File.WriteAllBytes(source.Value, [2]);
-        await runner.ExecuteAsync(Parse("VAL valid = MacVerify(p,k,container)"));
+        await runner.ExecuteAsync(Parse("valid = MacVerify(p,k,container)"));
         Assert.That(VariableDictionary.Instance().Get("valid").Value, Is.EqualTo("false"));
-        Assert.ThrowsAsync<SemanticErrorException>(async () => await runner.ExecuteAsync(Parse("VAL valid = 123")));
+        Assert.ThrowsAsync<SemanticErrorException>(async () => await runner.ExecuteAsync(Parse("VAL invalid = 123")));
         Assert.That(VariableDictionary.Instance().Get("valid").Value, Is.EqualTo("false"));
     }
 

@@ -70,7 +70,8 @@ public partial class SecureSaveTests
         var dictionary = VariableDictionary.Instance();
         foreach (var v in new VariableDeclaration[] { linked,key,unknown,secret }) dictionary.Add(v);
         if (includeHeader) dictionary.Add(header);
-        data.Type = null;
+        // Exercise a legacy untyped scalar. Its type must be established before binding.
+        dictionary.Add(new StringVariableDeclaration { Id = data.Id, Value = data.Value, Type = null });
         string expected = new VariableSnapshotJsonSerializer().Serialize(dictionary.GetVariables());
         var runner = new CryptoScriptRunner(); runner.PasswordRequested += (_,r) => Task.FromResult(Supply(r));
         await runner.ExecuteAsync(Parse("SecureSave(path, ALL, #SECUREKDF:PBKDF2)"));

@@ -25,6 +25,15 @@ public sealed record AlgorithmCallArgument
     public ResolvedCallArgumentKind Kind { get; }
 
     // Dispatch reconstruction must not turn a value into an original variable reference.
+    private readonly InterpreterExecution.Frame? frame = InterpreterExecution.CaptureFrame();
+    internal void Verify()
+    {
+        InterpreterExecution.VerifyFrame(frame);
+        InterpreterExecution.VerifyStore(Store);
+        Store.ValidateArgument(SourceVariable);
+    }
+
+    internal VariableDictionary Store { get; init; } = VariableDictionary.Instance();
     internal bool HasReconstructedSourceVariable { get; init; }
 }
 
@@ -45,19 +54,30 @@ public sealed class AlgorithmCallArguments
 
     internal AlgorithmCallArguments(
         IEnumerable<AlgorithmCallArgument> arguments,
-        bool isLegacyDeriveCall, ISemanticDiagnosticSink? diagnosticSink = null)
+        bool isLegacyDeriveCall, ISemanticDiagnosticSink? diagnosticSink = null, VariableDictionary? store = null)
     {
         ArgumentNullException.ThrowIfNull(arguments);
         AlgorithmCallArgument[] copiedArguments = arguments.ToArray();
         if (copiedArguments.Any(argument => argument is null))
             throw new ArgumentException("Algorithm arguments must not contain null entries.", nameof(arguments));
 
-        this.arguments = Array.AsReadOnly(copiedArguments);
+        Store = store ?? VariableDictionary.Instance();
+        this.arguments = Array.AsReadOnly(copiedArguments.Select(a =>
+            ReferenceEquals(a.Store, Store) ? a : a with { Store = Store }).ToArray());
         IsLegacyDeriveCall = isLegacyDeriveCall;
         DiagnosticSink = diagnosticSink;
     }
 
     public IReadOnlyList<AlgorithmCallArgument> Arguments => arguments;
+    internal VariableDictionary Store { get; }
+    private readonly InterpreterExecution.Frame? frame = InterpreterExecution.CaptureFrame();
+
+    internal void Verify()
+    {
+        InterpreterExecution.VerifyFrame(frame);
+        InterpreterExecution.VerifyStore(Store);
+        foreach (var argument in arguments) Store.ValidateArgument(argument.SourceVariable);
+    }
 
     public ISemanticDiagnosticSink? DiagnosticSink { get; }
 
@@ -83,6 +103,6 @@ public sealed class AlgorithmCallArguments
         {
             HasReconstructedSourceVariable = true
         };
-        return new AlgorithmCallArguments(updated, IsLegacyDeriveCall, DiagnosticSink);
+        return new AlgorithmCallArguments(updated, IsLegacyDeriveCall, DiagnosticSink, Store);
     }
 }

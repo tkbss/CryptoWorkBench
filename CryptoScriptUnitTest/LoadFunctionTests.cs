@@ -368,8 +368,8 @@ public class LoadFunctionTests
     public void EqualIdentifiersOnDifferentHeaderObjectsDoNotBlockReplacement()
     {
         PrepareGraph();
-        // Existing PARAM objects keep the old header, now detached from the root dictionary.
-        Run("TR31H header = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)");
+        // Existing PARAM objects retain the old header after explicit assignment.
+        Run("header = CreateHeader(KBVID:D, KEYU:D0, ALGO:A, MODEU:B, EXP:E)");
         var first = (ParameterVariableDeclaration)Variables.Get("first");
         var oldDependency = first.HeaderReference;
         Assert.That(oldDependency, Is.Not.SameAs(Variables.Get("header")));

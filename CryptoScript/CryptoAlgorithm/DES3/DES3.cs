@@ -149,6 +149,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 
         public override StringVariableDeclaration Encrypt(AlgorithmCallArguments parameters)
         {
+            parameters.Verify();
             ParseArguments(parameters);
             DiagnoseKey(parameters, "Encrypt", KeyUsage.Encrypt);
             RejectMacOnlyEncryption();
@@ -160,6 +161,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 
         public override StringVariableDeclaration Decrypt(AlgorithmCallArguments parameters)
         {
+            parameters.Verify();
             ParseArguments(parameters);
             DiagnoseKey(parameters, "Decrypt", KeyUsage.Decrypt);
             RejectMacOnlyEncryption();
@@ -179,6 +181,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
 
         public override StringVariableDeclaration Mac(AlgorithmCallArguments parameters)
         {
+            parameters.Verify();
             ParseArguments(parameters);
             DiagnoseKey(parameters, "Mac", KeyUsage.MacGenerate);
             if (!parameter!.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
@@ -197,7 +200,7 @@ namespace CryptoScript.CryptoAlgorithm.DES3
         {
             parameter = AlgorithmArgumentResolver.ResolveParameter(arguments.Arguments[0]);
             key = AlgorithmArgumentResolver.ResolveKey(arguments.Arguments[1]);
-            data = ResolveData(arguments.Arguments[2].Value!);
+            data = ResolveData(arguments.Store, arguments.Arguments[2].Value!);
 
             if (!parameter.Mechanism.Equals("DES3-CBC", StringComparison.OrdinalIgnoreCase) &&
                 !parameter.Mechanism.Equals("DES3-ECB", StringComparison.OrdinalIgnoreCase) &&
@@ -220,9 +223,9 @@ namespace CryptoScript.CryptoAlgorithm.DES3
             finally { CryptographicOperations.ZeroMemory(bytes); }
         }
 
-        private static StringVariableDeclaration ResolveData(string value)
+        private static StringVariableDeclaration ResolveData(VariableDictionary store, string value)
         {
-            if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+            if (store.Get(value) is StringVariableDeclaration declared)
                 return declared;
             if (FormatConversions.ParseString(value) != string.Empty)
                 return new StringVariableDeclaration { Value = value, ValueFormat = FormatConversions.ParseString(value) };

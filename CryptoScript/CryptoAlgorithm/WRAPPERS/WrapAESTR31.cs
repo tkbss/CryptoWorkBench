@@ -30,6 +30,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
 
         public override KeyVariableDeclaration Unwrap(AlgorithmCallArguments parameters)
         {
+            parameters.Verify();
             // 1) Set up ParameterVariableDeclaration from parameters[0], as in Wrap
             ParameterVariableDeclaration p =
                 AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
@@ -39,7 +40,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
                 "Unwrap", "WRAP-AES-TR31", parameters.DiagnosticSink);
             string wrappedValue = parameters.Arguments[2].SourceVariable is StringVariableDeclaration source
                 ? source.Value : parameters.Arguments[2].Value!;
-            if (VariableDictionary.Instance().Get(wrappedValue) is StringVariableDeclaration declared)
+            if (parameters.Store.Get(wrappedValue) is StringVariableDeclaration declared)
                 wrappedValue = declared.Value;
             
             byte[]? blockHeaderBytes =null;
@@ -113,7 +114,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
             };
 
             // Optionally store it in the dictionary if you want it globally accessible:
-            // VariableDictionary.Instance().AddOrReplace(unwrappedKey);
+            // parameters.Store.AddOrReplace(unwrappedKey);
 
             // 9) Return the KeyVariableDeclaration
             return unwrappedKey;
@@ -151,6 +152,7 @@ namespace CryptoScript.CryptoAlgorithm.WRAPPERS
 
         public override StringVariableDeclaration Wrap(AlgorithmCallArguments parameters)
         {
+            parameters.Verify();
             ParameterVariableDeclaration p =
                 AlgorithmArgumentResolver.ResolveParameter(parameters.Arguments[0]);
             var definition = Tr31HeaderBinding.Definition(p);

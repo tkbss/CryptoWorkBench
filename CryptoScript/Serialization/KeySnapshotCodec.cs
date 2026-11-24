@@ -45,7 +45,7 @@ internal static class KeySnapshotCodec
         return key;
     }
 
-    private static void ValidateMaterial(KeyVariableDeclaration key)
+    internal static void ValidateMaterial(KeyVariableDeclaration key)
     {
         string format = key.ValueFormat.Length == 0 ? FormatConversions.ParseString(key.Value) : key.ValueFormat;
         byte[] bytes;

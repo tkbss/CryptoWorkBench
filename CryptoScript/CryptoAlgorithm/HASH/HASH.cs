@@ -49,11 +49,13 @@ namespace CryptoScript.CryptoAlgorithm.HASH
             throw new ArgumentException("HASH does not support key generation.");
         }
 
-        public override StringVariableDeclaration Hash(string[] parameters)
+        public override StringVariableDeclaration Hash(string[] parameters) => Hash(VariableDictionary.Instance(), parameters);
+
+        internal override StringVariableDeclaration Hash(VariableDictionary store, string[] parameters)
         {
-            ParameterVariableDeclaration parameter = ResolveParameter(parameters[0]);
+            ParameterVariableDeclaration parameter = ResolveParameter(store, parameters[0]);
             NormalizeAndValidateMechanism(parameter.Mechanism);
-            StringVariableDeclaration data = ResolveData(parameters[1]);
+            StringVariableDeclaration data = ResolveData(store, parameters[1]);
 
             return new HASHMode().ModeHash(parameter, data);
         }
@@ -74,9 +76,9 @@ namespace CryptoScript.CryptoAlgorithm.HASH
                 : mechanism;
         }
 
-        private static ParameterVariableDeclaration ResolveParameter(string value)
+        private static ParameterVariableDeclaration ResolveParameter(VariableDictionary store, string value)
         {
-            if (VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
+            if (store.Get(value) is ParameterVariableDeclaration declared)
                 return declared;
             if (FormatConversions.ParseString(value) == FormatConversions.PAR)
             {
@@ -88,9 +90,9 @@ namespace CryptoScript.CryptoAlgorithm.HASH
             throw new ArgumentException("wrong parameter argument");
         }
 
-        private static StringVariableDeclaration ResolveData(string value)
+        private static StringVariableDeclaration ResolveData(VariableDictionary store, string value)
         {
-            if (VariableDictionary.Instance().Get(value) is StringVariableDeclaration declared)
+            if (store.Get(value) is StringVariableDeclaration declared)
                 return declared;
 
             string format = FormatConversions.ParseString(value);

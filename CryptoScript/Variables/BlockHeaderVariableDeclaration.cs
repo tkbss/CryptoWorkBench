@@ -9,7 +9,7 @@ namespace CryptoScript.Variables
 {
     public class BlockHeaderVariableDeclaration : VariableDeclaration
     {
-        public CryptoAlgorithm.WRAPPERS.Tr31HeaderDefinition? Definition { get; init; }
+        public CryptoAlgorithm.WRAPPERS.Tr31HeaderDefinition? Definition { get => ReadOwned(field); init; }
         public override string Value
         {
             get => Definition?.ToString() ?? base.Value;

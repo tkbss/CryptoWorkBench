@@ -170,7 +170,7 @@ public class Ep2Tr31KeyBlockTests
             p.SetParameter("#RND", invalid);
             Assert.Catch<Exception>(() => new Ep2Tr31KeyBlock().Wrap(Args("p", "kbpk", "material")));
         }
-        p.GetParameters().Remove("#RND");
+        p.EditMetadata(map => map.Remove("#RND"));
         string wire = ToWire(new Ep2Tr31KeyBlock().Wrap(Args("p", "kbpk", "material")));
         Assert.That(Ep2Tr31KeyBlockPrimitive.Unwrap(Hex(Kbpk), wire), Is.EqualTo(Hex(Material)));
         using var aes = Aes.Create(); aes.Key = Hex(Kbek);

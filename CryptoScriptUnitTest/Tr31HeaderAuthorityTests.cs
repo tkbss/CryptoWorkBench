@@ -182,7 +182,7 @@ public class Tr31HeaderAuthorityTests
     public void MissingHeaderCannotFallBackToKeyMetadata()
     {
         var (p, k, t) = Inputs(Tr31VersionDTransportVectors.All[0], KeyAlgorithm.Aes);
-        p.GetParameters().Remove("#BLKH");
+        p.EditMetadata(map => map.Remove("#BLKH"));
         Assert.Throws<NotSupportedException>(() => new WrapAESTR31().Wrap(Args(p, k, t)));
     }
 

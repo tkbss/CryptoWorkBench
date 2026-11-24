@@ -8,13 +8,14 @@ internal static class AlgorithmArgumentResolver
     internal static ParameterVariableDeclaration ResolveParameter(AlgorithmCallArgument argument)
     {
         ArgumentNullException.ThrowIfNull(argument);
+        argument.Verify();
 
         if (argument.SourceVariable is ParameterVariableDeclaration sourceParameter)
             return ValidateParameterSupport(sourceParameter);
 
         string value = argument.Value ?? throw new ArgumentException("wrong parameter argument");
         if (IsLegacyVariableIdentifier(value) &&
-            VariableDictionary.Instance().Get(value) is ParameterVariableDeclaration declared)
+            argument.Store.Get(value) is ParameterVariableDeclaration declared)
             return ValidateParameterSupport(declared);
         if (FormatConversions.ParseString(value) == FormatConversions.PAR)
         {
@@ -35,6 +36,7 @@ internal static class AlgorithmArgumentResolver
     internal static KeyVariableDeclaration ResolveKey(AlgorithmCallArgument argument)
     {
         ArgumentNullException.ThrowIfNull(argument);
+        argument.Verify();
 
         if (argument.SourceVariable is KeyVariableDeclaration sourceKey)
             return sourceKey;
@@ -42,7 +44,7 @@ internal static class AlgorithmArgumentResolver
             throw new ArgumentException("wrong key argument");
 
         string value = argument.Value ?? throw new ArgumentException("wrong key argument");
-        if (VariableDictionary.Instance().Get(value) is KeyVariableDeclaration declared)
+        if (argument.Store.Get(value) is KeyVariableDeclaration declared)
             return declared;
         if (FormatConversions.ParseString(value) == FormatConversions.HEX)
         {
@@ -64,14 +66,15 @@ internal static class AlgorithmArgumentResolver
     internal static KeyVariableDeclaration ResolveTr31Key(AlgorithmCallArgument argument)
     {
         ArgumentNullException.ThrowIfNull(argument);
+        argument.Verify();
         if (argument.SourceVariable is KeyVariableDeclaration key)
             return key;
         if (argument.SourceVariable is not null)
             throw new ArgumentException("wrong key argument");
         string value = argument.Value ?? throw new ArgumentException("wrong key argument");
-        if (VariableDictionary.Instance().Get(value) is KeyVariableDeclaration declared)
+        if (argument.Store.Get(value) is KeyVariableDeclaration declared)
             return declared;
-        var matches = VariableDictionary.Instance().GetVariables().OfType<KeyVariableDeclaration>()
+        var matches = argument.Store.GetVariables().OfType<KeyVariableDeclaration>()
             .Where(candidate => candidate.Value == value).ToArray();
         return matches.Length switch
         {

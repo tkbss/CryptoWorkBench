@@ -18,13 +18,28 @@ namespace CryptoScript.Model
             Func<FunctionCallExpressionNode, Statement> evaluateFunctionCall,
             Func<string, string, ArgumentParameter> evaluateParameter)
         {
+            using var admission = InterpreterExecution.EnterStandaloneOperation();
+            return Evaluate(declaration, semanticErrors, evaluateFunctionCall, evaluateParameter, VariableDictionary.Instance());
+        }
+
+        internal static Statement Evaluate(VariableDeclarationNode declaration, List<SemanticError> semanticErrors,
+            Func<FunctionCallExpressionNode, Statement> evaluateFunctionCall,
+            Func<string, string, ArgumentParameter> evaluateParameter, VariableDictionary store, string? text = null, CancellationToken token = default)
+        {
             string Id = declaration.Identifier;
+            using var reservation = store.Reserve(Id);
+            if (reservation is null)
+            {
+                var error = Duplicate(Id);
+                semanticErrors.Add(error.SemanticError!);
+                throw error;
+            }
             string TypeName = declaration.TypeName;
             if (declaration.Initializer is FunctionCallExpressionNode fileCall)
             {
-                FileEncryption.FileEncryptionContract.Validate(fileCall, semanticErrors, TypeName);
-                FileEncryption.FileMacContract.Validate(fileCall, semanticErrors, TypeName);
-                FileEncryption.FileHashContract.Validate(fileCall, semanticErrors, TypeName);
+                FileEncryption.FileEncryptionContract.Validate(fileCall, semanticErrors, TypeName, store: store);
+                FileEncryption.FileMacContract.Validate(fileCall, semanticErrors, TypeName, store: store);
+                FileEncryption.FileHashContract.Validate(fileCall, semanticErrors, TypeName, store: store);
             }
             if (declaration.Initializer is FunctionCallExpressionNode snapshot &&
                 (Operations.SecureSaveOperations.IsVoidSnapshot(snapshot.Name) || Operations.DeleteOperations.IsDelete(snapshot.Name)))
@@ -108,7 +123,6 @@ namespace CryptoScript.Model
                 }
                 var Parameter = ParameterInitializerEvaluator.Prepare(Id, TypeName,
                     declarParam, semanticErrors, evaluateParameter);
-                VariableDictionary.Instance().Add(Parameter);
                 stmt = Parameter;
             }
             if (stmt is FunctionCall functionCall)
@@ -116,6 +130,7 @@ namespace CryptoScript.Model
                 var variable = functionCall.ReturnVariable;
                 if (variable != null)
                 {
+                    if (variable.Owner != null) store.ValidateArgument(variable);
                     if (variable.Type.GetType() != type.GetType())
                     {
                         SemanticError se = new SemanticError() { Type = "Declaration", Identifier = TypeName };
@@ -123,22 +138,35 @@ namespace CryptoScript.Model
                         semanticErrors.Add(se);
                         throw new SemanticErrorException() { SemanticError = se };
                     }
+                    store.VerifyResult(variable);
                     variable.Id = Id;
-                    VariableDictionary.Instance().Add(variable);
                 }
                 stmt= variable;
             }
 
-            try { stmt = Expression.BuildVariable(stmt, Id, type); }
+            try { stmt = Expression.PrepareVariable(stmt, Id, type); }
             catch (Exception exception) when (type is CryptoTypeKey &&
                 declaration.Initializer is LiteralInitializerNode &&
                 exception is ArgumentException or FormatException or OverflowException)
             {
                 throw InvalidKeyLiteral(semanticErrors);
             }
+            token.ThrowIfCancellationRequested();
+            if (stmt is VariableDeclaration prepared)
+            {
+                if (text is not null) prepared.Text = text;
+                reservation.Publish(prepared);
+            }
             return stmt;
 
         }
+
+        internal static SemanticErrorException Duplicate(string id) => new()
+        {
+            SemanticError = new SemanticError { Type = "Declaration", Identifier = id,
+                DiagnosticCode = SemanticDiagnosticCode.InvalidDeclaration,
+                Message = $"Variable '{id}' is already declared." }
+        };
 
         private static SemanticErrorException InvalidKeyLiteral(List<SemanticError> semanticErrors)
         {

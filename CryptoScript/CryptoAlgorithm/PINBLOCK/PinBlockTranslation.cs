@@ -80,6 +80,7 @@ public sealed partial class PinBlockAlgorithm
                 throw Failure(SemanticDiagnosticCode.InvalidParameter, "Invalid target PIN-block parameters for the decoded PIN length.");
             }
             targetAlgorithm.TranslationCheckpoint?.Invoke("before-publish");
+            invocation.Verify();
             ParameterVariableDeclaration.CommitPinTranslation(source, sourceStage, target, targetStage);
             return result;
         }
@@ -91,7 +92,7 @@ public sealed partial class PinBlockAlgorithm
 
         AlgorithmCallArguments Arguments(int parameter, int key) => new(
             new[] { invocation.Arguments[parameter], invocation.Arguments[key], invocation.Arguments[2] }
-                .Select(a => new AlgorithmCallArgument(a.Value, a.SourceVariable, a.Kind)), invocation.DiagnosticSink);
+                .Select(a => new AlgorithmCallArgument(a.Value, a.SourceVariable, a.Kind)), false, invocation.DiagnosticSink, invocation.Store);
     }
 
     private static void ValidateTranslationContract(ParameterVariableDeclaration parameters,

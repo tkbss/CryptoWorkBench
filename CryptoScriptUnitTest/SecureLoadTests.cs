@@ -148,7 +148,7 @@ public partial class SecureLoadTests
         WriteFixture(); string original = path.Value, cwd = Environment.CurrentDirectory;
         Environment.CurrentDirectory = directory; path.Value = "secure.json";
         var r = new CryptoScriptRunner(); r.PasswordRequested += (_,e) =>
-        { File.WriteAllText(original,"changed"); path.Value="missing"; Environment.CurrentDirectory=cwd; return Task.FromResult(Supply(e)); };
+        { File.WriteAllText(original,"changed"); Assert.Throws<ExecutionBusyException>(() => path.Value="missing"); Environment.CurrentDirectory=cwd; return Task.FromResult(Supply(e)); };
         try { await r.ExecuteAsync(Parse("SecureLoad(path)")); Assert.That(dictionary.GetVariables().Count(),Is.GreaterThan(1)); }
         finally { Environment.CurrentDirectory=cwd; }
     }
