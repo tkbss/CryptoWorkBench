@@ -1,0 +1,18 @@
+%% AR-MCP-01-D1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 7
+flowchart TB
+  Loss["Lost reply or EOF"] --> Job["Admitted job remains owned"]
+  Lease["Release or expiry"] --> Fence["Fence lease and cancel work"]
+  Pair["Disconnect or session expiry"] --> Revoke["Revoke bearer and epoch"]
+  Exit["Window close"] --> Stop["Stop admission and revoke"]
+  Stop --> Transport["Stop transport"]
+  Revoke --> Transport
+  Fence --> Drain["Drain original work and callbacks"]
+  Revoke --> Drain
+  Stop --> Drain
+  Drain -->|"Valid drain certificate"| Editor["Check original registration and document"]
+  Editor -->|"Live editor and document match"| GUI["Return GUI ownership"]
+  Editor -->|"Detached and no current editor"| Gone["Editor unavailable"]
+  Drain -->|"Failure"| Fault["Keep editor protected"]
+  Drain --> Join["Exit waits for both paths"]
+  Transport --> Join
+  Join -->|"Exit policy satisfied"| Close["Post final close"]

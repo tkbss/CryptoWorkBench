@@ -1,0 +1,1856 @@
+{
+  "baseline": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+  "entries": [
+    {
+      "id": "E01",
+      "title": "Production reference graph",
+      "sources": [
+        {
+          "path": "CryptoScript/CryptoScript.csproj",
+          "location": "Core framework and package references",
+          "ranges": [
+            [
+              1,
+              31
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "acf996109c5f8094372a705d732708b8ae70c82b7014f50b024c314e6c0d1e14",
+          "lines": 285,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoScript/CryptoScript.csproj"
+        },
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/CryptoWorkBench.Automation.Abstractions.csproj",
+          "location": "Contract library",
+          "ranges": [
+            [
+              1,
+              3
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "e1a91ad3b17614202de10e44136c7dbcc5e9cf97d5dea39cdae0418edeb2e8b9",
+          "lines": 4,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Automation.Abstractions/CryptoWorkBench.Automation.Abstractions.csproj"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp/CryptoWorkBench.Mcp.csproj",
+          "location": "SDK, framework and contract references",
+          "ranges": [
+            [
+              2,
+              7
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "5ab7f17152b1dd7c388eb2288980c96417c2420f681e541b019d7b6253d4e9d9",
+          "lines": 9,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp/CryptoWorkBench.Mcp.csproj"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj",
+          "location": "GUI packages and direct project references",
+          "ranges": [
+            [
+              24,
+              50
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "617b95e7f5d61916aa9e84b2475e92a539fd41941818129df55fa2576b004257",
+          "lines": 59,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.csproj"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj",
+          "location": "WinExe and composition dependencies",
+          "ranges": [
+            [
+              3,
+              19
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "ac21b0b89614d6c9d75be4ebc57e64eddfb7ad201a4396d267262bc5f092c7ed",
+          "lines": 27,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia.Desktop/CryptoWorkBenchAvalonia.Desktop.csproj"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln",
+          "location": "Solution membership",
+          "ranges": [
+            [
+              6,
+              27
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "70a47a9c84f53550b67d573539ead0c69d6f97b24aea019b6f601c3aa5e1d8ff",
+          "lines": 72,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/CryptoWorkBenchAvalonia.sln"
+        }
+      ]
+    },
+    {
+      "id": "E02",
+      "title": "Application composition",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia.Desktop/Program.cs",
+          "location": "Main and BuildAvaloniaApp",
+          "ranges": [
+            [
+              13,
+              48
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "6da8e8c82845a1cd6bdaae940f697fa20e86374953c5f07789b60d1a884c53fb",
+          "lines": 51,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia.Desktop/Program.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/App.axaml.cs",
+          "location": "ConfigureDesktopMcp, CreateShell, RegisterTypes",
+          "ranges": [
+            [
+              30,
+              32
+            ],
+            [
+              51,
+              82
+            ],
+            [
+              98,
+              122
+            ],
+            [
+              193,
+              207
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "e7dd6faeee7c3bdf87718875a45997b5836d8077e249bf9195f2a89afa321e6f",
+          "lines": 223,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/App.axaml.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs",
+          "location": "Register and Select",
+          "ranges": [
+            [
+              9,
+              25
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "bf836fb34899022e9ad94d6e75c95c78bd4560f1fbe743d09d8d5d48ca6ba3f5",
+          "lines": 28,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Shell/DockShellStartup.cs"
+        }
+      ]
+    },
+    {
+      "id": "E03",
+      "title": "Desktop activation and disconnection",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs",
+          "location": "Attach, pairing dialogs, StopAsync and StopTransportCoreAsync",
+          "ranges": [
+            [
+              26,
+              81
+            ],
+            [
+              83,
+              102
+            ],
+            [
+              105,
+              133
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "d7484d7fb287f9a8233942a3521bb5e6388cc570e85e947e8f270c3c21cafb3d",
+          "lines": 135,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia.Desktop/DesktopMcpSession.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/McpDisconnect.cs",
+          "location": "RunAsync and FinishAsync",
+          "ranges": [
+            [
+              6,
+              41
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "b38e74cac9793d241d79426beee84c57735c308e0683dc4b25a0e81423ab0048",
+          "lines": 44,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/McpDisconnect.cs"
+        }
+      ]
+    },
+    {
+      "id": "E04",
+      "title": "Endpoint and session identity",
+      "sources": [
+        {
+          "path": "CryptoWorkBench.Mcp/LocalMcpHost.cs",
+          "location": "Listener, middleware, StartAsync, Revoke and DisposeCoreAsync",
+          "ranges": [
+            [
+              16,
+              83
+            ],
+            [
+              85,
+              95
+            ],
+            [
+              98,
+              141
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "fb2c312822fccdb78ce502451ef3f7f67863d648d1dbbeb049523c0a54870031",
+          "lines": 143,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp/LocalMcpHost.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp/LocalMcpIdentity.cs",
+          "location": "Identity construction, fingerprint and CleanupPublicFilesAsync",
+          "ranges": [
+            [
+              16,
+              64
+            ],
+            [
+              67,
+              95
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "fa1fa0eb368b9d41c3b0e328267fa5b70a535a884cac757bc9054b5bbd30ba1d",
+          "lines": 97,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp/LocalMcpIdentity.cs"
+        }
+      ]
+    },
+    {
+      "id": "E05",
+      "title": "Proxy trust and forwarding",
+      "sources": [
+        {
+          "path": "CryptoWorkBench.Mcp/PinnedMcpStdio.cs",
+          "location": "RunAsync, CreateHttpClient and SDK filters",
+          "ranges": [
+            [
+              16,
+              32
+            ],
+            [
+              35,
+              63
+            ],
+            [
+              66,
+              114
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "c6cb08a243bde39558e0662174f6ccfb578bad752b0fb3ab703972aacf400a3b",
+          "lines": 117,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp/PinnedMcpStdio.cs"
+        }
+      ]
+    },
+    {
+      "id": "E06",
+      "title": "Tool discovery and invocation",
+      "sources": [
+        {
+          "path": "CryptoWorkBench.Mcp/WorkbenchToolsV2.cs",
+          "location": "AddWorkbenchV2, MapWorkbenchV2, Create and Binding.InvokeAsync",
+          "ranges": [
+            [
+              15,
+              53
+            ],
+            [
+              55,
+              83
+            ],
+            [
+              85,
+              143
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "2facf1fbe534b6f055717ec96f25db08bdc4a1df06416913dd2aa0ec09002516",
+          "lines": 147,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp/WorkbenchToolsV2.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp/StatusTransport.cs",
+          "location": "AddWorkbenchStatusProbe registration in isolation",
+          "ranges": [
+            [
+              11,
+              25
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "aa45184868dabdb9ffe88507e51aac173ba1833c6bce0e8262e350effceb3394",
+          "lines": 46,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp/StatusTransport.cs"
+        }
+      ]
+    },
+    {
+      "id": "E07",
+      "title": "Host-neutral types and validation",
+      "sources": [
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/AutomationV2.cs",
+          "location": "Request identities, control state, receipts and IWorkbenchAutomationV2",
+          "ranges": [
+            [
+              5,
+              34
+            ],
+            [
+              38,
+              64
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "170b05b04529678035d0cc9b93ab931e0b7c946ac3ea017c114ab20c1edb12db",
+          "lines": 66,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Automation.Abstractions/AutomationV2.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/AutomationContracts.cs",
+          "location": "Permissions, job states, projections, budgets and UTF-16 offsets",
+          "ranges": [
+            [
+              6,
+              35
+            ],
+            [
+              43,
+              96
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "3a836e388ca750799811a3b7cd52aafc782e0030b7bd9ff958dc93f06f1002a9",
+          "lines": 98,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Automation.Abstractions/AutomationContracts.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/IWorkbenchAutomationService.cs",
+          "location": "Original host interface and cancellation semantics",
+          "ranges": [
+            [
+              3,
+              18
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "592f89e0ae530229bba24223bab83520404e6f4053dfa0b12cb2924d2a4a1c7e",
+          "lines": 20,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Automation.Abstractions/IWorkbenchAutomationService.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/AutomationJson.cs",
+          "location": "Strict JSON and semantic checks",
+          "ranges": [
+            [
+              15,
+              67
+            ],
+            [
+              68,
+              151
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "e9946ab4d8e5b724767336b8f36daaa5f77a66230e8b5493e171bc625dc45f8a",
+          "lines": 195,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Automation.Abstractions/AutomationJson.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Automation.Abstractions/AutomationSchemas.cs",
+          "location": "Schema derivation",
+          "ranges": [
+            [
+              9,
+              78
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "1a3bcc7d534f62544989d39c0898350e244a6d73240a9659f6a4bec534916d96",
+          "lines": 87,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Automation.Abstractions/AutomationSchemas.cs"
+        }
+      ]
+    },
+    {
+      "id": "E08",
+      "title": "Host-issued authority and epoch",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+          "location": "IssueCredential, Authorized, Owns, RevokeMcpCore and ActivateMcp",
+          "ranges": [
+            [
+              18,
+              47
+            ],
+            [
+              59,
+              73
+            ],
+            [
+              119,
+              155
+            ],
+            [
+              800,
+              849
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "490e6ff0851458e483a065520a559768b2c61e135831d589abd0f7744292faa2",
+          "lines": 853,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs"
+        }
+      ]
+    },
+    {
+      "id": "E09",
+      "title": "Single validated dispatch",
+      "sources": [
+        {
+          "path": "CryptoWorkBench.Mcp/SafeMcpParseErrors.cs",
+          "location": "ValidatedPost, BindValidatedPost, ValidateInputAsync, routing and parse-error checks",
+          "ranges": [
+            [
+              19,
+              69
+            ],
+            [
+              71,
+              98
+            ],
+            [
+              101,
+              191
+            ],
+            [
+              216,
+              255
+            ],
+            [
+              260,
+              299
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "510d129064727e119553e8ffb7d44666d218221dc5479adba2df0818dcbb2434",
+          "lines": 330,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp/SafeMcpParseErrors.cs"
+        }
+      ]
+    },
+    {
+      "id": "E10",
+      "title": "Registration and dispatcher ownership",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/EditorBridge.cs",
+          "location": "Snapshot, Find, Attach, Detach and ObserveDocument",
+          "ranges": [
+            [
+              27,
+              74
+            ],
+            [
+              87,
+              139
+            ],
+            [
+              148,
+              174
+            ],
+            [
+              177,
+              218
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "3756cf30d927c31f53bbcb254dde007f1e1b50d0f33a6fed3aaea18bb958ff68",
+          "lines": 220,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/EditorBridge.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchEditorOperations.cs",
+          "location": "OnEditorUiAsync and editor registration lifecycle",
+          "ranges": [
+            [
+              16,
+              32
+            ],
+            [
+              34,
+              89
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "390991356a49c95dea320cc0237bb44103f58116fb9988ce5a7f6a3e8117a3f4",
+          "lines": 347,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchEditorOperations.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/UiDispatch.cs",
+          "location": "Dispatcher helpers",
+          "ranges": [
+            [
+              10,
+              32
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "f14f2eec9dcea79bc943dc96ed00010e9815985f84bc24f2b34cb5a59b6fb235",
+          "lines": 33,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/UiDispatch.cs"
+        }
+      ]
+    },
+    {
+      "id": "E11",
+      "title": "Native editor coordination",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/EditorCoordinator.cs",
+          "location": "Admission, operation tickets, observers, drain and finalization",
+          "ranges": [
+            [
+              30,
+              69
+            ],
+            [
+              91,
+              162
+            ],
+            [
+              188,
+              216
+            ],
+            [
+              276,
+              365
+            ],
+            [
+              368,
+              408
+            ],
+            [
+              423,
+              489
+            ],
+            [
+              501,
+              540
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "9bea2a025f4d95e1f18df94f1964a1792edb0eace0bcf95a79ffbb4936b22548",
+          "lines": 648,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/EditorCoordinator.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Controls/WorkbenchTextEditor.cs",
+          "location": "Native document mutation and identity guards",
+          "ranges": [
+            [
+              198,
+              272
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "7e487cd352c4cd91eaf9edef66b7b85e9c43359345902f395bf938bdd70cc6fb",
+          "lines": 351,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Controls/WorkbenchTextEditor.cs"
+        }
+      ]
+    },
+    {
+      "id": "E12",
+      "title": "Acquisition, renewal and retirement",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/ProcessAcquisitions.cs",
+          "location": "Shared bounded ledger, Reserve and Find",
+          "ranges": [
+            [
+              6,
+              57
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "97f48ceeb6d11bd01e8955d3717541c37d18c6f969b3d7030c05a0efee9a4583",
+          "lines": 60,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/ProcessAcquisitions.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchLeaseV2.cs",
+          "location": "Clock, epoch drain, binding, acquisition, renewal and release",
+          "ranges": [
+            [
+              14,
+              46
+            ],
+            [
+              51,
+              118
+            ],
+            [
+              147,
+              217
+            ],
+            [
+              224,
+              279
+            ],
+            [
+              282,
+              324
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "4da255f9561d647988797ec8b08b8e80cbe411ff058729b57c07fd0d8b19906e",
+          "lines": 327,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchLeaseV2.cs"
+        }
+      ]
+    },
+    {
+      "id": "E13",
+      "title": "V2 reads, writes and run approval",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchBindingV2.cs",
+          "location": "Status, metadata, editor read, JobRequest and UpdateEditorV2Async",
+          "ranges": [
+            [
+              15,
+              74
+            ],
+            [
+              76,
+              122
+            ],
+            [
+              124,
+              180
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "101865b88ea1c98e9a3abb023c60be4d4698d84d2563d9bdb7237560e77562e8",
+          "lines": 184,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchBindingV2.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionV2.cs",
+          "location": "Approval, replay, Admissible, Fence and response wait",
+          "ranges": [
+            [
+              12,
+              55
+            ],
+            [
+              56,
+              98
+            ],
+            [
+              98,
+              139
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "edc973a498c36cca49c38afd35d9a2dc17c96f8bd479a5818120af6d57414cfe",
+          "lines": 143,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionV2.cs"
+        }
+      ]
+    },
+    {
+      "id": "E14",
+      "title": "Execution admission and cancellation",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+          "location": "Job, Lookup, RequestCancel, timers, Accept, RunOwnedAsync and resource release",
+          "ranges": [
+            [
+              74,
+              111
+            ],
+            [
+              158,
+              221
+            ],
+            [
+              225,
+              245
+            ],
+            [
+              268,
+              338
+            ],
+            [
+              403,
+              432
+            ],
+            [
+              433,
+              521
+            ],
+            [
+              525,
+              569
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "490e6ff0851458e483a065520a559768b2c61e135831d589abd0f7744292faa2",
+          "lines": 853,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs"
+        }
+      ]
+    },
+    {
+      "id": "E15",
+      "title": "Host reservation and Core ownership",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/InterpreterHostQueue.cs",
+          "location": "Reserve, RunAdmittedAsync and RunState",
+          "ranges": [
+            [
+              8,
+              39
+            ],
+            [
+              43,
+              79
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "a428a7eadc3e3d11f29e371810a922e571f179003c9cb3a9f4f63879c417704b",
+          "lines": 82,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/InterpreterHostQueue.cs"
+        },
+        {
+          "path": "CryptoScript/Model/InterpreterExecution.cs",
+          "location": "RunAsync, RunRunnerAsync, callback and state scopes",
+          "ranges": [
+            [
+              5,
+              74
+            ],
+            [
+              75,
+              123
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "d986dc32219a9878f23eb2982ff250e45fba2427770ab2d1a46e388c908254ad",
+          "lines": 135,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoScript/Model/InterpreterExecution.cs"
+        },
+        {
+          "path": "CryptoScript/Model/CryptoScriptRunner.cs",
+          "location": "Async execution, statement evaluation and password responses",
+          "ranges": [
+            [
+              78,
+              160
+            ],
+            [
+              170,
+              224
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "b31f3233ff31d3ceb4ab514d05e685fbed5b5fcde42a9a3c419b01ea2c1ff522",
+          "lines": 238,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoScript/Model/CryptoScriptRunner.cs"
+        },
+        {
+          "path": "CryptoScript/Variables/VariableDictionary.cs",
+          "location": "Shared dictionary and publication methods",
+          "ranges": [
+            [
+              6,
+              63
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "c2da028249ff652b21a0662d231a93e839eab3a62c22208e347ed7dc5eed28f8",
+          "lines": 71,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoScript/Variables/VariableDictionary.cs"
+        }
+      ]
+    },
+    {
+      "id": "E16",
+      "title": "Parse units and host callbacks",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationService.cs",
+          "location": "Shared, ExecuteSubmissionAsync, ExecuteScriptBookAsync and mutation admission",
+          "ranges": [
+            [
+              13,
+              64
+            ],
+            [
+              88,
+              131
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "c4321a1d39d19c0cd229562c2d7e59a709aa51a48f530f7866824eb98b63cb44",
+          "lines": 134,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationService.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs",
+          "location": "ExecuteAsync, output capture, password drain and FinalizePresentation",
+          "ranges": [
+            [
+              35,
+              80
+            ],
+            [
+              82,
+              145
+            ],
+            [
+              146,
+              187
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "633006bf1771bd4d75c00730ca0fc084bb5d5e8bd79cae8158db9e2a77ba51c4",
+          "lines": 190,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchExecutionPipeline.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/PasswordDialogHost.cs",
+          "location": "Local password request and disposal",
+          "ranges": [
+            [
+              13,
+              61
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "5bc89762810c95d4573871e6735f5c1d2e3f0a40df55fd23117bdf2cd14e1564",
+          "lines": 63,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/PasswordDialogHost.cs"
+        }
+      ]
+    },
+    {
+      "id": "E17",
+      "title": "Final state, retention and recovery",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+          "location": "Status, VisibleResult, RecordUnit, FinalizeJob, Expire, Prune and EnsureRecovered",
+          "ranges": [
+            [
+              129,
+              177
+            ],
+            [
+              571,
+              645
+            ],
+            [
+              648,
+              694
+            ],
+            [
+              697,
+              748
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "490e6ff0851458e483a065520a559768b2c61e135831d589abd0f7744292faa2",
+          "lines": 853,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs"
+        }
+      ]
+    },
+    {
+      "id": "E18",
+      "title": "Projection boundary",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/AutomationProjection.cs",
+          "location": "Variables and Diagnostics",
+          "ranges": [
+            [
+              11,
+              48
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "173e0c375b5332d41899b1c2a32b7ea72f4522b7e2bc865d5a8979292f622dc9",
+          "lines": 50,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/AutomationProjection.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/VariablePresentationCapture.cs",
+          "location": "Capture of host-local variable models",
+          "ranges": [
+            [
+              9,
+              58
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "dc358650b001529dfea8e9f484baeebd5117d59a3ad70e080e4d6059f758c4b4",
+          "lines": 68,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/VariablePresentationCapture.cs"
+        }
+      ]
+    },
+    {
+      "id": "E19",
+      "title": "Interactive GUI and dock behavior",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs",
+          "location": "Present, ParseLineAsync and GUI ScriptBook callbacks",
+          "ranges": [
+            [
+              213,
+              245
+            ],
+            [
+              280,
+              308
+            ],
+            [
+              361,
+              415
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "c76e638fecdb02f36a94b8a1216f8d2516c583b7f334a58d46644412a3e3b85e",
+          "lines": 440,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/ViewModels/CryptoScriptEditViewModel.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs",
+          "location": "Start and visual relocation gate",
+          "ranges": [
+            [
+              85,
+              126
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "0584e562830168fc7301bc937dd0ba3cd8e4d614be13e02a54cfdf408b050b19",
+          "lines": 148,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Shell/DockEditorSession.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/DockOutputTests.cs",
+          "location": "McpV2ReceiptsAndLeaseNeverPublishToGui",
+          "ranges": [
+            [
+              174,
+              187
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "24f0de9b40d0b29f3bd51563e5aa38e6f14f1234a0bf02b7aca9c05beaf22b1e",
+          "lines": 233,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/DockOutputTests.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/DockToolTests.cs",
+          "location": "McpExecutionUsesSameToolsAndRefreshCannotBypassLease",
+          "ranges": [
+            [
+              162,
+              187
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "df3014c18afa5be112b5f2a7cd3d1733837c1ab76816a2242f213c5b4b81eedd",
+          "lines": 299,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/DockToolTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "E20",
+      "title": "Local save and inspector operations",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs",
+          "location": "CaptureSaveIntent, CommitSaveAsync, AppendSave and provider tracking",
+          "ranges": [
+            [
+              16,
+              68
+            ],
+            [
+              83,
+              133
+            ],
+            [
+              137,
+              178
+            ],
+            [
+              181,
+              198
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "ef2621f2ba8c519e7880f0bc168fab45950045ca00a16a4d28980b504b7b6732",
+          "lines": 201,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchSaveCommit.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs",
+          "location": "SaveAsync and exact text target",
+          "ranges": [
+            [
+              72,
+              93
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "8e5b12f9809d8c6223a281aa8a645f8c072ed0128ffad6caaf4b25d93ca579fe",
+          "lines": 104,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Shell/DockEditorSession.Files.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchInspectorRead.cs",
+          "location": "Staging cleanup, transfer tracking and RunInspectorReadAsync",
+          "ranges": [
+            [
+              14,
+              64
+            ],
+            [
+              72,
+              109
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "29166bf660dfb3581c61231bae8478e02bb4f0a55259ef80e0dd87638fc98fd1",
+          "lines": 112,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchInspectorRead.cs"
+        }
+      ]
+    },
+    {
+      "id": "E21",
+      "title": "Shutdown policy",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchAvalonia/App.axaml.cs",
+          "location": "CoordinateClosing",
+          "ranges": [
+            [
+              125,
+              170
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "e7dd6faeee7c3bdf87718875a45997b5836d8077e249bf9195f2a89afa321e6f",
+          "lines": 223,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/App.axaml.cs"
+        },
+        {
+          "path": "CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs",
+          "location": "BeginShutdown, OutstandingServiceWork, DrainForExitAsync and CertifyGuiReturnAsync",
+          "ranges": [
+            [
+              753,
+              799
+            ],
+            [
+              801,
+              836
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "490e6ff0851458e483a065520a559768b2c61e135831d589abd0f7744292faa2",
+          "lines": 853,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchAvalonia/Services/Automation/WorkbenchAutomationRegistry.cs"
+        }
+      ]
+    },
+    {
+      "id": "E22",
+      "title": "Transport test definitions",
+      "sources": [
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/BindingV2Tests.cs",
+          "location": "Discovery and strict rejection",
+          "ranges": [
+            [
+              27,
+              53
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "4545bb3143f583fae2a3083547f484f1ae6902730f6fd48b26928a10669f99ac",
+          "lines": 56,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp.Tests/BindingV2Tests.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/B3F1WireTests.cs",
+          "location": "Duplicate input, incomplete registration and structured errors",
+          "ranges": [
+            [
+              66,
+              93
+            ],
+            [
+              138,
+              158
+            ],
+            [
+              198,
+              242
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "60cc6017e1fb123e2cf8ef7a2e950d8849df8b150ac77f6ecb541dc2270f333f",
+          "lines": 249,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp.Tests/B3F1WireTests.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/B3F4WireTests.cs",
+          "location": "Validation receipt and concurrent request identity",
+          "ranges": [
+            [
+              127,
+              151
+            ],
+            [
+              172,
+              197
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "6da1b7909913c37d8db3f5b05df12c7ecdabc71a564749ab77c51341aa186e5f",
+          "lines": 255,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp.Tests/B3F4WireTests.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/LocalMcpHostTests.cs",
+          "location": "Endpoint collision and original caller",
+          "ranges": [
+            [
+              13,
+              52
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "a71a2778abbbe924453807797ebbd358a1cc2a2799833a6b002a403619228241",
+          "lines": 56,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp.Tests/LocalMcpHostTests.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/TransportTests.cs",
+          "location": "StatelessHasNoLegacyListenerOrSession",
+          "ranges": [
+            [
+              74,
+              89
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "0c85af9a581ec700a755d8815e44a59ea8e3b60204ca5020522d1bd5c1ea2624",
+          "lines": 210,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp.Tests/TransportTests.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/B4F1SecurityTests.cs",
+          "location": "Routing, public trust file, certificate substitution and expiry",
+          "ranges": [
+            [
+              72,
+              97
+            ],
+            [
+              135,
+              184
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "6594e903499a98db8777f61ed79766f841fb0c50c49fc488b33cb64337f528c9",
+          "lines": 265,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp.Tests/B4F1SecurityTests.cs"
+        },
+        {
+          "path": "CryptoWorkBench.Mcp.Tests/B4F2SecurityTests.cs",
+          "location": "Proxy EOF, disposal, response loss and replacement identity",
+          "ranges": [
+            [
+              23,
+              51
+            ],
+            [
+              101,
+              155
+            ],
+            [
+              235,
+              265
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "35e52d81e47eac31e1c797cd2a9c6994a44006ce865d53a5410afdb26ce94817",
+          "lines": 386,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBench.Mcp.Tests/B4F2SecurityTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "E23",
+      "title": "Lease and native editor test definitions",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchGuiTest/LeaseV2Tests.cs",
+          "location": "Clock boundary, identity, lost replies, closure, approval and visibility",
+          "ranges": [
+            [
+              23,
+              74
+            ],
+            [
+              87,
+              147
+            ],
+            [
+              149,
+              195
+            ],
+            [
+              205,
+              235
+            ],
+            [
+              266,
+              326
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "7266628048d0bac03578df62ffbad9487db8e08b37343940239ca9086677939c",
+          "lines": 429,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/LeaseV2Tests.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/EditorCoordinatorTests.cs",
+          "location": "Native input exclusion, stale ticket, callbacks and open update",
+          "ranges": [
+            [
+              114,
+              146
+            ],
+            [
+              180,
+              198
+            ],
+            [
+              212,
+              273
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "08b03b34234d77076732c37ebe64d30d9715ba00f82c0921c3f7527a081edb47",
+          "lines": 725,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/EditorCoordinatorTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "E24",
+      "title": "Execution and projection test definitions",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchGuiTest/WorkbenchAutomationTests.cs",
+          "location": "Shared state, parse boundary, partial effects and password drain",
+          "ranges": [
+            [
+              38,
+              74
+            ],
+            [
+              96,
+              146
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "58948e1a0587a271d532c4200a247f57c644a39a6f0b30c82bc0b8963e191479",
+          "lines": 259,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/WorkbenchAutomationTests.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/AssignmentMcpIntegrationTests.cs",
+          "location": "AssignmentUsesAuthenticatedMcpLeaseAndSharedRunner",
+          "ranges": [
+            [
+              12,
+              47
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "2ef87ec5e019848131be1877a9c11f8875ac8dca852c07583c578532af68ad03",
+          "lines": 55,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/AssignmentMcpIntegrationTests.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/WorkbenchRegistryTests.cs",
+          "location": "Snapshots, cancel vs lost wait, retention, capture failure and revocation",
+          "ranges": [
+            [
+              51,
+              124
+            ],
+            [
+              158,
+              242
+            ],
+            [
+              264,
+              286
+            ],
+            [
+              305,
+              345
+            ],
+            [
+              347,
+              375
+            ],
+            [
+              534,
+              558
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "ce06f218462d5322c2eb88a82249a2e5305ecce3c1f0e74b8e864ec6b8ca0c86",
+          "lines": 636,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/WorkbenchRegistryTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "E25",
+      "title": "Local file and inspector test definitions",
+      "sources": [
+        {
+          "path": "CryptoWorkBenchGuiTest/EditorAutomationTests.cs",
+          "location": "Stale target, delayed deletion, serialization, failure and rejection",
+          "ranges": [
+            [
+              549,
+              596
+            ],
+            [
+              619,
+              652
+            ],
+            [
+              678,
+              698
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "ea25314d3afa2fa44544868303de3caf99b0a75b35bd45f1c0421245c9d24974",
+          "lines": 699,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/EditorAutomationTests.cs"
+        },
+        {
+          "path": "CryptoWorkBenchGuiTest/InspectorReadTests.cs",
+          "location": "No execution quota, admission, copy drain and historical data",
+          "ranges": [
+            [
+              27,
+              36
+            ],
+            [
+              172,
+              192
+            ],
+            [
+              219,
+              251
+            ],
+            [
+              526,
+              552
+            ],
+            [
+              647,
+              692
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "a76f07fc57fe0b6bfe759a5686faab4d1c04fad116068b3e5e48663e7025a352",
+          "lines": 735,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/CryptoWorkBenchGuiTest/InspectorReadTests.cs"
+        }
+      ]
+    },
+    {
+      "id": "E26",
+      "title": "Edition and publication history",
+      "sources": [
+        {
+          "path": "docs/architecture/README.md",
+          "location": "Scope, chapter index and outputs",
+          "ranges": [
+            [
+              3,
+              39
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "709a0c0624fa4a31d3e28aad730088213a62f226e175b3dfa9f70206b75a63fd",
+          "lines": 49,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/README.md"
+        },
+        {
+          "path": "docs/architecture/de/README.md",
+          "location": "German counterpart and navigation",
+          "ranges": [
+            [
+              3,
+              39
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "6925e5ea020848096208566c909c8f6882c0d4c71267bbb806f1251b85d95e22",
+          "lines": 49,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/de/README.md"
+        },
+        {
+          "path": "docs/architecture/publication.json",
+          "location": "Baselines, selections and localized titles",
+          "ranges": [
+            [
+              2,
+              44
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "8168160ef29a8ca68d3bb9fc73accd29162cfb96ecb00e52faeb5da57c32f986",
+          "lines": 51,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/publication.json"
+        },
+        {
+          "path": "docs/architecture/decisions/ar-01-bilingual-publication.md",
+          "location": "Layout, localization and repeatability decision",
+          "ranges": [
+            [
+              5,
+              37
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "5d67e4468ecee11bca8cd584979e25b16062e4e55ed0a38d05cb2fc3eff71865",
+          "lines": 42,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/decisions/ar-01-bilingual-publication.md"
+        },
+        {
+          "path": "docs/architecture/AR-01-integration-report.md",
+          "location": "Historical integration and preservation",
+          "ranges": [
+            [
+              5,
+              28
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "47381a1ac3a00be7233bc811ade9d0579d432364cab65024e48db7cfb0f81535",
+          "lines": 33,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/AR-01-integration-report.md"
+        }
+      ]
+    },
+    {
+      "id": "E27",
+      "title": "Publication implementation",
+      "sources": [
+        {
+          "path": "docs/architecture/tools/publication.mjs",
+          "location": "Language selection and exact inventory",
+          "ranges": [
+            [
+              5,
+              34
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "5ae1ad82b55eb40a8c510ee6f197fd1e535531a5038a0937dedf5e4f80d883e5",
+          "lines": 36,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/tools/publication.mjs"
+        },
+        {
+          "path": "docs/architecture/tools/bilingual-checks.mjs",
+          "location": "Source baseline checks, structural and topology parity",
+          "ranges": [
+            [
+              25,
+              66
+            ],
+            [
+              69,
+              87
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "1b368d5f616a6c2372b8a4bb75d76d45b8d6549140beeb1889457ed32176c22d",
+          "lines": 93,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/tools/bilingual-checks.mjs"
+        },
+        {
+          "path": "docs/architecture/tools/generate.mjs",
+          "location": "Chapter placement, cover and baseline metadata",
+          "ranges": [
+            [
+              239,
+              260
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "60d58b582f24d29cb015ad9c9c6f0d522b6d6f3c9eac040fd0ce5eae8b85ef76",
+          "lines": 451,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/tools/generate.mjs"
+        },
+        {
+          "path": "docs/architecture/tools/locales.mjs",
+          "location": "Edition-specific subtitles",
+          "ranges": [
+            [
+              6,
+              19
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "1c90dececb4dd6b18fac7fb39ef3fdf7c5383b1bfea52439959aac3f3e609a3e",
+          "lines": 23,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/tools/locales.mjs"
+        },
+        {
+          "path": "docs/architecture/tools/validate.mjs",
+          "location": "Diagram completeness and PDF checks",
+          "ranges": [
+            [
+              24,
+              31
+            ],
+            [
+              112,
+              119
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "e68858844792b4b4a8b641cb9348139bd0fd9db21b0e75c31508a1cf3c2ee55c",
+          "lines": 125,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/tools/validate.mjs"
+        },
+        {
+          "path": "docs/architecture/tools/README.md",
+          "location": "Publication commands and human review",
+          "ranges": [
+            [
+              3,
+              27
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "feb6b72b2acdd55bd3aa9d7f9748aad20d9c379b11c01b6a293625c764f5c2ff",
+          "lines": 250,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/tools/README.md"
+        }
+      ]
+    },
+    {
+      "id": "E28",
+      "title": "Chapter text and diagrams",
+      "sources": [
+        {
+          "path": "docs/architecture/chapters/01-introduction.md",
+          "location": "Scope and organization",
+          "ranges": [
+            [
+              24,
+              32
+            ],
+            [
+              52,
+              56
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "fa3e7e8aaedfae3f0ced32bb921847e7c83ea54d9251fc86747e6d75fb8929a6",
+          "lines": 59,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/chapters/01-introduction.md"
+        },
+        {
+          "path": "docs/architecture/chapters/02-system-overview.md",
+          "location": "System boundaries, process topology and Windows visibility",
+          "ranges": [
+            [
+              12,
+              18
+            ],
+            [
+              28,
+              36
+            ],
+            [
+              60,
+              66
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "8c2ceeaa4c16aafc7535dfbeaaebfbdbe5052286540e3d24b34fe2a8230d4461",
+          "lines": 73,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/chapters/02-system-overview.md"
+        },
+        {
+          "path": "docs/architecture/chapters/03-project-structure-and-dependencies.md",
+          "location": "Solution, dependencies and constraints",
+          "ranges": [
+            [
+              20,
+              24
+            ],
+            [
+              26,
+              54
+            ],
+            [
+              64,
+              70
+            ],
+            [
+              84,
+              86
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "62276e64712e97e13a3bc20afac913633b0fc79c06a367ba5554886a7ee95435",
+          "lines": 91,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/chapters/03-project-structure-and-dependencies.md"
+        },
+        {
+          "path": "docs/architecture/chapters/04-language-architecture.md",
+          "location": "Scope and parse-to-run boundary",
+          "ranges": [
+            [
+              12,
+              18
+            ],
+            [
+              89,
+              104
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "cf396424ef5e521a0b1fe27be109e2957199be0a454e15a154951347a6ac3ae7",
+          "lines": 115,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/chapters/04-language-architecture.md"
+        },
+        {
+          "path": "docs/architecture/chapters/09-data-flows-and-execution-sequences.md",
+          "location": "Partial-state contract and historical baseline",
+          "ranges": [
+            [
+              5,
+              23
+            ],
+            [
+              25,
+              43
+            ],
+            [
+              51,
+              58
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "4806f795765a7366ecb70bc9ec85a22585c783c3ec4a72b881503b81e1553bb7",
+          "lines": 64,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/chapters/09-data-flows-and-execution-sequences.md"
+        },
+        {
+          "path": "docs/architecture/diagrams/01-project-references.mmd",
+          "location": "Direct graph",
+          "ranges": [
+            [
+              3,
+              14
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "ece4600ba792153239f6d245158991e6f9901c4943618fb937006a1c9a961281",
+          "lines": 17,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/diagrams/01-project-references.mmd"
+        },
+        {
+          "path": "docs/architecture/diagrams/02-system-context.mmd",
+          "location": "Client boundary",
+          "ranges": [
+            [
+              3,
+              10
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "8ae13b6099d52bfbdb04441ab354400f9f373b90face27ea8fedbc827310137e",
+          "lines": 13,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/diagrams/02-system-context.mmd"
+        },
+        {
+          "path": "docs/architecture/diagrams/02-container-overview.mmd",
+          "location": "Proxy to listener",
+          "ranges": [
+            [
+              3,
+              19
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "e8149e43ab4ca16c73395b318fb42d28f82345da8bd7fe0209a6688affcf8c68",
+          "lines": 22,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/diagrams/02-container-overview.mmd"
+        },
+        {
+          "path": "docs/architecture/diagrams/03-build-and-test-dependency-coverage.mmd",
+          "location": "CI coverage",
+          "ranges": [
+            [
+              3,
+              18
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "04298ad9bfe80b75fe9bb6573303aba1dd06e90d6d6239cb22c7297c41788830",
+          "lines": 21,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/architecture/diagrams/03-build-and-test-dependency-coverage.mmd"
+        }
+      ]
+    },
+    {
+      "id": "E29",
+      "title": "Design record",
+      "sources": [
+        {
+          "path": "docs/mcp/MCP-00-architecture.md",
+          "location": "Initial proposal and its status",
+          "ranges": [
+            [
+              3,
+              13
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "5f88a2d0c99cea71b203afc4511b3c4cab3ec53bba87934a5c0487a731fa1f6a",
+          "lines": 440,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/mcp/MCP-00-architecture.md"
+        },
+        {
+          "path": "docs/mcp/MCP-00-R2-consolidated-architecture-decision.md",
+          "location": "Exclusive control, GUI actions, proposed platform and lease rules",
+          "ranges": [
+            [
+              3,
+              19
+            ],
+            [
+              29,
+              60
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "7ffbee21fc015f5409568c4f255bce3b0d6ef697100826f670e4923d64c5404f",
+          "lines": 356,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/mcp/MCP-00-R2-consolidated-architecture-decision.md"
+        }
+      ]
+    },
+    {
+      "id": "E30",
+      "title": "Pairing guide and historical review",
+      "sources": [
+        {
+          "path": "docs/mcp/MCP-pinned-client-setup.md",
+          "location": "Supported pairing, SDK continuation and EOF qualifications",
+          "ranges": [
+            [
+              3,
+              6
+            ],
+            [
+              17,
+              27
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "9260f692136d54768b4e2b05f6524489b163de718a15a8321fd8dc2690fd2e73",
+          "lines": 28,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/mcp/MCP-pinned-client-setup.md"
+        },
+        {
+          "path": "docs/mcp/MCP-B4-R3-independent-review.md",
+          "location": "Review findings B4-R3-01 and B4-R3-02 and trust assumptions",
+          "ranges": [
+            [
+              34,
+              49
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "f776c3bc1b986c880bbdace999cef9e7430211bc26e351a53e18f1b87181b6fc",
+          "lines": 186,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/mcp/MCP-B4-R3-independent-review.md"
+        },
+        {
+          "path": "docs/mcp/MCP-B4-P2-windows-consolidation-and-macos-preparation.md",
+          "location": "Platform evidence scope",
+          "ranges": [
+            [
+              3,
+              11
+            ]
+          ],
+          "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+          "sha256": "bc46db7097a5045acf0a65dd47a54b8caddd1d118ce2bb1a10dc8f2d0a936879",
+          "lines": 111,
+          "url": "https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/docs/mcp/MCP-B4-P2-windows-consolidation-and-macos-preparation.md"
+        }
+      ]
+    }
+  ],
+  "absentPaths": []
+}

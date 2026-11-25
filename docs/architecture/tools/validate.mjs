@@ -3,20 +3,26 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { assertCurrentSources, assertSourceBlocks } from './content-checks.mjs';
-
-import { language, outputDirectory } from './publication.mjs';
-import { validateLanguageSources } from './bilingual-checks.mjs';
 const normalize = text => text.normalize('NFC').replace(/[\s\u00ad\u200b]/g, '');
 export async function validate(directory, expectedLanguage = 'en') {
   // A previous pass must never survive failed current-source validation.
   await fs.rm(path.join(directory, 'validation.json'), { force: true });
+  const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const { assertCurrentSources, assertSourceBlocks } = await import('./content-checks.mjs');
+  const { publication, requiredTooling } = await import('./publication.mjs');
+  const { validateLanguageSources } = await import('./bilingual-checks.mjs');
   const manifest = JSON.parse(await fs.readFile(path.join(directory, 'generation-manifest.json'), 'utf8'));
   assert.equal(manifest.language, expectedLanguage, 'Publication language mismatch');
   const architecture = path.resolve(directory, expectedLanguage === 'de' ? '../..' : '..');
   await assertCurrentSources(manifest, architecture);
+  const pub = await publication(architecture, expectedLanguage);
+  assert.deepEqual(manifest.chapters, pub.chapters, 'Published chapter inventory');
+  assert.deepEqual(manifest.baselines, pub.chapters.map(file => {
+    const {primary, updates} = pub.config.provenance[path.basename(file)];
+    return {file, implementationBaseline: pub.config.baselines[primary].commit, updates: updates.map(k => pub.config.baselines[k].commit)};
+  }), 'Published chapter provenance');
   const sourceIntegrity = await validateLanguageSources(architecture, expectedLanguage);
+  assert.deepEqual(manifest.tooling.map(tool => tool.file).sort(), [...requiredTooling].sort(), 'Required tooling inventory differs');
   for (const tool of manifest.tooling) {
     const current = await fs.readFile(path.join(architecture, 'tools', tool.file));
     assert.equal(crypto.createHash('sha256').update(current).digest('hex'), tool.sha256, `Tooling differs from manifest: ${tool.file}`);
@@ -30,6 +36,7 @@ export async function validate(directory, expectedLanguage = 'en') {
   assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), manifest.pdfSha256, 'PDF differs from generation manifest');
   const loading = getDocument({ data: bytes, useSystemFonts: false });
   const pdf = await loading.promise;
+  let report;
   try {
     assert.equal(pdf.numPages, manifest.layoutPages, 'PDF/pagination page count');
     const text = [];
@@ -88,6 +95,10 @@ export async function validate(directory, expectedLanguage = 'en') {
         if (typeof dest[3] === 'number') assert.ok(dest[3] >= -1 && dest[3] <= target.height + 1, 'Internal destination Y inside page');
       }
     }
+    const namedLinks = new Set(internal.map(link => link.dest));
+    for (const link of manifest.links.filter(l => l.type === 'internal')) {
+      assert.ok(namedLinks.has(link.target.slice(1)), 'Missing named PDF destination: ' + link.target);
+    }
     for (const link of manifest.links.filter(l => l.type === 'external')) assert.ok(external.some(a => a.url === link.target || a.unsafeUrl === link.target), `Missing external annotation: ${link.target}`);
     // Verify every TOC entry has its printed page number and an annotation to that page.
     const contentsPages = manifest.headings[0].page - 1;
@@ -110,15 +121,24 @@ export async function validate(directory, expectedLanguage = 'en') {
       const diagramPages = [text[heading.page - 1]];
       const size = pageSizes[heading.page - 1];
       assert.equal(size.width > size.height, diagram.orientation === 'landscape', 'Diagram sheet orientation');
-      for (const label of [...diagram.vertices.map(v => v.label), ...diagram.edges.map(e => e.label), ...diagram.boundaries.map(b => b.label)].filter(Boolean)) {
+      for (const label of [...diagram.labels, ...diagram.vertices.map(v => v.label), ...diagram.edges.map(e => e.label), ...diagram.boundaries.map(b => b.label)].filter(Boolean)) {
         const needle = normalize(label.replace(/<br\s*\/?\s*>/gi, ''));
         assert.ok(diagramPages.some(t => normalize(t).includes(needle)), `Diagram label not readable as PDF text: ${diagram.file}: ${label}`);
       }
     }
-    const report = { passed: true, language: expectedLanguage, sourceValidation: 'current', sourceBlockGroupsChecked: accounting.groups, sourceOrderChecked: true, pages: pdf.numPages, portraitPages: pageSizes.filter(p => p.height > p.width).length, landscapePages: pageSizes.filter(p => p.width > p.height).length, chapterCount: manifest.chapters.length, evidenceCount: manifest.evidence.length, diagramCount: manifest.diagrams.length, diagramDetailPages: 0, inappropriateWordBreaks: layout.splitWords, repeatedTableHeaders: layout.repeatedTableHeaders, bookmarkCount: outline.length, internalLinkAnnotations: internal.length, externalLinkAnnotations: external.length, sourceBlocksChecked: manifest.sourceBlocks.length, sourceBlockOmissions: missing.length, textOutsidePage, pageSizes, warnings: manifest.warnings };
-    await fs.writeFile(path.join(directory, 'validation.json'), JSON.stringify(report, null, 2));
-    console.log(`Validation passed: ${pdf.numPages} A4 pages, ${outline.length} bookmarks, ${internal.length} internal / ${external.length} external links, ${manifest.sourceBlocks.length} source blocks.`);
-    return report;
+    report = { passed: true, language: expectedLanguage, sourceValidation: 'current', sourceBlockGroupsChecked: accounting.groups, sourceOrderChecked: true, pages: pdf.numPages, portraitPages: pageSizes.filter(p => p.height > p.width).length, landscapePages: pageSizes.filter(p => p.width > p.height).length, chapterCount: manifest.chapters.length, evidenceCount: manifest.evidence.length, diagramCount: manifest.diagrams.length, diagramDetailPages: 0, inappropriateWordBreaks: layout.splitWords, repeatedTableHeaders: layout.repeatedTableHeaders, bookmarkCount: outline.length, internalLinkAnnotations: internal.length, externalLinkAnnotations: external.length, sourceBlocksChecked: manifest.sourceBlocks.length, sourceBlockOmissions: missing.length, textOutsidePage, pageSizes, warnings: manifest.warnings };
   } finally { await loading.destroy(); }
+  await fs.writeFile(path.join(directory, 'validation.json'), JSON.stringify(report, null, 2));
+  console.log(`Validation passed: ${report.pages} A4 pages, ${report.bookmarkCount} bookmarks, ${report.internalLinkAnnotations} internal / ${report.externalLinkAnnotations} external links, ${manifest.sourceBlocks.length} source blocks.`);
+  return report;
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) { const lang = language(); await validate(outputDirectory(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), lang), lang); }
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  // Keep this boundary in the executable: even a missing local module requires cleanup.
+  const args = process.argv.slice(2);
+  const lang = args.length ? args[1] : 'en';
+  if (args.length && (args.length !== 2 || args[0] !== '--lang' || !['en', 'de'].includes(lang))) {
+    throw new Error('Usage: --lang en|de');
+  }
+  const architecture = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  await validate(path.join(architecture, 'generated', lang === 'de' ? 'de' : ''), lang);
+}

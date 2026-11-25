@@ -6,6 +6,7 @@
 | --- | --- |
 | Status | AR-01 draft; independent technical and linguistic review pending |
 | Implementation baseline | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| D1 update | `8c58e2bd564280b71412cfd6ed9997688bd0bde4` |
 | Date | 2026-11-06 |
 | Verification | Static source inspection; no new application tests |
 
@@ -25,7 +26,7 @@ The earlier Chapters 1–3 were reviewed at their historical baselines; Chapter 
 
 ## 1.3 Scope and Boundaries
 
-**[O]** The established product scope includes the reusable core, Avalonia desktop host, GUI composition, application services, presentation, language processing, runtime, cryptography, diagnostics, documentation and relevant verification infrastructure. AR-01 includes implemented automation/MCP project and process boundaries. Detailed MCP transport, security, lease and lifecycle analysis is reserved for AR-MCP-01. Unfinished GUI redesign and changes in other worktrees are excluded.
+**[O]** The established product scope includes the reusable core, Avalonia desktop host, GUI composition, application services, presentation, language processing, runtime, cryptography, diagnostics, documentation and relevant verification infrastructure. AR-01 includes implemented automation/MCP project and process boundaries. D1 covers transport, security, leases and lifecycle in Chapters 8 and 9. Unfinished GUI redesign and changes in other worktrees are excluded.
 
 **[F]** CryptoWorkBenchConsole and its console-specific GUI test fixture are absent from the pinned tree. The earlier Rsa stub and AsymmtricCryptoAlgorithm infrastructure are also absent; their old descriptions are historical evidence, not current capability. The complete project inventory is in Chapter 3. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R02](../evidence/ar-01-baseline-reconciliation.md#r02), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
@@ -51,7 +52,7 @@ English source paths remain stable. German sources use the same filenames beneat
 
 ## 1.7 Document Organization
 
-The thirteen-chapter architecture plan is retained. This AR-01 edition publishes Chapters 1–4 only. The preserved partial Chapter 9 covers partial-state execution and presentation at its own historical baseline; it is excluded from both PDFs. Chapters 5–8 and 10–13 remain planned rather than fabricated analysis. The unfinished GUI redesign is not described.
+The thirteen-chapter plan retains the AR-01 basis of Chapters 1–4. [Interfaces and Integration](08-interfaces-and-integration.md) and [Data Flows and Execution Sequences](09-data-flows-and-execution-sequences.md) use the A1 baseline. Chapters 5–7 and 10–13 remain deferred.
 
 Chapter 2 establishes runtime context, Chapter 3 packaging/build dependencies, and Chapter 4 language processing. Runtime and cryptographic detail belong to Chapters 5–6; diagnostics to Chapter 7; integration to Chapter 8; broader flows to Chapter 9; GUI architecture to Chapter 10; testing, assessment and evolution to Chapters 11–13.
 

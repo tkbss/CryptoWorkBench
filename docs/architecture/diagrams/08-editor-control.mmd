@@ -1,0 +1,23 @@
+%% AR-MCP-01-D1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 5
+stateDiagram-v2
+  [*] --> Unavailable
+  %% event attach
+  Unavailable --> Gui: Attach editor
+  %% event acquire
+  Gui --> Mcp: Acquire at revision
+  %% event conflict
+  Gui --> Gui: Busy or conflict
+  %% event edit-renew
+  Mcp --> Mcp: Renew or edit
+  %% event end-lease
+  Mcp --> Releasing: Release, expiry, detach or revocation
+  %% event gui-return
+  Releasing --> Gui: Original editor ready
+  %% event detached
+  Releasing --> Unavailable: Editor detached
+  %% event native-fault
+  Mcp --> Faulted: Native commit fault
+  %% event drain-fault
+  Releasing --> Faulted: Drain fault
+  %% event protect
+  Faulted --> Faulted: Writes blocked

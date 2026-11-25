@@ -1,0 +1,23 @@
+%% AR-MCP-01-D1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 5
+stateDiagram-v2
+  [*] --> Unavailable
+  %% event attach
+  Unavailable --> Gui: Editor anbinden
+  %% event acquire
+  Gui --> Mcp: Lease bei passender Revision erwerben
+  %% event conflict
+  Gui --> Gui: Belegt oder Konflikt
+  %% event edit-renew
+  Mcp --> Mcp: Verlängern oder ändern
+  %% event end-lease
+  Mcp --> Releasing: Freigabe, Ablauf, Ablösung oder Widerruf
+  %% event gui-return
+  Releasing --> Gui: Ursprünglicher Editor bereit
+  %% event detached
+  Releasing --> Unavailable: Editor abgelöst
+  %% event native-fault
+  Mcp --> Faulted: Nativer Abschlussfehler
+  %% event drain-fault
+  Releasing --> Faulted: Fehler beim Abschluss
+  %% event protect
+  Faulted --> Faulted: Schreibzugriff gesperrt

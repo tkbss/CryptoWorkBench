@@ -32,7 +32,7 @@ for (const lang of ['en', 'de']) {
 }
 const readManifest = async lang => JSON.parse(await fs.readFile(path.join(outputDirectory(root, lang), 'generation-manifest.json'), 'utf8'));
 const en = await readManifest('en'), de = await readManifest('de');
-const topology = m => m.diagrams.map(d => ({ nodes: d.vertices.map(v => v.id), edges: d.edges.map(e => ({ from: e.from, to: e.to, type: e.type, stroke: e.stroke })), groups: d.boundaries.map(b => b.id) }));
+const topology = m => m.diagrams.map(d => ({ topology: d.topology, nodes: d.vertices.map(v => v.id), edges: d.edges.map(e => ({ from: e.from, to: e.to, type: e.type, stroke: e.stroke })), groups: d.boundaries.map(b => b.id) }));
 assert.deepEqual(topology(en), topology(de), 'Rendered Mermaid topology parity');
 const report = { passed: true, renderedTopologyParity: true, reports };
 await fs.writeFile(path.join(root, 'generated/repeatability.json'), JSON.stringify(report, null, 2));

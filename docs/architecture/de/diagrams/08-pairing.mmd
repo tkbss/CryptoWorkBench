@@ -1,0 +1,34 @@
+%% AR-MCP-01-D1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 4
+sequenceDiagram
+  participant U as Benutzer
+  participant D as Desktop
+  participant P as Proxy
+  participant C as Client
+  %% event consent
+  U->>D: Lokalen Zugriff erlauben
+  %% event activate
+  D->>D: Identität ausstellen und Listener starten
+  alt Start scheitert
+    %% event startup-fault
+    D->>D: Widerrufen und Abschluss abwarten
+  else Listener bereit
+    %% event pairing-data
+    D-->>U: Token und Fingerabdruck anzeigen
+    %% event launch
+    C->>P: Gekoppelten Proxy starten
+    %% event verify-peer
+    P->>D: TLS-Endzertifikat prüfen
+    alt Fingerabdruck stimmt
+      %% event initialize
+      P->>D: Initialisieren und Werkzeuge mit Bearer abfragen
+      %% event catalog
+      D-->>P: Werkzeugkatalog liefern
+      %% event discover
+      C->>P: Über STDIO initialisieren und abfragen
+      %% event advertise
+      P-->>C: Katalog bereitstellen
+    else Prüfung scheitert
+      %% event connection-fault
+      P-->>C: Verbindungsfehler melden
+    end
+  end

@@ -1,17 +1,16 @@
 {
-  "schemaVersion": 1,
-  "baseline": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+  "schemaVersion": 2,
   "documentationBaseline": "abbf7b7b2f22f1bbc06c5c8b28702831099e097f",
-  "edition": "AR-01",
+  "edition": "AR-MCP-01-F1",
   "chapters": [
     "01-introduction.md",
     "02-system-overview.md",
     "03-project-structure-and-dependencies.md",
-    "04-language-architecture.md"
-  ],
-  "excludedChapters": [
+    "04-language-architecture.md",
+    "08-interfaces-and-integration.md",
     "09-data-flows-and-execution-sequences.md"
   ],
+  "excludedChapters": [],
   "diagrams": [
     "01-project-references.mmd",
     "02-system-context.mmd",
@@ -19,7 +18,12 @@
     "03-build-and-test-dependency-coverage.mmd",
     "04-language-components-and-dependencies.mmd",
     "04-abstract-syntax-tree-structure.mmd",
-    "04-source-to-operation-sequence.mmd"
+    "04-source-to-operation-sequence.mmd",
+    "08-automation-components.mmd",
+    "08-pairing.mmd",
+    "08-editor-control.mmd",
+    "09-execution.mmd",
+    "09-recovery.mmd"
   ],
   "languages": {
     "en": {
@@ -31,7 +35,12 @@
         "03-build-and-test-dependency-coverage.mmd": "Build and test coverage",
         "04-language-components-and-dependencies.mmd": "Language components",
         "04-abstract-syntax-tree-structure.mmd": "Abstract syntax tree",
-        "04-source-to-operation-sequence.mmd": "Source to operation"
+        "04-source-to-operation-sequence.mmd": "Source to operation",
+        "08-automation-components.mmd": "Automation and state ownership",
+        "08-pairing.mmd": "Pairing and discovery",
+        "08-editor-control.mmd": "Editor ownership",
+        "09-execution.mmd": "Approval and execution",
+        "09-recovery.mmd": "Revocation and recovery"
       }
     },
     "de": {
@@ -43,8 +52,72 @@
         "03-build-and-test-dependency-coverage.mmd": "Build- und Testabdeckung",
         "04-language-components-and-dependencies.mmd": "Sprachkomponenten",
         "04-abstract-syntax-tree-structure.mmd": "Abstrakter Syntaxbaum",
-        "04-source-to-operation-sequence.mmd": "Vom Quelltext zur Operation"
+        "04-source-to-operation-sequence.mmd": "Vom Quelltext zur Operation",
+        "08-automation-components.mmd": "Automatisierung und Zuständigkeit für den Zustand",
+        "08-pairing.mmd": "Kopplung und Werkzeugermittlung",
+        "08-editor-control.mmd": "Steuerung des Editors",
+        "09-execution.mmd": "Bestätigung und Ausführung",
+        "09-recovery.mmd": "Widerruf und Rückgabe der Steuerung"
       }
     }
-  }
+  },
+  "baselines": {
+    "AR-01": {
+      "commit": "fbbadae2f68b015ccedfea92ce8bba4cd7737ecb",
+      "register": "evidence/ar-01-source-register.json",
+      "appendix": "evidence/ar-01-baseline-reconciliation.md"
+    },
+    "A1": {
+      "commit": "8c58e2bd564280b71412cfd6ed9997688bd0bde4",
+      "register": "evidence/mcp-a1-source-register.json",
+      "appendix": "evidence/mcp-a1.md",
+      "reviewedRangesSha256": "aa548fcce07910c69760af63770e279383f6841d7b2aeee7b0c5281f31c6a616"
+    }
+  },
+  "provenance": {
+    "01-introduction.md": {
+      "primary": "AR-01",
+      "updates": [
+        "A1"
+      ]
+    },
+    "02-system-overview.md": {
+      "primary": "AR-01",
+      "updates": [
+        "A1"
+      ]
+    },
+    "03-project-structure-and-dependencies.md": {
+      "primary": "AR-01",
+      "updates": [
+        "A1"
+      ]
+    },
+    "04-language-architecture.md": {
+      "primary": "AR-01",
+      "updates": [
+        "A1"
+      ]
+    },
+    "08-interfaces-and-integration.md": {
+      "primary": "A1",
+      "updates": []
+    },
+    "09-data-flows-and-execution-sequences.md": {
+      "primary": "A1",
+      "updates": []
+    }
+  },
+  "historicalReferences": [
+    {
+      "purpose": "F03 partial-state decision as recorded in the original chapter",
+      "chapter": "09-data-flows-and-execution-sequences.md",
+      "section": "9.4",
+      "url": "https://github.com/tkbss/CryptoWorkBench/blob/d7fddeb182a782c8085f066fbb64efea1e2e9581/docs/architecture/chapters/09-data-flows-and-execution-sequences.md#L43-L49",
+      "labels": {
+        "en": "historical chapter record",
+        "de": "historische Kapitel"
+      }
+    }
+  ]
 }

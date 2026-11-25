@@ -1,0 +1,36 @@
+%% AR-MCP-01-F1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 6
+sequenceDiagram
+  participant C as Client
+  participant S as Hostdienst
+  participant P as Hostpipeline
+  participant R as Kern
+  %% event execute
+  C->>S: Editorlauf anfordern
+  %% event reserve
+  S->>S: Snapshot prüfen und Auftrag reservieren
+  %% event approve
+  S->>S: Lokale Zustimmung einholen und erneut prüfen
+  opt Zugelassen und weiterhin gültig
+    %% event start-book
+    S->>P: Editor-Snapshot verarbeiten
+    loop Bis Syntaxfehler, Zeilenfehler oder Abbruch
+      %% event parse
+      P->>R: Parse-Einheit prüfen
+      opt Gültige Zeile zugelassen
+        %% event run-unit
+        P->>R: Anweisungen ausführen
+        %% event settle
+        P->>P: Passwort-Callbacks abwarten
+        %% event diagnostics
+        P->>P: Runner-Diagnosen kopieren
+      end
+      %% event capture
+      P->>P: Darstellung abschließen und Variablen erfassen
+      %% event detached
+      P-->>S: Losgelöstes Zeilenergebnis
+    end
+  end
+  %% event finalize-result
+  S->>S: Auftrag abschließen und Ergebnis publizieren
+  %% event reply
+  S-->>C: Gefiltertes Ergebnis bei wartendem Client

@@ -6,6 +6,7 @@
 | --- | --- |
 | Status | AR-01 draft; independent technical and linguistic review pending |
 | Implementation baseline | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| D1 update | `8c58e2bd564280b71412cfd6ed9997688bd0bde4` |
 | Date | 2026-11-06 |
 | Verification | Static source inspection; no new application tests |
 
@@ -100,6 +101,8 @@ The [processing view](../diagrams/04-source-to-operation-sequence.mmd) follows t
 8. The host waits for outstanding password callbacks to unwind, copies diagnostics/output and captures actual variable state. Capture success is distinct from script success; failed capture preserves stale presentation rather than fabricating empty runtime state.
 
 The synchronous runner also takes an interpreter lease. Semantic checks and effects remain interleaved. Assignment's whole-call-tree preflight is local to that initializer, not whole-program validation. Error severity alone does not determine termination; KeyCheckValueSearchException has a continuing path. No automatic whole-script rollback is introduced.
+
+**D1.** The entry point selects the parse unit and result destination. [Chapter 9](09-data-flows-and-execution-sequences.md) follows the MCP job through result publication. [E16](../evidence/mcp-a1.md#e16)
 
 ## 4.9 Architectural Constraints and Verification Limits
 

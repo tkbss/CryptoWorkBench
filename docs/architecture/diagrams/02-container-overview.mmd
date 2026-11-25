@@ -1,3 +1,4 @@
+%% D1 transport label | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | E04 E05
 %% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
 %% Diagram identity 02-container-overview.mmd
 flowchart TB
@@ -11,11 +12,11 @@ flowchart TB
         Core["CryptoScript library"]
     end
     Client -->|"STDIO"| Proxy
-    Proxy --> Mcp
+    Proxy -->|"Pinned loopback HTTPS"| Mcp
     Mcp -->|"automation contracts"| Host
     Host -->|"parse and execute"| Core
     Core -->|"local operations"| Files
     Host -->|"help and ScriptBooks"| Files
-    Legend["Frame: desktop process [I]. Core/MCP are embedded libraries.<br/>Files are resources. Detailed MCP analysis: AR-MCP-01."]
+    Legend["Frame: desktop process [I]. Core/MCP are embedded libraries.<br/>Files are resources. MCP details: Chapters 8 and 9."]
     classDef note fill:#fafafa,stroke:#888888,color:#333333
     class Legend note

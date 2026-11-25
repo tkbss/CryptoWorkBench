@@ -6,6 +6,7 @@
 | --- | --- |
 | Status | AR-01 draft; independent technical and linguistic review pending |
 | Implementation baseline | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| D1 update | `8c58e2bd564280b71412cfd6ed9997688bd0bde4` |
 | Date | 2026-11-06 |
 | Verification | Static source inspection; no new application tests |
 
@@ -19,9 +20,11 @@ ScriptBooks contains examples. .github holds CI and validation scripts; eng/pris
 
 ## 3.2 Solution Structure
 
-**[F]** The root solution includes CryptoScript, CryptoScriptUnitTest, Automation.Abstractions, Mcp and Mcp.Tests. It does not include the GUI or desktop host. The Avalonia solution includes CryptoScript, GUI, Desktop, GUI tests, Automation.Abstractions, Mcp and Mcp.Tests, plus four prepared Prism projects: Prism.Avalonia, Prism.Core, Prism.Events and Prism.DryIoc.Avalonia. It does not include the core test project. ScriptBooks remains a virtual solution folder, not a project. [R02](../evidence/ar-01-baseline-reconciliation.md#r02)
+**[F]** The root solution includes CryptoScript, CryptoScriptUnitTest, Automation.Abstractions, Mcp and Mcp.Tests. It does not include the GUI or desktop host. The Avalonia solution includes CryptoScript, GUI, Desktop, GUI tests, Automation.Abstractions, Mcp and Mcp.Tests. It does not include the core test project. ScriptBooks remains a virtual solution folder, not a project. [R02](../evidence/ar-01-baseline-reconciliation.md#r02)
 
 Both solutions retain Debug/Release configurations. Solution membership differs from transitive project reachability and from product scope. Neither solution alone is a complete repository inventory. **[Q]** A comprehensive developer-entry solution remains a policy question; explicit build scripts provide the current build entry rather than requiring a speculative solution redesign.
+
+**D1.** At A1 the Avalonia solution contains seven projects. The GUI consumes temporary Prism packages. The four prepared Prism source projects belonged to the earlier AR-01 baseline. [E01](../evidence/mcp-a1.md#e01)
 
 ## 3.3 Production Projects and Responsibilities
 
@@ -44,7 +47,7 @@ Both solutions retain Debug/Release configurations. Solution membership differs 
 | CryptoScript | None |
 | Automation.Abstractions | None |
 | Mcp | Automation.Abstractions |
-| GUI | CryptoScript; Automation.Abstractions; prepared Prism.Avalonia and Prism.DryIoc.Avalonia |
+| GUI | CryptoScript; Automation.Abstractions |
 | Desktop | GUI; Mcp |
 | Core tests | CryptoScript |
 | GUI tests | GUI; Mcp |
@@ -69,7 +72,7 @@ Both solutions retain Debug/Release configurations. Solution membership differs 
 | Core / GUI tests | Test SDK 18.9.0; NUnit 4.6.1; adapter 6.3.0; FluentAssertions 8.10.0; analyzers 4.14.0; coverlet 6.0.4 |
 | Additional tests | GUI: Avalonia.Headless 12.1.4; MCP: JsonSchema.Net 9.4.1, Test SDK/NUnit/adapter |
 
-Prism's former NuGet references have become prepared source references. Directory.Build.targets requires the temporary Prism environment. eng/prism policy scopes lockfiles by configuration and publish RID and enables locked restore. NuGet.Config selects nuget.org. The central AvaloniaVersion is now 12.1.4, although project declarations remain explicit. Nullable is enabled; GUI uses latest language version and explicitly retains reflection-binding defaults. The historical claim of no locks/NuGet configuration is superseded.
+At the AR-01 baseline Prism used prepared source references. Directory.Build.targets requires the temporary Prism environment. eng/prism policy scopes lockfiles by configuration and publish RID and enables locked restore. At AR-01, [NuGet.Config](https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/NuGet.Config) listed only nuget.org. At A1 the [package-source mapping](https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/NuGet.Config#L3-L12) assigns `CryptoWorkBench.Temporary.Prism.*` to the repository-local `.packages/prism` feed. nuget.org remains configured for the general `*` pattern. The central AvaloniaVersion is now 12.1.4, although project declarations remain explicit. Nullable is enabled; GUI uses latest language version and explicitly retains reflection-binding defaults. The historical claim of no locks/NuGet configuration is superseded.
 
 ANTLR generated headers still identify 4.13.2 against runtime 4.13.1. Helpers invoke external antlr4 without pinning the generator. This is a reproducibility question, not established incompatibility. Different UI package version numbers are also not proof of incompatibility.
 

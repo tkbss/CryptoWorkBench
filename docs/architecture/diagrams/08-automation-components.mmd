@@ -1,0 +1,12 @@
+%% AR-MCP-01-D1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 3
+flowchart TB
+  SDK["Validated SDK call"] -->|"DTO and caller"| Host["Automation service"]
+  GUI["Local GUI"] --> Host
+  Host --> Registry["Job and result registry"]
+  Host --> Coordinator["Editor coordinator and bridge"]
+  Coordinator --> Document["Registered document"]
+  Host --> Queue["Host reservation"]
+  Queue --> Pipeline["Execution pipeline"]
+  Pipeline --> Core["Interpreter and runner"]
+  Pipeline -->|"Unit capture"| Registry
+  Registry -->|"Filtered reply"| SDK

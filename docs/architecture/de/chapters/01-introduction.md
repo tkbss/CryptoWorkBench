@@ -6,6 +6,7 @@
 | --- | --- |
 | Status | AR-01-Entwurf; unabhängige technische und sprachliche Prüfung ausstehend |
 | Implementierungsstand | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| D1-Ergänzung | `8c58e2bd564280b71412cfd6ed9997688bd0bde4` |
 | Datum | 2026-11-06 |
 | Verifikation | Statische Quellprüfung; keine neuen Anwendungstests |
 
@@ -25,7 +26,7 @@ Die früheren Kapitel 1–3 wurden an ihren historischen Ständen geprüft; Kapi
 
 ## 1.3 Umfang und Abgrenzung
 
-**[O]** Der bestehende Produktumfang umfasst den wiederverwendbaren Kern, den Avalonia-Desktop-Host, GUI-Komposition, Anwendungsdienste, Darstellung, Sprachverarbeitung, Laufzeit, Kryptografie, Diagnostik, Dokumentation und relevante Prüfinfrastruktur. AR-01 berücksichtigt implementierte Automatisierungs-/MCP-Projekt- und Prozessgrenzen. Die detaillierte Analyse von MCP-Transport, Sicherheit, Leases und Lebenszyklus bleibt AR-MCP-01 vorbehalten. Der unfertige GUI-Neuentwurf und Änderungen anderer Worktrees sind ausgeschlossen.
+**[O]** Der bestehende Produktumfang umfasst den wiederverwendbaren Kern, den Avalonia-Desktop-Host, GUI-Komposition, Anwendungsdienste, Darstellung, Sprachverarbeitung, Laufzeit, Kryptografie, Diagnostik, Dokumentation und relevante Prüfinfrastruktur. AR-01 berücksichtigt implementierte Automatisierungs-/MCP-Projekt- und Prozessgrenzen. D1 behandelt Transport, Sicherheit, Leases und Lebenszyklus in Kapitel 8 und 9. Der unfertige GUI-Neuentwurf und Änderungen anderer Worktrees sind ausgeschlossen.
 
 **[F]** CryptoWorkBenchConsole und dessen konsolenspezifische GUI-Testfixture fehlen im festgelegten Baum. Auch der frühere Rsa-Platzhalter und die AsymmtricCryptoAlgorithm-Infrastruktur fehlen; ihre alten Beschreibungen sind historische Nachweise, keine aktuellen Fähigkeiten. Die vollständige Projektübersicht steht in Kapitel 3. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R02](../evidence/ar-01-baseline-reconciliation.md#r02), [R14](../evidence/ar-01-baseline-reconciliation.md#r14)
 
@@ -51,7 +52,7 @@ Englische Quellpfade bleiben stabil. Deutsche Quellen verwenden dieselben Datein
 
 ## 1.7 Dokumentaufbau
 
-Der Architekturplan mit dreizehn Kapiteln bleibt erhalten. Diese AR-01-Ausgabe veröffentlicht ausschließlich Kapitel 1–4. Das erhaltene Teilkapitel 9 behandelt Ausführung und Darstellung von Teilzuständen an seinem eigenen historischen Stand; es ist aus beiden PDFs ausgeschlossen. Kapitel 5–8 und 10–13 bleiben geplant, statt durch unbelegte Analysen gefüllt zu werden. Der unfertige GUI-Neuentwurf wird nicht beschrieben.
+Der Architekturplan umfasst dreizehn Kapitel. Auf den AR-01-Stand der Kapitel 1–4 folgen [Schnittstellen und Integration](08-interfaces-and-integration.md) und [Datenflüsse und Ausführungsfolgen](09-data-flows-and-execution-sequences.md) am A1-Stand. Die Kapitel 5–7 und 10–13 bleiben zurückgestellt.
 
 Kapitel 2 erläutert den Laufzeitkontext, Kapitel 3 Paketierung und Build-Abhängigkeiten und Kapitel 4 die Sprachverarbeitung. Laufzeit- und Kryptografiedetails gehören in Kapitel 5–6, Diagnostik in Kapitel 7, Integration in Kapitel 8, umfassendere Abläufe in Kapitel 9, GUI-Architektur in Kapitel 10 sowie Tests, Bewertung und Weiterentwicklung in Kapitel 11–13.
 

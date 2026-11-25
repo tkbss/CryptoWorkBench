@@ -6,6 +6,7 @@
 | --- | --- |
 | Status | AR-01 draft; independent technical and linguistic review pending |
 | Implementation baseline | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| D1 update | `8c58e2bd564280b71412cfd6ed9997688bd0bde4` |
 | Date | 2026-11-06 |
 | Verification | Static source inspection; no new application tests |
 
@@ -15,7 +16,7 @@
 
 **[I]** The [system context](../diagrams/02-system-context.mmd) treats the workbench as one software system. The Workbench User actor abstracts GUI interactions; it does not invent administrator, auditor or key-custodian roles. A local automation client is now evidenced, so the old absence-of-network-integration finding no longer describes this baseline. This does not establish remote payment-system, database or HSM connectivity.
 
-**[O]** The desktop remains the strategic application client, and reuse of CryptoScript is an architectural objective. A future web application remains outside current scope. MCP protocol/security design is deferred to AR-MCP-01.
+**[O]** The desktop remains the strategic application client, and reuse of CryptoScript is an architectural objective. A future web application remains outside current scope. [Chapter 8](08-interfaces-and-integration.md) describes pairing and authorization.
 
 ## 2.2 System Responsibilities
 
@@ -29,9 +30,11 @@ Save/Load and secure snapshot operations, Delete, and file encryption/MAC/hash c
 
 **[F/I]** A .NET project is a build definition; an assembly is a packaging boundary implied by it; a logical component groups responsibilities. None of these automatically defines another operating-system process. CryptoScript is an embedded library called in the desktop process. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R04](../evidence/ar-01-baseline-reconciliation.md#r04)
 
-The [container view](../diagrams/02-container-overview.mmd) includes the desktop process and the separate invocation of the same desktop executable with --mcp-stdio. That startup branch runs the pinned proxy and returns before Avalonia startup. The normal desktop can start LocalMcpHost, which delegates to the host's automation implementation through shared interfaces. Mcp is a library project, not a separate server executable project. The proxy and desktop are distinct execution contexts; the exact transport/session analysis is intentionally deferred. [R04](../evidence/ar-01-baseline-reconciliation.md#r04)
+The [container view](../diagrams/02-container-overview.mmd) includes the desktop process and the separate invocation of the same desktop executable with --mcp-stdio. That startup branch runs the pinned proxy and returns before Avalonia startup. The normal desktop can start LocalMcpHost, which delegates to the host's automation implementation through shared interfaces. Mcp is a library project, not a separate server executable project. The proxy and desktop are distinct execution contexts; Chapters 8 and 9 describe the session. [R04](../evidence/ar-01-baseline-reconciliation.md#r04)
 
 Local help, ScriptBooks and runtime data files are resources, not deployed services. Core Console.WriteLine calls still exist, but normal desktop startup redirects inherited standard output/error to TextWriter.Null; presentation uses captured output. A call to Console.WriteLine must not be diagrammed as a guaranteed visible terminal. [R04](../evidence/ar-01-baseline-reconciliation.md#r04), [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R14](../evidence/ar-01-baseline-reconciliation.md#r14), [R15](../evidence/ar-01-baseline-reconciliation.md#r15)
+
+**D1.** Both the default shell and the optional dock shell attach the same automation service. [Chapter 9](09-data-flows-and-execution-sequences.md) follows execution and return of control. [E02](../evidence/mcp-a1.md#e02)
 
 ## 2.4 Major System Components
 
@@ -47,11 +50,11 @@ Local help, ScriptBooks and runtime data files are resources, not deployed servi
 | Operations | Function/mechanism resolution, cryptography, persistence and file operations |
 | Documentation/output | Local InfoDocs provider, output events and host capture |
 
-**[F]** These responsibilities are supported by [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R04](../evidence/ar-01-baseline-reconciliation.md#r04), [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R07](../evidence/ar-01-baseline-reconciliation.md#r07), [R09](../evidence/ar-01-baseline-reconciliation.md#r09), [R13](../evidence/ar-01-baseline-reconciliation.md#r13), [R14](../evidence/ar-01-baseline-reconciliation.md#r14), [R15](../evidence/ar-01-baseline-reconciliation.md#r15). **[I]** They are logical groupings, not independently deployed services. Detailed algorithm, diagnostics, GUI and MCP internals belong to subsequent packages.
+**[F]** These responsibilities are supported by [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R04](../evidence/ar-01-baseline-reconciliation.md#r04), [R05](../evidence/ar-01-baseline-reconciliation.md#r05), [R07](../evidence/ar-01-baseline-reconciliation.md#r07), [R09](../evidence/ar-01-baseline-reconciliation.md#r09), [R13](../evidence/ar-01-baseline-reconciliation.md#r13), [R14](../evidence/ar-01-baseline-reconciliation.md#r14), [R15](../evidence/ar-01-baseline-reconciliation.md#r15). **[I]** They are logical groupings, not independently deployed services. Detailed algorithm, diagnostics and GUI internals belong to subsequent packages.
 
 ## 2.5 External Dependencies
 
-**[F]** The product targets .NET 10. Core declares Antlr4.Runtime.Standard 4.13.1, BouncyCastle.Cryptography 2.7.0 and Newtonsoft.Json 13.0.4; framework cryptography APIs are separate from these NuGet declarations. GUI/desktop declare Avalonia 12.1.4 and related UI packages. Prism is integrated through prepared source references. Mcp declares ModelContextProtocol.AspNetCore [2.3.0] and Microsoft.AspNetCore.App. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R03](../evidence/ar-01-baseline-reconciliation.md#r03)
+**[F]** The product targets .NET 10. Core declares Antlr4.Runtime.Standard 4.13.1, BouncyCastle.Cryptography 2.7.0 and Newtonsoft.Json 13.0.4; framework cryptography APIs are separate from these NuGet declarations. GUI/desktop declare Avalonia 12.1.4 and related UI packages. AR-01 used prepared Prism source references. At the D1 baseline the GUI consumes temporary Prism packages. [E01](../evidence/mcp-a1.md#e01) Mcp declares ModelContextProtocol.AspNetCore [2.3.0] and Microsoft.AspNetCore.App. [R01](../evidence/ar-01-baseline-reconciliation.md#r01), [R03](../evidence/ar-01-baseline-reconciliation.md#r03)
 
 Package declarations describe dependencies, not observed restored/deployed versions. UI packages support editing, Markdown rendering, icons, dialogs and tables; they are not external business systems. NUnit, test SDKs, assertions and coverage tooling are development dependencies. Chapter 3 records package/build details.
 

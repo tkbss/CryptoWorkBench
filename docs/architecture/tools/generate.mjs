@@ -7,9 +7,13 @@ import crypto from 'node:crypto';
 const tools = path.dirname(fileURLToPath(import.meta.url));
 const architecture = path.resolve(tools, '..');
 const repo = path.resolve(architecture, '../..');
-const { language, outputDirectory } = await import('./publication.mjs');
-const lang = language();
-const generated = outputDirectory(architecture, lang);
+// Keep this boundary in the executable: even a missing local module requires cleanup.
+const args = process.argv.slice(2);
+const lang = args.length ? args[1] : 'en';
+if (args.length && (args.length !== 2 || args[0] !== '--lang' || !['en', 'de'].includes(lang))) {
+  throw new Error('Usage: --lang en|de');
+}
+const generated = path.join(architecture, 'generated', lang === 'de' ? 'de' : '');
 const output = path.join(generated, 'CryptoScript-Workbench-Architecture.pdf');
 // Invalidate before dependency loading, Git inspection and input parsing.
 // Failed runs retain diagnostic intermediates, never a publication or pass report.
@@ -17,20 +21,21 @@ const invalidate = () => Promise.all(['CryptoScript-Workbench-Architecture.pdf',
 await fs.mkdir(generated, { recursive: true });
 await invalidate();
 try {
-  const { publication } = await import('./publication.mjs');
+  const { publication, requiredTooling } = await import('./publication.mjs');
   const pub = await publication(architecture, lang);
+  const { diagramModel } = await import('./diagram-model.mjs');
+  const { validateLanguageSources } = await import('./bilingual-checks.mjs');
+  await validateLanguageSources(architecture, lang);
   const { locales } = await import('./locales.mjs');
   const L = locales[lang];
   const { chromium } = await import('playwright');
   const { PDFDocument, PDFName, PDFNumber, PDFHexString } = await import('pdf-lib');
   const { validate } = await import('./validate.mjs');
-  const { createMarkdown } = await import('./markdown.mjs');
+  const { createMarkdown, documentHeadings, docId, inlineText } = await import('./markdown.mjs');
   const { assertSourceBlocks } = await import('./content-checks.mjs');
   const git = (...args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
   const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
   const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  const slug = text => text.toLowerCase().replace(/<[^>]*>/g, '').replace(/[^\p{L}\p{N}_\-\s]/gu, '').replace(/\s/g, '-');
-  const docId = file => `source-${file.replace(/[^a-zA-Z0-9]/g, '-')}`;
   const normalize = text => text.normalize('NFC').replace(/\s+/g, '');
   const md = createMarkdown();
   md.renderer.rules.table_open = (tokens, index, options, env, renderer) => {
@@ -54,23 +59,12 @@ try {
   const status = git('status', '--porcelain', '--untracked-files=normal');
   const warnings = [];
   const documents = new Map();
-  const inlineText = token => (token.children || []).map(c => c.type === 'softbreak' || c.type === 'hardbreak' ? '\n' : c.content).join('');
   for (const file of [...chapters, ...evidence, readme]) {
     const text = original.get(file).toString('utf8');
     const tokens = md.parse(text, {});
-    const counts = new Map();
-    const headings = [];
-    for (let i = 0; i < tokens.length; i++) if (tokens[i].type === 'heading_open') {
-      const title = inlineText(tokens[i + 1]);
-      const base = slug(title);
-      const count = counts.get(base) || 0;
-      counts.set(base, count + 1);
-      const fragment = base + (count ? `-${count}` : '');
-      const id = `${docId(file)}--${fragment}`;
-      tokens[i].attrSet('id', id);
-      headings.push({ id, fragment, title, level: Number(tokens[i].tag.slice(1)) });
-    }
-    const baseline = pub.config.baseline;
+    const headings = documentHeadings(tokens, file);
+    const provenance = pub.config.provenance[path.basename(file)];
+    const baseline = provenance ? pub.config.baselines[provenance.primary].commit : null;
     documents.set(file, { file, text, tokens, headings, baseline, id: docId(file) });
   }
   if (sourceStatus) warnings.push('Authoritative source files have working-tree changes; source hashes identify the rendered bytes.');
@@ -124,18 +118,46 @@ try {
     const diagramCandidates = [];
     const diagramHtml = new Map();
     for (const [index, file] of diagrams.entries()) {
+      const model = diagramModel(original.get(file).toString('utf8'));
       let rendered;
       let bestScore = -Infinity;
       const candidates = [];
-      for (const algorithm of ['dagre', 'elk']) for (const fontSize of [16, 20, 22, 23, 24, 32]) for (const baseWrappingWidth of [280, 400, 500]) {
+      for (const algorithm of (model.kind === 'flowchart' ? ['dagre', 'elk'] : ['dagre'])) for (const fontSize of [16, 20, 22, 23, 24, 32]) for (const baseWrappingWidth of (model.kind === 'flowchart' ? [280, 400, 500] : [280])) {
         const wrappingWidth = baseWrappingWidth * fontSize / 16;
-        const candidate = await page.evaluate(async ({ source, id, algorithm, wrappingWidth, fontSize }) => {
-          mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'default', layout: algorithm, fontSize, look: 'classic', deterministicIds: true, htmlLabels: false, markdownAutoWrap: false, flowchart: { useMaxWidth: false, wrappingWidth, rankSpacing: 8, nodeSpacing: 24, padding: 4, subGraphTitleMargin: { top: 12, bottom: 24 } }, themeVariables: { fontFamily: 'Document, MathSymbols, Symbols', fontSize: `${fontSize}px` } });
+        const candidate = await page.evaluate(async ({ source, id, algorithm, wrappingWidth, fontSize, model }) => {
+          mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'default', layout: algorithm, fontSize, look: 'classic', deterministicIds: true, htmlLabels: false, markdownAutoWrap: false, state: { wrappingWidth }, flowchart: { useMaxWidth: false, wrappingWidth, rankSpacing: 8, nodeSpacing: 24, padding: 4, subGraphTitleMargin: { top: 12, bottom: 24 } }, themeVariables: { fontFamily: 'Document, MathSymbols, Symbols', fontSize: `${fontSize}px` } });
           const { svg } = await mermaid.render(id, source);
           document.getElementById('render').innerHTML = svg;
           const el = document.querySelector('#render svg');
           const v = el.viewBox.baseVal;
           const fonts = [...el.querySelectorAll('text,tspan')].filter(e => e.textContent.trim()).map(e => parseFloat(getComputedStyle(e).fontSize));
+          if (model.kind !== 'flowchart') {
+            const text = [...el.querySelectorAll('text')];
+            const visible = text.map(t => t.textContent).join(' ').replace(/\s/g, '');
+            const labels = [...model.labels];
+            if (model.kind === 'stateDiagram-v2') {
+              for (const row of model.topology.slice(1)) labels.push(...row.split('|').at(-1).replace(/:$/, '').split(' --> ').filter(id => id !== '[*]'));
+            }
+            for (const label of labels) if (!visible.includes(label.replace(/\s/g,''))) throw new Error('Missing rendered label: ' + label);
+            const splitWords = [];
+            for (const label of new Set(labels)) {
+              const element = text.find(t => t.textContent.replace(/\s/g,'') === label.replace(/\s/g,''));
+              const rows = [...(element?.querySelectorAll('tspan.text-outer-tspan.row') || [])];
+              for (const word of label.match(/[\p{L}\p{N}]+/gu) || []) {
+                if (rows.length && !rows.some(row => row.textContent.includes(word))) splitWords.push(word);
+              }
+            }
+            const collisions = [];
+            const graphics = text.filter(t => t.textContent.trim());
+            const boxes = graphics.map(t => t.getBoundingClientRect());
+            const frame = el.getBoundingClientRect();
+            for (let j = 0; j < boxes.length; j++) {
+              const a = boxes[j];
+              if (a.left < frame.left - 1 || a.right > frame.right + 1 || a.top < frame.top - 1 || a.bottom > frame.bottom + 1) collisions.push(graphics[j].textContent);
+              for (const b of boxes.slice(j + 1)) if (Math.min(a.right,b.right)-Math.max(a.left,b.left)>2 && Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>2) collisions.push(graphics[j].textContent);
+            }
+            return {svg, viewBox:[v.x,v.y,v.width,v.height], minFont:Math.min(...fonts), vertices:[], edges:[], boundaries:[], labels:[...new Set(labels)], topology:model.topology, splitWords, collisions};
+          }
           const graph = await mermaid.mermaidAPI.getDiagramFromText(source);
           const boundaries = graph.db.getSubGraphs().map(n => ({ id: n.id, label: n.title, members: n.nodes }));
           const boundaryIds = new Set(boundaries.map(n => n.id));
@@ -210,7 +232,7 @@ try {
             }
           }
           return { svg, viewBox: [v.x, v.y, v.width, v.height], minFont: Math.min(...fonts), vertices, edges, boundaries, splitWords, collisions };
-        }, { source: original.get(file).toString('utf8'), id: `diagram-${index}`, algorithm, wrappingWidth, fontSize });
+        }, { source: original.get(file).toString('utf8'), id: `diagram-${index}`, algorithm, wrappingWidth, fontSize, model });
         const [, , w, h] = candidate.viewBox;
         const score = Math.max(Math.min(178 / w, 248 / h), Math.min(277 / w, 178 / h)) * 96 / 25.4 * candidate.minFont * 72 / 96;
         candidates.push({algorithm, fontSize, wrappingWidth, w, h, score, splitWords: candidate.splitWords, collisions: candidate.collisions});
@@ -232,7 +254,7 @@ try {
       const image = rendered.svg.replace(/<svg\b[^>]*>/, root => root.replace(/\s(?:width|height|viewBox|style|preserveAspectRatio)="[^"]*"/g, '').replace(/>$/, ` viewBox="${rendered.viewBox.join(' ')}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:${box.height}mm">`));
       const html = `<section class="diagram-page ${box.orientation}" id="${docId(file)}"><h1>${L.diagram}: ${escape(pub.edition.diagramTitles[path.basename(file)])}</h1><p class="source-caption">${L.source}: <code>${escape(file)}</code></p><div class="diagram-graphic">${image}</div></section>`;
       diagramHtml.set(file, html);
-      diagramRecords.push({ file, viewBox: rendered.viewBox, algorithm: rendered.algorithm, fontSize: rendered.fontSize, wrappingWidth: rendered.wrappingWidth, minimumLabelPoints: minPoints, orientation: box.orientation, detailTiles: 0, splitWords: rendered.splitWords, nodeCrossings: rendered.collisions, vertices: rendered.vertices, edges: rendered.edges, boundaries: rendered.boundaries, svgSha256: sha256(rendered.svg) });
+      diagramRecords.push({ file, viewBox: rendered.viewBox, algorithm: rendered.algorithm, fontSize: rendered.fontSize, wrappingWidth: rendered.wrappingWidth, minimumLabelPoints: minPoints, orientation: box.orientation, detailTiles: 0, splitWords: rendered.splitWords, nodeCrossings: rendered.collisions, labels: rendered.labels || [], topology: rendered.topology || null, vertices: rendered.vertices, edges: rendered.edges, boundaries: rendered.boundaries, svgSha256: sha256(rendered.svg) });
     }
     const headings = [];
     let content = '';
@@ -255,9 +277,9 @@ try {
     for (const file of evidence) { content += body(file); headings.push(...documents.get(file).headings); }
     content += `<section class="appendix-start" id="appendix-entry"><h1>${L.entry}</h1><p>${L.entryNote}</p></section>` + body(readme);
     headings.push({ id: 'appendix-entry', title: L.entry, level: 1 }, ...documents.get(readme).headings);
-    const baselines = chapters.map(file => `<tr><td>${escape(documents.get(file).headings[0].title)}</td><td><code>${escape(documents.get(file).baseline || 'Not recorded in chapter metadata')}</code></td></tr>`).join('');
+    const baselines = chapters.map(file => `<tr><td>${escape(documents.get(file).headings[0].title)}</td><td><code>${[pub.config.provenance[path.basename(file)].primary, ...pub.config.provenance[path.basename(file)].updates].map(k => escape(k) + ' · ' + escape(pub.config.baselines[k].commit)).join('<br>')}</code></td></tr>`).join('');
     const toc = headings.filter(h => h.level <= 2).map(h => `<li class="toc-level-${h.level}"><a href="#${h.id}"><span>${escape(h.title)}</span></a></li>`).join('');
-    const title = `<section class="cover"><p class="eyebrow">AR-01</p><h1>CryptoScript Workbench<br>${L.architecture}</h1><p class="subtitle">${L.subtitle}</p><dl><dt>${L.generated}</dt><dd>${timestamp}</dd><dt>${L.revision}</dt><dd><code>${revision}</code></dd><dt>${L.branch}</dt><dd>${escape(branch)}</dd><dt>${L.chapters}</dt><dd>${numbers.join(', ')}</dd><dt>${L.tooling}</dt><dd>${status ? L.dirty : L.clean}</dd></dl><h2>${L.baseline}</h2><table><thead><tr><th>${L.chapter}</th><th>${L.baseline}</th></tr></thead><tbody>${baselines}</tbody></table><p class="cover-note">${L.coverNote}</p></section>`;
+    const title = `<section class="cover"><p class="eyebrow">${escape(pub.config.edition)}</p><h1>CryptoScript Workbench<br>${L.architecture}</h1><p class="subtitle">${L.subtitle}</p><dl><dt>${L.generated}</dt><dd>${timestamp}</dd><dt>${L.revision}</dt><dd><code>${revision}</code></dd><dt>${L.branch}</dt><dd>${escape(branch)}</dd><dt>${L.chapters}</dt><dd>${numbers.join(', ')}</dd><dt>${L.tooling}</dt><dd>${status ? L.dirty : L.clean}</dd></dl><h2>${L.baseline}</h2><table><thead><tr><th>${L.chapter}</th><th>${L.baseline}</th></tr></thead><tbody>${baselines}</tbody></table><p class="cover-note">${L.coverNote}</p></section>`;
     const css = fontCss + (await fs.readFile(path.join(tools, 'print.css'), 'utf8')).replace('CryptoScript Workbench · Architecture', L.title).replace('Architecture Recovery · Reading edition', L.footer);
     const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${L.title}</title><style>${css}</style></head><body>${title}<nav class="contents" id="contents"><h1>${L.contents}</h1><ol>${toc}</ol></nav>${content}</body></html>`;
     await fs.writeFile(path.join(generated, 'architecture.html'), html);
@@ -436,8 +458,8 @@ try {
     pdf.catalog.set(PDFName.of('PageMode'), PDFName.of('UseOutlines'));
     await fs.writeFile(output, await pdf.save());
     for (const [file, bytes] of original) if (sha256(await fs.readFile(path.join(architecture, file))) !== sha256(bytes)) throw new Error(`Source changed during generation: ${file}`);
-    const tooling = await Promise.all(['repeatability.mjs', 'publication.mjs', 'locales.mjs', 'bilingual-checks.mjs', 'bilingual.test.mjs', 'generate.mjs', 'validate.mjs', 'markdown.mjs', 'content-checks.mjs', 'regression.test.mjs', 'print.css', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'].map(async file => ({ file, sha256: sha256(await fs.readFile(path.join(tools, file))) })));
-    const manifest = { language: lang, schemaVersion: 2, documentationRevision: revision, branch, generatedAt: timestamp, sourceDateEpoch: epoch || null, workingTreeStatus: status, authoritativeSourceChanges: sourceStatus, chapters, evidence, diagrams: diagramRecords, sources: [...original].map(([file, bytes]) => ({ file, sha256: sha256(bytes), bytes: bytes.length })), baselines: chapters.map(file => ({ file, implementationBaseline: documents.get(file).baseline || null })), headings: layout.headings, links: linkRecords, sourceBlocks: expectedBlocks, sourceSections, layoutPages: layout.pages, warnings, nodeVersion: process.version, platform: process.platform, chromiumVersion: browser.version(), tooling, pdfSha256: sha256(await fs.readFile(output)) };
+    const tooling = await Promise.all(requiredTooling.map(async file => ({ file, sha256: sha256(await fs.readFile(path.join(tools, file))) })));
+    const manifest = { language: lang, schemaVersion: 2, documentationRevision: revision, branch, generatedAt: timestamp, sourceDateEpoch: epoch || null, workingTreeStatus: status, authoritativeSourceChanges: sourceStatus, chapters, evidence, diagrams: diagramRecords, sources: [...original].map(([file, bytes]) => ({ file, sha256: sha256(bytes), bytes: bytes.length })), baselines: chapters.map(file => ({ file, implementationBaseline: documents.get(file).baseline, updates: pub.config.provenance[path.basename(file)].updates.map(k => pub.config.baselines[k].commit) })), headings: layout.headings, links: linkRecords, sourceBlocks: expectedBlocks, sourceSections, layoutPages: layout.pages, warnings, nodeVersion: process.version, platform: process.platform, chromiumVersion: browser.version(), tooling, pdfSha256: sha256(await fs.readFile(output)) };
     await fs.writeFile(path.join(generated, 'generation-manifest.json'), JSON.stringify(manifest, null, 2));
     await validate(generated, lang);
     console.log(`Generated ${output}\n${layout.pages} pages; ${chapters.length} chapters; ${evidence.length} evidence records; ${diagrams.length} diagrams.`);

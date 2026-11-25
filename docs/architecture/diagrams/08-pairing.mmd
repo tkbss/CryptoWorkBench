@@ -1,0 +1,34 @@
+%% AR-MCP-01-D1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 4
+sequenceDiagram
+  participant U as User
+  participant D as Desktop
+  participant P as Proxy
+  participant C as Client
+  %% event consent
+  U->>D: Consent to local access
+  %% event activate
+  D->>D: Issue caller and start listener
+  alt Startup fails
+    %% event startup-fault
+    D->>D: Revoke and drain
+  else Listener ready
+    %% event pairing-data
+    D-->>U: Show token and fingerprint
+    %% event launch
+    C->>P: Launch paired proxy
+    %% event verify-peer
+    P->>D: Verify TLS leaf
+    alt Pin matches
+      %% event initialize
+      P->>D: Initialize and list tools with bearer
+      %% event catalog
+      D-->>P: Return tool catalog
+      %% event discover
+      C->>P: Initialize and list over STDIO
+      %% event advertise
+      P-->>C: Advertise catalog
+    else Verification fails
+      %% event connection-fault
+      P-->>C: Report connection failure
+    end
+  end

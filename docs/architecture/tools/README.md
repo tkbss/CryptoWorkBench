@@ -1,10 +1,10 @@
-# AR-01 bilingual architecture publication
+# Bilingual architecture publication
 
-Current edition: Chapters 1–4 at `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb`. English remains the default; German uses `--lang de`. Both editions use the same generator, validator, pinned package lock and embedded fonts. `publication.json` explicitly selects chapters, diagrams, localized README and current evidence; the partial Chapter 9 and historical reports remain preserved outside the edition.
+The F1 correction to the D1 edition includes Chapters 1–4, 8 and 9. The publication manifest associates each chapter with its primary source register and any explicitly declared update. AR-01 retains its immutable register. A1 adds E01–E30. Markdown and localized Mermaid sources feed the shared PDF generator.
 
 ## Current installation and commands
 
-Install the exact locked dependencies with pnpm 11.25.0, dependency scripts disabled, then the matching Playwright Chromium. Node >=22.16 is supported by the package declaration; AR-01 verification uses Node 24.22.1 on Windows. No .NET build is required for publication.
+Install the exact locked dependencies with pnpm 11.25.0, dependency scripts disabled, then the matching Playwright Chromium. The package supports Node >=22.16. The original Chapters 1–3 build used 24.19.0 and AR-01 used 24.22.1. D1 and F1 verification used 24.22.3 on Windows, pnpm lockfile dependencies and Playwright 1.64.0. No .NET build is required for publication.
 
 ```sh
 pnpm --dir docs/architecture/tools install --frozen-lockfile --ignore-scripts
@@ -22,9 +22,20 @@ Set `SOURCE_DATE_EPOCH` to fixed Unix seconds for a controlled generation timest
 
 English output remains `docs/architecture/generated/CryptoScript-Workbench-Architecture.pdf`. German output is `docs/architecture/generated/de/CryptoScript-Workbench-Architecture.pdf`. Each directory holds its own HTML, SVG, layout, manifest and validation files. Failure invalidates only the selected PDF/manifest/pass report. Invalid language arguments fail without selecting or deleting either edition. A changed translation invalidates that edition; shared metadata/tooling changes require revalidation/regeneration as appropriate.
 
-The manifest records source and tooling hashes, language, implementation baseline, actual documentation HEAD, dirty working-tree state, source sections, diagrams and navigation. Authored review sources need not be committed: hashes identify their exact bytes. Application links point to the pinned implementation; historical links point to their original commits. Standalone validation checks current inputs, source Git identities and current tooling as well as the PDF.
+The manifest records source and tooling hashes, language, chapter baselines and updates, actual documentation HEAD, dirty working-tree state, source sections, diagrams and navigation. Authored review sources need not be committed: hashes identify their exact bytes. Application links point to the pinned implementation; historical links point to their original commits. Standalone validation checks current inputs, source Git identities and current tooling as well as the PDF.
 
 The bilingual gate checks numbered sections, code examples, evidence/reference sequences, paragraph/list/table structure and Mermaid topology. Repeatability compares two complete generations per language and the rendered graph topology across languages. This does not substitute for independent technical or linguistic review. See `../decisions/ar-01-bilingual-publication.md`, `../AR-01-integration-report.md` and `../AR-01-publication-validation.md`.
+
+## Registering a chapter
+
+1. Add the same numbered filename to `chapters/` and `de/chapters/`. In each chapter's opening metadata table, use the localized primary and supplementary labels shown in Chapter 1. Set their values to the exact commit hashes for the chapter.
+2. Add the filename to the ordered `publication.json` chapter list. Add its `provenance` entry with a primary baseline key and an ordered list of supplementary keys in `updates`. A numbered chapter present on disk but absent from the manifest must be explicitly excluded or publication fails.
+3. Reuse a registered baseline where applicable. A new baseline requires a commit, a shared register, and a localized appendix at the declared relative path in both editions. Give each group a unique evidence ID. Cite its own appendix and anchor. For a register with reviewed ranges, pin the canonical range digest to its independently reviewed input. Historical documentary exceptions specify the chapter, numbered section, exact immutable location, purpose and localized link text.
+4. For a figure, provide both Mermaid files, register the shared filename in `diagrams` and add its title to both language maps. Update the chapter links, localized navigation and the edition subtitle when changing chapter coverage. Published inventory and shared inputs are recorded in the generation manifests.
+5. Update the independently expected, ordered `expectedChapterNumbers` in `bilingual.test.mjs` against the authorized edition list. Keep this assertion independent of `publication.json`.
+6. Run the bilingual source gate, both generators, both standalone validators, tests and repeatability command above. Inspect the rendered pages in both languages.
+
+The A1 range anchor was derived from the original AR-MCP-01-A1 REPORT.md (SHA-256 `e50ccfecd69c35d1f4ef9d7c114c398381285689733f007560a2cf7fc87793f5`). For each source link under an E01–E30 heading, serialize the group ID, full commit, repository path, first line and last line as tab-separated fields. Sort the rows lexicographically, terminate each with LF and hash the UTF-8 bytes with SHA-256. The historical AR-01 register retains its stored line counts. GitHub ranges address physical source lines.
 
 ## Retained pre-AR-01 tooling history
 

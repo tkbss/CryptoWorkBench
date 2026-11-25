@@ -1,0 +1,18 @@
+%% AR-MCP-01-D1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 7
+flowchart TB
+  Loss["Antwortverlust oder EOF"] --> Job["Dienst behält den Auftrag"]
+  Lease["Freigabe oder Ablauf"] --> Fence["Lease sperren und Abbruch anfordern"]
+  Pair["Trennung oder Sitzungsablauf"] --> Revoke["Bearer und Epoche widerrufen"]
+  Exit["Fenster schließen"] --> Stop["Zulassung sperren und widerrufen"]
+  Stop --> Transport["Transport beenden"]
+  Revoke --> Transport
+  Fence --> Drain["Ursprüngliche Arbeit und Callbacks abwarten"]
+  Revoke --> Drain
+  Stop --> Drain
+  Drain -->|"Gültiger Abschlussnachweis"| Editor["Ursprüngliche Registrierung und Dokument prüfen"]
+  Editor -->|"Editor und Dokument weiterhin gebunden"| GUI["GUI erhält Schreibzugriff"]
+  Editor -->|"Registrierung abgelöst, kein aktiver Editor"| Gone["Editor nicht verfügbar"]
+  Drain -->|"Fehler"| Fault["Editor geschützt halten"]
+  Drain --> Join["Beenden wartet auf beide Pfade"]
+  Transport --> Join
+  Join -->|"Abschlussbedingung erfüllt"| Close["Schließen einplanen"]

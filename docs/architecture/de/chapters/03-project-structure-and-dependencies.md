@@ -6,6 +6,7 @@
 | --- | --- |
 | Status | AR-01-Entwurf; unabhängige technische und sprachliche Prüfung ausstehend |
 | Implementierungsstand | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| D1-Ergänzung | `8c58e2bd564280b71412cfd6ed9997688bd0bde4` |
 | Datum | 2026-11-06 |
 | Verifikation | Statische Quellprüfung; keine neuen Anwendungstests |
 
@@ -19,9 +20,11 @@ ScriptBooks enthält Beispiele. .github enthält CI- und Validierungsskripte; en
 
 ## 3.2 Solution-Struktur
 
-**[F]** Die Root-Solution enthält CryptoScript, CryptoScriptUnitTest, Automation.Abstractions, Mcp und Mcp.Tests. GUI und Desktop-Host sind nicht enthalten. Die Avalonia-Solution enthält CryptoScript, GUI, Desktop, GUI-Tests, Automation.Abstractions, Mcp und Mcp.Tests sowie vier vorbereitete Prism-Projekte: Prism.Avalonia, Prism.Core, Prism.Events und Prism.DryIoc.Avalonia. Das Kerntestprojekt ist nicht enthalten. ScriptBooks bleibt ein virtueller Solution-Ordner und kein Projekt. [R02](../evidence/ar-01-baseline-reconciliation.md#r02)
+**[F]** Die Root-Solution enthält CryptoScript, CryptoScriptUnitTest, Automation.Abstractions, Mcp und Mcp.Tests. GUI und Desktop-Host sind nicht enthalten. Die Avalonia-Solution enthält CryptoScript, GUI, Desktop, GUI-Tests, Automation.Abstractions, Mcp und Mcp.Tests. Das Kerntestprojekt ist nicht enthalten. ScriptBooks bleibt ein virtueller Solution-Ordner und kein Projekt. [R02](../evidence/ar-01-baseline-reconciliation.md#r02)
 
 Beide Solutions behalten Debug-/Release-Konfigurationen. Solution-Mitgliedschaft unterscheidet sich von transitiver Projekterreichbarkeit und Produktumfang. Keine Solution allein ist ein vollständiges Repository-Inventar. **[Q]** Eine umfassende Einstiegs-Solution für Entwickler bleibt eine Richtlinienfrage; explizite Build-Skripte bilden den aktuellen Build-Einstieg, ohne einen spekulativen Solution-Neuentwurf zu erfordern.
+
+**D1.** Die Avalonia-Solution enthält am A1-Stand sieben Projekte. Die GUI bezieht Prism über temporäre Pakete. Die vier vorbereiteten Prism-Quellprojekte gehörten zum früheren AR-01-Stand. [E01](../evidence/mcp-a1.md#e01)
 
 ## 3.3 Produktionsprojekte und Verantwortlichkeiten
 
@@ -44,7 +47,7 @@ Beide Solutions behalten Debug-/Release-Konfigurationen. Solution-Mitgliedschaft
 | CryptoScript | Keine |
 | Automation.Abstractions | Keine |
 | Mcp | Automation.Abstractions |
-| GUI | CryptoScript; Automation.Abstractions; vorbereitete Prism.Avalonia und Prism.DryIoc.Avalonia |
+| GUI | CryptoScript; Automation.Abstractions |
 | Desktop | GUI; Mcp |
 | Kerntests | CryptoScript |
 | GUI-Tests | GUI; Mcp |
@@ -69,7 +72,7 @@ Beide Solutions behalten Debug-/Release-Konfigurationen. Solution-Mitgliedschaft
 | Kern-/GUI-Tests | Test-SDK 18.9.0; NUnit 4.6.1; Adapter 6.3.0; FluentAssertions 8.10.0; Analyzer 4.14.0; coverlet 6.0.4 |
 | Zusätzliche Tests | GUI: Avalonia.Headless 12.1.4; MCP: JsonSchema.Net 9.4.1, Test-SDK/NUnit/Adapter |
 
-Prisms frühere NuGet-Referenzen sind durch vorbereitete Quellreferenzen ersetzt. Directory.Build.targets verlangt die temporäre Prism-Umgebung. Die eng/prism-Richtlinie ordnet Sperrdateien nach Konfiguration und Veröffentlichungs-RID zu und aktiviert gesperrtes Restore. NuGet.Config wählt nuget.org. Der zentrale AvaloniaVersion-Wert ist jetzt 12.1.4, während Projektdeklarationen explizit bleiben. Nullable ist aktiviert; die GUI verwendet die neueste Sprachversion und behält ausdrücklich Reflexionsbindungen als Standard bei. Die historische Aussage fehlender Sperrdateien/NuGet-Konfiguration ist überholt.
+Am AR-01-Stand verwendete Prism vorbereitete Quellreferenzen. Directory.Build.targets verlangt die temporäre Prism-Umgebung. Die eng/prism-Richtlinie ordnet Sperrdateien nach Konfiguration und Veröffentlichungs-RID zu und aktiviert gesperrtes Restore. Am AR-01-Stand führte [NuGet.Config](https://github.com/tkbss/CryptoWorkBench/blob/fbbadae2f68b015ccedfea92ce8bba4cd7737ecb/NuGet.Config) ausschließlich nuget.org auf. Am A1-Stand ordnet die [Paketquellenzuordnung](https://github.com/tkbss/CryptoWorkBench/blob/8c58e2bd564280b71412cfd6ed9997688bd0bde4/NuGet.Config#L3-L12) `CryptoWorkBench.Temporary.Prism.*` dem lokalen Feed `.packages/prism` zu. nuget.org bleibt als Quelle für das allgemeine Muster `*` konfiguriert. Der zentrale AvaloniaVersion-Wert ist jetzt 12.1.4, während Projektdeklarationen explizit bleiben. Nullable ist aktiviert; die GUI verwendet die neueste Sprachversion und behält ausdrücklich Reflexionsbindungen als Standard bei. Die historische Aussage fehlender Sperrdateien/NuGet-Konfiguration ist überholt.
 
 Generierte ANTLR-Header nennen weiterhin 4.13.2 bei Laufzeitversion 4.13.1. Hilfsskripte rufen externes antlr4 ohne festgelegte Generatorversion auf. Dies ist eine Reproduzierbarkeitsfrage, keine nachgewiesene Inkompatibilität. Unterschiedliche Versionsnummern der UI-Pakete beweisen ebenfalls keine Inkompatibilität.
 

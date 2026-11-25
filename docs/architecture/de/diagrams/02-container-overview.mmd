@@ -1,3 +1,4 @@
+%% D1 transport label | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | E04 E05
 %% AR-01; baseline fbbadae2f68b015ccedfea92ce8bba4cd7737ecb; evidence R01-R16
 %% Diagram identity 02-container-overview.mmd
 flowchart TB
@@ -11,11 +12,11 @@ flowchart TB
         Core["CryptoScript-Bibliothek"]
     end
     Client -->|"STDIO"| Proxy
-    Proxy --> Mcp
+    Proxy -->|"Loopback-HTTPS mit Pinning"| Mcp
     Mcp -->|"Automatisierungsverträge"| Host
     Host -->|"parsen und ausführen"| Core
     Core -->|"lokale Operationen"| Files
     Host -->|"Hilfe und ScriptBooks"| Files
-    Legend["Rahmen: Desktopprozess [I]. Kern/MCP sind eingebettete Bibliotheken.<br/>Dateien sind Ressourcen. MCP-Detailanalyse: AR-MCP-01."]
+    Legend["Rahmen: Desktopprozess [I]. Kern/MCP sind eingebettete Bibliotheken.<br/>Dateien sind Ressourcen. MCP-Details: Kapitel 8 und 9."]
     classDef note fill:#fafafa,stroke:#888888,color:#333333
     class Legend note

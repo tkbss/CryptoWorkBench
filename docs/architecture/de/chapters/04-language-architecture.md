@@ -6,6 +6,7 @@
 | --- | --- |
 | Status | AR-01-Entwurf; unabhängige technische und sprachliche Prüfung ausstehend |
 | Implementierungsstand | `fbbadae2f68b015ccedfea92ce8bba4cd7737ecb` |
+| D1-Ergänzung | `8c58e2bd564280b71412cfd6ed9997688bd0bde4` |
 | Datum | 2026-11-06 |
 | Verifikation | Statische Quellprüfung; keine neuen Anwendungstests |
 
@@ -99,6 +100,8 @@ Die [Verarbeitungssicht](../diagrams/04-source-to-operation-sequence.mmd) folgt 
 8. Der Host wartet auf ausstehende Passwort-Callbacks, kopiert Diagnosen/Ausgabe und erfasst den tatsächlichen Variablenzustand. Erfassungserfolg ist von Skripterfolg getrennt; fehlgeschlagene Erfassung erhält eine veraltete Darstellung, statt einen leeren Laufzeitzustand zu erfinden.
 
 Auch der synchrone Runner übernimmt eine Interpreter-Lease. Semantische Prüfungen und Wirkungen bleiben verschachtelt. Die Vorprüfung des gesamten Aufrufbaums einer Zuweisung ist auf diesen Initialisierer beschränkt, keine Gesamtprogrammprüfung. Fehlerschwere allein bestimmt nicht die Terminierung; KeyCheckValueSearchException hat einen fortsetzenden Pfad. Automatisches Rollback des gesamten Skripts wird nicht eingeführt.
+
+**D1.** Die Wahl der Parse-Einheit und das Ergebnisziel hängen vom Einstiegspunkt ab. [Kapitel 9](09-data-flows-and-execution-sequences.md) verfolgt den MCP-Auftrag bis zur Ergebnispublikation. [E16](../evidence/mcp-a1.md#e16)
 
 ## 4.9 Architektureinschränkungen und Prüfgrenzen
 

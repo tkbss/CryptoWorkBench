@@ -1,0 +1,36 @@
+%% AR-MCP-01-F1 | 8c58e2bd564280b71412cfd6ed9997688bd0bde4 | A1 figure 6
+sequenceDiagram
+  participant C as Client
+  participant S as Host service
+  participant P as Host pipeline
+  participant R as Core
+  %% event execute
+  C->>S: Request editor run
+  %% event reserve
+  S->>S: Check snapshot and reserve job
+  %% event approve
+  S->>S: Obtain local approval and recheck
+  opt Approved and current
+    %% event start-book
+    S->>P: Process editor snapshot
+    loop Until parse rejection, unit failure or cancellation
+      %% event parse
+      P->>R: Parse unit
+      opt Valid unit admitted
+        %% event run-unit
+        P->>R: Run statements
+        %% event settle
+        P->>P: Await password callbacks
+        %% event diagnostics
+        P->>P: Copy runner diagnostics
+      end
+      %% event capture
+      P->>P: Finalize presentation and capture variables
+      %% event detached
+      P-->>S: Detached unit result
+    end
+  end
+  %% event finalize-result
+  S->>S: Finalize job and publish aggregate result
+  %% event reply
+  S-->>C: Filtered result if still waiting
